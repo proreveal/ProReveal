@@ -1,0 +1,17 @@
+table {
+  font-size: 0.8em;
+  white-space: nowrap;
+  text-overflow:ellipsis;
+}
+
+th {
+  overflow:hidden;
+  min-width: 80px;
+  max-width: 160px;
+}
+
+td {
+  overflow:hidden;
+  min-width: 80px;
+  max-width: 160px;
+}

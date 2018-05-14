@@ -1,0 +1,41 @@
+<div class="wrapper"
+  *ngIf="!history.isRoot"
+  [style.top.px]="history.top"
+  [style.left.px]="history.left"
+>
+<img [src]="path" alt="chart">
+</div>
+
+<ng-container *ngFor="let child of history.children">
+    <chart [history]="child"></chart>
+</ng-container>
+
+<div class="chart-action"
+  *ngIf="!history.isRoot"
+  [style.top.px]="history.top+ history.height/2 - 16"
+  [style.left.px]="history.left-16"
+  >
+  <span class="oi oi-paperclip"
+    aria-hidden="true"
+  ></span>
+</div>
+
+<div class="chart-action"
+  *ngIf="!history.isRoot"
+  [style.top.px]="history.top"
+  [style.left.px]="history.left+history.width - 60"
+  >
+  <span class="oi oi-plus"
+    aria-hidden="true"
+  ></span>
+</div>
+
+<div class="chart-action"
+  *ngIf="!history.isRoot"
+  [style.top.px]="history.top"
+  [style.left.px]="history.left+history.width - 24"
+  >
+  <span class="oi oi-delete"
+    aria-hidden="true"
+  ></span>
+</div>

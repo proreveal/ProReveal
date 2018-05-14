@@ -1,0 +1,120 @@
+<div class="node"
+  [style.top.px]="history.top"
+  [style.left.px]="history.left"
+  [style.z-index]="1024-history.depth*2"
+  [class.highlighted]="draggedField"
+  (click)="history.isRoot ? null : app.focus(history)"
+  (dragenter)="dragenter($event)"
+  (dragover)="dragover($event)"
+  (drop)="drop($event)"
+  (dragleave)="dragleave($event)"
+  >
+
+  <fa name="eye" class="focused" [hidden]="!(app.focusedHistory === history)"></fa>
+<!--  <fa name="play" class="status" [hidden]="history.status != 'running'"></fa>
+  <fa name="pause" class="status" [hidden]="history.status != 'paused'"></fa>
+  <fa name="check" class="status" [hidden]="history.status != 'done'"></fa>-->
+  <progress-ring [progress]="history.progress" [ongoing]="history.ongoing" *ngIf="!history.isRoot"></progress-ring>
+  <progress-ring [progress]="1" [ongoing]="0" *ngIf="history.isRoot"></progress-ring>
+  <div class="node-body">
+    <fa name="{{history.chartType}}-chart" *ngIf="!history.isRoot"></fa>
+    <fa name="search" *ngIf="history.isRoot"></fa>
+  </div>
+</div>
+
+<div
+  class="label"
+  [style.top.px]="history.top + history.height"
+  [style.left.px]="history.left + history.width / 2"
+  [style.z-index]="1024-history.depth*2"
+  *ngIf="!history.isRoot"
+  >
+  {{ history.fields[history.fields.length - 1].name }}
+</div>
+
+<div class="panel"
+  [style.top.px]="history.top"
+  [style.left.px]="history.left + history.width / 2"
+  [style.z-index]="1024-history.depth*2-1"
+  [hidden]="true"
+  >
+  <!--"app.focusedHistory!==history"-->
+  <div class="background"
+    [style.opacity]="app.focusedHistory === history ? 0.9 : 0"
+    [style.width.%]="app.focusedHistory === history ? 100 : 0"
+    ></div>
+  <div class="background-glow"
+    [style.opacity]="app.focusedHistory === history ? 0.9 : 0"
+    [style.width.%]="app.focusedHistory === history ? 100 : 0"
+    ></div>
+  <div class="summary">
+    <p class="title">
+      <span class="column">
+        {{ history.topVlSpec ? history.topVlSpec.name : '' }}
+      </span>
+<!--      <span class="column">Age</span>
+      <span class="vs">vs</span>
+      <span class="column">Education</span>-->
+    </p>
+    <p class="action">
+      <fa name="play"></fa>
+      <fa name="stop"></fa>
+      <fa name="code-fork"></fa>
+      <fa name="remove"></fa>
+      <fa name="delete"></fa>
+    </p>
+  </div>
+</div>
+
+<div class="preview"
+  [style.display]="preview ? 'block' : 'none'"
+  [style.top.px]="history.top"
+  [style.left.px]="history.left + history.width + 20"
+  #previewSvg
+  >
+</div>
+
+<div class="link"
+  *ngIf="history.children && history.children.length > 0"
+  [style.top.px]="history.top + history.height / 2"
+  [style.left.px]="history.left + history.width"
+  [style.width.px]="constants.columnSpace * constants.branchRatio"
+  >
+</div>
+
+<div class="vertical-link"
+  *ngIf="history.children && history.children.length > 1"
+  [style.top.px]="history.top + history.height / 2"
+  [style.left.px]="history.left + history.width + constants.columnSpace * constants.branchRatio"
+  [style.height.px]="history.childrenHeight - constants.linkWidth / 2"
+  >
+</div>
+
+<div class="vertical-joint"
+  *ngIf="history.children && history.children.length > 1"
+  [style.top.px]="history.top + history.height / 2 + history.childrenHeight"
+  [style.left.px]="history.left + history.width + constants.columnSpace * constants.branchRatio"
+  >
+</div>
+
+<ng-container *ngFor="let child of history.children; first as isFirst; last as isLast">
+  <node
+    [app]="app"
+    [history]="child" [draggedField]="draggedField"></node>
+
+  <div class="link"
+    [style.top.px]="child.top + history.height / 2"
+    [style.left.px]="history.left + history.width + constants.columnSpace * constants.branchRatio + constants.linkWidth / 2 * (!isFirst && isLast)"
+    [style.width.px]="constants.columnSpace * (1 - constants.branchRatio)"
+    >
+  </div>
+  <!--<div class="filter"
+    [style.top.px]="child.top + child.height / 2"
+    [style.left.px]="child.left - 16"
+    >
+    <fa name="filter"></fa>
+  </div>
+  -->
+</ng-container>
+
+

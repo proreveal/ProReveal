@@ -1,0 +1,6 @@
+
+<ng-container *ngFor="let child of history.children">
+  <svg:path [attr.d]="d(history, child)" class="link"
+    ></svg:path>
+  <svg:g chart-link [history]="child"></svg:g>
+</ng-container>

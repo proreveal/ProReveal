@@ -1,0 +1,40 @@
+<h1>Fields</h1>
+<div *ngFor="let field of app.data.fields" class="field">
+  <div class="open-field" (click)="field.opened=!field.opened">
+    <fa name="caret-right" *ngIf="!field.opened"></fa>
+    <fa name="caret-down" *ngIf="field.opened"></fa>
+  </div>
+  <div class="drag-handle" draggable="true"
+
+    (dragstart)="fieldDragStart($event, field)"
+    (dragend)="fieldDragEnd($event, field)"
+    >
+    <span *ngIf="field.type === 'continuous'" class="field-type">
+      #
+    </span>
+    <span *ngIf="field.type === 'nominal'" class="field-type">
+      A
+    </span>
+    {{ field.name }}
+  </div>
+  <div class="values" *ngIf="field.opened">
+    <div *ngFor="let value of field.values" class="value">
+      <div class="summary">
+        <div
+          [style.width.%]="value.countFrac * 100"
+          [style.height.%]="100"
+          [style.background]="'#00897B'"
+          >
+        </div>
+      </div>
+      <div class="name">
+        {{ value.name }}
+      </div>
+      <div class="action">
+        <fa name="filter"></fa>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h1 (dragover)="dragover($event)">Filters</h1>

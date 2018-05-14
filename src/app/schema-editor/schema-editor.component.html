@@ -1,0 +1,33 @@
+<h1>Metadata Editor</h1>
+<table class="table table-striped table-bordered table-hover table-sm">
+    <thead>
+        <tr>
+            <th *ngFor="let field of samples.fields" title="{{ field.name }}">
+                {{ field.name }}
+            </th>
+        </tr>
+        <tr>
+            <th *ngFor="let field of samples.fields">
+                <select class="form-control form-control-sm" [(ngModel)]="field.vlType">
+                    <option value="{{ VlType.Quantitative }}">{{ VlType.Quantitative }}</option>
+                    <option value="{{ VlType.Dozen }}">{{ VlType.Dozen }}</option>
+                    <option value="{{ VlType.Ordinal }}">{{ VlType.Ordinal }}</option>
+                    <option value="{{ VlType.Nominal }}">{{ VlType.Nominal }}</option>
+                    <option value="{{ VlType.Key }}">{{ VlType.Key }}</option>
+                </select>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let sample of samples.rows.slice(pageSize * (page - 1), pageSize * page)">
+            <td *ngFor="let field of samples.fields" title="{{ sample[field.name] }}">
+                {{ sample[field.name] }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+ordinal: how many values? values and order quantitative: integer / number
+
+<ngb-pagination [collectionSize]="samples.rows.length" [(page)]="page" [pageSize]="pageSize" [maxSize]="10" class="d-flex justify-content-center">
+</ngb-pagination>
