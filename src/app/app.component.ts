@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Dataset } from './dataset';
-import { TinyServer, AggregateQuery } from './tiny/tiny-server';
+import { TinyServer } from './tiny/tiny-server';
 
 @Component({
     selector: 'app-root',

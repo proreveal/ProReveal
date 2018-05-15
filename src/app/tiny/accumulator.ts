@@ -114,6 +114,7 @@ export function SumAccumulator(partialResult: PartialResponse[], accResult: Accu
         accResult[hash].accumulatedValue.sum += pre.partialValue.sum;
     })
 }
+
 export function MeanAccumulator(partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary) {
     partialResult.forEach(pre => {
         const hash = pre.fieldValueList.hash;
@@ -127,14 +128,4 @@ export function MeanAccumulator(partialResult: PartialResponse[], accResult: Acc
         accResult[hash].accumulatedValue.sum += pre.partialValue.sum;
         accResult[hash].accumulatedValue.ssum += pre.partialValue.ssum;
     })
-}
-export class QueryResult { // should be visualized
-    result: AccumulatedResponseDictionary = {};
-
-    constructor(public accumulator: AccumulatorTrait) {
-    }
-
-    accumulate(partialResult: PartialResponse[]) {
-        this.accumulator(partialResult, this.result);
-    }
 }
