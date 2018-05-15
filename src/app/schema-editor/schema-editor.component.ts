@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { VlType } from '../dataset';
+import { Dataset, VlType } from '../dataset';
 
 @Component({
     selector: 'schema-editor',
@@ -7,7 +7,7 @@ import { VlType } from '../dataset';
     styleUrls: ['./schema-editor.component.scss']
 })
 export class SchemaEditorComponent implements OnInit, OnChanges {
-    @Input() samples: any[];
+    @Input() samples:Dataset;
     page: number = 1;
     pageSize: number = 15;
     VlType = VlType;

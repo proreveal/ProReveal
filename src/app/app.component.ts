@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TinyServer } from './tiny/tiny-server';
 import { Dataset } from './dataset';
+import { TinyServer, AggregateQuery } from './tiny/tiny-server';
 
 @Component({
     selector: 'app-root',
@@ -27,11 +27,13 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        let server = new TinyServer("./assets/movies.json");
+        const server = new TinyServer('./assets/movies.json');
 
-        server.load().then(rows => {
-            this.samples = new Dataset(rows);
-            console.log(this.samples);
+        server.load().then(dataset => {
+            this.samples = dataset;
+
+            // run test codes
+
         })
     }
 }

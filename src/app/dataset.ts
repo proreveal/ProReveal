@@ -1,4 +1,6 @@
 import * as util from './util';
+import { assert } from './tiny/assert';
+import { isNumber, isString } from 'util';
 
 export enum DataType {
     String,
@@ -21,39 +23,37 @@ export interface FieldTrait {
     nullable: boolean;
 }
 
-export class Field {
-    static guess(values: any[]): [DataType, VlType, boolean] {
-        let dataType = this.guessDataType(values);
-        let unique = {};
-        let n = values.length;
+export function guess(values: any[]): [DataType, VlType, boolean] {
+    let dataType = guessDataType(values);
+    let unique = {};
+    let n = values.length;
 
-        values.forEach(value => unique[value] = true);
+    values.forEach(value => unique[value] = true);
 
-        let cardinality = Object.keys(unique).length;
-        let vlType:VlType;
+    let cardinality = Object.keys(unique).length;
+    let vlType:VlType;
 
-        if(cardinality <= 20) vlType = VlType.Dozen;
-        else if(dataType === DataType.Integer || dataType === DataType.Real)
-            vlType = VlType.Quantitative;
-        else if(cardinality <= 100)
-            vlType = VlType.Nominal;
-        else
-            vlType = VlType.Key;
+    if(cardinality <= 20) vlType = VlType.Dozen;
+    else if(dataType === DataType.Integer || dataType === DataType.Real)
+        vlType = VlType.Quantitative;
+    else if(cardinality <= 100)
+        vlType = VlType.Nominal;
+    else
+        vlType = VlType.Key;
 
-        return [dataType, vlType, unique[null as any] > 0];
+    return [dataType, vlType, unique[null as any] > 0];
+}
+
+export function guessDataType(values: any[]) {
+    for(let i = 0; i < values.length; i++) {
+        let value = values[i];
+        let float = parseFloat(value);
+
+        if(isNaN(float)) return DataType.String;
+        if(!Number.isInteger(float)) return DataType.Real;
     }
 
-    static guessDataType(values: any[]) {
-        for(let i = 0; i < values.length; i++) {
-            let value = values[i];
-            let float = parseFloat(value);
-
-            if(isNaN(float)) return DataType.String;
-            if(!Number.isInteger(float)) return DataType.Real;
-        }
-
-        return DataType.Integer;
-    }
+    return DataType.Integer;
 }
 
 export class QuantitativeField implements FieldTrait {
@@ -91,6 +91,29 @@ export class KeyField extends CategoricalField {
     vlType: VlType = VlType.Key;
 }
 
+export class FieldValue {
+    hash:string;
+
+    constructor(public field:FieldTrait, public value:any) {
+        if(field.dataType == DataType.Integer)
+            assert(Number.isInteger(value), true);
+        else if(field.dataType == DataType.Real)
+            assert(isNumber(value), true);
+        else if(field.dataType == DataType.String)
+            assert(isString(value), true);
+
+        this.hash = `${field.name}:${value}`;
+    }
+}
+
+export class FieldValueList {
+    hash:string;
+
+    constructor(public list:FieldValue[]) {
+        this.hash = list.map(d => d.hash).join('_');
+    }
+}
+
 export class Dataset {
     constructor(public rows: any[], public fields?: FieldTrait[]) {
         if (!fields) {
@@ -108,7 +131,7 @@ export class Dataset {
                 return rows[i][name];
             });
 
-            let [dataType, vlType, nullable] = Field.guess(values);
+            let [dataType, vlType, nullable] = guess(values);
 
             let field:FieldTrait;
 
