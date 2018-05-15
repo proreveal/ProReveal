@@ -1,7 +1,7 @@
 import * as util from '../util';
 import { Dataset, FieldTrait, VlType} from '../dataset';
 import { assert, assertIn } from './assert';
-import { AggregateType } from './approx';
+import { AggregateType } from './accumulator';
 
 
 export class ApproxInterval95 {
