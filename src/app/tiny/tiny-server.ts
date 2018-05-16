@@ -54,6 +54,10 @@ export class TinyServer {
         job.query.accumulate(partialResponses);
     }
 
+    empty() {
+        return this.queue.empty();
+    }
+
     sampleRows() {
         // return this.http
         //     .get('./assets/movies.json')

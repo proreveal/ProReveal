@@ -1,6 +1,5 @@
 import * as util from './util';
-import { assert } from './tiny/assert';
-import { isNumber, isString } from 'util';
+import { isNumber, isString, isNull } from 'util';
 
 export enum DataType {
     String,
@@ -95,12 +94,18 @@ export class FieldValue {
     hash:string;
 
     constructor(public field:FieldTrait, public value:any) {
-        if(field.dataType == DataType.Integer)
-            assert(Number.isInteger(value), true);
-        else if(field.dataType == DataType.Real)
-            assert(isNumber(value), true);
-        else if(field.dataType == DataType.String)
-            assert(isString(value), true);
+        if(field.nullable && isNull(value)) {
+            // it is okay
+        }
+        else if(field.dataType == DataType.Integer && !Number.isInteger(value)) {
+            throw `[field:${field.name}] the value ${value} is not an integer`;
+        }
+        else if(field.dataType == DataType.Real && !isNumber(value)) {
+            throw `[field:${field.name}] the value ${value} is not a number`;
+        }
+        else if(field.dataType == DataType.String && !isString(value)) {
+            throw `[field:${field.name}] the value ${value} is not a string`;
+        }
 
         this.hash = `${field.name}:${value}`;
     }
@@ -136,16 +141,16 @@ export class Dataset {
             let field:FieldTrait;
 
             if(vlType === VlType.Quantitative){
-                field = new QuantitativeField(name, dataType);
+                field = new QuantitativeField(name, dataType, nullable);
             }
             else if(vlType === VlType.Nominal){
-                field = new NominalField(name, dataType);
+                field = new NominalField(name, dataType, nullable);
             }
             else if(vlType === VlType.Dozen){
-                field = new DozenField(name, dataType);
+                field = new DozenField(name, dataType, nullable);
             }
             else {
-                field = new KeyField(name, dataType);
+                field = new KeyField(name, dataType, nullable);
             }
 
             fields.push(field);
@@ -158,5 +163,13 @@ export class Dataset {
         });
 
         return fields;
+    }
+
+    getFieldByName(name:string) {
+        let fields = this.fields.filter(field => field.name === name);
+
+        if(!fields.length) throw `no field named ${name} exists`;
+
+        return fields[0];
     }
 }
