@@ -42,7 +42,7 @@ export class AggregateJob extends Job {
                 };
 
             result[hash].partialValue =
-                accumulator.reduce(result[hash].partialValue, +row[target.name]);
+                accumulator.reduce(result[hash].partialValue, row[target.name]);
         })
 
         return Object.values(result);

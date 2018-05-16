@@ -2,7 +2,7 @@ import * as util from '../util';
 import { Dataset, FieldTrait, VlType } from '../dataset';
 import { assert, assertIn } from './assert';
 import {
-    AggregateType, AccumulatorTrait, AccumulatedResponseDictionary,
+    AccumulatorTrait, AccumulatedResponseDictionary,
     PartialResponse
 } from './accumulator';
 import { Query } from './query';
