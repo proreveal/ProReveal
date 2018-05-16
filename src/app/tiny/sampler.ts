@@ -1,15 +1,15 @@
 import * as util from '../util';
 
-interface Sampler {
-
+export interface Sampler {
+    sample(n: number): number[][];
 }
 
 export class UniformRandomSampler implements Sampler {
-    constructor(public sampleSize:number) {
+    constructor(public sampleSize: number) {
 
     }
 
-    sample(n:number) {
+    sample(n: number) {
         let indices = util.shuffle(util.arange(n));
         let m = Math.ceil(n / this.sampleSize);
 
@@ -17,7 +17,6 @@ export class UniformRandomSampler implements Sampler {
 
         while (indices.length > 0)
             samples.push(indices.splice(0, this.sampleSize));
-
 
         return samples;
     }

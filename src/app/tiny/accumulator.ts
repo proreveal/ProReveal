@@ -54,78 +54,96 @@ export interface AccumulatedResponse {
  */
 export type AccumulatedResponseDictionary = { [hash: string]: AccumulatedResponse };
 
-export type AccumulatorTrait =
-    (partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary)
-        => void;
+export interface AccumulatorTrait {
+    readonly initPartialValue:PartialValue;
+    readonly initAccumulatedValue:AccumulatedValue;
 
-export function MinAccumulator(partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary) {
-    partialResult.forEach(pre => {
-        const hash = pre.fieldValueList.hash;
-        if (!accResult[hash])
-            accResult[hash] = {
-                fieldValueList: pre.fieldValueList,
-                accumulatedValue: new AccumulatedValue()
-            };
+    reduce(a: PartialValue, b: number): PartialValue;
 
-        let min = accResult[hash].accumulatedValue.min;
-
-        accResult[hash].accumulatedValue.min = Math.min(min, pre.partialValue.min);
-    })
+    accumulate(a: AccumulatedValue, b: PartialValue): AccumulatedValue;
 }
 
-export function MaxAccumulator(partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary) {
-    partialResult.forEach(pre => {
-        const hash = pre.fieldValueList.hash;
-        if (!accResult[hash])
-            accResult[hash] = {
-                fieldValueList: pre.fieldValueList,
-                accumulatedValue: new AccumulatedValue()
-            };
+export class MinAccumulator implements AccumulatorTrait {
+    readonly initPartialValue =
+        Object.freeze(new PartialValue(0, 0, 0, Number.MAX_VALUE, 0));
 
-        let max = accResult[hash].accumulatedValue.max;
+    readonly initAccumulatedValue =
+        Object.freeze(new AccumulatedValue(0, 0, 0, Number.MAX_VALUE, 0));
 
-        accResult[hash].accumulatedValue.max = Math.max(max, pre.partialValue.max);
-    })
+
+    reduce(a: PartialValue, b: number) {
+        return new PartialValue(0, 0, 0, Math.min(a.min, b), 0);
+    }
+
+    accumulate(a: AccumulatedValue, b: PartialValue) {
+        return new AccumulatedValue(0, 0, 0, Math.min(a.min, b.min), 0);
+    }
 }
 
-export function CountAccumulator(partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary) {
-    partialResult.forEach(pre => {
-        const hash = pre.fieldValueList.hash;
-        if (!accResult[hash])
-            accResult[hash] = {
-                fieldValueList: pre.fieldValueList,
-                accumulatedValue: new AccumulatedValue()
-            };
+export class MaxAccumulator implements AccumulatorTrait {
+    readonly initPartialValue =
+        Object.freeze(new PartialValue(0, 0, 0, Number.MIN_VALUE, 0));
 
-        accResult[hash].accumulatedValue.count += pre.partialValue.count;
-    })
+    readonly initAccumulatedValue =
+        Object.freeze(new AccumulatedValue(0, 0, 0, Number.MIN_VALUE, 0));
+
+
+    reduce(a: PartialValue, b: number) {
+        return new PartialValue(0, 0, 0, Math.max(a.max, b), 0);
+    }
+
+    accumulate(a: AccumulatedValue, b: PartialValue) {
+        return new AccumulatedValue(0, 0, 0, Math.max(a.max, b.max), 0);
+    }
 }
 
-export function SumAccumulator(partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary) {
-    partialResult.forEach(pre => {
-        const hash = pre.fieldValueList.hash;
-        if (!accResult[hash])
-            accResult[hash] = {
-                fieldValueList: pre.fieldValueList,
-                accumulatedValue: new AccumulatedValue()
-            };
+export class CountAccumulator implements AccumulatorTrait {
+    readonly initPartialValue =
+        Object.freeze(new PartialValue(0, 0, 0, 0, 0));
 
-        accResult[hash].accumulatedValue.count += pre.partialValue.count;
-        accResult[hash].accumulatedValue.sum += pre.partialValue.sum;
-    })
+    readonly initAccumulatedValue =
+        Object.freeze(new AccumulatedValue(0, 0, 0, 0, 0));
+
+
+    reduce(a: PartialValue, b: number) {
+        return new PartialValue(0, 0, a.count + 1, 0, 0);
+    }
+
+    accumulate(a: AccumulatedValue, b: PartialValue) {
+        return new AccumulatedValue(0, 0, a.count + b.count, 0, 0);
+    }
 }
 
-export function MeanAccumulator(partialResult: PartialResponse[], accResult: AccumulatedResponseDictionary) {
-    partialResult.forEach(pre => {
-        const hash = pre.fieldValueList.hash;
-        if (!accResult[hash])
-            accResult[hash] = {
-                fieldValueList: pre.fieldValueList,
-                accumulatedValue: new AccumulatedValue()
-            };
+export class SumAccumulator implements AccumulatorTrait {
+    readonly initPartialValue =
+        Object.freeze(new PartialValue(0, 0, 0, 0, 0));
 
-        accResult[hash].accumulatedValue.count += pre.partialValue.count;
-        accResult[hash].accumulatedValue.sum += pre.partialValue.sum;
-        accResult[hash].accumulatedValue.ssum += pre.partialValue.ssum;
-    })
+    readonly initAccumulatedValue =
+        Object.freeze(new AccumulatedValue(0, 0, 0, 0, 0));
+
+
+    reduce(a: PartialValue, b: number) {
+        return new PartialValue(a.sum + b, 0, 0, 0, 0);
+    }
+
+    accumulate(a: AccumulatedValue, b: PartialValue) {
+        return new AccumulatedValue(a.sum + b.sum, 0, 0, 0, 0);
+    }
+}
+
+export class MeanAccumulator implements AccumulatorTrait {
+    readonly initPartialValue =
+        Object.freeze(new PartialValue(0, 0, 0, 0, 0));
+
+    readonly initAccumulatedValue =
+        Object.freeze(new AccumulatedValue(0, 0, 0, 0, 0));
+
+
+    reduce(a: PartialValue, b: number) {
+        return new PartialValue(a.sum + b, a.ssum + b * b, a.count + 1, 0, 0);
+    }
+
+    accumulate(a: AccumulatedValue, b: PartialValue) {
+        return new AccumulatedValue(a.sum + b.sum, a.ssum + b.ssum, a.count + b.count, 0, 0);
+    }
 }

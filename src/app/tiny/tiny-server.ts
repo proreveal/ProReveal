@@ -6,6 +6,8 @@ import {
     PartialResponse
 } from './accumulator';
 import { Query } from './query';
+import { Queue } from './queue';
+import { Scheduler } from './scheduler';
 
 export class ApproxInterval95 {
     constructor(public value: number, public low95: number, public high95: number) {
@@ -15,6 +17,8 @@ export class ApproxInterval95 {
 export class TinyServer {
     rows: any[];
     dataset: Dataset;
+    scheduler: Scheduler = new Scheduler();
+    queue: Queue = new Queue(this.scheduler);
 
     constructor(private uri: string) {
 
@@ -36,8 +40,18 @@ export class TinyServer {
         })
     }
 
-    run(query: Query) {
+    request(query: Query) {
+        query.jobs().forEach(job => this.queue.append(job));
+        this.queue.reschedule();
+    }
 
+    run() {
+        if(this.queue.empty()) return;
+
+        let job = this.queue.pop();
+        let partialResponses = job.run();
+
+        job.query.accumulate(partialResponses);
     }
 
     sampleRows() {

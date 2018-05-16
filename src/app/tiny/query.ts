@@ -1,36 +1,37 @@
-import { FieldTrait, VlType } from '../dataset';
+import { Dataset, FieldTrait, VlType } from '../dataset';
 import { assert, assertIn } from './assert';
 import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse } from './accumulator';
+import { Sampler, UniformRandomSampler } from './sampler';
+import { AggregateJob } from './job';
+import { GroupBy } from './groupby';
+import { Queue } from './queue';
+import { Job } from './job';
 
-/**
- * Represents a list of categorical columns.
- * The order matters.
- */
-export class GroupBy {
-    constructor(public fields:FieldTrait[]) {
-        fields.forEach(field => assertIn(field.vlType,
-            [VlType.Dozen, VlType.Nominal, VlType.Ordinal]
-        ));
+export abstract class Query {
+    id: number;
+    static Id = 1;
+
+    constructor(public dataset: Dataset) {
+        this.id = Query.Id++;
     }
-}
 
-export interface Query {
-
+    abstract jobs():Job[];
+    abstract accumulate(partialResponses:PartialResponse[]);
 }
 
 /**
  * represent an aggregate query such as min(age) by occupation
  */
-export class AggregateQuery implements Query {
+export class AggregateQuery extends Query {
     result: AccumulatedResponseDictionary = {};
-    id:number;
-    static QueryId = 1;
 
     constructor(public target: FieldTrait,
-        public accumulator:AccumulatorTrait,
-        public groupBy: GroupBy) {
-
-        this.id = AggregateQuery.QueryId++;
+        public accumulator: AccumulatorTrait,
+        public groupBy: GroupBy,
+        public dataset: Dataset,
+        public sampler: Sampler = new UniformRandomSampler(100)
+    ) {
+        super(dataset);
 
         // target should be quantitative
         assert(target.vlType, VlType.Quantitative);
@@ -39,11 +40,25 @@ export class AggregateQuery implements Query {
         // this is checked in the constructor of GroupBy
     }
 
-    accumulate(partialResult: PartialResponse[]) {
-        this.accumulator(partialResult, this.result);
+    jobs() {
+        // create samples
+        let samples = this.sampler.sample(this.dataset.rows.length);
+
+        return samples.map((sample, i) => new AggregateJob(this, i, sample))
     }
-}
 
-export class CountQuery implements Query {
+    accumulate(partialResponses:PartialResponse[]) {
+        partialResponses.forEach(pres => {
+            const hash = pres.fieldValueList.hash;
 
+            if(!this.result[hash])
+                this.result[hash] = {
+                    fieldValueList: pres.fieldValueList,
+                    accumulatedValue: this.accumulator.initAccumulatedValue
+                };
+
+            this.result[hash].accumulatedValue =
+                this.accumulator.accumulate(this.result[hash].accumulatedValue, pres.partialValue);
+        });
+    }
 }

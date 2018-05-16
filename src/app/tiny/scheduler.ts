@@ -1,34 +1,18 @@
 import { Query } from './query';
+import { Job } from './job';
 
 export enum SchedulingAlgorithm {
-    FIFO,
-    RoundRobin,
-    CustomOrder
+    FIFO = "FIFO",
+    RoundRobin = "RoundRobin",
+    CustomOrder = "CustomOrder"
 }
 
 export class Scheduler {
-    schedulingAlgorithm: SchedulingAlgorithm = SchedulingAlgorithm.FIFO;
-
-    constructor() {
+    constructor(public schedulingAlgorithm:SchedulingAlgorithm = SchedulingAlgorithm.FIFO) {
 
     }
 
-}
-
-export class Job {
-    static JobId = 1;
-
-    id: number;
-
-    constructor(public query: Query) {
-        this.id = Job.JobId++;
-    }
-}
-
-export class Queue {
-    jobs: Job[];
-
-    constructor() {
+    schedule(jobs:Job[]) {
 
     }
 }
