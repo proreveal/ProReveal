@@ -1,5 +1,9 @@
-<schema-editor [samples]="samples"></schema-editor>
-<div id="wrapper" *ngIf="schemaLoaded">
+<metadata-editor
+    [samples]="samples"
+    #metadataEditor>Editor
+></metadata-editor>
+
+<!-- <div id="wrapper" *ngIf="schemaLoaded">
     <div id="sidebar-wrapper">
         <sidebar #sidebar [app]="this"></sidebar>
     </div>
@@ -12,4 +16,4 @@
         <h1>{{ focusedHistory && focusedHistory.topVlSpec ? focusedHistory.topVlSpec.name : '' }}</h1>
         <div #vis></div>
     </div>
-</div>
+</div> -->

@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Dataset } from './dataset';
 import { TinyServer } from './tiny/tiny-server';
 
 import { AggregateQuery } from './tiny/query';
 import { SumAccumulator } from './tiny/accumulator';
 import { GroupBy } from './tiny/groupby';
+import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 
 @Component({
     selector: 'app-root',
@@ -13,6 +14,7 @@ import { GroupBy } from './tiny/groupby';
 })
 export class AppComponent implements OnInit {
     title = 'app';
+    @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
 
     // public history:any = {
     //     isRoot:true,
@@ -36,6 +38,7 @@ export class AppComponent implements OnInit {
         server.load().then(dataset => {
             this.samples = dataset;
 
+            this.metadataEditor.open();
             // run test codes
 
             const rating = dataset.getFieldByName('IMDB_Rating');
@@ -44,16 +47,17 @@ export class AppComponent implements OnInit {
             const query = new AggregateQuery(rating, new SumAccumulator(),
                 new GroupBy([genre]), dataset);
 
-            server.request(query);
 
-            server.run();
-            console.log(JSON.stringify(query.result));
+            // server.request(query);
 
-            server.run();
-            console.log(JSON.stringify(query.result));
+            // server.run();
+            // console.log(JSON.stringify(query.result));
 
-            server.run();
-            console.log(JSON.stringify(query.result));
+            // server.run();
+            // console.log(JSON.stringify(query.result));
+
+            // server.run();
+            // console.log(JSON.stringify(query.result));
         })
     }
 }

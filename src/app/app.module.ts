@@ -12,7 +12,7 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { ProgressRingComponent } from './graph-viewer/progress-ring/progress-ring.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { DataService } from './services/data.service';
-import { SchemaEditorComponent } from './schema-editor/schema-editor.component';
+import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,7 +26,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         NodeComponent,
         ProgressRingComponent,
         SidebarComponent,
-        SchemaEditorComponent,
+        MetadataEditorComponent,
     ],
     imports: [
         NgbModule.forRoot(),

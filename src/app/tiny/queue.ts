@@ -36,6 +36,6 @@ export class Queue {
     }
 
     reschedule() {
-        this.scheduler.schedule(this.jobs);
+        this.jobs = this.scheduler.schedule(this.jobs);
     }
 }

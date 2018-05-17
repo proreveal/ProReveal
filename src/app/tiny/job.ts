@@ -7,7 +7,7 @@ export abstract class Job {
 
     id: number;
 
-    constructor(public query: Query) {
+    constructor(public query: Query, public index:number = 0) {
         this.id = Job.Id++;
     }
 
@@ -16,7 +16,7 @@ export abstract class Job {
 
 export class AggregateJob extends Job {
     constructor(public query: AggregateQuery, public index: number, public sample: number[]) {
-        super(query);
+        super(query, index);
     }
 
     run() {
