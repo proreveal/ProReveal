@@ -1,8 +1,15 @@
 <div id="nodes" *ngIf="root"
     [style.height.px]="root.visual.childrenHeight">
-    <exploration-node-view [node]="root"></exploration-node-view>
+    <exploration-node-view [view]="this" [node]="root"></exploration-node-view>
     <!-- <node [app]="app" [history]="history" [draggedField]="draggedField"></node> -->
 </div>
 
+<ng-container *ngIf="selectorVisible">
+    <column-selector #columnSelector
+        [fields]="dataset.fields"
+        [style.top.px]="selectorTop"
+        [style.left.px]="selectorLeft"
+        (fieldSelected)="fieldSelected.emit({field: $event, node: node})"
+    ></column-selector>
+</ng-container>
 
-<column-selector></column-selector>

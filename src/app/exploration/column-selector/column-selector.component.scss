@@ -2,16 +2,11 @@
     position: relative;
 }
 
-.point-listener {
-    background:black;
-}
-
 $columnSelectorSize: 60px;
 
 .types {
-    width: $columnSelectorSize;
+    width: $columnSelectorSize * 2;
     height: $columnSelectorSize;
-    border-radius: $columnSelectorSize;
     position: absolute;
 
     // background:#eee;
@@ -21,6 +16,7 @@ $columnSelectorSize: 60px;
     font-size:.7em;
 
     text-align:center;
+    left: -$columnSelectorSize;
 }
 
 .type1 {

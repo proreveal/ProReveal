@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { getCurrentTarget } from '../../util';
 import { Constants } from '../../constants';
+import { FieldTrait } from '../../dataset';
 
 @Component({
     selector: 'column-selector',
@@ -8,8 +9,8 @@ import { Constants } from '../../constants';
     styleUrls: ['./column-selector.component.scss']
 })
 export class ColumnSelectorComponent implements OnInit {
-    @Input("width") width: number = 40;
-    @Input("height") height: number = 40;
+    @Input("fields") fields: FieldTrait[];
+    @Output("fieldSelected") fieldSelected: EventEmitter<FieldTrait> = new EventEmitter();
 
     constants = Constants;
 

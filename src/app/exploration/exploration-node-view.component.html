@@ -71,7 +71,7 @@
 </div>
 
 <ng-container *ngFor="let child of node.children; first as isFirst; last as isLast">
-    <exploration-node-view [node]="child"></exploration-node-view>
+    <exploration-node-view [view]="view" [node]="child"></exploration-node-view>
 
     <div class="horizontal-link"
         [style.top.px]="child.visual.verticalCenter()"
@@ -85,7 +85,7 @@
     <div class="placeholder"
         [style.top.px]="node.lastChild().visual.bottom(true)"
         [style.left.px]="node.firstChild().visual.left"
-        (click)="toggleSelector()"
+        (click)="toggleSelector(node.lastChild().visual.bottom(true), node.firstChild().visual.left)"
         [class.closed]="selectorVisible"
     >
     </div>
@@ -122,7 +122,7 @@
     <div class="placeholder"
         [style.top.px]="node.visual.top"
         [style.left.px]="node.visual.right() + constants.columnSpace"
-        (click)="toggleSelector()"
+        (click)="toggleSelector(node.visual.top, node.visual.right() + constants.columnSpace)"
         [class.closed]="selectorVisible"
     >
     </div>

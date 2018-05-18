@@ -3,6 +3,7 @@ import { forwardRef, Input, ViewChild, ElementRef } from '@angular/core'
 
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
+import { ExplorationViewComponent } from './exploration-view.component';
 
 @Component({
     selector: 'exploration-node-view',
@@ -11,6 +12,7 @@ import { ExplorationNode } from './exploration-node';
 })
 export class ExplorationNodeViewComponent implements OnInit {
     @Input() node:ExplorationNode;
+    @Input() view:ExplorationViewComponent;
 
     constants = Constants;
     selectorVisible = false;
@@ -21,16 +23,18 @@ export class ExplorationNodeViewComponent implements OnInit {
     ngOnInit() {
     }
 
-    openSelector() {
+    openSelector(top:number, left:number) {
         this.selectorVisible = true;
+
+        this.view.openSelector(this.node, top, left, this);
     }
 
     closeSelector() {
         this.selectorVisible = false;
     }
 
-    toggleSelector() {
+    toggleSelector(top:number, left:number) {
         if(this.selectorVisible) this.closeSelector();
-        else this.openSelector();
+        else this.openSelector(top, left);
     }
 }

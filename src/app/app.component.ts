@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, Query } from '@angular/core';
-import { Dataset } from './dataset';
+import { Dataset, FieldTrait } from './dataset';
 import { TinyServer } from './tiny/tiny-server';
 
 import { AggregateQuery, EmptyQuery } from './tiny/query';
@@ -8,6 +8,7 @@ import { GroupBy } from './tiny/groupby';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
+import { ExplorationViewComponent } from './exploration/exploration-view.component';
 
 @Component({
     selector: 'app-root',
@@ -17,23 +18,27 @@ import { ExplorationLayout } from './exploration/exploration-layout';
 export class AppComponent implements OnInit {
     title = 'app';
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
+    @ViewChild('explorationView') explorationView: ExplorationViewComponent;
 
-    // public history:any = {
-    //     isRoot:true,
-    //     progress: 1,
-    //     fields: [],
-    //     children:[]
-    //   };
-
-    // focusedHistory:any = 'empty';
-    // schemaLoaded:boolean = false;
-
-    samples:Dataset;
-    explorationRoot:ExplorationNode = new ExplorationNode(null, null);
-    explorationLayout:ExplorationLayout = new ExplorationLayout();
+    dataset: Dataset;
+    explorationRoot: ExplorationNode = new ExplorationNode(null, null);
+    explorationLayout: ExplorationLayout = new ExplorationLayout();
 
     constructor() {
 
+    }
+
+    fieldSelected(node: ExplorationNode, field: FieldTrait) {
+        let n = new ExplorationNode(node, new EmptyQuery());
+
+        node.addChild(n);
+
+        this.explorationView.closeSelector();
+        this.layout();
+    }
+
+    layout() {
+        this.explorationLayout.layout(this.explorationRoot);
     }
 
     ngOnInit() {
@@ -56,10 +61,10 @@ export class AppComponent implements OnInit {
         // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
         // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
 
-        this.explorationLayout.layout(this.explorationRoot);
+        this.layout();
 
         server.load().then(dataset => {
-            this.samples = dataset;
+            this.dataset = dataset;
 
             // this.metadataEditor.open();
             // run test codes

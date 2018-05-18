@@ -5,7 +5,12 @@
 
 <div id="graph">
     <!-- [app]="this" [history]="history" [draggedField]="sidebar.draggedField"-->
-    <exploration-view [root]="explorationRoot"></exploration-view>
+    <exploration-view
+        #explorationView
+        [root]="explorationRoot"
+        [dataset]="dataset"
+        (fieldSelected)="fieldSelected($event.node, $event.field)"
+    ></exploration-view>
 </div>
 
 <!-- <div id="wrapper" *ngIf="schemaLoaded">

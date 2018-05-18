@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Output } from '@angular/core';
 import { forwardRef, Input } from '@angular/core'
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
+import { ColumnSelectorComponent } from './column-selector/column-selector.component';
+import { Dataset, FieldTrait } from '../dataset';
+import { ExplorationNodeViewComponent } from './exploration-node-view.component';
 
 @Component({
     selector: 'exploration-view',
@@ -9,12 +12,37 @@ import { ExplorationNode } from './exploration-node';
     styleUrls: ['./exploration-view.component.css']
 })
 export class ExplorationViewComponent implements OnInit {
-    @Input() root:ExplorationNode;
+    @Input() root: ExplorationNode;
+    @Input() dataset: Dataset;
+    @Output() fieldSelected: EventEmitter<{
+        node: ExplorationNode,
+        field: FieldTrait
+    }> = new EventEmitter();
+
+    @ViewChild('#columnSelector') columnSelector: ColumnSelectorComponent;
+
     constants = Constants;
+    selectorVisible = false;
+    selectorTop: number;
+    selectorLeft: number;
+    nodeView: ExplorationNodeViewComponent;
+    node: ExplorationNode;
 
     constructor() { }
 
     ngOnInit() {
     }
 
+    openSelector(node: ExplorationNode, top: number, left: number, nodeView: ExplorationNodeViewComponent) {
+        this.selectorVisible = true;
+        this.node = node;
+        this.nodeView = nodeView;
+        this.selectorTop = top; // + Constants.nodeHeight / 2;
+        this.selectorLeft = left + Constants.nodeWidth / 2;
+    }
+
+    closeSelector() {
+        this.selectorVisible = false;
+        this.nodeView.closeSelector();
+    }
 }

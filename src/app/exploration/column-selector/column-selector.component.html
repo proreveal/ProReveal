@@ -23,3 +23,10 @@
         </div> -->
 </div>
 
+<ul>
+    <li *ngFor="let field of fields">
+        <button (click)="fieldSelected.emit(field)">{{ field.name }}</button>
+    </li>
+</ul>
+
+
