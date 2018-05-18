@@ -1,0 +1,81 @@
+<div class="node" [style.top.px]="node.visual.top"
+    [style.left.px]="node.visual.left"
+    [style.z-index]="1024-node.visual.depth*2" [class.highlighted]="draggedField"
+    (click)="node.isRoot() ? null : app.focus(node)" (dragenter)="dragenter($event)" (dragover)="dragover($event)" (drop)="drop($event)"
+    (dragleave)="dragleave($event)">
+
+    <!-- <fa name="eye" class="focused" [hidden]="!(app.focusednode === node)"></fa> -->
+    <!--  <fa name="play" class="status" [hidden]="node.status != 'running'"></fa>
+  <fa name="pause" class="status" [hidden]="node.status != 'paused'"></fa>
+  <fa name="check" class="status" [hidden]="node.status != 'done'"></fa>-->
+    <progress-ring [processed]="node.query.progress.processedPercent()"
+        [ongoing]="node.query.progress.ongoingPercent()" *ngIf="!node.isRoot()"></progress-ring>
+    <progress-ring [processed]="1" [ongoing]="0" *ngIf="node.isRoot()"></progress-ring>
+    <div class="node-body">
+        <fa name="{{node.chartType}}-chart" *ngIf="!node.isRoot()"></fa>
+        <fa name="search" *ngIf="node.isRoot()"></fa>
+    </div>
+</div>
+
+<!-- <div class="label"
+    [style.top.px]="node.visual.top + node.visual.height"
+    [style.left.px]="node.visual.left + node.visual.width / 2"
+    [style.z-index]="1024 - node.visual.depth*2"
+    *ngIf="!node.isRoot()">
+    {{ node.fields[node.fields.length - 1].name }}
+</div> -->
+
+<!-- <div class="panel"
+    [style.top.px]="node.visual.top"
+    [style.left.px]="node.visual.left + node.width / 2"
+    [style.z-index]="1024-node.depth*2-1"
+    [hidden]="true">
+    <div class="background" [style.opacity]="app.focusednode === node ? 0.9 : 0" [style.width.%]="app.focusednode === node ? 100 : 0"></div>
+    <div class="background-glow" [style.opacity]="app.focusednode === node ? 0.9 : 0" [style.width.%]="app.focusednode === node ? 100 : 0"></div>
+    <div class="summary">
+        <p class="title">
+            <span class="column">
+                {{ node.topVlSpec ? node.topVlSpec.name : '' }}
+            </span>
+        </p>
+        <p class="action">
+            <fa name="play"></fa>
+            <fa name="stop"></fa>
+            <fa name="code-fork"></fa>
+            <fa name="remove"></fa>
+            <fa name="delete"></fa>
+        </p>
+    </div>
+</div> -->
+
+<!-- <div class="preview" [style.display]="preview ? 'block' : 'none'" [style.top.px]="node.top" [style.left.px]="node.left + node.width + 20"
+    #previewSvg>
+</div> -->
+
+
+<div class="link" *ngIf="node.hasChildren()"
+    [style.top.px]="node.visual.top + node.visual.height / 2"
+    [style.left.px]="node.visual.left + node.visual.width"
+    [style.width.px]="constants.columnSpace * constants.branchRatio">
+</div>
+
+<div class="vertical-link" *ngIf="node.hasChildren() && node.children.length > 1"
+    [style.top.px]="node.visual.top + node.visual.height / 2"
+    [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio"
+    [style.height.px]="node.visual.childrenHeight - constants.linkWidth / 2">
+</div>
+
+<div class="vertical-joint" *ngIf="node.hasChildren() && node.children.length > 1"
+    [style.top.px]="node.visual.top + node.visual.height / 2 + node.visual.childrenHeight"
+    [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio">
+</div>
+
+<ng-container *ngFor="let child of node.children; first as isFirst; last as isLast">
+    <exploration-node-view [node]="child"></exploration-node-view>
+
+    <div class="link"
+        [style.top.px]="child.visual.top + node.visual.height / 2"
+        [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio + constants.linkWidth / 2 * (!isFirst && isLast)"
+        [style.width.px]="constants.columnSpace * (1 - constants.branchRatio)">
+    </div>
+</ng-container>

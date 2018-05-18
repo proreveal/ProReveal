@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges } from '@angular/core';
-import { Constants } from '../../constants';
+import { Constants } from '../constants';
 import * as d3 from 'd3';
 
 @Component({
@@ -8,7 +8,7 @@ import * as d3 from 'd3';
   styleUrls: ['./progress-ring.component.scss']
 })
 export class ProgressRingComponent implements OnInit, OnChanges {
-  @Input() progress:number;
+  @Input() processed:number;
   @Input() ongoing:number;
   @ViewChild('svg') svg:ElementRef;
 
@@ -42,7 +42,7 @@ export class ProgressRingComponent implements OnInit, OnChanges {
   }
 
   update() {
-    let progress = this.progress;
+    let progress = this.processed;
     let ongoing = this.ongoing || 0;
     if(progress >= 1) {
       progress = 1;

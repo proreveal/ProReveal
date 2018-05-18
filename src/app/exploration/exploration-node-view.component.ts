@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { forwardRef, Input, ViewChild, ElementRef } from '@angular/core'
 
-import { Constants } from '../../constants';
+import { Constants } from '../constants';
+import { ExplorationNode } from './exploration-node';
 
 @Component({
-    selector: 'node',
-    templateUrl: './node.component.html',
-    styleUrls: ['./node.component.scss']
+    selector: 'exploration-node-view',
+    templateUrl: './exploration-node-view.component.html',
+    styleUrls: ['./exploration-node-view.component.scss']
 })
-export class NodeComponent implements OnInit {
+export class ExplorationNodeViewComponent implements OnInit {
+    @Input() node:ExplorationNode;
     @Input() app;
     @Input() history;
     @Input() draggedField;

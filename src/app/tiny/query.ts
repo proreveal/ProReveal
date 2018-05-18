@@ -7,9 +7,26 @@ import { GroupBy } from './groupby';
 import { Queue } from './queue';
 import { Job } from './job';
 
+export class Progress {
+    processed:number = 0; // # of processed blocks
+    ongoing:number = 0; // # of ongoing blocks
+    total:number = 0; // # of total blocks
+
+    processedPercent() {
+        if(this.total === 0) return 0;
+        return this.processed / this.total;
+    }
+
+    ongoingPercent() {
+        if(this.total === 0) return 0;
+        return this.ongoing / this.total;
+    }
+}
+
 export abstract class Query {
     id: number;
     static Id = 1;
+    progress:Progress = new Progress();
 
     constructor(public dataset: Dataset) {
         this.id = Query.Id++;
@@ -60,5 +77,19 @@ export class AggregateQuery extends Query {
             this.result[hash].accumulatedValue =
                 this.accumulator.accumulate(this.result[hash].accumulatedValue, pres.partialValue);
         });
+    }
+}
+
+export class EmptyQuery extends Query {
+    constructor() {
+        super(null);
+    }
+
+    jobs() {
+        return [];
+    }
+
+    accumulate(partialResponses:PartialResponse[]) {
+
     }
 }

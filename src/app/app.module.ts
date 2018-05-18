@@ -5,11 +5,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { ChartComponent } from './chart/chart.component';
 import { LinkComponent } from './chart/link/link.component';
-import { GraphViewerComponent } from './graph-viewer/graph-viewer.component';
-import { NodeComponent } from './graph-viewer/node/node.component';
-import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { ExplorationViewComponent } from './exploration/exploration-view.component';
+import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
+import { ProgressRingComponent } from './exploration/progress-ring.component';
 
-import { ProgressRingComponent } from './graph-viewer/progress-ring/progress-ring.component';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { DataService } from './services/data.service';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
@@ -22,8 +22,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         AppComponent,
         ChartComponent,
         LinkComponent,
-        GraphViewerComponent,
-        NodeComponent,
+        ExplorationViewComponent,
+        ExplorationNodeViewComponent,
         ProgressRingComponent,
         SidebarComponent,
         MetadataEditorComponent,

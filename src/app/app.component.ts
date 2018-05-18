@@ -1,11 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Query } from '@angular/core';
 import { Dataset } from './dataset';
 import { TinyServer } from './tiny/tiny-server';
 
-import { AggregateQuery } from './tiny/query';
+import { AggregateQuery, EmptyQuery } from './tiny/query';
 import { SumAccumulator } from './tiny/accumulator';
 import { GroupBy } from './tiny/groupby';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
+import { ExplorationNode } from './exploration/exploration-node';
+import { ExplorationLayout } from './exploration/exploration-layout';
 
 @Component({
     selector: 'app-root',
@@ -27,6 +29,8 @@ export class AppComponent implements OnInit {
     // schemaLoaded:boolean = false;
 
     samples:Dataset;
+    explorationRoot:ExplorationNode = new ExplorationNode(null, null);
+    explorationLayout:ExplorationLayout = new ExplorationLayout();
 
     constructor() {
 
@@ -35,10 +39,18 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         const server = new TinyServer('./assets/movies.json');
 
+        let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
+        let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
+
+        this.explorationRoot.addChild(n1);
+        this.explorationRoot.addChild(n2);
+
+        this.explorationLayout.layout(this.explorationRoot);
+
         server.load().then(dataset => {
             this.samples = dataset;
 
-            this.metadataEditor.open();
+            // this.metadataEditor.open();
             // run test codes
 
             const rating = dataset.getFieldByName('IMDB_Rating');
