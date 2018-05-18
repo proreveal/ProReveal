@@ -85,9 +85,19 @@
     <div class="placeholder"
         [style.top.px]="node.lastChild().visual.bottom(true)"
         [style.left.px]="node.firstChild().visual.left"
+        (click)="toggleSelector()"
+        [class.closed]="selectorVisible"
     >
-        <fa name="plus"></fa>
     </div>
+
+    <div class="icon"
+        [style.top.px]="node.lastChild().visual.bottom(true)"
+        [style.left.px]="node.firstChild().visual.left"
+    >
+        <fa name="plus" [hidden]="selectorVisible"></fa>
+        <fa name="times" [hidden]="!selectorVisible"></fa>
+    </div>
+
 
     <div class="horizontal-link"
         [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
@@ -112,8 +122,17 @@
     <div class="placeholder"
         [style.top.px]="node.visual.top"
         [style.left.px]="node.visual.right() + constants.columnSpace"
+        (click)="toggleSelector()"
+        [class.closed]="selectorVisible"
     >
-        <fa name="plus"></fa>
+    </div>
+
+    <div class="icon"
+        [style.top.px]="node.visual.top"
+        [style.left.px]="node.visual.right() + constants.columnSpace"
+    >
+        <fa name="plus" [hidden]="selectorVisible"></fa>
+        <fa name="times" [hidden]="!selectorVisible"></fa>
     </div>
 
     <div class="horizontal-link"

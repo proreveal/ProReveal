@@ -215,12 +215,41 @@ $link-color: #888;
     border:2px solid white;
     border-radius:4px;
     text-align: center;
-    line-height: $node-height - 4px;
+    transition: width .3s,
+        height .3s,
+        border-radius .3s,
+        margin-left .3s,
+        margin-top .3s,
+        line-height .3s
+    ;
 }
 
-.placeholder > fa{
+.placeholder:hover {
+    background:#ccc;
+    cursor:pointer;
+}
+
+.icon {
+    width: $node-width;
+    height: $node-height;
+    position:absolute;
+    pointer-events: none;
+
+    text-align: center;
+    line-height: $node-height;
+}
+
+.icon > fa {
     color:white;
     font-size:1.5em;
 }
 
+$cancel-size: $node-width * 0.8;
 
+.placeholder.closed {
+    width: $cancel-size;
+    height: $cancel-size;
+    border-radius: $cancel-size;
+    margin-left: ($node-width - $cancel-size) / 2;
+    margin-top: ($node-width - $cancel-size) / 2;
+}

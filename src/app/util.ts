@@ -1,7 +1,7 @@
-let ongoing:{[url: string]: [(value?:any) => void, (value?:any) => void][]} = {};
+let ongoing: { [url: string]: [(value?: any) => void, (value?: any) => void][] } = {};
 
-export function get(url: string, responseType?:string): Promise<any> {
-    if(!ongoing[url]) {
+export function get(url: string, responseType?: string): Promise<any> {
+    if (!ongoing[url]) {
         ongoing[url] = [];
 
         const request = new XMLHttpRequest();
@@ -35,14 +35,14 @@ export function get(url: string, responseType?:string): Promise<any> {
     });
 }
 
-export function arange(start:number, end?:number, step?:number): number[] {
+export function arange(start: number, end?: number, step?: number): number[] {
     let n = start;
     if (end == undefined) {
         end = start;
         start = 0;
     }
     else
-        n = end-start;
+        n = end - start;
     if (step == undefined)
         step = 1;
     else
@@ -61,7 +61,7 @@ export function arange(start:number, end?:number, step?:number): number[] {
  * Shuffles array in place.
  * @param {Array} a items An array containing the items.
  */
-export function shuffle(a:any[]) {
+export function shuffle(a: any[]) {
     var j, x, i;
     for (i = a.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
@@ -70,4 +70,16 @@ export function shuffle(a:any[]) {
         a[j] = x;
     }
     return a;
+}
+
+export function getCurrentTarget(e: any) {
+    if (e.toElement) {
+        return e.toElement;
+    } else if (e.currentTarget) {
+        return e.currentTarget;
+    } else if (e.srcElement) {
+        return e.srcElement;
+    } else {
+        return null;
+    }
 }

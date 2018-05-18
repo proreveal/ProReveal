@@ -8,4 +8,6 @@ export class Constants {
     static readonly linkThickness: number = 2;
 
     static readonly usePlaceholder: boolean = true;
+
+    static readonly columnSelectorRadius: number = 60;
 }

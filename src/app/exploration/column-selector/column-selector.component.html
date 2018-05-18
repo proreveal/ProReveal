@@ -1,0 +1,25 @@
+<!--
+    (dragstart)="dragstart($event)"
+    (drag)="drag($event)"
+    (mousedown)="mousedown($event)"
+    (mouseup)="mouseup($event)"
+-->
+<div class="wrapper">
+    <div class="types type1">
+        <svg [attr.width.px]="constants.columnSelectorRadius * 2" [attr.height.px]="constants.columnSelectorRadius">
+            <svg:path [attr.d]="pie(constants.columnSelectorRadius, 225, 315)"></svg:path>
+        </svg>
+        <span><strong>A</strong>bc</span>
+    </div>
+
+    <div class="types type2">
+        <svg [attr.width.px]="constants.columnSelectorRadius * 2" [attr.height.px]="constants.columnSelectorRadius">
+            <svg:path [attr.d]="pie(0, 45, 135)"></svg:path>
+        </svg>
+        <span><strong>1</strong>23</span>
+    </div>
+
+        <!-- <div #listener class="point-listener" [style.width.px]="width" [style.height.px]="height" (click)="click(event)">
+        </div> -->
+</div>
+

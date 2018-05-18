@@ -64,7 +64,7 @@ export class AppComponent implements OnInit {
             // this.metadataEditor.open();
             // run test codes
 
-            const rating = dataset.getFieldByName('IMDB_Rating');
+            const rating = dataset.getFieldByName('Production_Budget');
             const genre = dataset.getFieldByName('Major_Genre');
 
             const query = new AggregateQuery(rating, new SumAccumulator(),

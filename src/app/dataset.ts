@@ -31,7 +31,7 @@ export function guess(values: any[]): [DataType, VlType, boolean] {
 
     let cardinality = Object.keys(unique).length;
     let vlType:VlType;
-
+)
     if(cardinality <= 20) vlType = VlType.Dozen;
     else if(dataType === DataType.Integer || dataType === DataType.Real)
         vlType = VlType.Quantitative;
@@ -128,7 +128,7 @@ export class Dataset {
 
     guess(rows: any[]): FieldTrait[] {
         let n = Math.min(rows.length * 0.1, 200);
-        let indices = util.arange(n).map(d => Math.floor(Math.random() * rows.length));
+        let indices = util.arange(n);
         let fields: FieldTrait[] = [];
 
         Object.keys(rows[0]).forEach(name => {
