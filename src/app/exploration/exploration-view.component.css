@@ -2,7 +2,7 @@
   position:relative;
 }
 
-column-selector {
+field-selector {
     position: absolute;
     z-index:10000;
 }

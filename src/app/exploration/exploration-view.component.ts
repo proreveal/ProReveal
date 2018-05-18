@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, EventEmitter, Output } from '@angular/cor
 import { forwardRef, Input } from '@angular/core'
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
-import { ColumnSelectorComponent } from './column-selector/column-selector.component';
+import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { Dataset, FieldTrait } from '../dataset';
 import { ExplorationNodeViewComponent } from './exploration-node-view.component';
 
@@ -19,7 +19,7 @@ export class ExplorationViewComponent implements OnInit {
         field: FieldTrait
     }> = new EventEmitter();
 
-    @ViewChild('#columnSelector') columnSelector: ColumnSelectorComponent;
+    @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
 
     constants = Constants;
     selectorVisible = false;

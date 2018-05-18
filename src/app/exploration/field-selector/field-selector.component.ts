@@ -4,11 +4,11 @@ import { Constants } from '../../constants';
 import { FieldTrait } from '../../dataset';
 
 @Component({
-    selector: 'column-selector',
-    templateUrl: './column-selector.component.html',
-    styleUrls: ['./column-selector.component.scss']
+    selector: 'field-selector',
+    templateUrl: './field-selector.component.html',
+    styleUrls: ['./field-selector.component.scss']
 })
-export class ColumnSelectorComponent implements OnInit {
+export class FieldSelectorComponent implements OnInit {
     @Input("fields") fields: FieldTrait[];
     @Output("fieldSelected") fieldSelected: EventEmitter<FieldTrait> = new EventEmitter();
 

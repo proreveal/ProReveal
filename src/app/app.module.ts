@@ -16,7 +16,7 @@ import { MetadataEditorComponent } from './metadata-editor/metadata-editor.compo
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ColumnSelectorComponent } from './exploration/column-selector/column-selector.component';
+import { FieldSelectorComponent } from './exploration/field-selector/field-selector.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +28,7 @@ import { ColumnSelectorComponent } from './exploration/column-selector/column-se
         ProgressRingComponent,
         SidebarComponent,
         MetadataEditorComponent,
-        ColumnSelectorComponent,
+        FieldSelectorComponent,
     ],
     imports: [
         NgbModule.forRoot(),

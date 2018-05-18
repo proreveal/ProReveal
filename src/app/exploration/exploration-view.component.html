@@ -5,11 +5,11 @@
 </div>
 
 <ng-container *ngIf="selectorVisible">
-    <column-selector #columnSelector
+    <field-selector #fieldSelector
         [fields]="dataset.fields"
         [style.top.px]="selectorTop"
         [style.left.px]="selectorLeft"
         (fieldSelected)="fieldSelected.emit({field: $event, node: node})"
-    ></column-selector>
+    ></field-selector>
 </ng-container>
 
