@@ -1,4 +1,4 @@
-$link-width: 2px;
+$link-thickness: 2px;
 $node-height: 60px;
 $node-width: 60px;
 
@@ -150,8 +150,8 @@ $link-color: #888;
 
 .link {
   width: 100px;
-  height: $link-width;
-  margin-top: -$link-width / 2;
+  height: $link-thickness;
+  margin-top: -$link-thickness / 2;
   background:$link-color;
   position:absolute;
   display:inline-block;
@@ -159,8 +159,8 @@ $link-color: #888;
 }
 
 .vertical-link {
-  width: $link-width;
-  margin-left: -$link-width / 2;
+  width: $link-thickness;
+  margin-left: -$link-thickness / 2;
   background:$link-color;
   position:absolute;
   display:inline-block;
@@ -168,11 +168,11 @@ $link-color: #888;
 }
 
 .vertical-joint {
-  width: $link-width;
-  height: $link-width;
-  margin-left: -$link-width / 2;
-  margin-top: -$link-width / 2;
-  border-bottom-left-radius: $link-width;
+  width: $link-thickness;
+  height: $link-thickness;
+  margin-left: -$link-thickness / 2;
+  margin-top: -$link-thickness / 2;
+  border-bottom-left-radius: $link-thickness;
   background:$link-color;
   position:absolute;
   display:inline-block;
@@ -203,4 +203,24 @@ $link-color: #888;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   padding:5px;
 }
+
+.placeholder {
+    display:inline-block;
+    width: $node-width;
+    height: $node-height;
+    position:absolute;
+    margin-left:0px;
+    margin-top:0px;
+    background:#eee;
+    border:2px solid white;
+    border-radius:4px;
+    text-align: center;
+    line-height: $node-height - 6px;
+}
+
+.placeholder > fa{
+    color:white;
+    font-size:1.5em;
+}
+
 

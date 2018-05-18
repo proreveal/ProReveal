@@ -1,4 +1,5 @@
-<div id="nodes" *ngIf="root" [style.height.px]="root.visual.childrenHeight + root.visual.height">
+<div id="nodes" *ngIf="root"
+    [style.height.px]="root.visual.childrenHeight">
     <exploration-node-view [node]="root"></exploration-node-view>
     <!-- <node [app]="app" [history]="history" [draggedField]="draggedField"></node> -->
 </div>

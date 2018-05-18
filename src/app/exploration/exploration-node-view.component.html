@@ -62,11 +62,11 @@
 <div class="vertical-link" *ngIf="node.hasChildren() && node.children.length > 1"
     [style.top.px]="node.visual.top + node.visual.height / 2"
     [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio"
-    [style.height.px]="node.visual.childrenHeight - constants.linkWidth / 2">
+    [style.height.px]="node.lastChild().visual.top - node.visual.top - constants.linkThickness / 2">
 </div>
 
 <div class="vertical-joint" *ngIf="node.hasChildren() && node.children.length > 1"
-    [style.top.px]="node.visual.top + node.visual.height / 2 + node.visual.childrenHeight"
+    [style.top.px]="node.lastChild().visual.top + node.visual.height / 2"
     [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio">
 </div>
 
@@ -75,7 +75,22 @@
 
     <div class="link"
         [style.top.px]="child.visual.top + node.visual.height / 2"
-        [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio + constants.linkWidth / 2 * (!isFirst && isLast)"
+        [style.left.px]="node.visual.left + node.visual.width + constants.columnSpace * constants.branchRatio + constants.linkThickness / 2 * (!isFirst && isLast)"
         [style.width.px]="constants.columnSpace * (1 - constants.branchRatio)">
     </div>
+</ng-container>
+
+<!-- next depth, bottom -->
+<ng-container *ngIf="constants.usePlaceholder && node.hasChildren()">
+    <div class="placeholder"
+        [style.top.px]="node.lastChild().visual.bottom(true)"
+        [style.left.px]="node.firstChild().visual.left"
+    >
+        <fa name="plus"></fa>
+    </div>
+</ng-container>
+
+<!-- next depth, the same top -->
+<ng-container *ngIf="constants.usePlaceholder && node.isLeaf()">
+
 </ng-container>

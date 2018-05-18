@@ -9,21 +9,29 @@ export class ExplorationLayout {
         node.visual.width = Constants.nodeWidth;
         node.visual.depth = depth;
 
-        let originalTop = top;
-        let lastTop = 0;
+        let bottom = top;
 
-        if (node.children && node.children.length > 0) {
+        if (node.hasChildren()) {
             node.children.forEach((child, index) => {
                 if (index > 0) {
-                    top += Constants.rowSpace + Constants.nodeHeight;
+                    bottom += Constants.rowSpace;
                 }
-                lastTop = top;
-                top = this.layoutRecur(child, top, depth + 1);
+                bottom = this.layoutRecur(child, bottom, depth + 1);
             })
+
+            if(Constants.usePlaceholder) {
+                if(node.lastChild().visual.bottom() == bottom) {
+                    bottom += Constants.rowSpace + Constants.nodeHeight;
+                }
+            }
+        }
+        else {
+            bottom = top + node.visual.height;
         }
 
-        node.visual.childrenHeight = lastTop - originalTop;
-        return top;
+        node.visual.childrenHeight = bottom - top;
+
+        return bottom;
     }
 
     layout(root:ExplorationNode) {

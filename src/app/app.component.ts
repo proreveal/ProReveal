@@ -40,10 +40,21 @@ export class AppComponent implements OnInit {
         const server = new TinyServer('./assets/movies.json');
 
         let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-
         this.explorationRoot.addChild(n1);
+
+
+        let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
         this.explorationRoot.addChild(n2);
+
+        n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
+        n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
+
+
+        let n3 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
+        this.explorationRoot.addChild(n3);
+
+        // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
+        // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
 
         this.explorationLayout.layout(this.explorationRoot);
 

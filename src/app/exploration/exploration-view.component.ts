@@ -10,6 +10,7 @@ import { ExplorationNode } from './exploration-node';
 })
 export class ExplorationViewComponent implements OnInit {
     @Input() root:ExplorationNode;
+    constants = Constants;
 
     constructor() { }
 
