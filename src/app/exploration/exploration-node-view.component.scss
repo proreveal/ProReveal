@@ -148,7 +148,7 @@ progress-ring {
 
 $link-color: #888;
 
-.link {
+.horizontal-link {
   width: 100px;
   height: $link-thickness;
   margin-top: -$link-thickness / 2;
@@ -215,7 +215,7 @@ $link-color: #888;
     border:2px solid white;
     border-radius:4px;
     text-align: center;
-    line-height: $node-height - 6px;
+    line-height: $node-height - 4px;
 }
 
 .placeholder > fa{

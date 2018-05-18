@@ -14,6 +14,14 @@ export class Visual {
         if (withMargin) return this.top + this.height + Constants.rowSpace;
         return this.top + this.height;
     }
+
+    right() {
+        return this.left + this.width;
+    }
+
+    verticalCenter() {
+        return this.top + this.height / 2;
+    }
 }
 
 export class ExplorationNode {
