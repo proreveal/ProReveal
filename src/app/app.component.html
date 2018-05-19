@@ -3,25 +3,9 @@
     #metadataEditor>Editor
 ></metadata-editor>
 
-<div id="graph">
-    <!-- [app]="this" [history]="history" [draggedField]="sidebar.draggedField"-->
-    <exploration-view
-        #explorationView
-        [root]="explorationRoot"
-        [dataset]="dataset"
-        (fieldSelected)="fieldSelected($event.node, $event.field)"
-    ></exploration-view>
-</div>
-
-<!-- <div id="wrapper" *ngIf="schemaLoaded">
-    <div id="sidebar-wrapper">
-        <sidebar #sidebar [app]="this"></sidebar>
-    </div>
-
-
-
-    <div id="main">
-        <h1>{{ focusedHistory && focusedHistory.topVlSpec ? focusedHistory.topVlSpec.name : '' }}</h1>
-        <div #vis></div>
-    </div>
-</div> -->
+<exploration-view
+    #explorationView
+    [root]="explorationRoot"
+    [dataset]="dataset"
+    (fieldSelected)="fieldSelected($event.node, $event.field)"
+></exploration-view>

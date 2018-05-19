@@ -21,17 +21,18 @@ export class AppComponent implements OnInit {
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
 
     dataset: Dataset;
-    explorationRoot: ExplorationNode = new ExplorationNode(null, null);
+    explorationRoot: ExplorationNode;
     explorationLayout: ExplorationLayout = new ExplorationLayout();
 
     constructor() {
 
     }
 
-    fieldSelected(node: ExplorationNode, field: FieldTrait) {
-        let n = new ExplorationNode(node, new EmptyQuery());
+    fieldSelected(parent: ExplorationNode, field: FieldTrait) {
+        let query = parent.query.combine(field);
+        let node = new ExplorationNode(parent, query);
 
-        node.addChild(n);
+        parent.addChild(node);
 
         this.explorationView.closeSelector();
         this.layout();
@@ -44,24 +45,22 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         const server = new TinyServer('./assets/movies.json');
 
-        let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        this.explorationRoot.addChild(n1);
+        // let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
+        // this.explorationRoot.addChild(n1);
 
 
-        let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        this.explorationRoot.addChild(n2);
+        // let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
+        // this.explorationRoot.addChild(n2);
 
-        n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
-        n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
+        // n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
+        // n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
 
 
-        let n3 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        this.explorationRoot.addChild(n3);
+        // let n3 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
+        // this.explorationRoot.addChild(n3);
 
         // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
         // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
-
-        this.layout();
 
         server.load().then(dataset => {
             this.dataset = dataset;
@@ -75,6 +74,8 @@ export class AppComponent implements OnInit {
             const query = new AggregateQuery(rating, new SumAccumulator(),
                 new GroupBy([genre]), dataset);
 
+            this.explorationRoot = new ExplorationNode(null, new EmptyQuery(dataset));
+            this.layout();
 
             // server.request(query);
 
