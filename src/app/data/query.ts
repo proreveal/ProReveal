@@ -1,4 +1,4 @@
-import { Dataset, FieldTrait, VlType } from '../dataset';
+import { Dataset, FieldTrait, VlType } from './dataset';
 import { assert, assertIn } from './assert';
 import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator } from './accumulator';
 import { Sampler, UniformRandomSampler } from './sampler';

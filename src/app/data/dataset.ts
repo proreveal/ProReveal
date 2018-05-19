@@ -1,4 +1,4 @@
-import * as util from './util';
+import * as util from '../util';
 import { isNumber, isString, isNull } from 'util';
 
 export enum DataType {

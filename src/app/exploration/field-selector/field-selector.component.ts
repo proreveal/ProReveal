@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { getCurrentTarget } from '../../util';
 import { Constants } from '../../constants';
-import { FieldTrait } from '../../dataset';
+import { FieldTrait } from '../../data/dataset';
 
 @Component({
     selector: 'field-selector',

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { Dataset, VlType } from '../dataset';
+import { Dataset, VlType } from '../data/dataset';
 
 @Component({
     selector: 'metadata-editor',

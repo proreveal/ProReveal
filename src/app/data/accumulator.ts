@@ -1,4 +1,4 @@
-import { FieldTrait, FieldValueList } from '../dataset';
+import { FieldTrait, FieldValueList } from './dataset';
 import { isNull } from 'util';
 
 /**

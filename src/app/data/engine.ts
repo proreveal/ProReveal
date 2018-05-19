@@ -1,5 +1,5 @@
 import * as util from '../util';
-import { Dataset, FieldTrait, VlType } from '../dataset';
+import { Dataset, FieldTrait, VlType } from './dataset';
 import { assert, assertIn } from './assert';
 import {
     AccumulatorTrait, AccumulatedResponseDictionary,
@@ -14,7 +14,7 @@ export class ApproxInterval95 {
     }
 }
 
-export class TinyServer {
+export class Engine {
     rows: any[];
     dataset: Dataset;
     scheduler: Scheduler = new Scheduler();

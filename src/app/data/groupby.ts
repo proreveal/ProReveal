@@ -1,4 +1,4 @@
-import { FieldTrait, VlType } from '../dataset';
+import { FieldTrait, VlType } from './dataset';
 import { assertIn } from './assert';
 
 /**

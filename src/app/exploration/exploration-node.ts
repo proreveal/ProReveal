@@ -1,4 +1,4 @@
-import { Query } from "../tiny/query";
+import { Query } from "../data/query";
 import { isNull } from "util";
 import { Constants } from '../constants';
 

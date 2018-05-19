@@ -3,7 +3,7 @@ import { forwardRef, Input } from '@angular/core'
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
-import { Dataset, FieldTrait } from '../dataset';
+import { Dataset, FieldTrait } from '../data/dataset';
 import { ExplorationNodeViewComponent } from './exploration-node-view.component';
 
 @Component({

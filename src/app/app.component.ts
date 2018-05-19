@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, Query } from '@angular/core';
-import { Dataset, FieldTrait } from './dataset';
-import { TinyServer } from './tiny/tiny-server';
+import { Dataset, FieldTrait } from './data/dataset';
+import { Engine } from './data/engine';
 
-import { AggregateQuery, EmptyQuery } from './tiny/query';
-import { SumAccumulator } from './tiny/accumulator';
-import { GroupBy } from './tiny/groupby';
+import { AggregateQuery, EmptyQuery } from './data/query';
+import { SumAccumulator } from './data/accumulator';
+import { GroupBy } from './data/groupby';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        const server = new TinyServer('./assets/movies.json');
+        const server = new Engine('./assets/movies.json');
 
         // let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
         // this.explorationRoot.addChild(n1);
