@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Query } from '@angular/core';
-import { Dataset, FieldTrait } from './data/dataset';
+import { Dataset } from './data/dataset';
+import { FieldTrait } from './data/field';
 import { Engine } from './data/engine';
 
 import { AggregateQuery, EmptyQuery } from './data/query';

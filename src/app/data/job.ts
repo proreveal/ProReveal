@@ -1,5 +1,5 @@
 import { AggregateQuery, Query } from './query';
-import { FieldValue, FieldValueList } from './dataset';
+import { FieldValue, FieldValueList } from './field';
 import { PartialValue, PartialResponse } from './accumulator';
 
 export abstract class Job {

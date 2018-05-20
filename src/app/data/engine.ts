@@ -1,5 +1,6 @@
 import * as util from '../util';
-import { Dataset, FieldTrait, VlType } from './dataset';
+import { Dataset } from './dataset';
+import { FieldTrait, VlType } from './field';
 import { assert, assertIn } from './assert';
 import {
     AccumulatorTrait, AccumulatedResponseDictionary,
