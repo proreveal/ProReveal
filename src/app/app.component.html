@@ -20,8 +20,13 @@
 
     <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
+
+    <section style="padding:5px;">
+        <button class="btn btn-primary" (click)="run()">Run a job</button>
+    </section>
+    <queue-view [queue]="engine.queue" *ngIf="engine"></queue-view>
 </div>
 
-<button class="btn btn-primary" (click)="run()">Run a job</button>
 
-<queue-view [queue]="engine.queue" *ngIf="engine"></queue-view>
+
+

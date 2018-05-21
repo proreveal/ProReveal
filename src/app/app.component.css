@@ -48,3 +48,10 @@
     z-index: 2000;
     background:white;
 }
+
+queue-view {
+    grid-row: 3;
+    grid-column: 2;
+
+    overflow-y: scroll;
+}
