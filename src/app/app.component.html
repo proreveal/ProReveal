@@ -1,22 +1,24 @@
-<metadata-editor
-    [dataset]="dataset"
-    #metadataEditor>Editor
-></metadata-editor>
-
-<exploration-view
-    #explorationView
-    [root]="explorationRoot"
-    [dataset]="dataset"
-    (fieldSelected)="fieldSelected($event.node, $event.field)"
-></exploration-view>
-
-
-<button (click)="toggleMetadataEditor()" class="btn btn-dark toggle">
-    <fa name="folder-open"></fa>
-</button>
-
-<div>
-    <button (click)="toggleEditable()" class="btn btn-light">Edit</button>
+<div id="wrapper">
+    <section class="navbar navbar-dark bg-dark box-shadow d-flex justify-content-start" id="navbar">
+        <button (click)="toggleMetadataEditor()" class="btn btn-dark" id="open-metadata-editor">
+            <fa name="folder-open"></fa>
+        </button>
+        <a href="#" class="navbar-brand">TouchExplorer
+            <small> (movies.json)</small>
+        </a>
+        <metadata-editor [dataset]="dataset" #metadataEditor>Editor >
+        </metadata-editor>
+    </section>
+    <section id="exploration-view-wrapper">
+        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset" (fieldSelected)="fieldSelected($event.node, $event.field)">
+        </exploration-view>
+        <button (click)="toggleEditable()" class="btn btn-primary" id="toggle-editable">
+            <fa name="edit"></fa>
+        </button>
+    </section>
+    <section id="main">
+        main view
+    </section>
 </div>
 
 <button class="btn btn-primary" (click)="run()">Run a job</button>

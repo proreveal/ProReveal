@@ -13,10 +13,11 @@
 
     <progress-ring [processed]="1" [ongoing]="0" *ngIf="node.isRoot()"></progress-ring>
     <div class="node-body">
-        <span [style.fontSize.px]="12">{{ node.query.name }}</span>
         <fa name="{{node.chartType}}-chart" *ngIf="!node.isRoot()"></fa>
         <fa name="search" *ngIf="node.isRoot()"></fa>
     </div>
+
+    <span style="font-size:12px; position: relative; top:-40px">{{ node.query.name }}</span>
 </div>
 
 <!-- <div class="label"
