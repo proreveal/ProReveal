@@ -41,6 +41,8 @@ export class ExplorationViewComponent implements OnInit {
         this.nodeView = nodeView;
         this.selectorTop = top; // + Constants.nodeHeight / 2;
         this.selectorLeft = left + Constants.nodeWidth / 2;
+
+        this.fieldSelector.open(node.query.compatible(node.query.dataset.fields!));
     }
 
     closeSelector() {

@@ -9,9 +9,9 @@ import { FieldTrait } from '../../data/field';
     styleUrls: ['./field-selector.component.scss']
 })
 export class FieldSelectorComponent implements OnInit {
-    @Input("fields") fields: FieldTrait[];
     @Output("fieldSelected") fieldSelected: EventEmitter<FieldTrait> = new EventEmitter();
 
+    fields:FieldTrait[] = [];
     constants = Constants;
 
     constructor() { }
@@ -46,10 +46,11 @@ export class FieldSelectorComponent implements OnInit {
         console.log(event);
     }
 
-    open() {
+    open(fields:FieldTrait[]) {
+        this.fields = fields;
     }
 
-    click(event) {
-        this.open();
+    close() {
+        this.fields = [];
     }
 }

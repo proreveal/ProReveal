@@ -3,8 +3,6 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { ChartComponent } from './chart/chart.component';
-import { LinkComponent } from './chart/link/link.component';
 import { ExplorationViewComponent } from './exploration/exploration-view.component';
 import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
 import { ProgressRingComponent } from './exploration/progress-ring.component';
@@ -22,8 +20,6 @@ import { QueueViewComponent } from './queue-view/queue-view.component';
 @NgModule({
     declarations: [
         AppComponent,
-        ChartComponent,
-        LinkComponent,
         ExplorationViewComponent,
         ExplorationNodeViewComponent,
         ProgressRingComponent,

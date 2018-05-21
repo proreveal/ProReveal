@@ -13,6 +13,7 @@ export abstract class Job {
     }
 
     abstract run(): PartialResponse[];
+    abstract name(): string;
 }
 
 export class AggregateJob extends Job {
@@ -52,6 +53,10 @@ export class AggregateJob extends Job {
         })
 
         return Object.values(result);
+    }
+
+    name() {
+        return "aggregate job";
     }
 }
 

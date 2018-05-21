@@ -39,6 +39,7 @@ export abstract class Query {
     abstract jobs(): Job[];
     abstract accumulate(job: Job, partialResponses: PartialResponse[]);
     abstract combine(field: FieldTrait): Query;
+    abstract compatible(fields: FieldTrait[]): FieldTrait[];
 }
 
 /**
@@ -68,6 +69,10 @@ export class EmptyQuery extends Query {
         }
 
         throw new ServerError("EmptyQuery + [Q, O, N, D]");
+    }
+
+    compatible(fields: FieldTrait[]) {
+        return fields.filter(field => field.vlType !== VlType.Key);
     }
 }
 
@@ -141,6 +146,10 @@ export class AggregateQuery extends Query {
         );
 
         // return new ServerError("aggregateQuery cannot be combined at this moment");
+    }
+
+    compatible(fields: FieldTrait[]) {
+        return fields.filter(field => field.vlType !== VlType.Key);
     }
 }
 

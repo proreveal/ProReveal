@@ -4,12 +4,11 @@
     <!-- <node [app]="app" [history]="history" [draggedField]="draggedField"></node> -->
 </div>
 
-<ng-container *ngIf="selectorVisible">
+<div [hidden]="!selectorVisible">
     <field-selector #fieldSelector
-        [fields]="dataset.fields"
         [style.top.px]="selectorTop"
         [style.left.px]="selectorLeft"
         (fieldSelected)="fieldSelected.emit({field: $event, node: node})"
     ></field-selector>
-</ng-container>
+</div>
 
