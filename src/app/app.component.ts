@@ -114,4 +114,8 @@ export class AppComponent implements OnInit {
             // console.log(JSON.stringify(query.result));
         })
     }
+
+    run() {
+        this.engine.run();
+    }
 }

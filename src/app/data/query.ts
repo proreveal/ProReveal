@@ -37,7 +37,7 @@ export abstract class Query {
     }
 
     abstract jobs(): Job[];
-    abstract accumulate(partialResponses: PartialResponse[]);
+    abstract accumulate(job: Job, partialResponses: PartialResponse[]);
     abstract combine(field: FieldTrait): Query;
 }
 
@@ -55,7 +55,7 @@ export class EmptyQuery extends Query {
         return [];
     }
 
-    accumulate(partialResponses: PartialResponse[]) {
+    accumulate(job:Job, partialResponses: PartialResponse[]) {
 
     }
 
@@ -101,6 +101,8 @@ export class AggregateQuery extends Query {
         // create samples
         let samples = this.sampler.sample(this.dataset.rows.length);
 
+        this.progress.total = samples.length;
+
         return samples.map((sample, i) =>
             new AggregateJob(
                 this.accumulator,
@@ -112,7 +114,9 @@ export class AggregateQuery extends Query {
                 sample));
     }
 
-    accumulate(partialResponses: PartialResponse[]) {
+    accumulate(job:Job, partialResponses: PartialResponse[]) {
+        this.progress.processed++;
+
         partialResponses.forEach(pres => {
             const hash = pres.fieldGroupedValueList.hash;
 

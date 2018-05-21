@@ -10,6 +10,7 @@
   <fa name="check" class="status" [hidden]="node.status != 'done'"></fa>-->
     <progress-ring [processed]="node.query.progress.processedPercent()"
         [ongoing]="node.query.progress.ongoingPercent()" *ngIf="!node.isRoot()"></progress-ring>
+
     <progress-ring [processed]="1" [ongoing]="0" *ngIf="node.isRoot()"></progress-ring>
     <div class="node-body">
         <span [style.fontSize.px]="12">{{ node.query.name }}</span>

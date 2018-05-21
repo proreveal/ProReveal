@@ -49,10 +49,14 @@ export class Engine {
     run() {
         if(this.queue.empty()) return;
 
-        let job = this.queue.pop();
-        let partialResponses = job.run();
+        const job = this.queue.pop();
 
-        job.query.accumulate(partialResponses);
+        job.query.progress.ongoing = 1;
+        const partialResponses = job.run();
+
+        job.query.progress.ongoing = 0;
+
+        job.query.accumulate(job, partialResponses);
     }
 
     empty() {
