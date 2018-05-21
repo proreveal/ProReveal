@@ -1,6 +1,7 @@
 import * as util from '../util';
 import { isNumber, isString, isNull } from 'util';
 import { FieldTrait, guess, VlType, QuantitativeField, NominalField, DozenField, KeyField } from './field';
+import * as d3 from 'd3-array';
 
 export class Dataset {
     constructor(public rows: any[], public fields?: FieldTrait[]) {
@@ -24,7 +25,8 @@ export class Dataset {
             let field: FieldTrait;
 
             if (vlType === VlType.Quantitative) {
-                field = new QuantitativeField(name, dataType, nullable);
+                field = new QuantitativeField(name, dataType,
+                    d3.min(values), d3.max(values), 40, nullable);
             }
             else if (vlType === VlType.Nominal) {
                 field = new NominalField(name, dataType, nullable);

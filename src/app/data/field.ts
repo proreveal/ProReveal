@@ -1,4 +1,5 @@
 import { isNull, isNumber, isString } from "util";
+import { NumericalGrouper, CategoricalGrouper, GroupIdType } from './grouper';
 
 export enum DataType {
     String,
@@ -19,6 +20,8 @@ export interface FieldTrait {
     dataType: DataType;
     vlType: VlType;
     nullable: boolean;
+
+    group(value:any):number;
 }
 
 export function guess(values: any[]): [DataType, VlType, boolean] {
@@ -56,20 +59,31 @@ export function guessDataType(values: any[]) {
 
 export class QuantitativeField implements FieldTrait {
     vlType: VlType = VlType.Quantitative;
-    min: number;
-    max: number;
+    grouper: NumericalGrouper;
 
     constructor(public name: string, public dataType: DataType,
+        public min:number, public max:number, public numBins:number = 40,
         public nullable: boolean = false) {
+
+        this.grouper = new NumericalGrouper(min, max, numBins);
+    }
+
+    group(value:any) {
+        return this.grouper.group(value);
     }
 }
 
 export class CategoricalField implements FieldTrait {
     vlType: VlType = VlType.Dozen;
+    grouper: CategoricalGrouper = new CategoricalGrouper();
 
     constructor(public name: string, public dataType: DataType,
         public nullable: boolean = false) {
 
+    }
+
+    group(value:any) {
+        return this.grouper.group(value);
     }
 }
 
@@ -89,6 +103,9 @@ export class KeyField extends CategoricalField {
     vlType: VlType = VlType.Key;
 }
 
+/**
+ * field & raw field value
+ */
 export class FieldValue {
     hash:string;
 
@@ -114,6 +131,25 @@ export class FieldValueList {
     hash:string;
 
     constructor(public list:FieldValue[]) {
+        this.hash = list.map(d => d.hash).join('_');
+    }
+}
+
+/**
+ * field & grouped value id (can be a negative integer)
+ */
+export class FieldGroupedValue {
+    hash:string;
+
+    constructor(public field:FieldTrait, public value:GroupIdType) {
+        this.hash = `${field.name}:${value}`;
+    }
+}
+
+export class FieldGroupedValueList {
+    hash:string;
+
+    constructor(public list:FieldGroupedValue[]) {
         this.hash = list.map(d => d.hash).join('_');
     }
 }

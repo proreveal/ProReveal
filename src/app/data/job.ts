@@ -1,13 +1,14 @@
 import { AggregateQuery, Query } from './query';
-import { FieldValue, FieldValueList } from './field';
-import { PartialValue, PartialResponse } from './accumulator';
+import { FieldValue, FieldValueList, FieldTrait } from './field';
+import { PartialValue, PartialResponse, AccumulatorTrait } from './accumulator';
+import { Dataset } from './dataset';
+import { GroupBy } from './groupby';
 
 export abstract class Job {
     static Id = 1;
-
     id: number;
 
-    constructor(public query: Query, public index:number = 0) {
+    constructor(public query:Query, public index:number = 0) {
         this.id = Job.Id++;
     }
 
@@ -15,34 +16,39 @@ export abstract class Job {
 }
 
 export class AggregateJob extends Job {
-    constructor(public query: AggregateQuery, public index: number, public sample: number[]) {
+    constructor(
+        public accumulator: AccumulatorTrait,
+        public target: FieldTrait,
+        public dataset: Dataset,
+        public groupBy: GroupBy,
+        public query: Query,
+        public index: number,
+        public sample: number[]) {
         super(query, index);
     }
 
     run() {
-        let dataset = this.query.dataset;
-        let groupBy = this.query.groupBy;
-        let target = this.query.target;
-        let accumulator = this.query.accumulator;
+        let dataset = this.dataset;
+        let groupBy = this.groupBy;
+        let target = this.target;
+        let accumulator = this.accumulator;
         let result: { [key: string]: PartialResponse } = {};
 
         this.sample.forEach(i => {
             let row = dataset.rows[i];
 
-            let fieldValueList = new FieldValueList(groupBy.fields.map(field => {
-                return new FieldValue(field, row[field.name]);
-            }));
-
-            let hash = fieldValueList.hash;
+            let fieldGroupedValueList = groupBy.group(row);
+            let hash = fieldGroupedValueList.hash;
 
             if (!result[hash])
                 result[hash] = {
-                    fieldValueList: fieldValueList,
+                    fieldGroupedValueList: fieldGroupedValueList,
                     partialValue: accumulator.initPartialValue
                 };
 
             result[hash].partialValue =
-                accumulator.reduce(result[hash].partialValue, row[target.name]);
+                accumulator.reduce(result[hash].partialValue,
+                    (this.target ? this.target.group(row[target.name]) : null));
         })
 
         return Object.values(result);

@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, Query } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Dataset } from './data/dataset';
 import { FieldTrait } from './data/field';
 import { Engine } from './data/engine';
 
-import { AggregateQuery, EmptyQuery } from './data/query';
-import { SumAccumulator } from './data/accumulator';
+import { Query, AggregateQuery, EmptyQuery } from './data/query';
+import { SumAccumulator, AccumulatedResponseDictionary } from './data/accumulator';
 import { GroupBy } from './data/groupby';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode } from './exploration/exploration-node';
@@ -24,12 +24,13 @@ export class AppComponent implements OnInit {
     dataset: Dataset;
     explorationRoot: ExplorationNode;
     explorationLayout: ExplorationLayout = new ExplorationLayout();
+    engine: Engine;
 
     constructor() {
 
     }
 
-    fieldSelected(parent: ExplorationNode, field: FieldTrait) {
+    fieldSelected(parent: ExplorationNode, field: FieldTrait): Query {
         let query = parent.query.combine(field);
         let node = new ExplorationNode(parent, query);
 
@@ -37,14 +38,27 @@ export class AppComponent implements OnInit {
 
         this.explorationView.closeSelector();
         this.layout();
+
+        this.engine.request(query);
+        console.log(this.engine.queue.jobs);
+
+        return query;
     }
 
     layout() {
         this.explorationLayout.layout(this.explorationRoot);
     }
 
+    print(result: AccumulatedResponseDictionary) {
+        for(const key in result) {
+            const res = result[key];
+
+            console.log(res.fieldValueList, res.accumulatedValue);
+        }
+    }
+
     ngOnInit() {
-        const server = new Engine('./assets/movies.json');
+        this.engine = new Engine('./assets/movies.json');
 
         // let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
         // this.explorationRoot.addChild(n1);
@@ -63,25 +77,35 @@ export class AppComponent implements OnInit {
         // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
         // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
 
-        server.load().then(dataset => {
+        this.engine.load().then(dataset => {
             this.dataset = dataset;
 
             // this.metadataEditor.open();
             // run test codes
 
-            const rating = dataset.getFieldByName('Production_Budget');
-            const genre = dataset.getFieldByName('Major_Genre');
 
-            const query = new AggregateQuery(rating, new SumAccumulator(),
-                new GroupBy([genre]), dataset);
+            // const query = new AggregateQuery(rating, new SumAccumulator(),
+            //     new GroupBy([genre]), dataset);
 
             this.explorationRoot = new ExplorationNode(null, new EmptyQuery(dataset));
             this.layout();
 
+            const genre = dataset.getFieldByName('Major_Genre');
+            const query1 = this.fieldSelected(this.explorationRoot, genre);
+
+            const rating = dataset.getFieldByName('Production_Budget');
+            const query2 = this.fieldSelected(this.explorationRoot, rating);
+
             // server.request(query);
 
-            // server.run();
-            // console.log(JSON.stringify(query.result));
+            this.engine.run();
+            this.print(query1.result);
+
+            this.engine.run();
+            this.print(query1.result);
+
+            this.engine.run();
+            this.print(query1.result);
 
             // server.run();
             // console.log(JSON.stringify(query.result));

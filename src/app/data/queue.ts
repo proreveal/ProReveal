@@ -3,7 +3,7 @@ import { Scheduler } from './scheduler';
 import { ServerError } from './exception';
 
 export class Queue {
-    private jobs: Job[] = [];
+    jobs: Job[] = [];
 
     constructor(public scheduler:Scheduler) {
 

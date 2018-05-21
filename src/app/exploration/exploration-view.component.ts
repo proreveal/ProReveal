@@ -44,6 +44,7 @@ export class ExplorationViewComponent implements OnInit {
 
     closeSelector() {
         this.selectorVisible = false;
-        this.nodeView.closeSelector();
+        if(this.nodeView)
+            this.nodeView.closeSelector();
     }
 }

@@ -1,14 +1,20 @@
-import { FieldTrait, VlType } from './field';
+import { FieldTrait, VlType, FieldGroupedValueList, FieldGroupedValue } from './field';
 import { assertIn } from './assert';
 
 /**
- * Represents a list of categorical columns.
+ * Represents a list of grouping columns.
+ * The columns can be quantitative. In such cases, they are binned.
  * The order matters.
  */
 export class GroupBy {
     constructor(public fields: FieldTrait[]) {
-        fields.forEach(field => assertIn(field.vlType,
-            [VlType.Dozen, VlType.Nominal, VlType.Ordinal]
+
+    }
+
+    group(row: {[key: string]: any}) {
+        return new FieldGroupedValueList(
+            this.fields.map(field =>
+                new FieldGroupedValue(field, field.group(row[field.name]))
         ));
     }
 }

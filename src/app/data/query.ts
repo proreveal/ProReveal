@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator } from './accumulator';
+import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator, CountAccumulator } from './accumulator';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -29,6 +29,8 @@ export abstract class Query {
     id: number;
     static Id = 1;
     progress: Progress = new Progress();
+    name: string;
+    result: AccumulatedResponseDictionary;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -43,6 +45,8 @@ export abstract class Query {
  * Represent an empty query (a query placeholder for the root node)
  */
 export class EmptyQuery extends Query {
+    name = "EmptyQuery";
+
     constructor(public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(dataset, sampler);
     }
@@ -59,7 +63,7 @@ export class EmptyQuery extends Query {
         if (field.vlType === VlType.Quantitative) {
             return new Histogram1DQuery(field, this.dataset, this.sampler);
         }
-        else if (field.vlType in [VlType.Ordinal, VlType.Nominal, VlType.Dozen]) {
+        else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
             return new Frequency1DQuery(field, this.dataset, this.sampler);
         }
 
@@ -68,98 +72,53 @@ export class EmptyQuery extends Query {
 }
 
 /**
- * one quantitative
- */
-export class Histogram1DQuery extends Query {
-    constructor(public target: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
-        super(dataset, sampler);
-
-        assert(target.vlType, VlType.Quantitative);
-    }
-
-    jobs() {
-        return [];
-    }
-
-    accumulate() {
-
-    }
-
-    combine(field: FieldTrait) {
-        if (field.vlType in [VlType.Dozen, VlType.Nominal, VlType.Ordinal]) {
-            return new AggregateQuery(this.target, new SumAccumulator(),
-                new GroupBy([field]), this.dataset, this.sampler);
-        }
-
-        throw new ServerError("Histogram1DQuery + [O, N, D]");
-    }
-}
-
-/**
- * one categorical
- */
-export class Frequency1DQuery extends Query {
-    constructor(public target: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
-        super(dataset, sampler);
-
-        assertIn(target.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
-    }
-
-    jobs() {
-        return [];
-    }
-
-    accumulate() {
-
-    }
-
-    combine(field: FieldTrait) {
-        if (field.vlType === VlType.Quantitative) {
-            // agregate
-            return new AggregateQuery(field, new SumAccumulator(),
-                new GroupBy([this.target]), this.dataset);
-        }
-
-        throw new ServerError("Frequency1DQuery + [Q]")
-    }
-}
-
-/**
  * represent an aggregate query such as min(age) by occupation
  * one quantitative, multiple categoricals
  */
 export class AggregateQuery extends Query {
+    name = "AggregateQuery";
     result: AccumulatedResponseDictionary = {};
 
-    constructor(public target: FieldTrait,
+    /**
+     *
+     * @param accumulator
+     * @param target can be null only when accumulator = Count
+     * @param dataset
+     * @param groupBy
+     * @param sampler
+     */
+    constructor(
         public accumulator: AccumulatorTrait,
-        public groupBy: GroupBy,
+        public target: FieldTrait,
         public dataset: Dataset,
+        public groupBy: GroupBy,
         public sampler: Sampler = new UniformRandomSampler(100)
     ) {
         super(dataset, sampler);
-
-        // target should be quantitative
-        assert(target.vlType, VlType.Quantitative);
-
-        // groupBy should be nominal, ordinal, or dozens
-        // this is checked in the constructor of GroupBy
     }
 
     jobs() {
         // create samples
         let samples = this.sampler.sample(this.dataset.rows.length);
 
-        return samples.map((sample, i) => new AggregateJob(this, i, sample));
+        return samples.map((sample, i) =>
+            new AggregateJob(
+                this.accumulator,
+                this.target,
+                this.dataset,
+                this.groupBy,
+                this,
+                i,
+                sample));
     }
 
     accumulate(partialResponses: PartialResponse[]) {
         partialResponses.forEach(pres => {
-            const hash = pres.fieldValueList.hash;
+            const hash = pres.fieldGroupedValueList.hash;
 
             if (!this.result[hash])
                 this.result[hash] = {
-                    fieldValueList: pres.fieldValueList,
+                    fieldValueList: pres.fieldGroupedValueList,
                     accumulatedValue: this.accumulator.initAccumulatedValue
                 };
 
@@ -169,9 +128,78 @@ export class AggregateQuery extends Query {
     }
 
     combine(field: FieldTrait) {
-        return new EmptyQuery(this.dataset, this.sampler);
+        return new AggregateQuery(
+            this.accumulator,
+            this.target,
+            this.dataset,
+            this.groupBy,
+            this.sampler
+        );
 
         // return new ServerError("aggregateQuery cannot be combined at this moment");
     }
 }
+
+/**
+ * one quantitative
+ */
+export class Histogram1DQuery extends AggregateQuery {
+    name = "Histogram1DQuery";
+
+    constructor(public target: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+        super(
+            new CountAccumulator(),
+            null,
+            dataset,
+            new GroupBy([target]),
+            sampler);
+
+        assert(target.vlType, VlType.Quantitative);
+    }
+
+    combine(field: FieldTrait) {
+        if ([VlType.Dozen, VlType.Nominal, VlType.Ordinal].includes(field.vlType)) {
+            return new AggregateQuery(
+                new SumAccumulator(),
+                this.target,
+                this.dataset,
+                new GroupBy([field]),
+                this.sampler);
+        }
+
+        throw new ServerError("Histogram1DQuery + [O, N, D]");
+    }
+}
+
+/**
+ * one categorical
+ */
+export class Frequency1DQuery extends AggregateQuery {
+    name = "Frequency1DQuery";
+
+    constructor(public target: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+        super(
+            new CountAccumulator(),
+            null,
+            dataset,
+            new GroupBy([target]),
+            sampler);
+
+        assertIn(target.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
+    }
+
+    combine(field: FieldTrait) {
+        if (field.vlType === VlType.Quantitative) {
+            return new AggregateQuery(new SumAccumulator(),
+                field,
+                this.dataset,
+                new GroupBy([this.target]),
+                this.sampler);
+        }
+
+        throw new ServerError("Frequency1DQuery + [Q]")
+    }
+}
+
+
 

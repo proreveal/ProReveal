@@ -18,7 +18,7 @@ export class PartialValue {
  * a single row of response (keys & value)
  */
 export interface PartialResponse {
-    fieldValueList: FieldValueList;
+    fieldGroupedValueList: FieldValueList;
     partialValue: PartialValue;
 }
 
@@ -77,10 +77,10 @@ export class MinAccumulator implements AccumulatorTrait {
 
 export class MaxAccumulator implements AccumulatorTrait {
     readonly initPartialValue =
-        Object.freeze(new PartialValue(0, 0, 0, Number.MIN_VALUE, 0, 0));
+        Object.freeze(new PartialValue(0, 0, 0, -Number.MAX_VALUE, 0, 0));
 
     readonly initAccumulatedValue =
-        Object.freeze(new AccumulatedValue(0, 0, 0, Number.MIN_VALUE, 0, 0));
+        Object.freeze(new AccumulatedValue(0, 0, 0, -Number.MAX_VALUE, 0, 0));
 
 
     reduce(a: PartialValue, b: number | null) {
