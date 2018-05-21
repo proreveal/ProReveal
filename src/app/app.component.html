@@ -6,8 +6,6 @@
         <a href="#" class="navbar-brand">TouchExplorer
             <small> (movies.json)</small>
         </a>
-        <metadata-editor [dataset]="dataset" #metadataEditor>Editor >
-        </metadata-editor>
     </section>
     <section id="exploration-view-wrapper">
         <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset" (fieldSelected)="fieldSelected($event.node, $event.field)">
@@ -19,6 +17,9 @@
     <section id="main">
         main view
     </section>
+
+    <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
+    </metadata-editor>
 </div>
 
 <button class="btn btn-primary" (click)="run()">Run a job</button>

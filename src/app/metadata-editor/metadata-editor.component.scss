@@ -1,3 +1,7 @@
+section {
+    padding: 5px;
+}
+
 table {
   font-size: 0.8em;
   white-space: nowrap;
@@ -6,16 +10,25 @@ table {
 
 th {
   overflow:hidden;
-  min-width: 80px;
-  max-width: 160px;
+  min-width: 60px;
+  max-width: 90px;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 td {
   overflow:hidden;
-  min-width: 80px;
-  max-width: 160px;
+  min-width: 60px;
+  max-width: 90px;
 }
 
 .toggle {
     padding:0.8em;
 }
+
+select {
+    font-size: 0.8rem;
+    padding: .15rem .25rem;
+    height: calc(1.1rem + 2px);
+}
+
