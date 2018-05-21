@@ -115,6 +115,10 @@ export class AppComponent implements OnInit {
         })
     }
 
+    toggleMetadataEditor() {
+        this.metadataEditor.toggle();
+    }
+
     toggleEditable() {
         this.explorationView.toggleEditable();
         this.layout();

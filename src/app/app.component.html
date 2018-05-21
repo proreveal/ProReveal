@@ -1,5 +1,5 @@
 <metadata-editor
-    [samples]="samples"
+    [dataset]="dataset"
     #metadataEditor>Editor
 ></metadata-editor>
 
@@ -11,8 +11,14 @@
 ></exploration-view>
 
 
+<button (click)="toggleMetadataEditor()" class="btn btn-dark toggle">
+    <fa name="folder-open"></fa>
+</button>
+
 <div>
     <button (click)="toggleEditable()" class="btn btn-light">Edit</button>
 </div>
 
 <button class="btn btn-primary" (click)="run()">Run a job</button>
+
+<queue-view [queue]="engine.queue" *ngIf="engine"></queue-view>

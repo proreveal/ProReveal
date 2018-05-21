@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Dataset } from '../data/dataset';
 import { VlType } from '../data/field';
 
@@ -7,8 +7,8 @@ import { VlType } from '../data/field';
     templateUrl: './metadata-editor.component.html',
     styleUrls: ['./metadata-editor.component.scss']
 })
-export class MetadataEditorComponent implements OnInit, OnChanges {
-    @Input() samples:Dataset;
+export class MetadataEditorComponent implements OnInit {
+    @Input() dataset:Dataset;
     page: number = 1;
     pageSize: number = 15;
     VlType = VlType;
@@ -29,10 +29,5 @@ export class MetadataEditorComponent implements OnInit, OnChanges {
 
     toggle() {
         this.visible = !this.visible;
-    }
-
-    ngOnChanges(changes) {
-        // console.log(this.samples)
-        // console.log(this.samples.fields)
     }
 }

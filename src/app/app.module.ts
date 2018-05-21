@@ -17,6 +17,7 @@ import { MetadataEditorComponent } from './metadata-editor/metadata-editor.compo
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldSelectorComponent } from './exploration/field-selector/field-selector.component';
+import { QueueViewComponent } from './queue-view/queue-view.component';
 
 @NgModule({
     declarations: [
@@ -29,6 +30,7 @@ import { FieldSelectorComponent } from './exploration/field-selector/field-selec
         SidebarComponent,
         MetadataEditorComponent,
         FieldSelectorComponent,
+        QueueViewComponent,
     ],
     imports: [
         NgbModule.forRoot(),

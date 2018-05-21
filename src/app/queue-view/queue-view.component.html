@@ -1,0 +1,10 @@
+<section *ngIf="queue">
+    <p>
+        {{ queue.size() | number }} jobs.
+    </p>
+    <ul>
+        <li *ngFor="let job of queue.jobs">
+            {{ job }}
+        </li>
+    </ul>
+</section>
