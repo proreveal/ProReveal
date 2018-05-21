@@ -13,6 +13,7 @@ import { ExplorationViewComponent } from './exploration-view.component';
 export class ExplorationNodeViewComponent implements OnInit {
     @Input() node:ExplorationNode;
     @Input() view:ExplorationViewComponent;
+    @Input() editable:boolean;
 
     constants = Constants;
     selectorVisible = false;

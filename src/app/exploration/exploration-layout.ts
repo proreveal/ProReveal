@@ -2,7 +2,7 @@ import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
 
 export class ExplorationLayout {
-    private layoutRecur(node: ExplorationNode, top: number, depth: number) {
+    private layoutRecur(node: ExplorationNode, top: number, depth: number, editable: boolean) {
         node.visual.top = top;
         node.visual.left = depth * (Constants.nodeWidth + Constants.columnSpace);
         node.visual.height = Constants.nodeHeight;
@@ -16,11 +16,11 @@ export class ExplorationLayout {
                 if (index > 0) {
                     bottom += Constants.rowSpace;
                 }
-                bottom = this.layoutRecur(child, bottom, depth + 1);
+                bottom = this.layoutRecur(child, bottom, depth + 1, editable);
             })
 
-            if(Constants.usePlaceholder) {
-                if(node.lastChild().visual.bottom() == bottom) {
+            if (Constants.usePlaceholder && editable) {
+                if (node.lastChild().visual.bottom() == bottom) {
                     bottom += Constants.rowSpace + Constants.nodeHeight;
                 }
             }
@@ -34,9 +34,9 @@ export class ExplorationLayout {
         return bottom;
     }
 
-    layout(root:ExplorationNode) {
+    layout(root: ExplorationNode, editable: boolean) {
         let layoutHeight: number;
-        layoutHeight = this.layoutRecur(root, 0, 0);
+        layoutHeight = this.layoutRecur(root, 0, 0, editable);
 
         return layoutHeight;
     }

@@ -73,7 +73,11 @@
 </div>
 
 <ng-container *ngFor="let child of node.children; first as isFirst; last as isLast">
-    <exploration-node-view [view]="view" [node]="child"></exploration-node-view>
+    <exploration-node-view
+        [view]="view"
+        [node]="child"
+        [editable]="editable"
+        ></exploration-node-view>
 
     <div class="horizontal-link"
         [style.top.px]="child.visual.verticalCenter()"
@@ -83,7 +87,7 @@
 </ng-container>
 
 <!-- next depth, at the bottom of the last child -->
-<ng-container *ngIf="constants.usePlaceholder && node.hasChildren()">
+<ng-container *ngIf="editable && constants.usePlaceholder && node.hasChildren()">
     <div class="placeholder"
         [style.top.px]="node.lastChild().visual.bottom(true)"
         [style.left.px]="node.firstChild().visual.left"
@@ -120,7 +124,7 @@
 </ng-container>
 
 <!-- next depth, the same top -->
-<ng-container *ngIf="constants.usePlaceholder && node.isLeaf()">
+<ng-container *ngIf="editable && constants.usePlaceholder && node.isLeaf()">
     <div class="placeholder"
         [style.top.px]="node.visual.top"
         [style.left.px]="node.visual.right() + constants.columnSpace"

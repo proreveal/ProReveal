@@ -28,6 +28,7 @@ export class ExplorationViewComponent implements OnInit {
     selectorLeft: number;
     nodeView: ExplorationNodeViewComponent;
     node: ExplorationNode;
+    editable: boolean = true;
 
     constructor() { }
 
@@ -46,5 +47,9 @@ export class ExplorationViewComponent implements OnInit {
         this.selectorVisible = false;
         if(this.nodeView)
             this.nodeView.closeSelector();
+    }
+
+    toggleEditable() {
+        this.editable = !this.editable;
     }
 }

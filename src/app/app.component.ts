@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
     }
 
     layout() {
-        this.explorationLayout.layout(this.explorationRoot);
+        this.explorationLayout.layout(this.explorationRoot, this.explorationView.editable);
     }
 
     print(result: AccumulatedResponseDictionary) {
@@ -113,6 +113,11 @@ export class AppComponent implements OnInit {
             // server.run();
             // console.log(JSON.stringify(query.result));
         })
+    }
+
+    toggleEditable() {
+        this.explorationView.toggleEditable();
+        this.layout();
     }
 
     run() {
