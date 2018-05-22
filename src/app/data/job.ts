@@ -29,27 +29,23 @@ export class AggregateJob extends Job {
     }
 
     run() {
-        let dataset = this.dataset;
-        let groupBy = this.groupBy;
-        let target = this.target;
-        let accumulator = this.accumulator;
         let result: { [key: string]: PartialResponse } = {};
 
         this.sample.forEach(i => {
-            let row = dataset.rows[i];
+            let row = this.dataset.rows[i];
 
-            let fieldGroupedValueList = groupBy.group(row);
+            let fieldGroupedValueList = this.groupBy.group(row);
             let hash = fieldGroupedValueList.hash;
 
             if (!result[hash])
                 result[hash] = {
                     fieldGroupedValueList: fieldGroupedValueList,
-                    partialValue: accumulator.initPartialValue
+                    partialValue: this.accumulator.initPartialValue
                 };
 
             result[hash].partialValue =
-                accumulator.reduce(result[hash].partialValue,
-                    (this.target ? this.target.group(row[target.name]) : null));
+            this.accumulator.reduce(result[hash].partialValue,
+                    (this.target ? row[this.target.name] : 0));
         })
 
         return Object.values(result);

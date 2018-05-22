@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
 
     }
 
-    fieldSelected(parent: ExplorationNode, field: FieldTrait): Query {
+    fieldSelected(parent: ExplorationNode, field: FieldTrait): [ExplorationNode, Query] {
         let query = parent.query.combine(field);
         let node = new ExplorationNode(parent, query);
 
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
 
         this.engine.request(query);
 
-        return query;
+        return [node, query];
     }
 
     nodeSelected(node:ExplorationNode, nodeView:ExplorationNodeViewComponent) {
@@ -95,16 +95,17 @@ export class AppComponent implements OnInit {
             this.layout();
 
             const genre = dataset.getFieldByName('Major_Genre');
-            const query1 = this.fieldSelected(this.explorationRoot, genre);
+            const [node1, query1] = this.fieldSelected(this.explorationRoot, genre);
 
             const rating = dataset.getFieldByName('Production_Budget');
-            const query2 = this.fieldSelected(this.explorationRoot, rating);
+            const [node2, query2] = this.fieldSelected(this.explorationRoot, rating);
+
+            this.fieldSelected(node1, rating);
 
             // server.request(query);
 
-            this.engine.run();
-            this.engine.run();
-            this.engine.run();
+            // this.engine.run();
+            // this.engine.run();
 
             // server.run();
             // console.log(JSON.stringify(query.result));

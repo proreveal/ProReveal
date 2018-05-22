@@ -24,8 +24,9 @@
             </p>
         </div>
         <div *ngIf="activeNode">
+            <h2>Query {{ activeNode.query.id }}</h2>
             <p>
-                Query: {{ activeNode.query.desc() }} <br />
+                Description: {{ activeNode.query.desc() }} <br />
                 Progress: {{ activeNode.query.progress.processed }} / {{ activeNode.query.progress.total }}
             </p>
 

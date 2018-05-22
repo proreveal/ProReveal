@@ -1,10 +1,10 @@
 <section *ngIf="queue">
     <p>
-        {{ queue.size() | number }} jobs.
+        There are {{ queue.size() | number }} job(s).
     </p>
     <ul>
         <li *ngFor="let job of queue.jobs">
-            {{ job.name() }}
+            [Query {{ job.query.id}}] ({{ job.index }} / {{ job.query.progress.total }})
         </li>
     </ul>
 </section>
