@@ -41,7 +41,6 @@ export class AppComponent implements OnInit {
         this.layout();
 
         this.engine.request(query);
-        console.log(this.engine.queue.jobs);
 
         return query;
     }
