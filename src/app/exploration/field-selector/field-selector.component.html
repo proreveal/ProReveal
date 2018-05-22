@@ -4,7 +4,7 @@
     (mousedown)="mousedown($event)"
     (mouseup)="mouseup($event)"
 -->
-<div class="wrapper">
+<div class="wrapper" [hidden]="true">
     <div class="types type1">
         <svg [attr.width.px]="constants.columnSelectorRadius * 2" [attr.height.px]="constants.columnSelectorRadius">
             <svg:path [attr.d]="pie(constants.columnSelectorRadius, 225, 315)"></svg:path>
