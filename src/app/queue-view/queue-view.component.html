@@ -4,7 +4,7 @@
     </p>
     <ul>
         <li *ngFor="let job of queue.jobs">
-            [Query {{ job.query.id}}] ({{ job.index }} / {{ job.query.progress.total }})
+            Job {{ job.id }} for [Query {{ job.query.id}}] ({{ job.index }} / {{ job.query.progress.total }})
         </li>
     </ul>
 </section>
