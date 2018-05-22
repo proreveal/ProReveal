@@ -9,7 +9,7 @@ import { FieldTrait } from '../../data/field';
     styleUrls: ['./field-selector.component.scss']
 })
 export class FieldSelectorComponent implements OnInit {
-    @Output("fieldSelected") fieldSelected: EventEmitter<FieldTrait> = new EventEmitter();
+    @Output('fieldSelected') fieldSelected: EventEmitter<FieldTrait> = new EventEmitter();
 
     fields:FieldTrait[] = [];
     constants = Constants;

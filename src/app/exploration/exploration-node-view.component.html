@@ -1,8 +1,7 @@
 <div class="node" [style.top.px]="node.visual.top"
     [style.left.px]="node.visual.left"
-    [style.z-index]="1024-node.visual.depth*2" [class.highlighted]="draggedField"
-    (click)="node.isRoot() ? null : app.focus(node)" (dragenter)="dragenter($event)" (dragover)="dragover($event)" (drop)="drop($event)"
-    (dragleave)="dragleave($event)">
+    [style.z-index]="1024-node.visual.depth*2"
+    (click)="nodeSelected.emit({node: node, nodeView: this});">
 
     <!-- <fa name="eye" class="focused" [hidden]="!(app.focusednode === node)"></fa> -->
     <!--  <fa name="play" class="status" [hidden]="node.status != 'running'"></fa>
@@ -78,6 +77,7 @@
         [view]="view"
         [node]="child"
         [editable]="editable"
+        (nodeSelected)="nodeSelected.emit($event)"
         ></exploration-node-view>
 
     <div class="horizontal-link"

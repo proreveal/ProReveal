@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { forwardRef, Input, ViewChild, ElementRef } from '@angular/core'
 
 import { Constants } from '../constants';
@@ -14,6 +14,11 @@ export class ExplorationNodeViewComponent implements OnInit {
     @Input() node:ExplorationNode;
     @Input() view:ExplorationViewComponent;
     @Input() editable:boolean;
+
+    @Output('nodeSelected') nodeSelected: EventEmitter<{
+        'node': ExplorationNode,
+        'nodeView': ExplorationNodeViewComponent
+    }> = new EventEmitter();
 
     constants = Constants;
     selectorVisible = false;

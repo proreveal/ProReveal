@@ -10,6 +10,7 @@ import { MetadataEditorComponent } from './metadata-editor/metadata-editor.compo
 import { ExplorationNode } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
 import { ExplorationViewComponent } from './exploration/exploration-view.component';
+import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
 
 @Component({
     selector: 'app-root',
@@ -17,7 +18,6 @@ import { ExplorationViewComponent } from './exploration/exploration-view.compone
     styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-    title = 'app';
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
 
@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
     explorationRoot: ExplorationNode;
     explorationLayout: ExplorationLayout = new ExplorationLayout();
     engine: Engine;
+    activeNode: ExplorationNode = null;
 
     constructor() {
 
@@ -43,6 +44,10 @@ export class AppComponent implements OnInit {
         console.log(this.engine.queue.jobs);
 
         return query;
+    }
+
+    nodeSelected(node:ExplorationNode, nodeView:ExplorationNodeViewComponent) {
+        this.activeNode = node;
     }
 
     layout() {

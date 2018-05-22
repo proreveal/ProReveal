@@ -40,6 +40,7 @@ export abstract class Query {
     abstract accumulate(job: Job, partialResponses: PartialResponse[]);
     abstract combine(field: FieldTrait): Query;
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
+    abstract desc(): string;
 }
 
 /**
@@ -56,7 +57,7 @@ export class EmptyQuery extends Query {
         return [];
     }
 
-    accumulate(job:Job, partialResponses: PartialResponse[]) {
+    accumulate(job: Job, partialResponses: PartialResponse[]) {
 
     }
 
@@ -73,6 +74,10 @@ export class EmptyQuery extends Query {
 
     compatible(fields: FieldTrait[]) {
         return fields.filter(field => field.vlType !== VlType.Key);
+    }
+
+    desc() {
+        return this.name;
     }
 }
 
@@ -119,7 +124,7 @@ export class AggregateQuery extends Query {
                 sample));
     }
 
-    accumulate(job:Job, partialResponses: PartialResponse[]) {
+    accumulate(job: Job, partialResponses: PartialResponse[]) {
         this.progress.processed++;
 
         partialResponses.forEach(pres => {
@@ -151,6 +156,16 @@ export class AggregateQuery extends Query {
     compatible(fields: FieldTrait[]) {
         return fields.filter(field => field.vlType !== VlType.Key);
     }
+
+    desc() {
+        let desc = `${this.accumulator.name}(${this.target ? this.target.name : '*'}) `;
+
+        if(this.groupBy.fields.length > 0) {
+            desc += 'group by ' + this.groupBy.fields.map(f => f.name).join(', ');
+        }
+
+        return desc;
+    }
 }
 
 /**
@@ -159,22 +174,22 @@ export class AggregateQuery extends Query {
 export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
 
-    constructor(public target: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+    constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
             null,
             dataset,
-            new GroupBy([target]),
+            new GroupBy([grouping]),
             sampler);
 
-        assert(target.vlType, VlType.Quantitative);
+        assert(grouping.vlType, VlType.Quantitative);
     }
 
     combine(field: FieldTrait) {
         if ([VlType.Dozen, VlType.Nominal, VlType.Ordinal].includes(field.vlType)) {
             return new AggregateQuery(
                 new SumAccumulator(),
-                this.target,
+                this.grouping,
                 this.dataset,
                 new GroupBy([field]),
                 this.sampler);
@@ -190,15 +205,15 @@ export class Histogram1DQuery extends AggregateQuery {
 export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
 
-    constructor(public target: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+    constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
             null,
             dataset,
-            new GroupBy([target]),
+            new GroupBy([grouping]),
             sampler);
 
-        assertIn(target.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
+        assertIn(grouping.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
     }
 
     combine(field: FieldTrait) {
@@ -206,7 +221,7 @@ export class Frequency1DQuery extends AggregateQuery {
             return new AggregateQuery(new SumAccumulator(),
                 field,
                 this.dataset,
-                new GroupBy([this.target]),
+                new GroupBy([this.grouping]),
                 this.sampler);
         }
 

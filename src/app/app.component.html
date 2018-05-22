@@ -8,14 +8,24 @@
         </a>
     </section>
     <section id="exploration-view-wrapper">
-        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset" (fieldSelected)="fieldSelected($event.node, $event.field)">
+        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset"
+            (fieldSelected)="fieldSelected($event.node, $event.field)"
+            (nodeSelected)="nodeSelected($event.node, $event.nodeView)"
+            >
         </exploration-view>
         <button (click)="toggleEditable()" class="btn btn-primary" id="toggle-editable">
             <fa name="edit"></fa>
         </button>
     </section>
     <section id="main">
-        main view
+        <div *ngIf="!activeNode">
+            <p>
+                Choose a node to inspect.
+            </p>
+        </div>
+        <div *ngIf="activeNode">
+            {{ activeNode.query.desc() }}
+        </div>
     </section>
 
     <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">

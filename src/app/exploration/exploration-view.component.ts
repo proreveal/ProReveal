@@ -20,6 +20,11 @@ export class ExplorationViewComponent implements OnInit {
         field: FieldTrait
     }> = new EventEmitter();
 
+    @Output('nodeSelected') nodeSelected: EventEmitter<{
+        'node': ExplorationNode,
+        'nodeView': ExplorationNodeViewComponent
+    }> = new EventEmitter();
+
     @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
 
     constants = Constants;
