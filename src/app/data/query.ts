@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator, CountAccumulator } from './accumulator';
+import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator, CountAccumulator, AccumulatedResponse } from './accumulator';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -34,6 +34,13 @@ export abstract class Query {
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
+    }
+
+    resultList() {
+        return Object.keys(this.result).map(key =>
+            [this.result[key].fieldGroupedValueList, this.result[key].accumulatedValue]
+        );
+        // TODO ordering
     }
 
     abstract jobs(): Job[];
@@ -132,7 +139,7 @@ export class AggregateQuery extends Query {
 
             if (!this.result[hash])
                 this.result[hash] = {
-                    fieldValueList: pres.fieldGroupedValueList,
+                    fieldGroupedValueList: pres.fieldGroupedValueList,
                     accumulatedValue: this.accumulator.initAccumulatedValue
                 };
 

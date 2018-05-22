@@ -1,4 +1,4 @@
-import { FieldTrait, FieldValueList } from './field';
+import { FieldTrait, FieldValueList, FieldGroupedValueList } from './field';
 import { isNull } from 'util';
 
 /**
@@ -18,7 +18,7 @@ export class PartialValue {
  * a single row of response (keys & value)
  */
 export interface PartialResponse {
-    fieldGroupedValueList: FieldValueList;
+    fieldGroupedValueList: FieldGroupedValueList;
     partialValue: PartialValue;
 }
 
@@ -39,7 +39,7 @@ export class AccumulatedValue {
  * a single row of response (keys & value)
  */
 export interface AccumulatedResponse {
-    fieldValueList: FieldValueList;
+    fieldGroupedValueList: FieldGroupedValueList;
     accumulatedValue: AccumulatedValue;
 }
 
@@ -54,8 +54,8 @@ export interface AccumulatorTrait {
     readonly name: string;
 
     reduce(a: PartialValue, b: number | null): PartialValue;
-
     accumulate(a: AccumulatedValue, b: PartialValue): AccumulatedValue;
+    desc(res: AccumulatedValue): string;
 }
 
 export class MinAccumulator implements AccumulatorTrait {
@@ -68,12 +68,16 @@ export class MinAccumulator implements AccumulatorTrait {
     readonly name = "min";
 
     reduce(a: PartialValue, b: number | null) {
-        if (isNull(b)) return new PartialValue(0, 0, 0, a.min, 0, a.nullCount + 1);
-        return new PartialValue(0, 0, 0, Math.min(a.min, b), 0, a.nullCount);
+        if (isNull(b)) return new PartialValue(0, 0, a.count + 1, a.min, 0, a.nullCount + 1);
+        return new PartialValue(0, 0, a.count + 1, Math.min(a.min, b), 0, a.nullCount);
     }
 
     accumulate(a: AccumulatedValue, b: PartialValue) {
-        return new AccumulatedValue(0, 0, 0, Math.min(a.min, b.min), 0, a.nullCount + b.nullCount);
+        return new AccumulatedValue(0, 0, a.count + b.count, Math.min(a.min, b.min), 0, a.nullCount + b.nullCount);
+    }
+
+    desc(res: AccumulatedValue) {
+        return `${res.min} (count=${res.count}, nullCount=${res.nullCount})`;
     }
 }
 
@@ -87,12 +91,16 @@ export class MaxAccumulator implements AccumulatorTrait {
     readonly name = "max";
 
     reduce(a: PartialValue, b: number | null) {
-        if (isNull(b)) return new PartialValue(0, 0, 0, a.max, 0, a.nullCount + 1);
-        return new PartialValue(0, 0, 0, Math.max(a.max, b), 0, a.nullCount);
+        if (isNull(b)) return new PartialValue(0, 0, a.count + 1, a.max, 0, a.nullCount + 1);
+        return new PartialValue(0, 0, a.count + 1, Math.max(a.max, b), 0, a.nullCount);
     }
 
     accumulate(a: AccumulatedValue, b: PartialValue) {
-        return new AccumulatedValue(0, 0, 0, Math.max(a.max, b.max), 0, a.nullCount + b.nullCount);
+        return new AccumulatedValue(0, 0, a.count + b.count, Math.max(a.max, b.max), 0, a.nullCount + b.nullCount);
+    }
+
+    desc(res: AccumulatedValue) {
+        return `${res.max} (count=${res.count}, nullCount=${res.nullCount})`;
     }
 }
 
@@ -113,6 +121,10 @@ export class CountAccumulator implements AccumulatorTrait {
     accumulate(a: AccumulatedValue, b: PartialValue) {
         return new AccumulatedValue(0, 0, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
     }
+
+    desc(res: AccumulatedValue) {
+        return `${res.count} (count=${res.count}, nullCount=${res.nullCount})`;
+    }
 }
 
 export class SumAccumulator implements AccumulatorTrait {
@@ -125,12 +137,16 @@ export class SumAccumulator implements AccumulatorTrait {
     readonly name = "sum";
 
     reduce(a: PartialValue, b: number | null) {
-        if (isNull(b)) return new PartialValue(a.sum, 0, 0, 0, 0, a.nullCount + 1);
-        return new PartialValue(a.sum + b, 0, 0, 0, 0, a.nullCount);
+        if (isNull(b)) return new PartialValue(a.sum, 0, a.count + 1, 0, 0, a.nullCount + 1);
+        return new PartialValue(a.sum + b, 0, a.count + 1, 0, 0, a.nullCount);
     }
 
     accumulate(a: AccumulatedValue, b: PartialValue) {
-        return new AccumulatedValue(a.sum + b.sum, 0, 0, 0, 0, a.nullCount + b.nullCount);
+        return new AccumulatedValue(a.sum + b.sum, 0, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
+    }
+
+    desc(res: AccumulatedValue) {
+        return `${res.sum} (count=${res.count}, nullCount=${res.nullCount})`;
     }
 }
 
@@ -150,5 +166,9 @@ export class MeanAccumulator implements AccumulatorTrait {
 
     accumulate(a: AccumulatedValue, b: PartialValue) {
         return new AccumulatedValue(a.sum + b.sum, a.ssum + b.ssum, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
+    }
+
+    desc(res: AccumulatedValue) {
+        return `${res.sum / res.count} (count=${res.count}, nullCount=${res.nullCount})`;
     }
 }

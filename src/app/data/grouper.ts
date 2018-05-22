@@ -10,6 +10,7 @@ export const NullGroupId = Number.MAX_SAFE_INTEGER;
 export class CategoricalGrouper {
     size = 0;
     dict = {};
+    inverse = { NullGroupId: null };
 
     constructor() {
 
@@ -22,10 +23,18 @@ export class CategoricalGrouper {
     group(value: any) {
         if (isNull(value)) return NullGroupId;
 
-        if (!this.dict[value])
-            this.dict[value] = this.size++;
+        if (!this.dict[value]) {
+            this.dict[value] = this.size;
+            this.inverse[this.size] = value;
+
+            this.size++;
+        }
 
         return this.dict[value];
+    }
+
+    ungroup(id: GroupIdType) {
+        return this.inverse[id];
     }
 }
 
@@ -57,5 +66,11 @@ export class NumericalGrouper {
 
         if (this.max === value) return Math.floor((value - this.base) / this.step) - 1;
         return Math.floor((value - this.base) / this.step);
+    }
+
+    ungroup(id: GroupIdType) {
+        if (id === NullGroupId) return null;
+
+        return [this.base + this.step * id, this.base + this.step * (id + 1)];
     }
 }

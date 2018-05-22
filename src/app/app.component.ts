@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
         for(const key in result) {
             const res = result[key];
 
-            console.log(res.fieldValueList, res.accumulatedValue);
+            console.log(res.fieldGroupedValueList, res.accumulatedValue);
         }
     }
 
@@ -104,13 +104,8 @@ export class AppComponent implements OnInit {
             // server.request(query);
 
             this.engine.run();
-            this.print(query1.result);
-
             this.engine.run();
-            this.print(query1.result);
-
             this.engine.run();
-            this.print(query1.result);
 
             // server.run();
             // console.log(JSON.stringify(query.result));

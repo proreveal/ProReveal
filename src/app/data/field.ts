@@ -21,7 +21,8 @@ export interface FieldTrait {
     vlType: VlType;
     nullable: boolean;
 
-    group(value:any):number;
+    group(value: any): number;
+    ungroup(id: GroupIdType): any;
 }
 
 export function guess(values: any[]): [DataType, VlType, boolean] {
@@ -32,12 +33,12 @@ export function guess(values: any[]): [DataType, VlType, boolean] {
     values.forEach(value => unique[value] = true);
 
     let cardinality = Object.keys(unique).length;
-    let vlType:VlType;
+    let vlType: VlType;
 
-    if(cardinality <= 20) vlType = VlType.Dozen;
-    else if(dataType === DataType.Integer || dataType === DataType.Real)
+    if (cardinality <= 20) vlType = VlType.Dozen;
+    else if (dataType === DataType.Integer || dataType === DataType.Real)
         vlType = VlType.Quantitative;
-    else if(cardinality <= 100)
+    else if (cardinality <= 100)
         vlType = VlType.Nominal;
     else
         vlType = VlType.Key;
@@ -46,12 +47,12 @@ export function guess(values: any[]): [DataType, VlType, boolean] {
 }
 
 export function guessDataType(values: any[]) {
-    for(let i = 0; i < values.length; i++) {
+    for (let i = 0; i < values.length; i++) {
         let value = values[i];
         let float = parseFloat(value);
 
-        if(isNaN(float)) return DataType.String;
-        if(!Number.isInteger(float)) return DataType.Real;
+        if (isNaN(float)) return DataType.String;
+        if (!Number.isInteger(float)) return DataType.Real;
     }
 
     return DataType.Integer;
@@ -62,14 +63,18 @@ export class QuantitativeField implements FieldTrait {
     grouper: NumericalGrouper;
 
     constructor(public name: string, public dataType: DataType,
-        public min:number, public max:number, public numBins:number = 40,
+        public min: number, public max: number, public numBins: number = 40,
         public nullable: boolean = false) {
 
         this.grouper = new NumericalGrouper(min, max, numBins);
     }
 
-    group(value:any) {
+    group(value: any) {
         return this.grouper.group(value);
+    }
+
+    ungroup(id: GroupIdType) {
+        return this.grouper.ungroup(id);
     }
 }
 
@@ -82,8 +87,12 @@ export class CategoricalField implements FieldTrait {
 
     }
 
-    group(value:any) {
+    group(value: any) {
         return this.grouper.group(value);
+    }
+
+    ungroup(id: GroupIdType) {
+        return this.grouper.ungroup(id);
     }
 }
 
@@ -107,19 +116,19 @@ export class KeyField extends CategoricalField {
  * field & raw field value
  */
 export class FieldValue {
-    hash:string;
+    hash: string;
 
-    constructor(public field:FieldTrait, public value:any) {
-        if(field.nullable && isNull(value)) {
+    constructor(public field: FieldTrait, public value: any) {
+        if (field.nullable && isNull(value)) {
             // it is okay
         }
-        else if(field.dataType == DataType.Integer && !Number.isInteger(value)) {
+        else if (field.dataType == DataType.Integer && !Number.isInteger(value)) {
             throw `[field:${field.name}] the value ${value} is not an integer`;
         }
-        else if(field.dataType == DataType.Real && !isNumber(value)) {
+        else if (field.dataType == DataType.Real && !isNumber(value)) {
             throw `[field:${field.name}] the value ${value} is not a number`;
         }
-        else if(field.dataType == DataType.String && !isString(value)) {
+        else if (field.dataType == DataType.String && !isString(value)) {
             throw `[field:${field.name}] the value ${value} is not a string`;
         }
 
@@ -128,9 +137,9 @@ export class FieldValue {
 }
 
 export class FieldValueList {
-    hash:string;
+    hash: string;
 
-    constructor(public list:FieldValue[]) {
+    constructor(public list: FieldValue[]) {
         this.hash = list.map(d => d.hash).join('_');
     }
 }
@@ -139,17 +148,21 @@ export class FieldValueList {
  * field & grouped value id (can be a negative integer)
  */
 export class FieldGroupedValue {
-    hash:string;
+    hash: string;
 
-    constructor(public field:FieldTrait, public value:GroupIdType) {
+    constructor(public field: FieldTrait, public value: GroupIdType) {
         this.hash = `${field.name}:${value}`;
     }
 }
 
 export class FieldGroupedValueList {
-    hash:string;
+    hash: string;
 
-    constructor(public list:FieldGroupedValue[]) {
+    constructor(public list: FieldGroupedValue[]) {
         this.hash = list.map(d => d.hash).join('_');
+    }
+
+    desc() {
+        return this.list.map(item => `${item.field.name}: ${item.field.ungroup(item.value)}`).join(', ');
     }
 }

@@ -24,7 +24,17 @@
             </p>
         </div>
         <div *ngIf="activeNode">
-            {{ activeNode.query.desc() }}
+            <p>
+                Query: {{ activeNode.query.desc() }} <br />
+                Progress: {{ activeNode.query.progress.processed }} / {{ activeNode.query.progress.total }}
+            </p>
+
+            <h3>Result (to be visualized)</h3>
+            <ul>
+                <li *ngFor="let item of activeNode.query.resultList()">
+                    {{ item[0].desc() }}: {{ activeNode.query.accumulator.desc(item[1]) }}
+                </li>
+            </ul>
         </div>
     </section>
 
