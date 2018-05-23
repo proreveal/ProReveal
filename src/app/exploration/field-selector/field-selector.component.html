@@ -25,7 +25,10 @@
 
 <ul>
     <li *ngFor="let field of fields">
-        <button (click)="fieldSelected.emit(field)">{{ field.name }}[{{ field.vlType }}]</button>
+        <button (click)="fieldSelected.emit(field)" class="btn"
+            [class.btn-primary]="highlightedFields.includes(field)"
+            [class.btn-light]="!highlightedFields.includes(field)"
+            >{{ field.name }}[{{ field.vlType }}]</button>
     </li>
 </ul>
 

@@ -67,7 +67,6 @@ export class AppComponent implements OnInit {
         // let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
         // this.explorationRoot.addChild(n1);
 
-
         // let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
         // this.explorationRoot.addChild(n2);
 
