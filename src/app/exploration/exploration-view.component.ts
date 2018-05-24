@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, EventEmitter, Output } from '@angular/cor
 import { forwardRef, Input } from '@angular/core'
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
-import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { Dataset } from '../data/dataset';
 import { FieldTrait } from '../data/field';
 import { ExplorationNodeViewComponent } from './exploration-node-view.component';
@@ -15,45 +14,27 @@ import { ExplorationNodeViewComponent } from './exploration-node-view.component'
 export class ExplorationViewComponent implements OnInit {
     @Input() root: ExplorationNode;
     @Input() dataset: Dataset;
-    @Output() fieldSelected: EventEmitter<{
-        node: ExplorationNode,
-        field: FieldTrait
-    }> = new EventEmitter();
 
     @Output('nodeSelected') nodeSelected: EventEmitter<{
         'node': ExplorationNode,
-        'nodeView': ExplorationNodeViewComponent
+        'nodeView': ExplorationNodeViewComponent,
+        'child': boolean,
+        'left': number,
+        'top': number
     }> = new EventEmitter();
 
-    @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
+    @Output('nodeUnselected') nodeUnselected: EventEmitter<{
+        'node': ExplorationNode,
+        'nodeView': ExplorationNodeViewComponent,
+        'child': boolean
+    }> = new EventEmitter();
 
     constants = Constants;
-    selectorVisible = false;
-    selectorTop: number;
-    selectorLeft: number;
-    nodeView: ExplorationNodeViewComponent;
-    node: ExplorationNode;
     editable: boolean = true;
 
     constructor() { }
 
     ngOnInit() {
-    }
-
-    openSelector(node: ExplorationNode, top: number, left: number, nodeView: ExplorationNodeViewComponent) {
-        this.selectorVisible = true;
-        this.node = node;
-        this.nodeView = nodeView;
-        this.selectorTop = top; // + Constants.nodeHeight / 2;
-        this.selectorLeft = left + Constants.nodeWidth / 2;
-
-        this.fieldSelector.open(node.query.compatible(node.query.dataset.fields!));
-    }
-
-    closeSelector() {
-        this.selectorVisible = false;
-        if(this.nodeView)
-            this.nodeView.closeSelector();
     }
 
     toggleEditable() {

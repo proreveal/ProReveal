@@ -9,8 +9,8 @@
     </section>
     <section id="exploration-view-wrapper">
         <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset"
-            (fieldSelected)="fieldSelected($event.node, $event.field)"
-            (nodeSelected)="nodeSelected($event.node, $event.nodeView)"
+            (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"
+            (nodeUnselected)="nodeUnselected($event.node, $event.nodeView, $event.child)"
             >
         </exploration-view>
         <button (click)="toggleEditable()" class="btn btn-primary" id="toggle-editable">
@@ -48,6 +48,8 @@
     <queue-view [queue]="engine.queue" *ngIf="engine"></queue-view>
 </div>
 
-
+<field-selector #fieldSelector
+    (fieldSelected)="fieldSelected($event.node, $event.field)"
+></field-selector>
 
 

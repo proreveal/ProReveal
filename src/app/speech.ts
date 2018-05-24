@@ -33,9 +33,14 @@ export class SpeechRecognition {
 
     start() {
         if(this.recognition && this.timer === null) {
-            this.recognition.start();
-            this.timer = createTimer(this.maxDuration);
-            this.timer.subscribe(this.expire.bind(this))
+            try {
+                this.recognition.start();
+                this.timer = createTimer(this.maxDuration);
+                this.timer.subscribe(this.expire.bind(this))
+            }
+            catch(e) {
+
+            }
         }
     }
 
@@ -48,5 +53,6 @@ export class SpeechRecognition {
 
     expire() {
         this.stop();
+        this.timer = null;
     }
 }

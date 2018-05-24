@@ -11,6 +11,8 @@ import { ExplorationNode } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
 import { ExplorationViewComponent } from './exploration/exploration-view.component';
 import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
+import { FieldSelectorComponent } from './field-selector/field-selector.component';
+import { Constants } from './constants';
 
 @Component({
     selector: 'app-root',
@@ -20,6 +22,7 @@ import { ExplorationNodeViewComponent } from './exploration/exploration-node-vie
 export class AppComponent implements OnInit {
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
+    @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent
 
     dataset: Dataset;
     explorationRoot: ExplorationNode;
@@ -37,7 +40,6 @@ export class AppComponent implements OnInit {
 
         parent.addChild(node);
 
-        this.explorationView.closeSelector();
         this.layout();
 
         this.engine.request(query);
@@ -45,16 +47,13 @@ export class AppComponent implements OnInit {
         return [node, query];
     }
 
-    nodeSelected(node:ExplorationNode, nodeView:ExplorationNodeViewComponent) {
-        this.activeNode = node;
-    }
 
     layout() {
         this.explorationLayout.layout(this.explorationRoot, this.explorationView.editable);
     }
 
     print(result: AccumulatedResponseDictionary) {
-        for(const key in result) {
+        for (const key in result) {
             const res = result[key];
 
             console.log(res.fieldGroupedValueList, res.accumulatedValue);
@@ -126,4 +125,29 @@ export class AppComponent implements OnInit {
     run() {
         this.engine.run();
     }
+
+    previousNodeView: ExplorationNodeViewComponent;
+
+    nodeSelected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, left: number, top: number, child: boolean) {
+        if(child) {
+            // show a field selector for the child
+            if(this.previousNodeView) {
+                this.previousNodeView.selectorClosed(); // important
+                this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
+            }
+            this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!));
+            this.previousNodeView = nodeView;
+        }
+        else {
+            // show detail
+            this.activeNode = node;
+        }
+    }
+
+    nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
+        // this is definitely a child
+        this.fieldSelector.hide();
+        this.previousNodeView = null;
+    }
+
 }

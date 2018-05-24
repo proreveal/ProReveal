@@ -1,8 +1,3 @@
 #nodes {
   position:relative;
 }
-
-field-selector {
-    position: absolute;
-    z-index:10000;
-}

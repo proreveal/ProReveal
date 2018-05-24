@@ -1,7 +1,7 @@
 <div class="node" [style.top.px]="node.visual.top"
     [style.left.px]="node.visual.left"
     [style.z-index]="1024-node.visual.depth*2"
-    (click)="nodeSelected.emit({node: node, nodeView: this});">
+    (click)="nodeSelected.emit({node: node, nodeView: this, left: node.visual.left, top: node.visual.top, child: false})">
 
     <!-- <fa name="eye" class="focused" [hidden]="!(app.focusednode === node)"></fa> -->
     <!--  <fa name="play" class="status" [hidden]="node.status != 'running'"></fa>
@@ -74,10 +74,10 @@
 
 <ng-container *ngFor="let child of node.children; first as isFirst; last as isLast">
     <exploration-node-view
-        [view]="view"
         [node]="child"
         [editable]="editable"
         (nodeSelected)="nodeSelected.emit($event)"
+        (nodeUnselected)="nodeUnselected.emit($event)"
         ></exploration-node-view>
 
     <div class="horizontal-link"
@@ -90,61 +90,62 @@
 <!-- next depth, at the bottom of the last child -->
 <ng-container *ngIf="editable && constants.usePlaceholder && node.hasChildren()">
     <div class="placeholder"
-        [style.top.px]="node.lastChild().visual.bottom(true)"
         [style.left.px]="node.firstChild().visual.left"
-        (click)="toggleSelector(node.lastChild().visual.bottom(true), node.firstChild().visual.left)"
-        [class.closed]="selectorVisible"
+        [style.top.px]="node.lastChild().visual.bottom(true)"
+        (click)="toggle(node.firstChild().visual.left, node.lastChild().visual.bottom(true), true)"
+        [class.closed]="selectorOpened"
     >
     </div>
 
     <div class="icon"
-        [style.top.px]="node.lastChild().visual.bottom(true)"
         [style.left.px]="node.firstChild().visual.left"
+        [style.top.px]="node.lastChild().visual.bottom(true)"
     >
-        <fa name="plus" [hidden]="selectorVisible"></fa>
-        <fa name="times" [hidden]="!selectorVisible"></fa>
+        <fa name="plus" [hidden]="selectorOpened"></fa>
+        <fa name="times" [hidden]="!selectorOpened"></fa>
     </div>
 
 
     <div class="horizontal-link"
-        [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
         [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
+        [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
         [style.width.px]="constants.columnSpace * (1 - constants.branchRatio)">
     </div>
 
     <div class="vertical-link"
-        [style.top.px]="node.lastChild().visual.verticalCenter()"
         [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
+        [style.top.px]="node.lastChild().visual.verticalCenter()"
         [style.height.px]="constants.nodeHeight + constants.rowSpace">
     </div>
 
     <div class="vertical-joint"
+        [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
         [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
-        [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio">
+    >
     </div>
 </ng-container>
 
 <!-- next depth, the same top -->
 <ng-container *ngIf="editable && constants.usePlaceholder && node.isLeaf()">
     <div class="placeholder"
-        [style.top.px]="node.visual.top"
         [style.left.px]="node.visual.right() + constants.columnSpace"
-        (click)="toggleSelector(node.visual.top, node.visual.right() + constants.columnSpace)"
-        [class.closed]="selectorVisible"
+        [style.top.px]="node.visual.top"
+        (click)="toggle(node.visual.right() + constants.columnSpace, node.visual.top, true)"
+        [class.closed]="selectorOpened"
     >
     </div>
 
     <div class="icon"
-        [style.top.px]="node.visual.top"
         [style.left.px]="node.visual.right() + constants.columnSpace"
+        [style.top.px]="node.visual.top"
     >
-        <fa name="plus" [hidden]="selectorVisible"></fa>
-        <fa name="times" [hidden]="!selectorVisible"></fa>
+        <fa name="plus" [hidden]="selectorOpened"></fa>
+        <fa name="times" [hidden]="!selectorOpened"></fa>
     </div>
 
     <div class="horizontal-link"
-        [style.top.px]="node.visual.verticalCenter()"
         [style.left.px]="node.visual.right()"
+        [style.top.px]="node.visual.verticalCenter()"
         [style.width.px]="constants.columnSpace">
     </div>
 </ng-container>

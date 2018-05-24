@@ -3,7 +3,6 @@ import { forwardRef, Input, ViewChild, ElementRef } from '@angular/core'
 
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
-import { ExplorationViewComponent } from './exploration-view.component';
 
 @Component({
     selector: 'exploration-node-view',
@@ -11,17 +10,25 @@ import { ExplorationViewComponent } from './exploration-view.component';
     styleUrls: ['./exploration-node-view.component.scss']
 })
 export class ExplorationNodeViewComponent implements OnInit {
-    @Input() node:ExplorationNode;
-    @Input() view:ExplorationViewComponent;
-    @Input() editable:boolean;
+    @Input() node: ExplorationNode;
+    @Input() editable: boolean;
 
     @Output('nodeSelected') nodeSelected: EventEmitter<{
         'node': ExplorationNode,
-        'nodeView': ExplorationNodeViewComponent
+        'nodeView': ExplorationNodeViewComponent,
+        'child': boolean,
+        'left': number,
+        'top': number
+    }> = new EventEmitter();
+
+    @Output('nodeUnselected') nodeUnselected: EventEmitter<{
+        'node': ExplorationNode,
+        'nodeView': ExplorationNodeViewComponent,
+        'child': boolean
     }> = new EventEmitter();
 
     constants = Constants;
-    selectorVisible = false;
+    selectorOpened = false;
 
     constructor() {
     }
@@ -29,18 +36,29 @@ export class ExplorationNodeViewComponent implements OnInit {
     ngOnInit() {
     }
 
-    openSelector(top:number, left:number) {
-        this.selectorVisible = true;
-
-        this.view.openSelector(this.node, top, left, this);
+    // only applied to the child node
+    toggle(left: number, top: number, child: boolean) {
+        if(this.selectorOpened) {
+            this.selectorClosed();
+            this.nodeUnselected.emit({
+                node: this.node,
+                nodeView: this,
+                child: child
+            });
+        }
+        else {
+            this.selectorOpened = true;
+            this.nodeSelected.emit({
+                node: this.node,
+                nodeView: this,
+                child: child,
+                left: left,
+                top: top
+            });
+        }
     }
 
-    closeSelector() {
-        this.selectorVisible = false;
-    }
-
-    toggleSelector(top:number, left:number) {
-        if(this.selectorVisible) this.closeSelector();
-        else this.openSelector(top, left);
+    selectorClosed() {
+        this.selectorOpened = false;
     }
 }
