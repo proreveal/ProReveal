@@ -4,7 +4,7 @@
         <hr>
         <div class="row no-gutters">
             <div *ngFor="let field of fields" class="col-4">
-                <button (click)="fieldSelected.emit(field)" class="btn"
+                <button (click)="fieldSelected.emit({node: node, field: field})" class="btn"
                     [class.btn-primary]="highlightedFields.includes(field)"
                     [class.btn-light]="!highlightedFields.includes(field)"
                     [attr.title]="field.name"

@@ -35,6 +35,12 @@ export class AppComponent implements OnInit {
     }
 
     fieldSelected(parent: ExplorationNode, field: FieldTrait): [ExplorationNode, Query] {
+        // close the selector
+        if(this.previousNodeView) {
+            this.previousNodeView.selectorClosed(); // important
+            this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
+        }
+
         let query = parent.query.combine(field);
         let node = new ExplorationNode(parent, query);
 
@@ -135,7 +141,7 @@ export class AppComponent implements OnInit {
                 this.previousNodeView.selectorClosed(); // important
                 this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
             }
-            this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!));
+            this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!), node);
             this.previousNodeView = nodeView;
         }
         else {
@@ -149,5 +155,4 @@ export class AppComponent implements OnInit {
         this.fieldSelector.hide();
         this.previousNodeView = null;
     }
-
 }

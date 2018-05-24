@@ -17,7 +17,6 @@ export class SpeechRecognition {
             this.recognition.maxAlternatives = 1;
 
             this.recognition.onresult = (event) => {
-                console.log(event);
                 this.handler(event);
                 //this.recognition.stop();
             };
