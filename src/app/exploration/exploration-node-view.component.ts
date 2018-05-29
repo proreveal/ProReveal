@@ -37,7 +37,8 @@ export class ExplorationNodeViewComponent implements OnInit {
     }
 
     // only applied to the child node
-    toggle(left: number, top: number, child: boolean) {
+    toggle($event: MouseEvent, left: number, top: number, child: boolean) {
+        $event.stopPropagation();
         if(this.selectorOpened) {
             this.selectorClosed();
             this.nodeUnselected.emit({

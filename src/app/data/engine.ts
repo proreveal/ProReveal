@@ -10,11 +10,6 @@ import { Query } from './query';
 import { Queue } from './queue';
 import { Scheduler } from './scheduler';
 
-export class ApproxInterval95 {
-    constructor(public value: number, public low95: number, public high95: number) {
-    }
-}
-
 export class Engine {
     rows: any[];
     dataset: Dataset;

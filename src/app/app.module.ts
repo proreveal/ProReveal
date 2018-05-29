@@ -16,6 +16,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { QueueViewComponent } from './queue-view/queue-view.component';
+import { VisComponent } from './vis/vis.component';
 
 @NgModule({
     declarations: [
@@ -27,6 +28,7 @@ import { QueueViewComponent } from './queue-view/queue-view.component';
         MetadataEditorComponent,
         FieldSelectorComponent,
         QueueViewComponent,
+        VisComponent,
     ],
     imports: [
         NgbModule.forRoot(),

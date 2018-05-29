@@ -13,6 +13,7 @@ import { ExplorationViewComponent } from './exploration/exploration-view.compone
 import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { Constants } from './constants';
+import { normalcdf } from './data/cdf';
 
 @Component({
     selector: 'app-root',
@@ -36,7 +37,7 @@ export class AppComponent implements OnInit {
 
     fieldSelected(parent: ExplorationNode, field: FieldTrait): [ExplorationNode, Query] {
         // close the selector
-        if(this.previousNodeView) {
+        if (this.previousNodeView) {
             this.previousNodeView.selectorClosed(); // important
             this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
         }
@@ -108,13 +109,9 @@ export class AppComponent implements OnInit {
 
             // server.request(query);
 
-            // this.engine.run();
-            // this.engine.run();
-
-            // server.run();
-            // console.log(JSON.stringify(query.result));
-
-            // server.run();
+            for(let i=0;i<10;i++) {
+                this.engine.run();
+            }
             // console.log(JSON.stringify(query.result));
         })
     }
@@ -135,16 +132,16 @@ export class AppComponent implements OnInit {
     previousNodeView: ExplorationNodeViewComponent;
 
     nodeSelected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, left: number, top: number, child: boolean) {
-        if(child) {
+        if (child) {
             // show a field selector for the child
-            if(this.previousNodeView) {
+            if (this.previousNodeView) {
                 this.previousNodeView.selectorClosed(); // important
                 this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
             }
             this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!), node);
             this.previousNodeView = nodeView;
         }
-        else {
+        else if (node != this.explorationRoot) {
             // show detail
             this.activeNode = node;
         }
@@ -154,5 +151,12 @@ export class AppComponent implements OnInit {
         // this is definitely a child
         this.fieldSelector.hide();
         this.previousNodeView = null;
+    }
+
+    wrapperClicked() {
+        if(this.previousNodeView) {
+            this.previousNodeView.selectorClosed();
+            this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
+        }
     }
 }

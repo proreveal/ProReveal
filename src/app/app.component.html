@@ -1,4 +1,4 @@
-<div id="wrapper">
+<div id="wrapper" (click)="wrapperClicked()">
     <section class="navbar navbar-dark bg-dark box-shadow d-flex justify-content-start" id="navbar">
         <button (click)="toggleMetadataEditor()" class="btn btn-dark" id="open-metadata-editor">
             <fa name="folder-open"></fa>
@@ -33,7 +33,7 @@
             <h3>Result (to be visualized)</h3>
             <ul>
                 <li *ngFor="let item of activeNode.query.resultList()">
-                    {{ item[0].desc() }}: {{ activeNode.query.accumulator.desc(item[1]) }}
+                    {{ item[0].desc() }}: {{ activeNode.query.accumulator.approximate(item[1], activeNode.query.progress.processedPercent()).ci95().desc() }}
                 </li>
             </ul>
         </div>

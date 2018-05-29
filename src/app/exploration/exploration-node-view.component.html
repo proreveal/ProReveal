@@ -92,7 +92,7 @@
     <div class="placeholder"
         [style.left.px]="node.firstChild().visual.left"
         [style.top.px]="node.lastChild().visual.bottom(true)"
-        (click)="toggle(node.firstChild().visual.left, node.lastChild().visual.bottom(true), true)"
+        (click)="toggle($event, node.firstChild().visual.left, node.lastChild().visual.bottom(true), true)"
         [class.closed]="selectorOpened"
     >
     </div>
@@ -130,7 +130,7 @@
     <div class="placeholder"
         [style.left.px]="node.visual.right() + constants.columnSpace"
         [style.top.px]="node.visual.top"
-        (click)="toggle(node.visual.right() + constants.columnSpace, node.visual.top, true)"
+        (click)="toggle($event, node.visual.right() + constants.columnSpace, node.visual.top, true)"
         [class.closed]="selectorOpened"
     >
     </div>

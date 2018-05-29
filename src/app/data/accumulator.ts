@@ -1,5 +1,8 @@
 import { FieldTrait, FieldValueList, FieldGroupedValueList } from './field';
 import { isNull } from 'util';
+import { ConfidenceInterval } from './approx';
+
+
 
 /**
  * only a value
@@ -55,7 +58,11 @@ export interface AccumulatorTrait {
 
     reduce(a: PartialValue, b: number | null): PartialValue;
     accumulate(a: AccumulatedValue, b: PartialValue): AccumulatedValue;
-    desc(res: AccumulatedValue): string;
+    desc(value: AccumulatedValue): string;
+    /**
+     * processed: percentage of processed rows (e.g., 0.03 for 3%)
+     */
+    approximate(value: AccumulatedValue, processed: number): ConfidenceInterval;
 }
 
 export class MinAccumulator implements AccumulatorTrait {
@@ -76,8 +83,12 @@ export class MinAccumulator implements AccumulatorTrait {
         return new AccumulatedValue(0, 0, a.count + b.count, Math.min(a.min, b.min), 0, a.nullCount + b.nullCount);
     }
 
-    desc(res: AccumulatedValue) {
-        return `${res.min} (count=${res.count}, nullCount=${res.nullCount})`;
+    desc(value: AccumulatedValue) {
+        return `${value.min} (count=${value.count}, nullCount=${value.nullCount})`;
+    }
+
+    approximate(value: AccumulatedValue) {
+        return new ConfidenceInterval(value.min, 0);
     }
 }
 
@@ -99,8 +110,12 @@ export class MaxAccumulator implements AccumulatorTrait {
         return new AccumulatedValue(0, 0, a.count + b.count, Math.max(a.max, b.max), 0, a.nullCount + b.nullCount);
     }
 
-    desc(res: AccumulatedValue) {
-        return `${res.max} (count=${res.count}, nullCount=${res.nullCount})`;
+    desc(value: AccumulatedValue) {
+        return `${value.max} (count=${value.count}, nullCount=${value.nullCount})`;
+    }
+
+    approximate(value: AccumulatedValue) {
+        return new ConfidenceInterval(value.max, 0);
     }
 }
 
@@ -122,8 +137,17 @@ export class CountAccumulator implements AccumulatorTrait {
         return new AccumulatedValue(0, 0, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
     }
 
-    desc(res: AccumulatedValue) {
-        return `${res.count} (count=${res.count}, nullCount=${res.nullCount})`;
+    desc(value: AccumulatedValue) {
+        return `${value.count} (count=${value.count}, nullCount=${value.nullCount})`;
+    }
+
+    approximate(value: AccumulatedValue, processed: number) {
+        const mean = (value.count + 1 - processed) / processed;
+        const variance = (value.count + 1) * (1 - processed) / processed;
+        const stdev = Math.sqrt(variance);
+        const stdem = stdev / Math.sqrt(value.count);
+
+        return new ConfidenceInterval(mean, stdev);
     }
 }
 
@@ -145,8 +169,19 @@ export class SumAccumulator implements AccumulatorTrait {
         return new AccumulatedValue(a.sum + b.sum, 0, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
     }
 
-    desc(res: AccumulatedValue) {
-        return `${res.sum} (count=${res.count}, nullCount=${res.nullCount})`;
+    desc(value: AccumulatedValue) {
+        return `${value.sum} (count=${value.count}, nullCount=${value.nullCount})`;
+    }
+
+    approximate(value: AccumulatedValue, processed: number) {
+        const mean = value.sum / value.count;
+        const variance = value.ssum / value.count - mean * mean;
+        const stdev = Math.sqrt(variance);
+        const stdem = stdev / Math.sqrt(value.count);
+        const esum = value.sum / processed;
+        const estdem = stdem / processed;
+
+        return new ConfidenceInterval(esum, estdem);
     }
 }
 
@@ -168,7 +203,16 @@ export class MeanAccumulator implements AccumulatorTrait {
         return new AccumulatedValue(a.sum + b.sum, a.ssum + b.ssum, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
     }
 
-    desc(res: AccumulatedValue) {
-        return `${res.sum / res.count} (count=${res.count}, nullCount=${res.nullCount})`;
+    desc(value: AccumulatedValue) {
+        return `${value.sum / value.count} (count=${value.count}, nullCount=${value.nullCount})`;
+    }
+
+    approximate(value: AccumulatedValue) {
+        const mean = value.sum / value.count;
+        const variance = value.ssum / value.count - mean * mean;
+        const stdev = Math.sqrt(variance);
+        const stdem = stdev / Math.sqrt(value.count);
+
+        return new ConfidenceInterval(mean, stdem);
     }
 }

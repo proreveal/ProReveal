@@ -149,15 +149,24 @@ export class AggregateQuery extends Query {
     }
 
     combine(field: FieldTrait) {
+        if(field.vlType === VlType.Quantitative && this.target === null)
+        {
+            return new AggregateQuery(
+                new SumAccumulator(),
+                field,
+                this.dataset,
+                this.groupBy,
+                this.sampler
+            );
+        }
+
         return new AggregateQuery(
             this.accumulator,
             this.target,
             this.dataset,
-            this.groupBy,
+            new GroupBy(this.groupBy.fields.concat(field)),
             this.sampler
         );
-
-        // return new ServerError("aggregateQuery cannot be combined at this moment");
     }
 
     compatible(fields: FieldTrait[]) {
@@ -193,16 +202,12 @@ export class Histogram1DQuery extends AggregateQuery {
     }
 
     combine(field: FieldTrait) {
-        if ([VlType.Dozen, VlType.Nominal, VlType.Ordinal].includes(field.vlType)) {
-            return new AggregateQuery(
-                new SumAccumulator(),
-                this.grouping,
-                this.dataset,
-                new GroupBy([field]),
-                this.sampler);
-        }
-
-        throw new ServerError("Histogram1DQuery + [O, N, D]");
+        return new AggregateQuery(
+            new SumAccumulator(),
+            this.grouping,
+            this.dataset,
+            new GroupBy([field]),
+            this.sampler);
     }
 }
 
@@ -224,15 +229,18 @@ export class Frequency1DQuery extends AggregateQuery {
     }
 
     combine(field: FieldTrait) {
-        if (field.vlType === VlType.Quantitative) {
+        if(field.vlType === VlType.Quantitative) {
             return new AggregateQuery(new SumAccumulator(),
                 field,
                 this.dataset,
                 new GroupBy([this.grouping]),
                 this.sampler);
         }
-
-        throw new ServerError("Frequency1DQuery + [Q]")
+        return new AggregateQuery(new CountAccumulator(),
+            null,
+            this.dataset,
+            new GroupBy([this.grouping, field]),
+            this.sampler);
     }
 }
 
