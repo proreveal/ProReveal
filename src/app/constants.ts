@@ -1,13 +1,11 @@
-export class Constants {
-    static readonly nodeHeight: number = 60;
-    static readonly nodeWidth: number = 60;
-    static readonly nodeMargin: number = 2;
-    static readonly columnSpace: number = 80;
-    static readonly rowSpace: number = 10;
-    static readonly branchRatio: number = 0.5;
-    static readonly linkThickness: number = 2;
-
-    static readonly usePlaceholder: boolean = true;
-
-    static readonly columnSelectorRadius: number = 60;
-}
+export const Constants = Object.freeze({
+    nodeHeight: 60,
+    nodeWidth: 60,
+    nodeMargin: 2,
+    columnSpace: 80,
+    rowSpace: 10,
+    branchRatio: 0.5,
+    linkThickness: 2,
+    usePlaceholder: true,
+    columnSelectorRadius: 60
+});

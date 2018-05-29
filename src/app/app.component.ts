@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Dataset } from './data/dataset';
 import { FieldTrait } from './data/field';
 import { Engine } from './data/engine';
@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
     engine: Engine;
     activeNode: ExplorationNode = null;
 
-    constructor() {
+    constructor(private cd: ChangeDetectorRef) {
 
     }
 

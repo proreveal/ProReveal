@@ -1,3 +1,8 @@
-<p>
-  vis works!
-</p>
+<svg #svg></svg>
+
+<ul>
+    <li *ngFor="let item of node.query.resultList()">
+        {{ item[0].desc() }}: {{ node.query.accumulator.approximate(item[1], node.query.progress.processedPercent()).ci95().desc() }}
+    </li>
+</ul>
+

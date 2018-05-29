@@ -1,29 +1,14 @@
 import { Dataset } from './dataset';
-import { FieldTrait, VlType } from './field';
+import { FieldTrait, VlType, FieldGroupedValueList } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator, CountAccumulator, AccumulatedResponse } from './accumulator';
+import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator, CountAccumulator, AccumulatedResponse, AccumulatedValue } from './accumulator';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
 import { Queue } from './queue';
 import { Job } from './job';
 import { ServerError } from './exception';
-
-export class Progress {
-    processed: number = 0; // # of processed blocks
-    ongoing: number = 0; // # of ongoing blocks
-    total: number = 0; // # of total blocks
-
-    processedPercent() {
-        if (this.total === 0) return 0;
-        return this.processed / this.total;
-    }
-
-    ongoingPercent() {
-        if (this.total === 0) return 0;
-        return this.ongoing / this.total;
-    }
-}
+import { Progress } from './progress';
 
 export abstract class Query {
     id: number;
@@ -31,13 +16,14 @@ export abstract class Query {
     progress: Progress = new Progress();
     name: string;
     result: AccumulatedResponseDictionary;
+    lastUpdated: number; // epoch
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
     }
 
-    resultList() {
-        return Object.keys(this.result).map(key =>
+    resultList(): [FieldGroupedValueList, AccumulatedValue][] {
+        return Object.keys(this.result).map<[FieldGroupedValueList, AccumulatedValue]>(key =>
             [this.result[key].fieldGroupedValueList, this.result[key].accumulatedValue]
         );
         // TODO ordering
@@ -65,7 +51,7 @@ export class EmptyQuery extends Query {
     }
 
     accumulate(job: Job, partialResponses: PartialResponse[]) {
-
+        this.lastUpdated = +new Date();
     }
 
     combine(field: FieldTrait) {
@@ -132,6 +118,8 @@ export class AggregateQuery extends Query {
     }
 
     accumulate(job: Job, partialResponses: PartialResponse[]) {
+        this.lastUpdated = +new Date();
+
         this.progress.processed++;
 
         partialResponses.forEach(pres => {

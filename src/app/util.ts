@@ -121,3 +121,19 @@ export function getCurrentTarget(e: any) {
         return null;
     }
 }
+
+export function translate(x: number, y: number) {
+    return `translate(${x}, ${y})`;
+}
+
+export function srange(n: number) {
+    return arange(n).map(d => d.toString());
+}
+
+export function selectOrAppend(ele: d3.Selection<any, {}, null, undefined>,
+    name: string,
+    classes: string) {
+
+    if(ele.select(classes).size() > 0) return ele.select(classes);
+    return ele.append(name).attr('class', classes.replace(/\./g, ' '));
+}
