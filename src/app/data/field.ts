@@ -23,6 +23,7 @@ export interface FieldTrait {
 
     group(value: any): number;
     ungroup(id: GroupIdType): any;
+    ungroupString(id: GroupIdType): string;
 }
 
 export function guess(values: any[]): [DataType, VlType, boolean] {
@@ -60,7 +61,7 @@ export function guessDataType(values: any[]) {
 
 export class QuantitativeField implements FieldTrait {
     vlType: VlType = VlType.Quantitative;
-    grouper: NumericalGrouper;
+    private grouper: NumericalGrouper;
 
     constructor(public name: string, public dataType: DataType,
         public min: number, public max: number, public numBins: number = 40,
@@ -76,15 +77,18 @@ export class QuantitativeField implements FieldTrait {
     ungroup(id: GroupIdType) {
         return this.grouper.ungroup(id);
     }
+
+    ungroupString(id: GroupIdType) {
+        return this.grouper.ungroupString(id);
+    }
 }
 
 export class CategoricalField implements FieldTrait {
     vlType: VlType = VlType.Dozen;
-    grouper: CategoricalGrouper = new CategoricalGrouper();
+    private grouper: CategoricalGrouper = new CategoricalGrouper();
 
     constructor(public name: string, public dataType: DataType,
         public nullable: boolean = false) {
-
     }
 
     group(value: any) {
@@ -93,6 +97,10 @@ export class CategoricalField implements FieldTrait {
 
     ungroup(id: GroupIdType) {
         return this.grouper.ungroup(id);
+    }
+
+    ungroupString(id: GroupIdType) {
+        return this.grouper.ungroupString(id);
     }
 }
 
@@ -152,6 +160,10 @@ export class FieldGroupedValue {
 
     constructor(public field: FieldTrait, public value: GroupIdType) {
         this.hash = `${field.name}:${value}`;
+    }
+
+    valueString() {
+        return this.field.ungroupString(this.value);
     }
 }
 

@@ -4,5 +4,6 @@ export const VisConstants = Object.freeze({
         axis: {
             height: 20
         }
-    }
+    },
+    padding: 5
 });

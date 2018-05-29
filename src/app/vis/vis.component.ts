@@ -35,10 +35,13 @@ export class VisComponent implements OnInit, DoCheck {
     render() {
         let svg = d3.select(this.svg.nativeElement);
         let data = this.node.query.resultList().map(
-            value => (this.node.query as AggregateQuery).accumulator
-                .approximate(value[1], this.node.query.progress.processedPercent()).ci95());
+            value => { return {
+                keys: value[0],
+                ci: (this.node.query as AggregateQuery).accumulator
+                .approximate(value[1], this.node.query.progress.processedPercent()).ci95()
+            }; });
 
-        data.sort((a, b) => { return b.center - a.center; });
+        data.sort((a, b) => { return b.ci.center - a.ci.center; });
 
         const height = VisConstants.horizontalBars.axis.height * 2 +
             VisConstants.horizontalBars.height * data.length;
@@ -46,9 +49,11 @@ export class VisComponent implements OnInit, DoCheck {
 
         svg.attr('width', width).attr('height', height);
 
+        const nameWidth = 100;
+
         const xMin = 0;
-        const xMax = d3.max(data, d => d.center);
-        const xScale = d3.scaleLinear().domain([xMin, xMax]).range([0, width]);
+        const xMax = d3.max(data, d => d.ci.center);
+        const xScale = d3.scaleLinear().domain([xMin, xMax]).range([nameWidth, width - VisConstants.padding]);
         const yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([VisConstants.horizontalBars.axis.height,
                 height - VisConstants.horizontalBars.axis.height])
@@ -61,18 +66,35 @@ export class VisComponent implements OnInit, DoCheck {
             .transition()
             .call(topAxis as any);
 
-        const bars = svg
-            .selectAll('rect')
+        const labels = svg
+            .selectAll('text.label')
             .data(data)
 
-        let enter = bars
+        let enter = labels.enter().append('text').attr('class', 'label')
+            .style('text-anchor', 'end')
+            .attr('font-size', '.8rem')
+            .attr('dy', '.8rem')
+
+
+        labels.merge(enter)
+            .attr('transform', (d, i) => util.translate(nameWidth - VisConstants.padding, yScale(i+'')))
+            .text(d => d.keys.list[0].valueString())
+
+        labels.exit().remove();
+
+        const bars = svg
+            .selectAll('rect.bar')
+            .data(data)
+
+        enter = bars
             .enter()
             .append('rect')
+            .attr('class', 'bar')
 
         bars.merge(enter)
             .attr('height', yScale.bandwidth())
-            .attr('width', d => xScale(d.center))
-            .attr('transform', (d, i) => util.translate(0, yScale(i+'')))
+            .attr('width', d => xScale(d.ci.center) - xScale(xMin))
+            .attr('transform', (d, i) => util.translate(xScale(xMin), yScale(i+'')))
             .attr('fill', 'steelblue')
 
         bars.exit().remove();

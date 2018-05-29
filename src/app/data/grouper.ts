@@ -3,6 +3,7 @@ import { isUndefined, isNull } from 'util';
 
 export type GroupIdType = number;
 export const NullGroupId = Number.MAX_SAFE_INTEGER;
+export const NullString = '(empty)';
 
 /**
  * maps a string value to a number
@@ -33,8 +34,13 @@ export class CategoricalGrouper {
         return this.dict[value];
     }
 
-    ungroup(id: GroupIdType) {
+    ungroup(id: GroupIdType): any {
         return this.inverse[id];
+    }
+
+    ungroupString(id: GroupIdType): string {
+        if(id === NullGroupId) return NullString;
+        return this.ungroup(id).toString();
     }
 }
 
@@ -72,5 +78,10 @@ export class NumericalGrouper {
         if (id === NullGroupId) return null;
 
         return [this.base + this.step * id, this.base + this.step * (id + 1)];
+    }
+
+    ungroupString(id: GroupIdType): string {
+        if(id === NullGroupId) return NullString;
+        return this.ungroup(id).toString();
     }
 }
