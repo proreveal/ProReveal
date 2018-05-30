@@ -1,6 +1,7 @@
 import { Query } from "../data/query";
 import { isNull } from "util";
 import { Constants } from '../constants';
+import { NumericalOrdering, OrderingDirection } from "../data/ordering";
 
 export class Visual {
     top: number = 0;
@@ -27,6 +28,13 @@ export class Visual {
 export class ExplorationNode {
     children: ExplorationNode[] = [];
     visual: Visual = new Visual();
+
+    ordering = NumericalOrdering;
+    orderingGetter = d => d;
+    orderingDirection = OrderingDirection.Descending;
+
+    domainStart = Number.MAX_VALUE;
+    domainEnd = -Number.MAX_VALUE;
 
     constructor(public parent: ExplorationNode, public query: Query | null) {
 

@@ -19,12 +19,9 @@ export abstract class Query {
     name: string;
     result: AccumulatedResponseDictionary;
     lastUpdated: number; // epoch
-    ordering = NumericalOrdering;
-    orderingGetter = d => d;
-    orderingDirection = OrderingDirection.Descending;
-
-    domainStart = Number.MAX_VALUE;
-    domainEnd = -Number.MAX_VALUE;
+    defaultOrdering = NumericalOrdering;
+    defaultOrderingGetter = d => d;
+    defaultOrderingDirection = OrderingDirection.Descending;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -183,9 +180,9 @@ export class AggregateQuery extends Query {
  */
 export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
-    ordering = NumericalOrdering;
-    orderingDirection = OrderingDirection.Ascending;
-    orderingGetter = d => (d.keys as FieldGroupedValueList).list[0].value;
+    defaultOrdering = NumericalOrdering;
+    defaultOrderingDirection = OrderingDirection.Ascending;
+    defaultOrderingGetter = d => (d.keys as FieldGroupedValueList).list[0].value;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
@@ -213,8 +210,8 @@ export class Histogram1DQuery extends AggregateQuery {
  */
 export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
-    ordering = NumericalOrdering;
-    orderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
+    defaultOrdering = NumericalOrdering;
+    defaultOrderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(

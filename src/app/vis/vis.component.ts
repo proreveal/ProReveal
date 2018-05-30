@@ -46,13 +46,14 @@ export class VisComponent implements OnInit, DoCheck {
 
     render() {
         let svg = d3.select(this.svg.nativeElement);
+        let node = this.node;
         let query = this.node.query as AggregateQuery;
         let processedPercent = query.progress.processedPercent();
         let done = query.progress.done();
 
         let data = query.resultList().map(
             value => {
-                const ai = (query as AggregateQuery).accumulator
+                const ai = query.accumulator
                     .approximate(value[1], processedPercent);
 
                 return {
@@ -62,7 +63,7 @@ export class VisComponent implements OnInit, DoCheck {
                 };
             });
 
-        data.sort(query.ordering(query.orderingGetter, query.orderingDirection));
+        data.sort(node.ordering(query.defaultOrderingGetter, query.defaultOrderingDirection));
 
         const height = VC.horizontalBars.axis.height * 2 +
             VC.horizontalBars.height * data.length;
@@ -81,10 +82,10 @@ export class VisComponent implements OnInit, DoCheck {
         const domainStart = niceTicks[0];
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
-        if (query.domainStart > domainStart) query.domainStart = domainStart;
-        if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
+        if (node.domainStart > domainStart) node.domainStart = domainStart;
+        if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
 
-        const xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd]).range([labelWidth, width - VC.padding]);
+        const xScale = d3.scaleLinear().domain([node.domainStart, node.domainEnd]).range([labelWidth, width - VC.padding]);
         const yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([VC.horizontalBars.axis.height,
             height - VC.horizontalBars.axis.height])
