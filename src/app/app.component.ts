@@ -13,7 +13,6 @@ import { ExplorationViewComponent } from './exploration/exploration-view.compone
 import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { Constants } from './constants';
-import { normalcdf } from './data/cdf';
 
 @Component({
     selector: 'app-root',

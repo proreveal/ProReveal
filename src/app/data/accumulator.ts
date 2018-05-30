@@ -1,6 +1,6 @@
 import { FieldTrait, FieldValueList, FieldGroupedValueList } from './field';
 import { isNull } from 'util';
-import { ConfidenceInterval } from './approx';
+import { ApproximatedInterval } from './approx';
 
 
 
@@ -62,7 +62,7 @@ export interface AccumulatorTrait {
     /**
      * processed: percentage of processed rows (e.g., 0.03 for 3%)
      */
-    approximate(value: AccumulatedValue, processed: number): ConfidenceInterval;
+    approximate(value: AccumulatedValue, processed: number): ApproximatedInterval;
 }
 
 export class MinAccumulator implements AccumulatorTrait {
@@ -88,7 +88,7 @@ export class MinAccumulator implements AccumulatorTrait {
     }
 
     approximate(value: AccumulatedValue) {
-        return new ConfidenceInterval(value.min, 0);
+        return new ApproximatedInterval(value.min, 0);
     }
 }
 
@@ -115,7 +115,7 @@ export class MaxAccumulator implements AccumulatorTrait {
     }
 
     approximate(value: AccumulatedValue) {
-        return new ConfidenceInterval(value.max, 0);
+        return new ApproximatedInterval(value.max, 0);
     }
 }
 
@@ -147,7 +147,7 @@ export class CountAccumulator implements AccumulatorTrait {
         const stdev = Math.sqrt(variance);
         const stdem = stdev / Math.sqrt(value.count);
 
-        return new ConfidenceInterval(mean, stdev);
+        return new ApproximatedInterval(mean, stdev);
     }
 }
 
@@ -181,7 +181,7 @@ export class SumAccumulator implements AccumulatorTrait {
         const esum = value.sum / processed;
         const estdem = stdem / processed;
 
-        return new ConfidenceInterval(esum, estdem);
+        return new ApproximatedInterval(esum, estdem);
     }
 }
 
@@ -213,6 +213,6 @@ export class MeanAccumulator implements AccumulatorTrait {
         const stdev = Math.sqrt(variance);
         const stdem = stdev / Math.sqrt(value.count);
 
-        return new ConfidenceInterval(mean, stdem);
+        return new ApproximatedInterval(mean, stdem);
     }
 }

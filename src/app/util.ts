@@ -139,34 +139,8 @@ export function getCurrentTarget(e: any) {
     }
 }
 
-export function translate(x: number, y: number) {
-    return `translate(${x}, ${y})`;
-}
-
 export function srange(n: number) {
     return arange(n).map(d => d.toString());
 }
 
-export function selectOrAppend(ele: d3.Selection<any, {}, null, undefined>,
-    name: string,
-    classes: string) {
 
-    if(ele.select(classes).size() > 0) return ele.select(classes);
-    return ele.append(name).attr('class', classes.replace(/\./g, ' '));
-}
-
-let svg: SVGSVGElement, textNode: SVGTextElement;
-
-export function measure(label: string, fontSize: string = '1rem') {
-    if(!svg) {
-        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        textNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        svg.appendChild(textNode);
-        document.querySelector('body').appendChild(svg);
-        svg.style.visibility = 'hidden';
-    }
-
-    textNode.style.fontSize = fontSize;
-    textNode.innerHTML = label;
-    return textNode.getBBox();
-}

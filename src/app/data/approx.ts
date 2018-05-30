@@ -1,12 +1,16 @@
 const Z95 = 1.96;
 
-export class ConfidenceInterval {
+export class ApproximatedInterval {
     constructor(public center: number, public stdem: number) {
 
     }
 
     ci95() {
-        return new CI95(this.center, this.center - Z95 * this.stdem, this.center + Z95 * this.stdem);
+        return this.range(Z95);
+    }
+
+    range(factor: number) {
+        return new ConfidenceInterval(this.center, this.center - factor * this.stdem, this.center + factor * this.stdem);
     }
 
     desc() {
@@ -14,7 +18,7 @@ export class ConfidenceInterval {
     }
 }
 
-export class CI95 {
+export class ConfidenceInterval {
     constructor(public center: number, public low: number, public high: number) {
 
     }

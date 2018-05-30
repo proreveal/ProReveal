@@ -5,6 +5,11 @@ import * as util from '../util';
 import { AccumulatedResponseDictionary } from '../data/accumulator';
 import { VisConstants } from './vis-constants';
 import { AggregateQuery } from '../data/query';
+import { measure } from '../d3-utils/measure';
+import { translate, selectOrAppend } from '../d3-utils/d3-utils';
+import { Gradient } from './errorbars/gradient';
+import { FieldGroupedValueList } from '../data/field';
+import { ConfidenceInterval } from '../data/approx';
 
 @Component({
     selector: 'vis',
@@ -18,10 +23,15 @@ export class VisComponent implements OnInit, DoCheck {
     queryLastUpdated: number;
     lastNode: ExplorationNode;
 
+    gradient = new Gradient();
+
     constructor(private cd: ChangeDetectorRef) { }
 
     ngOnInit() {
         this.queryLastUpdated = this.node.query.lastUpdated;
+
+        this.gradient.setup(d3.select(this.svg.nativeElement).append('defs'));
+
         this.render();
     }
 
@@ -37,13 +47,18 @@ export class VisComponent implements OnInit, DoCheck {
     render() {
         let svg = d3.select(this.svg.nativeElement);
         let data = this.node.query.resultList().map(
-            value => { return {
-                keys: value[0],
-                ci: (this.node.query as AggregateQuery).accumulator
-                .approximate(value[1], this.node.query.progress.processedPercent()).ci95()
-            }; });
+            value => {
+                const ai = (this.node.query as AggregateQuery).accumulator
+                    .approximate(value[1], this.node.query.progress.processedPercent());
 
-        data.sort((a, b) => { return b.ci.center - a.ci.center; });
+                return {
+                    id: value[0].hash,
+                    keys: value[0],
+                    ci3stdev: ai.range(3)
+                };
+            });
+
+        data.sort((a, b) => { return b.ci3stdev.center - a.ci3stdev.center; });
 
         const height = VisConstants.horizontalBars.axis.height * 2 +
             VisConstants.horizontalBars.height * data.length;
@@ -52,10 +67,10 @@ export class VisComponent implements OnInit, DoCheck {
         svg.attr('width', width).attr('height', height);
 
         let [, longest, ] = util.amax(data, d => d.keys.list[0].valueString().length);
-        const labelWidth = util.measure(longest.keys.list[0].valueString()).width;
+        const labelWidth = measure(longest.keys.list[0].valueString()).width;
 
         const xMin = 0;
-        const xMax = d3.max(data, d => d.ci.center);
+        const xMax = d3.max(data, d => d.ci3stdev.high);
         const xScale = d3.scaleLinear().domain([xMin, xMax]).range([labelWidth, width - VisConstants.padding]);
         const yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([VisConstants.horizontalBars.axis.height,
@@ -64,50 +79,85 @@ export class VisComponent implements OnInit, DoCheck {
 
         const topAxis = d3.axisTop(xScale);
 
-        util.selectOrAppend(svg, 'g', '.x.axis.top')
-            .attr('transform', util.translate(0, VisConstants.horizontalBars.axis.height))
+        selectOrAppend(svg, 'g', '.x.axis.top')
+            .attr('transform', translate(0, VisConstants.horizontalBars.axis.height))
             .transition()
             .call(topAxis as any);
 
         const labels = svg
             .selectAll('text.label')
-            .data(data)
+            .data(data, (d:any) => d.id);
 
         let enter = labels.enter().append('text').attr('class', 'label')
             .style('text-anchor', 'end')
             .attr('font-size', '.8rem')
             .attr('dy', '.8rem')
 
-
         labels.merge(enter)
-            .attr('transform', (d, i) => util.translate(labelWidth - VisConstants.padding, yScale(i+'')))
+            .attr('transform', (d, i) => translate(labelWidth - VisConstants.padding, yScale(i+'')))
             .text(d => d.keys.list[0].valueString())
 
         labels.exit().remove();
 
-        const bars = svg
-            .selectAll('rect.bar')
-            .data(data)
+        const leftBars = svg
+            .selectAll('rect.left.bar')
+            .data(data, (d:any) => d.id);
 
-        enter = bars
+        enter = leftBars
             .enter()
             .append('rect')
-            .attr('class', 'bar')
+            .attr('class', 'left bar')
 
-        bars.merge(enter)
+        leftBars.merge(enter)
             .attr('height', yScale.bandwidth())
-            .attr('width', d => xScale(d.ci.center) - xScale(xMin))
-            .attr('transform', (d, i) => util.translate(xScale(xMin), yScale(i+'')))
-            .attr('fill', 'steelblue')
+            .attr('width', d => xScale(d.ci3stdev.center) - xScale(d.ci3stdev.low))
+            .attr('transform', (d, i) => translate(xScale(d.ci3stdev.low), yScale(i+'')))
+            .attr('fill', this.gradient.leftUrl())
 
-        bars.exit().remove();
+        leftBars.exit().remove();
+
+        const rightBars = svg
+            .selectAll('rect.right.bar')
+            .data(data, (d:any) => d.id);
+
+        enter = rightBars
+            .enter()
+            .append('rect')
+            .attr('class', 'right bar')
+
+        rightBars.merge(enter)
+            .attr('height', yScale.bandwidth())
+            .attr('width', d => xScale(d.ci3stdev.high) - xScale(d.ci3stdev.center))
+            .attr('transform', (d, i) => translate(xScale(d.ci3stdev.center), yScale(i+'')))
+            .attr('fill', this.gradient.rightUrl())
+
+        rightBars.exit().remove();
+
+        const centerLines = svg
+            .selectAll('line.center')
+            .data(data, (d:any) => d.id);
+
+        enter = centerLines
+            .enter()
+            .append('line')
+            .attr('class', 'center')
+
+        centerLines.merge(enter)
+            .attr('x1', (d, i) => xScale(d.ci3stdev.center))
+            .attr('y1', (d, i) => yScale(i + ''))
+            .attr('x2', (d, i) => xScale(d.ci3stdev.center))
+            .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth())
+            .style('stroke-width', 0.5)
+            .style('stroke', 'black')
+            .style('shape-rendering', 'crispEdges')
+
+        centerLines.exit().remove();
 
         const bottomAxis = d3.axisBottom(xScale);
 
-        util.selectOrAppend(svg, 'g', '.x.axis.bottom')
-            .attr('transform', util.translate(0, height - VisConstants.horizontalBars.axis.height))
+        selectOrAppend(svg, 'g', '.x.axis.bottom')
+            .attr('transform', translate(0, height - VisConstants.horizontalBars.axis.height))
             .transition()
             .call(bottomAxis as any);
-
     }
 }
