@@ -16,6 +16,7 @@ export class VisComponent implements OnInit, DoCheck {
     @ViewChild('svg') svg: ElementRef;
 
     queryLastUpdated: number;
+    lastNode: ExplorationNode;
 
     constructor(private cd: ChangeDetectorRef) { }
 
@@ -25,8 +26,9 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     ngDoCheck() {
-        if (this.queryLastUpdated < this.node.query.lastUpdated) {
+        if (this.queryLastUpdated < this.node.query.lastUpdated || this.lastNode != this.node) {
             this.queryLastUpdated = this.node.query.lastUpdated;
+            this.lastNode = this.node;
 
             this.render();
         }
@@ -49,11 +51,12 @@ export class VisComponent implements OnInit, DoCheck {
 
         svg.attr('width', width).attr('height', height);
 
-        const nameWidth = 100;
+        let [, longest, ] = util.amax(data, d => d.keys.list[0].valueString().length);
+        const labelWidth = util.measure(longest.keys.list[0].valueString()).width;
 
         const xMin = 0;
         const xMax = d3.max(data, d => d.ci.center);
-        const xScale = d3.scaleLinear().domain([xMin, xMax]).range([nameWidth, width - VisConstants.padding]);
+        const xScale = d3.scaleLinear().domain([xMin, xMax]).range([labelWidth, width - VisConstants.padding]);
         const yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([VisConstants.horizontalBars.axis.height,
                 height - VisConstants.horizontalBars.axis.height])
@@ -77,7 +80,7 @@ export class VisComponent implements OnInit, DoCheck {
 
 
         labels.merge(enter)
-            .attr('transform', (d, i) => util.translate(nameWidth - VisConstants.padding, yScale(i+'')))
+            .attr('transform', (d, i) => util.translate(labelWidth - VisConstants.padding, yScale(i+'')))
             .text(d => d.keys.list[0].valueString())
 
         labels.exit().remove();

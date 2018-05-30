@@ -95,6 +95,23 @@ export function arange(start: number, end?: number, step?: number): number[] {
     return array;
 }
 
+export function amax<T>(array: T[], mapper:(a:T) => number): [number, T, number] {
+    let max = -Number.MAX_VALUE;
+    let maxItem = null;
+    let maxIndex = -1;
+
+    array.forEach((d, i) => {
+        let value = mapper(d);
+        if(max < value) {
+            max = value;
+            maxItem = d;
+            maxIndex = i;
+        }
+    })
+
+    return [max, maxItem, maxIndex];
+}
+
 /**
  * Shuffles array in place.
  * @param {Array} a items An array containing the items.
@@ -136,4 +153,20 @@ export function selectOrAppend(ele: d3.Selection<any, {}, null, undefined>,
 
     if(ele.select(classes).size() > 0) return ele.select(classes);
     return ele.append(name).attr('class', classes.replace(/\./g, ' '));
+}
+
+let svg: SVGSVGElement, textNode: SVGTextElement;
+
+export function measure(label: string, fontSize: string = '1rem') {
+    if(!svg) {
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        textNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        svg.appendChild(textNode);
+        document.querySelector('body').appendChild(svg);
+        svg.style.visibility = 'hidden';
+    }
+
+    textNode.style.fontSize = fontSize;
+    textNode.innerHTML = label;
+    return textNode.getBBox();
 }
