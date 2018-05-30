@@ -9,6 +9,8 @@ import { Queue } from './queue';
 import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
+import { OrderingType, NumericalOrdering, OrderingDirection } from './ordering';
+import { ConfidenceInterval } from './approx';
 
 export abstract class Query {
     id: number;
@@ -17,6 +19,12 @@ export abstract class Query {
     name: string;
     result: AccumulatedResponseDictionary;
     lastUpdated: number; // epoch
+    ordering = NumericalOrdering;
+    orderingGetter = d => d;
+    orderingDirection = OrderingDirection.Descending;
+
+    domainStart = Number.MAX_VALUE;
+    domainEnd = -Number.MAX_VALUE;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -26,7 +34,6 @@ export abstract class Query {
         return Object.keys(this.result).map<[FieldGroupedValueList, AccumulatedValue]>(key =>
             [this.result[key].fieldGroupedValueList, this.result[key].accumulatedValue]
         );
-        // TODO ordering
     }
 
     abstract jobs(): Job[];
@@ -137,8 +144,7 @@ export class AggregateQuery extends Query {
     }
 
     combine(field: FieldTrait) {
-        if(field.vlType === VlType.Quantitative && this.target === null)
-        {
+        if (field.vlType === VlType.Quantitative && this.target === null) {
             return new AggregateQuery(
                 new SumAccumulator(),
                 field,
@@ -164,7 +170,7 @@ export class AggregateQuery extends Query {
     desc() {
         let desc = `${this.accumulator.name}(${this.target ? this.target.name : '*'}) `;
 
-        if(this.groupBy.fields.length > 0) {
+        if (this.groupBy.fields.length > 0) {
             desc += 'group by ' + this.groupBy.fields.map(f => f.name).join(', ');
         }
 
@@ -177,6 +183,9 @@ export class AggregateQuery extends Query {
  */
 export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
+    ordering = NumericalOrdering;
+    orderingDirection = OrderingDirection.Ascending;
+    orderingGetter = d => (d.keys as FieldGroupedValueList).list[0].value;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
@@ -204,6 +213,8 @@ export class Histogram1DQuery extends AggregateQuery {
  */
 export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
+    ordering = NumericalOrdering;
+    orderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
@@ -217,7 +228,7 @@ export class Frequency1DQuery extends AggregateQuery {
     }
 
     combine(field: FieldTrait) {
-        if(field.vlType === VlType.Quantitative) {
+        if (field.vlType === VlType.Quantitative) {
             return new AggregateQuery(new SumAccumulator(),
                 field,
                 this.dataset,

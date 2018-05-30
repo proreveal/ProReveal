@@ -46,12 +46,13 @@ export class VisComponent implements OnInit, DoCheck {
 
     render() {
         let svg = d3.select(this.svg.nativeElement);
-        let processedPercent = this.node.query.progress.processedPercent();
-        let done = this.node.query.progress.done();
+        let query = this.node.query as AggregateQuery;
+        let processedPercent = query.progress.processedPercent();
+        let done = query.progress.done();
 
-        let data = this.node.query.resultList().map(
+        let data = query.resultList().map(
             value => {
-                const ai = (this.node.query as AggregateQuery).accumulator
+                const ai = (query as AggregateQuery).accumulator
                     .approximate(value[1], processedPercent);
 
                 return {
@@ -61,7 +62,7 @@ export class VisComponent implements OnInit, DoCheck {
                 };
             });
 
-        data.sort((a, b) => { return b.ci3stdev.center - a.ci3stdev.center; });
+        data.sort(query.ordering(query.orderingGetter, query.orderingDirection));
 
         const height = VC.horizontalBars.axis.height * 2 +
             VC.horizontalBars.height * data.length;
@@ -72,20 +73,39 @@ export class VisComponent implements OnInit, DoCheck {
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth = measure(longest.keys.list[0].valueString()).width;
 
-        const xMin = 0;
+        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
         const xMax = d3.max(data, d => d.ci3stdev.high);
-        const xScale = d3.scaleLinear().domain([xMin, xMax]).range([labelWidth, width - VC.padding]);
+
+        const niceTicks = d3.ticks(xMin, xMax, 10);
+        const step = niceTicks[1] - niceTicks[0];
+        const domainStart = niceTicks[0];
+        const domainEnd = niceTicks[niceTicks.length - 1] + step;
+
+        if(query.domainStart > domainStart) query.domainStart = domainStart;
+        if(query.domainEnd < domainEnd) query.domainEnd = domainEnd;
+
+        const xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd]).range([labelWidth, width - VC.padding]);
         const yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([VC.horizontalBars.axis.height,
             height - VC.horizontalBars.axis.height])
             .padding(0.1);
+
+        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height));
+
+        selectOrAppend(svg, 'g', '.sub.axis')
+            .style('opacity', .2)
+            .attr('transform', translate(0, VC.horizontalBars.axis.height))
+            .transition()
+            .call(majorTickLines as any)
+            .selectAll('text')
+            .style('display', 'none')
 
         const topAxis = d3.axisTop(xScale);
 
         selectOrAppend(svg, 'g', '.x.axis.top')
             .attr('transform', translate(0, VC.horizontalBars.axis.height))
             .transition()
-            .call(topAxis as any);
+            .call(topAxis as any)
 
         const labels = svg
             .selectAll('text.label')
@@ -101,6 +121,21 @@ export class VisComponent implements OnInit, DoCheck {
             .text(d => d.keys.list[0].valueString())
 
         labels.exit().remove();
+
+        const labelLines = svg.selectAll('line.label').data(data, (d: any) => d.id);
+
+        enter = labelLines.enter().append('line').attr('class', 'label')
+            .style('stroke', 'black')
+            .style('opacity', 0.2);
+
+        labelLines.merge(enter)
+            .attr('x1', xScale.range()[0])
+            .attr('x2', xScale.range()[1])
+            .attr('y1', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
+            .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
+
+        labelLines.exit().remove();
+
 
         const leftBars = svg
             .selectAll('rect.left.bar')
@@ -174,6 +209,6 @@ export class VisComponent implements OnInit, DoCheck {
         selectOrAppend(svg, 'g', '.x.axis.bottom')
             .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
             .transition()
-            .call(bottomAxis as any);
+            .call(bottomAxis as any)
     }
 }
