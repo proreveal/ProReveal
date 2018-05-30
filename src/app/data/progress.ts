@@ -12,4 +12,8 @@ export class Progress {
         if (this.total === 0) return 0;
         return this.ongoing / this.total;
     }
+
+    done() {
+        return this.total === this.processed;
+    }
 }

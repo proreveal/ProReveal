@@ -3,7 +3,8 @@ export const VisConstants = Object.freeze({
         height: 20,
         axis: {
             height: 20
-        }
+        },
+        circleRadius: 3
     },
     padding: 5
 });
