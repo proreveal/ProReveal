@@ -78,8 +78,8 @@ export class QuantitativeField implements FieldTrait {
         return this.grouper.ungroup(id);
     }
 
-    ungroupString(id: GroupIdType) {
-        return this.grouper.ungroupString(id);
+    ungroupString(id: GroupIdType, format?: string) {
+        return this.grouper.ungroupString(id, format);
     }
 }
 

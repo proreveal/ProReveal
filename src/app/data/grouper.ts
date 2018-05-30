@@ -1,4 +1,6 @@
 import * as d3 from 'd3-array';
+import * as d3format from 'd3-format';
+
 import { isUndefined, isNull } from 'util';
 
 export type GroupIdType = number;
@@ -80,8 +82,9 @@ export class NumericalGrouper {
         return [this.base + this.step * id, this.base + this.step * (id + 1)];
     }
 
-    ungroupString(id: GroupIdType): string {
+    ungroupString(id: GroupIdType, format: string = '~s'): string {
         if(id === NullGroupId) return NullString;
-        return this.ungroup(id).toString();
+        let ug = this.ungroup(id);
+        return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
     }
 }

@@ -81,8 +81,8 @@ export class VisComponent implements OnInit, DoCheck {
         const domainStart = niceTicks[0];
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
-        if(query.domainStart > domainStart) query.domainStart = domainStart;
-        if(query.domainEnd < domainEnd) query.domainEnd = domainEnd;
+        if (query.domainStart > domainStart) query.domainStart = domainStart;
+        if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
         const xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd]).range([labelWidth, width - VC.padding]);
         const yScale = d3.scaleBand().domain(util.srange(data.length))
