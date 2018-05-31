@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
 
             // server.request(query);
 
-            for(let i=0;i<40;i++) {
+            for(let i=0;i<1;i++) {
                 this.engine.run();
             }
             // console.log(JSON.stringify(query.result));

@@ -12,8 +12,8 @@
 
     <progress-ring [processed]="1" [ongoing]="0" *ngIf="node.isRoot()"></progress-ring>
     <div class="node-body">
-        <fa name="{{node.chartType}}-chart" *ngIf="!node.isRoot()"></fa>
-        <fa name="search" *ngIf="node.isRoot()"></fa>
+        <fa-icon icon="{{node.chartType}}-chart" *ngIf="!node.isRoot()"></fa-icon>
+        <fa-icon icon="search" *ngIf="node.isRoot()"></fa-icon>
     </div>
 
     <span style="font-size:12px; position: relative; top:-40px">{{ node.query.name }}</span>
@@ -101,8 +101,8 @@
         [style.left.px]="node.firstChild().visual.left"
         [style.top.px]="node.lastChild().visual.bottom(true)"
     >
-        <fa name="plus" [hidden]="selectorOpened"></fa>
-        <fa name="times" [hidden]="!selectorOpened"></fa>
+        <fa-icon icon="plus" [hidden]="selectorOpened"></fa-icon>
+        <fa-icon icon="times" [hidden]="!selectorOpened"></fa-icon>
     </div>
 
 
@@ -139,8 +139,8 @@
         [style.left.px]="node.visual.right() + constants.columnSpace"
         [style.top.px]="node.visual.top"
     >
-        <fa name="plus" [hidden]="selectorOpened"></fa>
-        <fa name="times" [hidden]="!selectorOpened"></fa>
+        <fa-icon name="plus" [hidden]="selectorOpened"></fa-icon>
+        <fa-icon name="times" [hidden]="!selectorOpened"></fa-icon>
     </div>
 
     <div class="horizontal-link"

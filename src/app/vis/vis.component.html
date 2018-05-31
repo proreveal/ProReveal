@@ -1,5 +1,23 @@
 <div>
-    Progress view
+    {{ node.query.progress.processedPercent() | percent }}
 
+    <button type="button" class="btn btn-light btn-sm">
+        <fa-icon icon="check-square"></fa-icon>
+        <fa-icon [icon]="['far', 'square']"></fa-icon>
+
+        Update automatically
+    </button>
+
+    <div class="progress">
+        <div class="progress-bar" role="progressbar"
+            [style.width.%]="node.query.progress.processedPercent() * 100"
+            [attr.aria-valuenow]="node.query.progress.processedPercent() * 100"
+            aria-valuemin="0" aria-valuemax="100">
+        </div>
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+            [style.width.%]="node.query.progress.ongoingPercent() * 100"
+            [attr.aria-valuenow]="node.query.progress.ongoingPercent() * 100"
+            aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
 </div>
 <svg #svg></svg>
