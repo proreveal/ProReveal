@@ -1,9 +1,9 @@
 <div>
     {{ node.query.progress.processedPercent() | percent }}
 
-    <button type="button" class="btn btn-light btn-sm">
-        <fa-icon icon="check-square"></fa-icon>
-        <fa-icon [icon]="['far', 'square']"></fa-icon>
+    <button type="button" class="btn btn-light btn-sm" (click)="node.updateAutomatically=!node.updateAutomatically">
+        <fa-icon icon="check-square" [hidden]="!node.updateAutomatically"></fa-icon>
+        <fa-icon [icon]="['far', 'square']" [hidden]="node.updateAutomatically"></fa-icon>
 
         Update automatically
     </button>

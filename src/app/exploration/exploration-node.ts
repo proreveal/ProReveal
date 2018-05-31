@@ -36,6 +36,8 @@ export class ExplorationNode {
     domainStart = Number.MAX_VALUE;
     domainEnd = -Number.MAX_VALUE;
 
+    updateAutomatically = true;
+
     constructor(public parent: ExplorationNode, public query: Query | null) {
 
     }
