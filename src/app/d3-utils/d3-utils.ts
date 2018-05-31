@@ -30,8 +30,14 @@ export function srange(n: number) {
 
 export function selectOrAppend(ele: d3.Selection<any, {}, null, undefined>,
     name: string,
-    dotSplittedClassNames: string /*dd*/) {
+    dotSplitClassNames?: string) {
 
-    if(ele.select(dotSplittedClassNames).size() > 0) return ele.select(dotSplittedClassNames);
-    return ele.append(name).attr('class', dotSplittedClassNames.replace(/\./g, ' '));
+    if(dotSplitClassNames) {
+        if(ele.select(dotSplitClassNames).size() > 0) return ele.select(dotSplitClassNames);
+        return ele.append(name).attr('class', dotSplitClassNames.replace(/\./g, ' '));
+    }
+    else {
+        if(ele.select(name).size() > 0) return ele.select(name);
+        return ele.append(name);
+    }
 }
