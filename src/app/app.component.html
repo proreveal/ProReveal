@@ -28,14 +28,6 @@
                 Description: {{ activeNode.query.desc() }}
                 <br /> Progress: {{ activeNode.query.progress.processed }} / {{ activeNode.query.progress.total }}
             </p>
-
-            <h3>Result (to be visualized)</h3>
-            <ul>
-                <li *ngFor="let item of activeNode.query.resultList()">
-                    {{ item[0].desc() }}: {{ activeNode.query.accumulator.approximate(item[1], activeNode.query.progress.processedPercent()).ci95().desc()
-                    }}
-                </li>
-            </ul>
         </div>
     </section>
 

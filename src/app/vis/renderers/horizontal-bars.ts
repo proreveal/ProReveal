@@ -194,7 +194,13 @@ export class HorizontalBarsRenderer extends Renderer {
             .attr('width', width)
             .attr('transform', (d, i) => translate(0, yScale(i + '')))
             .on('mouseover', (d, i) => {
-                tooltip.show(30, yScale(i + ''), HorizontalBarsTooltipComponent);
+                const clientRect = nativeSvg.getBoundingClientRect();
+                tooltip.show(
+                    clientRect.left + xScale(d.ci3stdev.center),
+                    clientRect.top + yScale(i + ''),
+                    HorizontalBarsTooltipComponent,
+                    d
+                );
             })
 
         eventBoxes.exit().remove();

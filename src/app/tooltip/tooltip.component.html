@@ -4,10 +4,9 @@
     [style.top.px]="top"
     >
     <div class="arrow"
-        [style.left.px]="10"
+        [style.left.px]="arrowLeft"
     ></div>
-    <div class="tooltip-inner">
-        Some tooltip text!
+    <div class="tooltip-inner" #inner>
         <ng-template tooltip-host></ng-template>
     </div>
 </div>
