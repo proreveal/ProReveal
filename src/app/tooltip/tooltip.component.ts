@@ -12,6 +12,7 @@ export class TooltipComponent implements OnInit {
     left: number;
     top: number;
     arrowLeft: number = 0;
+    visible = false;
 
     @ViewChild(TooltipHostDirective) tooltipHost: TooltipHostDirective;
     @ViewChild('inner') inner: ElementRef;
@@ -24,6 +25,8 @@ export class TooltipComponent implements OnInit {
     show(left: number, top: number,
         component: typeof HorizontalBarsTooltipComponent,
         data: any) {
+        this.visible = true;
+
         let componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
 
         let viewContainerRef = this.tooltipHost.viewContainerRef;
@@ -48,6 +51,6 @@ export class TooltipComponent implements OnInit {
     }
 
     hide() {
-
+        this.visible = false;
     }
 }

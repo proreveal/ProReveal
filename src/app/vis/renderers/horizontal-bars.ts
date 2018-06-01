@@ -202,6 +202,9 @@ export class HorizontalBarsRenderer extends Renderer {
                     d
                 );
             })
+            .on('mouseout', (d, i) => {
+                tooltip.hide();
+            })
 
         eventBoxes.exit().remove();
 
