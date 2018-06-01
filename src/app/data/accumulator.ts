@@ -167,11 +167,11 @@ export class SumAccumulator implements AccumulatorTrait {
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(a.sum, 0, a.count + 1, 0, 0, a.nullCount + 1);
-        return new PartialValue(a.sum + b, 0, a.count + 1, 0, 0, a.nullCount);
+        return new PartialValue(a.sum + b, a.ssum + b * b, a.count + 1, 0, 0, a.nullCount);
     }
 
     accumulate(a: AccumulatedValue, b: PartialValue) {
-        return new AccumulatedValue(a.sum + b.sum, 0, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
+        return new AccumulatedValue(a.sum + b.sum, a.ssum + b.ssum, a.count + b.count, 0, 0, a.nullCount + b.nullCount);
     }
 
     desc(value: AccumulatedValue) {
@@ -180,6 +180,7 @@ export class SumAccumulator implements AccumulatorTrait {
 
     approximate(value: AccumulatedValue, processed: number) {
         const mean = value.sum / value.count;
+
         const variance = value.ssum / value.count - mean * mean;
         const stdev = Math.sqrt(variance);
         const stdem = stdev / Math.sqrt(value.count);

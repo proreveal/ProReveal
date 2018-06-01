@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
 
             // server.request(query);
 
-            for(let i=0;i<1;i++) {
+            for (let i = 0; i < 70; i++) {
                 this.engine.run();
             }
             // console.log(JSON.stringify(query.result));
@@ -153,7 +153,7 @@ export class AppComponent implements OnInit {
     }
 
     wrapperClicked() {
-        if(this.previousNodeView) {
+        if (this.previousNodeView) {
             this.previousNodeView.selectorClosed();
             this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
         }

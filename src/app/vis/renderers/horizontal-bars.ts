@@ -10,15 +10,21 @@ import { Gradient } from '../errorbars/gradient';
 import { FieldGroupedValueList } from '../../data/field';
 import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
+import { TooltipComponent } from '../../tooltip/tooltip.component';
+import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 
 export class HorizontalBarsRenderer extends Renderer {
     gradient = new Gradient();
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+        if ((node.query as AggregateQuery).groupBy.fields.length > 1) {
+            throw 'HorizontalBars can be used up to 1 groupBy';
+        }
+
         this.gradient.setup(selectOrAppend(d3.select(nativeSvg), 'defs'));
     }
 
-    render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+    render(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
         let svg = d3.select(nativeSvg);
         let query = node.query as AggregateQuery;
         let processedPercent = query.progress.processedPercent();
@@ -52,7 +58,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         const niceTicks = d3.ticks(xMin, xMax, 10);
         const step = niceTicks[1] - niceTicks[0];
-        const domainStart = niceTicks[0];
+        const domainStart = (query as AggregateQuery).accumulator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
         if (node.domainStart > domainStart) node.domainStart = domainStart;
@@ -74,7 +80,7 @@ export class HorizontalBarsRenderer extends Renderer {
             .selectAll('text')
             .style('display', 'none')
 
-        const topAxis = d3.axisTop(xScale);
+        const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
 
         selectOrAppend(svg, 'g', '.x.axis.top')
             .attr('transform', translate(0, VC.horizontalBars.axis.height))
@@ -109,7 +115,6 @@ export class HorizontalBarsRenderer extends Renderer {
             .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
 
         labelLines.exit().remove();
-
 
         const leftBars = svg
             .selectAll('rect.left.bar')
@@ -178,7 +183,23 @@ export class HorizontalBarsRenderer extends Renderer {
                 .remove();
         }
 
-        const bottomAxis = d3.axisBottom(xScale);
+        const eventBoxes = svg.selectAll('rect.event-box')
+            .data(data, (d: any) => d.id);
+
+        enter = eventBoxes.enter().append('rect').attr('class', 'event-box');
+
+        eventBoxes.merge(enter)
+            .style('fill', 'transparent')
+            .attr('height', yScale.bandwidth())
+            .attr('width', width)
+            .attr('transform', (d, i) => translate(0, yScale(i + '')))
+            .on('mouseover', (d, i) => {
+                tooltip.show(30, yScale(i + ''), HorizontalBarsTooltipComponent);
+            })
+
+        eventBoxes.exit().remove();
+
+        const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
         selectOrAppend(svg, 'g', '.x.axis.bottom')
             .attr('transform', translate(0, height - VC.horizontalBars.axis.height))

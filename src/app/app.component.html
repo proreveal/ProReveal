@@ -8,10 +8,8 @@
         </a>
     </section>
     <section id="exploration-view-wrapper">
-        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset"
-            (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"
-            (nodeUnselected)="nodeUnselected($event.node, $event.nodeView, $event.child)"
-            >
+        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset" (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"
+            (nodeUnselected)="nodeUnselected($event.node, $event.nodeView, $event.child)">
         </exploration-view>
         <button (click)="toggleEditable()" class="btn btn-primary" id="toggle-editable">
             <fa-icon icon="edit"></fa-icon>
@@ -27,14 +25,15 @@
             <h2>Query {{ activeNode.query.id }}</h2>
             <vis [node]="activeNode"></vis>
             <p>
-                Description: {{ activeNode.query.desc() }} <br />
-                Progress: {{ activeNode.query.progress.processed }} / {{ activeNode.query.progress.total }}
+                Description: {{ activeNode.query.desc() }}
+                <br /> Progress: {{ activeNode.query.progress.processed }} / {{ activeNode.query.progress.total }}
             </p>
 
             <h3>Result (to be visualized)</h3>
             <ul>
                 <li *ngFor="let item of activeNode.query.resultList()">
-                    {{ item[0].desc() }}: {{ activeNode.query.accumulator.approximate(item[1], activeNode.query.progress.processedPercent()).ci95().desc() }}
+                    {{ item[0].desc() }}: {{ activeNode.query.accumulator.approximate(item[1], activeNode.query.progress.processedPercent()).ci95().desc()
+                    }}
                 </li>
             </ul>
         </div>
@@ -49,8 +48,4 @@
     <queue-view [queue]="engine.queue" *ngIf="engine"></queue-view>
 </div>
 
-<field-selector #fieldSelector
-    (fieldSelected)="fieldSelected($event.node, $event.field)"
-></field-selector>
-
-
+<field-selector #fieldSelector (fieldSelected)="fieldSelected($event.node, $event.field)"></field-selector>

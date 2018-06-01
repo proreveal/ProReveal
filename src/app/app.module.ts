@@ -17,6 +17,15 @@ import { FieldSelectorComponent } from './field-selector/field-selector.componen
 import { QueueViewComponent } from './queue-view/queue-view.component';
 import { VisComponent } from './vis/vis.component';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { TooltipComponent } from './tooltip/tooltip.component';
+import { HorizontalBarsTooltipComponent } from './vis/renderers/horizontal-bars-tooltip.component';
+import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
+
+library.add(fas, far);
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -27,6 +36,9 @@ import { VisComponent } from './vis/vis.component';
         FieldSelectorComponent,
         QueueViewComponent,
         VisComponent,
+        TooltipComponent,
+        HorizontalBarsTooltipComponent,
+        TooltipHostDirective
     ],
     imports: [
         NgbModule.forRoot(),
@@ -36,12 +48,7 @@ import { VisComponent } from './vis/vis.component';
         FormsModule
     ],
     providers: [DataService],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    entryComponents: [ HorizontalBarsTooltipComponent ]
 })
 export class AppModule { }
-
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { far } from '@fortawesome/free-regular-svg-icons';
-
-library.add(fas, far);

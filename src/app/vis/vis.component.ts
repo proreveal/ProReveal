@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChange, SimpleChanges, DoCheck, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChange, SimpleChanges, DoCheck, ChangeDetectorRef, ChangeDetectionStrategy, Output } from '@angular/core';
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
+import { TooltipComponent } from '../tooltip/tooltip.component';
 
 @Component({
     selector: 'vis',
@@ -10,6 +11,7 @@ import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 export class VisComponent implements OnInit, DoCheck {
     @Input() node: ExplorationNode;
     @ViewChild('svg') svg: ElementRef;
+    @ViewChild('tooltip') tooltip: TooltipComponent;
 
     queryLastUpdated: number;
     lastNode: ExplorationNode;
@@ -21,7 +23,7 @@ export class VisComponent implements OnInit, DoCheck {
         this.queryLastUpdated = this.node.query.lastUpdated;
 
         this.renderer.setup(this.node, this.svg.nativeElement);
-        this.renderer.render(this.node, this.svg.nativeElement);
+        this.renderer.render(this.node, this.svg.nativeElement, this.tooltip);
     }
 
     ngDoCheck() {
@@ -29,7 +31,7 @@ export class VisComponent implements OnInit, DoCheck {
             this.queryLastUpdated = this.node.query.lastUpdated;
             this.lastNode = this.node;
 
-            this.renderer.render(this.node, this.svg.nativeElement);
+            this.renderer.render(this.node, this.svg.nativeElement, this.tooltip);
         }
     }
 }
