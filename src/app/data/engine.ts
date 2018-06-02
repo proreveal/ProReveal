@@ -15,6 +15,7 @@ export class Engine {
     dataset: Dataset;
     scheduler: Scheduler = new Scheduler();
     queue: Queue = new Queue(this.scheduler);
+    queries: Query[] = [];
 
     constructor(private uri: string) {
 
@@ -37,6 +38,7 @@ export class Engine {
     }
 
     request(query: Query) {
+        this.queries.push(query);
         query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
     }
@@ -58,13 +60,4 @@ export class Engine {
         return this.queue.empty();
     }
 
-    sampleRows() {
-        // return this.http
-        //     .get('./assets/movies.json')
-        //     .pipe(
-        //         map(res => {
-        //             return res.filter(() => Math.random() < 0.1);
-        //         })
-        //     )
-    }
 }

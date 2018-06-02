@@ -6,5 +6,9 @@ export const VisConstants = Object.freeze({
         },
         circleRadius: 3
     },
+    punchcard: {
+        rowHeight: 20,
+        columnWidth: 30
+    },
     padding: 5
 });

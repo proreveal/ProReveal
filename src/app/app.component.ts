@@ -104,11 +104,13 @@ export class AppComponent implements OnInit {
             const rating = dataset.getFieldByName('Production_Budget');
             const [node2, query2] = this.fieldSelected(this.explorationRoot, rating);
 
-            this.fieldSelected(node1, rating);
+            const source = dataset.getFieldByName('Source');
+            const [node3, query3] = this.fieldSelected(node1, source);
+            // this.fieldSelected(node1, rating);
 
             // server.request(query);
 
-            for (let i = 0; i < 70; i++) {
+            for (let i = 0; i < 80; i++) {
                 this.engine.run();
             }
             // console.log(JSON.stringify(query.result));

@@ -51,7 +51,7 @@ export class HorizontalBarsRenderer extends Renderer {
         svg.attr('width', width).attr('height', height);
 
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
-        const labelWidth = measure(longest.keys.list[0].valueString()).width;
+        const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width : 0;
 
         const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
         const xMax = d3.max(data, d => d.ci3stdev.high);

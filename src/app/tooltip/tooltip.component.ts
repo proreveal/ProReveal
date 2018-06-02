@@ -23,7 +23,7 @@ export class TooltipComponent implements OnInit {
     }
 
     show(left: number, top: number,
-        component: typeof HorizontalBarsTooltipComponent,
+        component: typeof TooltipRendererTrait,
         data: any) {
         this.visible = true;
 

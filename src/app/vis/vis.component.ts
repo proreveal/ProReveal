@@ -2,6 +2,9 @@ import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChang
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
+import { AggregateQuery } from '../data/query';
+import { PunchcardRenderer } from './renderers/punchcard';
+import { Renderer } from './renderers/renderer';
 
 @Component({
     selector: 'vis',
@@ -15,15 +18,28 @@ export class VisComponent implements OnInit, DoCheck {
 
     queryLastUpdated: number;
     lastNode: ExplorationNode;
-    renderer = new HorizontalBarsRenderer();
-
+    renderers: Renderer[];
     constructor() { }
+
+    recommend(query: AggregateQuery): Renderer[] {
+        if(query.groupBy.fields.length === 1)
+            return [new HorizontalBarsRenderer()];
+
+        if(query.groupBy.fields.length === 2)
+            return [new PunchcardRenderer()];
+
+        return [];
+    }
 
     ngOnInit() {
         this.queryLastUpdated = this.node.query.lastUpdated;
 
-        this.renderer.setup(this.node, this.svg.nativeElement);
-        this.renderer.render(this.node, this.svg.nativeElement, this.tooltip);
+        this.renderers = this.recommend(this.node.query as AggregateQuery);
+
+        this.renderers.forEach(renderer => {
+            renderer.setup(this.node, this.svg.nativeElement);
+            renderer.render(this.node, this.svg.nativeElement, this.tooltip);
+        })
     }
 
     ngDoCheck() {
@@ -31,7 +47,9 @@ export class VisComponent implements OnInit, DoCheck {
             this.queryLastUpdated = this.node.query.lastUpdated;
             this.lastNode = this.node;
 
-            this.renderer.render(this.node, this.svg.nativeElement, this.tooltip);
+            this.renderers.forEach(renderer => {
+                renderer.render(this.node, this.svg.nativeElement, this.tooltip);
+            });
         }
     }
 }
