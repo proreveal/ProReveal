@@ -6,22 +6,18 @@ import { AccumulatedResponseDictionary } from '../../data/accumulator';
 import { AggregateQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
-import { Gradient } from '../errorbars/gradient';
 import { FieldGroupedValueList, FieldGroupedValue } from '../../data/field';
 import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
+import * as vsup from 'vsup';
 
 export class PunchcardRenderer extends Renderer {
-    gradient = new Gradient();
-
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         if ((node.query as AggregateQuery).groupBy.fields.length !== 2) {
             throw 'Punchcards can be used for 2 categories!';
         }
-
-        this.gradient.setup(selectOrAppend(d3.select(nativeSvg), 'defs'));
     }
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
@@ -30,6 +26,7 @@ export class PunchcardRenderer extends Renderer {
         let processedPercent = query.progress.processedPercent();
         let done = query.progress.done();
 
+        console.log(vsup);
         let data = query.resultList().map(
             value => {
                 const ai = query.accumulator
@@ -38,7 +35,7 @@ export class PunchcardRenderer extends Renderer {
                 return {
                     id: value[0].hash,
                     keys: value[0],
-                    ci3stdev: ai.range(3)
+                    ci95: ai.ci95()
                 };
             });
 
@@ -49,15 +46,14 @@ export class PunchcardRenderer extends Renderer {
             xKeys[row.keys.list[1].hash] = row.keys.list[1];
         });
 
-        let xValues: FieldGroupedValue[] = Object.values(xKeys);
-        let yValues: FieldGroupedValue[] = Object.values(yKeys);
-
-        if (xValues.length > yValues.length)
+        if (Object.values(xKeys).length > Object.values(yKeys).length)
             [yKeyIndex, xKeyIndex] = [xKeyIndex, yKeyIndex];
+
+        let xValues: FieldGroupedValue[] = Object.values(xKeyIndex === 1 ? xKeys : yKeys);
+        let yValues: FieldGroupedValue[] = Object.values(yKeyIndex === 0 ? yKeys : xKeys);
 
         xValues.sort(node.ordering(query.defaultOrderingGetter, query.defaultOrderingDirection));
         yValues.sort(node.ordering(query.defaultOrderingGetter, query.defaultOrderingDirection));
-
 
         let [, yLongest,] = util.amax(yValues, d => d.valueString().length);
         const yLabelWidth = yLongest ? measure(yLongest.valueString()).width : 0;
@@ -67,8 +63,7 @@ export class PunchcardRenderer extends Renderer {
         const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth)
         const height = VC.punchcard.rowHeight * yValues.length + header;
 
-        const width = yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1)
-            + header;
+        const width = yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header;
 
         svg.attr('width', width).attr('height', height);
 
@@ -83,60 +78,58 @@ export class PunchcardRenderer extends Renderer {
         // if (node.domainStart > domainStart) node.domainStart = domainStart;
         // if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
 
-        const xScale = d3.scaleBand().domain(util.srange(xValues.length))
-            .range([yLabelWidth, width - header])
-            .padding(0.1);
+        const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
+            .range([yLabelWidth, width - header]);
 
-        const yScale = d3.scaleBand().domain(util.srange(yValues.length))
-            .range([header, height])
-            .padding(0.1);
+        const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
+            .range([header, height]);
 
         const yLabels = svg
             .selectAll('text.label.y')
-            .data(yValues, (d:FieldGroupedValue) => d.hash);
+            .data(yValues, (d: FieldGroupedValue) => d.hash);
 
-        let enter:any = yLabels.enter().append('text').attr('class', 'label y')
+        let enter: any = yLabels.enter().append('text').attr('class', 'label y')
             .style('text-anchor', 'end')
             .attr('font-size', '.8rem')
             .attr('dy', '.8rem')
 
         yLabels.merge(enter)
-            .attr('transform', (d, i) => translate(yLabelWidth - VC.padding, yScale(i + '')))
+            .attr('transform', (d, i) => translate(yLabelWidth - VC.padding, yScale(d.hash)))
             .text(d => d.valueString())
 
         yLabels.exit().remove();
 
         const xLabels = svg
             .selectAll('text.label.x')
-            .data(xValues, (d:FieldGroupedValue) => d.hash);
+            .data(xValues, (d: FieldGroupedValue) => d.hash);
 
         enter = xLabels.enter().append('text').attr('class', 'label x')
             .style('text-anchor', 'start')
             .attr('font-size', '.8rem')
 
         xLabels.merge(enter)
-            .attr('transform', (d, i) => translate(xScale(i + '') + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
+            .attr('transform', (d, i) => translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
             .text(d => d.valueString())
 
         xLabels.exit().remove();
 
         const xLabelLines = svg.selectAll('line.label.x')
-            .data(xValues, (d:FieldGroupedValue) => d.hash);
+            .data(xValues, (d: FieldGroupedValue) => d.hash);
 
         enter = xLabelLines.enter().append('line').attr('class', 'label x')
             .style('stroke', 'black')
             .style('opacity', 0.2);
 
         xLabelLines.merge(enter)
-            .attr('x1', (d, i) => xScale(i + '') + xScale.bandwidth() / 2)
-            .attr('x2', (d, i) => xScale(i + '') + xScale.bandwidth() / 2)
+            .attr('x1', (d, i) => xScale(d.hash) + xScale.bandwidth() / 2)
+            .attr('x2', (d, i) => xScale(d.hash) + xScale.bandwidth() / 2)
             .attr('y1', yScale.range()[0])
             .attr('y2', yScale.range()[1])
 
         xLabelLines.exit().remove();
 
         const yLabelLines = svg.selectAll('line.label.y')
-            .data(yValues, (d:FieldGroupedValue) => d.hash);
+            .data(yValues, (d: FieldGroupedValue) => d.hash);
 
         enter = yLabelLines.enter().append('line').attr('class', 'label y')
             .style('stroke', 'black')
@@ -145,61 +138,33 @@ export class PunchcardRenderer extends Renderer {
         yLabelLines.merge(enter)
             .attr('x1', xScale.range()[0])
             .attr('x2', xScale.range()[1])
-            .attr('y1', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
-            .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
+            .attr('y1', (d, i) => yScale(d.hash) + yScale.bandwidth() / 2)
+            .attr('y2', (d, i) => yScale(d.hash) + yScale.bandwidth() / 2)
 
         yLabelLines.exit().remove();
 
-        // const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
+        const rects = svg
+            .selectAll('rect.area')
+            .data(data, (d: any) => d.id);
 
-        // selectOrAppend(svg, 'g', '.x.axis.top')
-        //     .attr('transform', translate(0, VC.horizontalBars.axis.height))
-        //     .transition()
-        //     .call(topAxis as any)
+        enter = rects
+            .enter().append('rect').attr('class', 'area')
 
-        // const labels = svg
-        //     .selectAll('text.label')
-        //     .data(data, (d: any) => d.id);
+        let quant = vsup.quantization().branching(2).layers(4)
+            .valueDomain([0, d3.max(data, d => d.ci95.center)])
+            .uncertaintyDomain([0, d3.max(data, d => d.ci95.high - d.ci95.center)]);
 
-        // let enter = labels.enter().append('text').attr('class', 'label')
-        //     .style('text-anchor', 'end')
-        //     .attr('font-size', '.8rem')
-        //     .attr('dy', '.8rem')
+        let zScale = vsup.scale().quantize(quant).range(d3.interpolateViridis);
 
-        // labels.merge(enter)
-        //     .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
-        //     .text(d => d.keys.list[0].valueString())
+        rects.merge(enter)
+            .attr('height', yScale.bandwidth())
+            .attr('width', xScale.bandwidth())
+            .attr('transform', (d, i) => {
+                return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
+            })
+            .attr('fill', d => zScale(d.ci95.center, d.ci95.high - d.ci95.center));
 
-        // labels.exit().remove();
-
-        // const labelLines = svg.selectAll('line.label').data(data, (d: any) => d.id);
-
-        // enter = labelLines.enter().append('line').attr('class', 'label')
-        //     .style('stroke', 'black')
-        //     .style('opacity', 0.2);
-
-        // labelLines.merge(enter)
-        //     .attr('x1', xScale.range()[0])
-        //     .attr('x2', xScale.range()[1])
-        //     .attr('y1', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
-        //     .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
-
-        // labelLines.exit().remove();
-
-        // const leftBars = svg
-        //     .selectAll('rect.left.bar')
-        //     .data(data, (d: any) => d.id);
-
-        // enter = leftBars
-        //     .enter().append('rect').attr('class', 'left bar')
-
-        // leftBars.merge(enter)
-        //     .attr('height', yScale.bandwidth())
-        //     .attr('width', d => xScale(d.ci3stdev.center) - xScale(d.ci3stdev.low))
-        //     .attr('transform', (d, i) => translate(xScale(d.ci3stdev.low), yScale(i + '')))
-        //     .attr('fill', this.gradient.leftUrl())
-
-        // leftBars.exit().remove();
+        rects.exit().remove();
 
         // const rightBars = svg
         //     .selectAll('rect.right.bar')
