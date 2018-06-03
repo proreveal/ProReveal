@@ -5,6 +5,7 @@ import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
+import * as d3 from 'd3';
 
 @Component({
     selector: 'vis',
@@ -45,8 +46,13 @@ export class VisComponent implements OnInit, DoCheck {
     ngDoCheck() {
         if (this.queryLastUpdated < this.node.query.lastUpdated || this.lastNode != this.node) {
             this.queryLastUpdated = this.node.query.lastUpdated;
-            this.lastNode = this.node;
 
+            if(this.lastNode !== this.node) {
+                this.renderers = this.recommend(this.node.query as AggregateQuery);
+                d3.select(this.svg.nativeElement).selectAll('*').remove();
+            }
+
+            this.lastNode = this.node;
             this.renderers.forEach(renderer => {
                 renderer.render(this.node, this.svg.nativeElement, this.tooltip);
             });
