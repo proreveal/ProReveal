@@ -53,7 +53,7 @@ progress-ring {
 }
 
 .query.selected {
-    background: #eee;
+    background: #f0f0f0;
     border: 1px solid #ddd;
     border-bottom-width: 2px;
 }

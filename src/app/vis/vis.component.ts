@@ -50,6 +50,9 @@ export class VisComponent implements OnInit, DoCheck {
             if(this.lastNode !== this.node) {
                 this.renderers = this.recommend(this.node.query as AggregateQuery);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
+                this.renderers.forEach(renderer => {
+                    renderer.setup(this.node, this.svg.nativeElement);
+                });
             }
 
             this.lastNode = this.node;
