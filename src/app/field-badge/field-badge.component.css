@@ -1,0 +1,6 @@
+span.badge {
+    font-size: .7em;
+    font-family: 'Roboto Condensed';
+    position: relative;
+    top: -.15em;
+}

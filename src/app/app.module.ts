@@ -23,6 +23,7 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { TooltipComponent } from './tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './vis/renderers/horizontal-bars-tooltip.component';
 import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
+import { FieldBadgeComponent } from './field-badge/field-badge.component';
 
 library.add(fas, far);
 
@@ -38,7 +39,8 @@ library.add(fas, far);
         VisComponent,
         TooltipComponent,
         HorizontalBarsTooltipComponent,
-        TooltipHostDirective
+        TooltipHostDirective,
+        FieldBadgeComponent
     ],
     imports: [
         NgbModule.forRoot(),

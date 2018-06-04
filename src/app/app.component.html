@@ -11,6 +11,8 @@
         <div *ngFor="let query of engine.queries" class="query">
             <strong>Q{{ query.id }}</strong>:
             {{ query.desc() }}
+            <field-badge [field]="query.groupBy.fields[0]"></field-badge>
+            {{ query.groupBy.fields[0].name }}
             <div class="progress">
                 <div class="progress-bar" role="progressbar"
                     [style.width.%]="query.progress.processedPercent() * 100"
@@ -36,6 +38,12 @@
         <div *ngIf="!activeNode">
             <p>
                 Choose a node to inspect.
+            </p>
+            <p style="font-family:Arial">
+                <strong>A</strong><small>ABC</small>
+                <strong>1</strong><small>123</small>
+
+
             </p>
         </div>
         <div *ngIf="activeNode">
