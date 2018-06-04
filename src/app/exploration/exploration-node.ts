@@ -2,6 +2,7 @@ import { Query } from "../data/query";
 import { isNull } from "util";
 import { Constants } from '../constants';
 import { NumericalOrdering, OrderingDirection } from "../data/ordering";
+import { FieldTrait } from "../data/field";
 
 export class Visual {
     top: number = 0;
@@ -38,7 +39,7 @@ export class ExplorationNode {
 
     updateAutomatically = true;
 
-    constructor(public parent: ExplorationNode, public query: Query | null) {
+    constructor(public parent: ExplorationNode, public lastAddedField: FieldTrait, public query: Query | null) {
 
     }
 

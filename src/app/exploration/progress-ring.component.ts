@@ -13,6 +13,7 @@ export class ProgressRingComponent implements OnInit, OnChanges {
     @ViewChild('svg') svg: ElementRef;
 
     private g;
+    private percent;
 
     constants = Constants;
 
@@ -32,6 +33,14 @@ export class ProgressRingComponent implements OnInit, OnChanges {
         g
             .attr('transform', 'translate(' + (Constants.nodeWidth / 2 - Constants.nodeMargin) + ','
                 + (Constants.nodeHeight / 2 - Constants.nodeMargin) + ')')
+
+
+        this.percent = g.append('text')
+            .attr('font-family', 'Roboto Condensed')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.33em')
+            .attr('dx', '.1em')
+
 
         this.update();
     }
@@ -72,5 +81,14 @@ export class ProgressRingComponent implements OnInit, OnChanges {
         paths
             .attr('d', arc)
             .attr('fill', (d, i) => ['#007bff', '#a0ceff', '#ddd'][i]);
+
+        this.percent.text(
+            Math.round(progress * 1000) / 10 + '%'
+        );
+
+        if(progress === 0)
+            this.percent.style('opacity', .3);
+        else
+            this.percent.style('opacity', 1);
     }
 }

@@ -11,12 +11,8 @@
         [ongoing]="node.query.progress.ongoingPercent()" *ngIf="!node.isRoot()"></progress-ring>
 
     <progress-ring [processed]="1" [ongoing]="0" *ngIf="node.isRoot()"></progress-ring>
-    <div class="node-body">
-        <!-- <fa-icon icon="{{node.chartType}}-chart" *ngIf="!node.isRoot()"></fa-icon> -->
-        <fa-icon icon="search" *ngIf="node.isRoot()"></fa-icon>
-    </div>
 
-    <span style="font-size:12px; position: relative; top:-40px">{{ node.query.name }}</span>
+    <!-- <span style="font-size:12px; position: relative; top:-40px">{{ node.query.name }}</span> -->
 </div>
 
 <!-- <div class="label"

@@ -7,8 +7,16 @@
             <small> (movies.json)</small>
         </a>
     </section>
-    <section id="query-view">
-        <div *ngFor="let query of engine.queries" class="query">
+    <section id="query-view" *ngIf="explorationRoot">
+        <div *ngFor="let node of explorationRoot.children" class="query">
+            <progress-ring [processed]="node.query.progress.processedPercent()"
+                [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
+            <p class="field-name">
+                <field-badge [field]="node.lastAddedField"></field-badge>
+                {{ node.lastAddedField.name }}
+            </p>
+        </div>
+        <!-- <div *ngFor="let query of engine.queries" class="query">
             <strong>Q{{ query.id }}</strong>:
             {{ query.desc() }}
             <field-badge [field]="query.groupBy.fields[0]"></field-badge>
@@ -24,7 +32,7 @@
                     [attr.aria-valuenow]="query.progress.ongoingPercent() * 100"
                     aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-        </div>
+        </div> -->
     </section>
     <section id="exploration-view-wrapper">
         <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset" (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"

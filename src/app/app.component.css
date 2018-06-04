@@ -1,7 +1,7 @@
 #wrapper {
     display: grid;
     grid-template-rows: 56px 350px 1fr;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 160px 1fr;
     width: 100vw;
     height: 100vh;
 }
@@ -27,15 +27,30 @@
 }
 
 .query {
-    height: 80px;
     border-bottom: 1px solid #ddd;
-    padding: 5px;
+    padding: 3px;
+    margin-right: 2px;
     background: #fefefe;
+    position: relative;
+    overflow:hidden;
 }
 
 .query:hover {
     cursor: pointer;
     background: #f0f0f0;
+}
+
+progress-ring {
+    height: 56px;
+    display: block;
+}
+
+.query .field-name {
+    position: absolute;
+    top: 6px;
+    left: 64px;
+    width: 400px;
+    font-size: 0.8rem;
 }
 
 #exploration-view-wrapper {
@@ -61,8 +76,6 @@
     padding: 10px;
     overflow-y: scroll;
 }
-
-
 
 queue-view {
     grid-row: 3;

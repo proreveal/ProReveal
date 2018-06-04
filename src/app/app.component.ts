@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Dataset } from './data/dataset';
-import { FieldTrait } from './data/field';
+import { FieldTrait, VlType } from './data/field';
 import { Engine } from './data/engine';
 
 import { Query, AggregateQuery, EmptyQuery } from './data/query';
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
         }
 
         let query = parent.query.combine(field);
-        let node = new ExplorationNode(parent, query);
+        let node = new ExplorationNode(parent, field, query);
 
         parent.addChild(node);
 
@@ -95,17 +95,23 @@ export class AppComponent implements OnInit {
             // const query = new AggregateQuery(rating, new SumAccumulator(),
             //     new GroupBy([genre]), dataset);
 
-            this.explorationRoot = new ExplorationNode(null, new EmptyQuery(dataset));
+            this.explorationRoot = new ExplorationNode(null, null, new EmptyQuery(dataset));
             this.layout();
 
-            const genre = dataset.getFieldByName('Major_Genre');
-            const [node1, query1] = this.fieldSelected(this.explorationRoot, genre);
+            dataset.fields.forEach(field => {
+                if(field.vlType !== VlType.Key) {
+                    const [node, query] = this.fieldSelected(this.explorationRoot, field);
+                }
+            });
 
-            const rating = dataset.getFieldByName('Production_Budget');
-            const [node2, query2] = this.fieldSelected(this.explorationRoot, rating);
+            // const genre = dataset.getFieldByName('Major_Genre');
+            // const [node1, query1] = this.fieldSelected(this.explorationRoot, genre);
 
-            const source = dataset.getFieldByName('Source');
-            const [node3, query3] = this.fieldSelected(node1, source);
+            // const rating = dataset.getFieldByName('Production_Budget');
+            // const [node2, query2] = this.fieldSelected(this.explorationRoot, rating);
+
+            // const source = dataset.getFieldByName('Source');
+            // const [node3, query3] = this.fieldSelected(node1, source);
             // this.fieldSelected(node1, rating);
 
             // server.request(query);
