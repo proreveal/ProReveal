@@ -7,14 +7,18 @@
             <small> (movies.json)</small>
         </a>
     </section>
-    <section id="query-view" *ngIf="explorationRoot">
-        <div *ngFor="let node of explorationRoot.children" class="query">
+    <section id="query-view">
+        <div *ngFor="let node of nodes" class="query"
+            (click)="nodeSelected(node)" [class.selected]="activeNode === node">
             <progress-ring [processed]="node.query.progress.processedPercent()"
                 [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
-            <p class="field-name">
+            <p class="field-name" [attr.title]="node.lastAddedField.name">
                 <field-badge [field]="node.lastAddedField"></field-badge>
                 {{ node.lastAddedField.name }}
             </p>
+            <div class="actions">
+                <fa-icon [icon]="['fas', 'play']"></fa-icon>
+            </div>
         </div>
         <!-- <div *ngFor="let query of engine.queries" class="query">
             <strong>Q{{ query.id }}</strong>:
@@ -34,24 +38,20 @@
             </div>
         </div> -->
     </section>
-    <section id="exploration-view-wrapper">
-        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset" (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"
+    <!-- <section id="exploration-view-wrapper">
+        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset"
+            (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"
             (nodeUnselected)="nodeUnselected($event.node, $event.nodeView, $event.child)">
         </exploration-view>
         <button (click)="toggleEditable()" class="btn btn-primary" id="toggle-editable">
             <fa-icon icon="edit"></fa-icon>
         </button>
-    </section>
+    </section> -->
     <section id="main">
+            <button class="btn btn-primary" (click)="run()">Run a job</button>
         <div *ngIf="!activeNode">
             <p>
                 Choose a node to inspect.
-            </p>
-            <p style="font-family:Arial">
-                <strong>A</strong><small>ABC</small>
-                <strong>1</strong><small>123</small>
-
-
             </p>
         </div>
         <div *ngIf="activeNode">
@@ -68,7 +68,7 @@
     </metadata-editor>
 
     <!-- <section style="padding:5px; grid-row:2; grid-column:2;">
-        <button class="btn btn-primary" (click)="run()">Run a job</button>
+
     </section>
     <queue-view [queue]="engine.queue" *ngIf="engine"></queue-view> -->
 </div>

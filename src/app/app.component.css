@@ -1,7 +1,7 @@
 #wrapper {
     display: grid;
     grid-template-rows: 56px 350px 1fr;
-    grid-template-columns: 160px 1fr;
+    grid-template-columns: 240px 1fr;
     width: 100vw;
     height: 100vh;
 }
@@ -29,7 +29,6 @@
 .query {
     border-bottom: 1px solid #ddd;
     padding: 3px;
-    margin-right: 2px;
     background: #fefefe;
     position: relative;
     overflow:hidden;
@@ -53,6 +52,20 @@ progress-ring {
     font-size: 0.8rem;
 }
 
+.query.selected {
+    background: #eee;
+    border: 1px solid #ddd;
+    border-bottom-width: 2px;
+}
+
+.query .actions {
+    display: none;
+}
+
+.query.selected .actions {
+    display: block;
+}
+
 #exploration-view-wrapper {
     grid-row: 2;
     grid-column: 2;
@@ -71,7 +84,7 @@ progress-ring {
 }
 
 #main {
-    grid-row: 3;
+    grid-row: 2 / 4;
     grid-column: 2;
     padding: 10px;
     overflow-y: scroll;

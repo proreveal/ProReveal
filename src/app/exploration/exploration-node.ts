@@ -40,7 +40,6 @@ export class ExplorationNode {
     updateAutomatically = true;
 
     constructor(public parent: ExplorationNode, public lastAddedField: FieldTrait, public query: Query | null) {
-
     }
 
     hasChildren() {

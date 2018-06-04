@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
     explorationLayout: ExplorationLayout = new ExplorationLayout();
     engine: Engine;
     activeNode: ExplorationNode = null;
+    nodes: ExplorationNode[];
 
     constructor(private cd: ChangeDetectorRef) {
 
@@ -46,16 +47,31 @@ export class AppComponent implements OnInit {
 
         parent.addChild(node);
 
-        this.layout();
-
         this.engine.request(query);
+
+        this.layout();
 
         return [node, query];
     }
 
+    collectNodes(node: ExplorationNode) {
+        if (node.hasChildren())
+            return node.children.reduce((a, b) => a.concat(this.collectNodes(b)), node.isRoot() ? [] : [node]);
+        return [node];
+    }
 
     layout() {
-        this.explorationLayout.layout(this.explorationRoot, this.explorationView.editable);
+        this.explorationLayout.layout(this.explorationRoot, true); //this.explorationView.editable);
+
+        this.nodes = this.collectNodes(this.explorationRoot);
+
+        let order = {};
+
+        this.engine.queries.forEach((q, i) => {
+            order[q.id] = i;
+        })
+
+        this.nodes.sort((a, b) => order[a.query.id] - order[b.query.id]);
     }
 
     print(result: AccumulatedResponseDictionary) {
@@ -99,7 +115,7 @@ export class AppComponent implements OnInit {
             this.layout();
 
             dataset.fields.forEach(field => {
-                if(field.vlType !== VlType.Key) {
+                if (field.vlType !== VlType.Key) {
                     const [node, query] = this.fieldSelected(this.explorationRoot, field);
                 }
             });
@@ -138,20 +154,24 @@ export class AppComponent implements OnInit {
 
     previousNodeView: ExplorationNodeViewComponent;
 
-    nodeSelected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, left: number, top: number, child: boolean) {
-        if (child) {
-            // show a field selector for the child
-            if (this.previousNodeView) {
-                this.previousNodeView.selectorClosed(); // important
-                this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
-            }
-            this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!), node);
-            this.previousNodeView = nodeView;
-        }
-        else if (node != this.explorationRoot) {
-            // show detail
-            this.activeNode = node;
-        }
+    // nodeSelected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, left: number, top: number, child: boolean) {
+    //     if (child) {
+    //         // show a field selector for the child
+    //         if (this.previousNodeView) {
+    //             this.previousNodeView.selectorClosed(); // important
+    //             this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
+    //         }
+    //         this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!), node);
+    //         this.previousNodeView = nodeView;
+    //     }
+    //     else if (node != this.explorationRoot) {
+    //         // show detail
+    //         this.activeNode = node;
+    //     }
+    // }
+
+    nodeSelected(node: ExplorationNode) {
+        this.activeNode = node;
     }
 
     nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
