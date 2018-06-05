@@ -19,8 +19,9 @@ export enum Priority {
 export class Engine {
     rows: any[];
     dataset: Dataset;
-    queries: Query[] = [];
-    scheduler: Scheduler = new QueryOrderScheduler(this.queries);
+    ongoingQueries: Query[] = [];
+    completedQueries: Query[] = [];
+    scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
 
     constructor(private uri: string) {
@@ -46,14 +47,14 @@ export class Engine {
     request(query: Query, priority: Priority = Priority.AfterCompletedQueries) {
         if (priority === Priority.AfterCompletedQueries) {
             let lastIndex = 0;
-            this.queries.forEach((query, i) => {
+            this.ongoingQueries.forEach((query, i) => {
                 if (query.progress.done()) lastIndex = i + 1;
             })
 
-            this.queries.splice(lastIndex, 0, query);
+            this.ongoingQueries.splice(lastIndex, 0, query);
         }
         else if (priority === Priority.Lowest) {
-            this.queries.push(query);
+            this.ongoingQueries.push(query);
         }
 
         query.jobs().forEach(job => this.queue.append(job));
@@ -67,10 +68,14 @@ export class Engine {
 
         job.query.progress.ongoing = 1;
         const partialResponses = job.run();
-
         job.query.progress.ongoing = 0;
 
         job.query.accumulate(job, partialResponses);
+
+        if(job.query.progress.done()) {
+            this.ongoingQueries.splice(0, 1);
+            this.completedQueries.push(job.query);
+        }
     }
 
     empty() {

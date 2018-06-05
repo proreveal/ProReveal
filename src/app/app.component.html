@@ -7,44 +7,65 @@
             <small> (movies.json)</small>
         </a>
     </section>
-    <section id="query-view">
-        <ng-container *ngFor="let node of nodes">
-            <div class="query"
-                (click)="nodeSelected(node)" [class.selected]="activeNode === node">
-                <progress-ring [processed]="node.query.progress.processedPercent()"
-                    [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
-                <ul class="field-names">
-                    <li *ngFor="let field of node.fields">
-                        <field-badge [field]="field"></field-badge>
-                        {{ field.name }}
-                    </li>
-                </ul>
-            </div>
-            <div class="actions" *ngIf="activeNode === node">
-                <button class="btn btn-light"><fa-icon [icon]="['fas', 'play']"></fa-icon></button>
-                <button class="btn btn-light"><fa-icon [icon]="['fas', 'trash']"></fa-icon></button>
-                <button class="btn btn-light"
-                    (click)="plusClicked($event, node)"
-                ><fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon></button>
-            </div>
-        </ng-container>
-        <!-- <div *ngFor="let query of engine.queries" class="query">
-            <strong>Q{{ query.id }}</strong>:
-            {{ query.desc() }}
-            <field-badge [field]="query.groupBy.fields[0]"></field-badge>
-            {{ query.groupBy.fields[0].name }}
-            <div class="progress">
-                <div class="progress-bar" role="progressbar"
-                    [style.width.%]="query.progress.processedPercent() * 100"
-                    [attr.aria-valuenow]="query.progress.processedPercent() * 100"
-                    aria-valuemin="0" aria-valuemax="100">
+    <section id="node-view">
+        <section id="search">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><fa-icon [icon]="['fas', 'search']"></fa-icon></span>
                 </div>
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                    [style.width.%]="query.progress.ongoingPercent() * 100"
-                    [attr.aria-valuenow]="query.progress.ongoingPercent() * 100"
-                    aria-valuemin="0" aria-valuemax="100"></div>
+                <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
             </div>
-        </div> -->
+        </section>
+        <h6 id="completed-node-view-header">Completed Queries</h6>
+        <section id="completed-node-view" class="styled-scroll">
+            <ng-container *ngFor="let node of completedNodes">
+                <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
+                    <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
+                    <ul class="field-names">
+                        <li *ngFor="let field of node.fields">
+                            <field-badge [field]="field"></field-badge>
+                            {{ field.name }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="actions" *ngIf="activeNode === node">
+                    <button class="btn btn-light">
+                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                    </button>
+                    <button class="btn btn-light">
+                        <fa-icon [icon]="['fas', 'trash']"></fa-icon>
+                    </button>
+                    <button class="btn btn-light" (click)="plusClicked($event, node)">
+                        <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
+                    </button>
+                </div>
+            </ng-container>
+        </section>
+        <h6 id="ongoing-node-view-header">Ongoing Queries</h6>
+        <section id="ongoing-node-view" class="styled-scroll">
+            <ng-container *ngFor="let node of ongoingNodes">
+                <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
+                    <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
+                    <ul class="field-names">
+                        <li *ngFor="let field of node.fields">
+                            <field-badge [field]="field"></field-badge>
+                            {{ field.name }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="actions" *ngIf="activeNode === node">
+                    <button class="btn btn-light">
+                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                    </button>
+                    <button class="btn btn-light">
+                        <fa-icon [icon]="['fas', 'trash']"></fa-icon>
+                    </button>
+                    <button class="btn btn-light" (click)="plusClicked($event, node)">
+                        <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
+                    </button>
+                </div>
+            </ng-container>
+        </section>
     </section>
     <!-- <section id="exploration-view-wrapper">
         <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset"
@@ -55,7 +76,7 @@
             <fa-icon icon="edit"></fa-icon>
         </button>
     </section> -->
-    <section id="main">
+    <section id="main" class="styled-scroll">
         <button class="btn btn-primary" (click)="run(1)">Run a job</button>
         &nbsp;
         <button class="btn btn-primary" (click)="run(10)">Run 10 jobs</button>

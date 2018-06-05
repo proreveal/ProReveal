@@ -18,7 +18,7 @@ import * as util from './util';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+    styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
@@ -30,7 +30,8 @@ export class AppComponent implements OnInit {
     explorationLayout: ExplorationLayout = new ExplorationLayout();
     engine: Engine;
     activeNode: ExplorationNode = null;
-    nodes: ExplorationNode[];
+    ongoingNodes: ExplorationNode[];
+    completedNodes: ExplorationNode[];
 
     constructor(private cd: ChangeDetectorRef) {
 
@@ -55,10 +56,12 @@ export class AppComponent implements OnInit {
         this.layout();
         this.activeNode = node;
 
+        this.updateNodeLists();
+
         return [node, query];
     }
 
-    collectNodes(node: ExplorationNode) {
+    collectNodes(node: ExplorationNode): ExplorationNode[] {
         if (node.hasChildren())
             return node.children.reduce((a, b) => a.concat(this.collectNodes(b)), node.isRoot() ? [] : [node]);
         return [node];
@@ -66,16 +69,6 @@ export class AppComponent implements OnInit {
 
     layout() {
         this.explorationLayout.layout(this.explorationRoot, true); //this.explorationView.editable);
-
-        this.nodes = this.collectNodes(this.explorationRoot);
-
-        let order = {};
-
-        this.engine.queries.forEach((q, i) => {
-            order[q.id] = i;
-        })
-
-        this.nodes.sort((a, b) => order[a.query.id] - order[b.query.id]);
     }
 
     print(result: AccumulatedResponseDictionary) {
@@ -89,31 +82,8 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.engine = new Engine('./assets/movies.json');
 
-        // let n1 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        // this.explorationRoot.addChild(n1);
-
-        // let n2 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        // this.explorationRoot.addChild(n2);
-
-        // n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
-        // n2.addChild(new ExplorationNode(n2, new EmptyQuery()));
-
-
-        // let n3 = new ExplorationNode(this.explorationRoot, new EmptyQuery());
-        // this.explorationRoot.addChild(n3);
-
-        // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
-        // n3.addChild(new ExplorationNode(n3, new EmptyQuery()));
-
         this.engine.load().then(dataset => {
             this.dataset = dataset;
-
-            // this.metadataEditor.open();
-            // run test codes
-
-
-            // const query = new AggregateQuery(rating, new SumAccumulator(),
-            //     new GroupBy([genre]), dataset);
 
             this.explorationRoot = new ExplorationNode(null, [], new EmptyQuery(dataset));
             this.layout();
@@ -125,40 +95,33 @@ export class AppComponent implements OnInit {
                 }
             });
 
-            // const genre = dataset.getFieldByName('Major_Genre');
-            // const [node1, query1] = this.fieldSelected(this.explorationRoot, genre);
-
-            // const rating = dataset.getFieldByName('Production_Budget');
-            // const [node2, query2] = this.fieldSelected(this.explorationRoot, rating);
-
-            // const source = dataset.getFieldByName('Source');
-            // const [node3, query3] = this.fieldSelected(node1, source);
-            // this.fieldSelected(node1, rating);
-
-            // server.request(query);
-
-            for (let i = 0; i < 80; i++) {
-                this.engine.run();
-            }
-            // console.log(JSON.stringify(query.result));
+            this.run(80);
         })
     }
 
-    toggleMetadataEditor() {
-        this.metadataEditor.toggle();
-    }
+    // toggleMetadataEditor() {
+    //     this.metadataEditor.toggle();
+    // }
 
-    toggleEditable() {
-        this.explorationView.toggleEditable();
-        this.layout();
+    // toggleEditable() {
+    //     this.explorationView.toggleEditable();
+    //     this.layout();
+    // }
+
+    updateNodeLists() {
+        const nodes = this.collectNodes(this.explorationRoot);
+        this.ongoingNodes = this.engine.ongoingQueries.map(q => nodes.find(node => node.query === q));
+        this.completedNodes = this.engine.completedQueries.map(q => nodes.find(node => node.query === q));
     }
 
     run(times: number) {
         for (let i = 0; i < times; i++)
             this.engine.run();
+
+        this.updateNodeLists();
     }
 
-    previousNodeView: ExplorationNodeViewComponent;
+    // previousNodeView: ExplorationNodeViewComponent;
 
     // nodeSelected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, left: number, top: number, child: boolean) {
     //     if (child) {
@@ -180,11 +143,11 @@ export class AppComponent implements OnInit {
         this.activeNode = node;
     }
 
-    nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
-        // this is definitely a child
-        this.fieldSelector.hide();
-        this.previousNodeView = null;
-    }
+    // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
+    //     // this is definitely a child
+    //     this.fieldSelector.hide();
+    //     this.previousNodeView = null;
+    // }
 
     wrapperClicked() {
         this.fieldSelector.hide();
@@ -200,7 +163,7 @@ export class AppComponent implements OnInit {
         let fields = node.query.dataset.fields!;
         fields = node.query.compatible(fields)
             .filter(field => !node.fields.includes(field));
-            // compatible and no duplicates
+        // compatible and no duplicates
 
         this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
             fields, node);
