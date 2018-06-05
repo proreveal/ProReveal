@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Dataset } from './data/dataset';
 import { FieldTrait, VlType } from './data/field';
-import { Engine } from './data/engine';
+import { Engine, Priority } from './data/engine';
 
 import { Query, AggregateQuery, EmptyQuery } from './data/query';
 import { SumAccumulator, AccumulatedResponseDictionary } from './data/accumulator';
@@ -13,6 +13,7 @@ import { ExplorationViewComponent } from './exploration/exploration-view.compone
 import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { Constants } from './constants';
+import * as util from './util';
 
 @Component({
     selector: 'app-root',
@@ -35,19 +36,21 @@ export class AppComponent implements OnInit {
 
     }
 
-    fieldSelected(parent: ExplorationNode, field: FieldTrait): [ExplorationNode, Query] {
+    fieldSelected(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {
         // close the selector
-        if (this.previousNodeView) {
-            this.previousNodeView.selectorClosed(); // important
-            this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
-        }
+        this.fieldSelector.hide();
+
+        // if (this.previousNodeView) {
+        //     this.previousNodeView.selectorClosed(); // important
+        //     this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
+        // }
 
         let query = parent.query.combine(field);
-        let node = new ExplorationNode(parent, field, query);
+        let node = new ExplorationNode(parent, parent.fields.concat(field), query);
 
         parent.addChild(node);
 
-        this.engine.request(query);
+        this.engine.request(query, priority);
 
         this.layout();
 
@@ -111,12 +114,13 @@ export class AppComponent implements OnInit {
             // const query = new AggregateQuery(rating, new SumAccumulator(),
             //     new GroupBy([genre]), dataset);
 
-            this.explorationRoot = new ExplorationNode(null, null, new EmptyQuery(dataset));
+            this.explorationRoot = new ExplorationNode(null, [], new EmptyQuery(dataset));
             this.layout();
 
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
-                    const [node, query] = this.fieldSelected(this.explorationRoot, field);
+                    const [node, query] = this.fieldSelected(this.explorationRoot, field,
+                        Priority.Lowest);
                 }
             });
 
@@ -148,8 +152,9 @@ export class AppComponent implements OnInit {
         this.layout();
     }
 
-    run() {
-        this.engine.run();
+    run(times: number) {
+        for (let i = 0; i < times; i++)
+            this.engine.run();
     }
 
     previousNodeView: ExplorationNodeViewComponent;
@@ -181,9 +186,18 @@ export class AppComponent implements OnInit {
     }
 
     wrapperClicked() {
-        if (this.previousNodeView) {
-            this.previousNodeView.selectorClosed();
-            this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
-        }
+        this.fieldSelector.hide();
+        // if (this.previousNodeView) {
+        //     this.previousNodeView.selectorClosed();
+        //     this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
+        // }
+    }
+
+    plusClicked($event: MouseEvent, node: ExplorationNode) {
+        let target = util.getCurrentTarget($event) as HTMLButtonElement;
+        let rect = target.getBoundingClientRect();
+        this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
+            node.query.compatible(node.query.dataset.fields!), node);
+        $event.stopPropagation();
     }
 }

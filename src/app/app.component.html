@@ -8,25 +8,26 @@
         </a>
     </section>
     <section id="query-view">
-        <div *ngFor="let node of nodes" class="query"
-            (click)="nodeSelected(node)" [class.selected]="activeNode === node">
-            <progress-ring [processed]="node.query.progress.processedPercent()"
-                [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
-            <p class="field-name" [attr.title]="node.lastAddedField.name">
-                <field-badge [field]="node.lastAddedField"></field-badge>
-                {{ node.lastAddedField.name }}
-            </p>
-            <div class="actions">
-                <fa-icon [icon]="['fas', 'play']"></fa-icon>
+        <ng-container *ngFor="let node of nodes">
+            <div class="query"
+                (click)="nodeSelected(node)" [class.selected]="activeNode === node">
+                <progress-ring [processed]="node.query.progress.processedPercent()"
+                    [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
+                <ul class="field-names">
+                    <li *ngFor="let field of node.fields">
+                        <field-badge [field]="field"></field-badge>
+                        {{ field.name }}
+                    </li>
+                </ul>
             </div>
-            <!--
-                play,
-                stop
-                remove
-                addone
-
-            -->
-        </div>
+            <div class="actions" *ngIf="activeNode === node">
+                <button class="btn btn-light"><fa-icon [icon]="['fas', 'play']"></fa-icon></button>
+                <button class="btn btn-light"><fa-icon [icon]="['fas', 'trash']"></fa-icon></button>
+                <button class="btn btn-light"
+                    (click)="plusClicked($event, node)"
+                ><fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon></button>
+            </div>
+        </ng-container>
         <!-- <div *ngFor="let query of engine.queries" class="query">
             <strong>Q{{ query.id }}</strong>:
             {{ query.desc() }}
@@ -55,7 +56,11 @@
         </button>
     </section> -->
     <section id="main">
-            <button class="btn btn-primary" (click)="run()">Run a job</button>
+        <button class="btn btn-primary" (click)="run(1)">Run a job</button>
+        &nbsp;
+        <button class="btn btn-primary" (click)="run(10)">Run 10 jobs</button>
+        &nbsp;
+        <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>
         <div *ngIf="!activeNode">
             <p>
                 Choose a node to inspect.

@@ -20,7 +20,6 @@ export class Gradient {
     setup(g: d3.Selection<d3.BaseType, {}, SVGSVGElement, any>) {
         let cdf = normalcdf(0, 1);
 
-        console.log(g);
         let left = g.append('linearGradient')
             .attr('id', Gradient.LeftGradientId(this.id))
             .attr('x1', '100%')

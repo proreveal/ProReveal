@@ -8,14 +8,20 @@ import {
 } from './accumulator';
 import { Query } from './query';
 import { Queue } from './queue';
-import { Scheduler } from './scheduler';
+import { Scheduler, QueryOrderScheduler } from './scheduler';
+
+export enum Priority {
+    Highest,
+    AfterCompletedQueries,
+    Lowest
+}
 
 export class Engine {
     rows: any[];
     dataset: Dataset;
-    scheduler: Scheduler = new Scheduler();
-    queue: Queue = new Queue(this.scheduler);
     queries: Query[] = [];
+    scheduler: Scheduler = new QueryOrderScheduler(this.queries);
+    queue: Queue = new Queue(this.scheduler);
 
     constructor(private uri: string) {
 
@@ -37,14 +43,25 @@ export class Engine {
         })
     }
 
-    request(query: Query) {
-        this.queries.push(query);
+    request(query: Query, priority: Priority = Priority.AfterCompletedQueries) {
+        if (priority === Priority.AfterCompletedQueries) {
+            let lastIndex = 0;
+            this.queries.forEach((query, i) => {
+                if (query.progress.done()) lastIndex = i + 1;
+            })
+
+            this.queries.splice(lastIndex, 0, query);
+        }
+        else if (priority === Priority.Lowest) {
+            this.queries.push(query);
+        }
+
         query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
     }
 
     run() {
-        if(this.queue.empty()) return;
+        if (this.queue.empty()) return;
 
         const job = this.queue.pop();
 

@@ -24,6 +24,8 @@
     grid-row: 2 / 4;
     grid-column: 1;
     border-right: 1px solid #ddd;
+
+    overflow-y: scroll;
 }
 
 .query {
@@ -44,12 +46,15 @@ progress-ring {
     display: block;
 }
 
-.query .field-name {
+.query .field-names {
     position: absolute;
-    top: 6px;
+    top: 4px;
     left: 64px;
     width: 400px;
     font-size: 0.8rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .query.selected {
@@ -58,12 +63,8 @@ progress-ring {
     border-bottom-width: 2px;
 }
 
-.query .actions {
-    display: none;
-}
-
-.query.selected .actions {
-    display: block;
+.actions {
+    border-bottom: 1px solid #ddd;
 }
 
 #exploration-view-wrapper {
@@ -106,6 +107,20 @@ queue-view {
 }
 
 #main::-webkit-scrollbar-thumb {
-    background-color: #6e6e6e;
+    background-color: #999;
+    outline: #333 solid 1px;
+}
+
+#query-view::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+#query-view::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+}
+
+#query-view::-webkit-scrollbar-thumb {
+    background-color: #999;
     outline: #333 solid 1px;
 }
