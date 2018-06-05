@@ -53,6 +53,7 @@ export class AppComponent implements OnInit {
         this.engine.request(query, priority);
 
         this.layout();
+        this.activeNode = node;
 
         return [node, query];
     }
@@ -196,8 +197,13 @@ export class AppComponent implements OnInit {
     plusClicked($event: MouseEvent, node: ExplorationNode) {
         let target = util.getCurrentTarget($event) as HTMLButtonElement;
         let rect = target.getBoundingClientRect();
+        let fields = node.query.dataset.fields!;
+        fields = node.query.compatible(fields)
+            .filter(field => !node.fields.includes(field));
+            // compatible and no duplicates
+
         this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
-            node.query.compatible(node.query.dataset.fields!), node);
+            fields, node);
         $event.stopPropagation();
     }
 }

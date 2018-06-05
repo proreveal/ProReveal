@@ -26,7 +26,6 @@ export class PunchcardRenderer extends Renderer {
         let processedPercent = query.progress.processedPercent();
         let done = query.progress.done();
 
-        console.log(vsup);
         let data = query.resultList().map(
             value => {
                 const ai = query.accumulator
@@ -63,7 +62,7 @@ export class PunchcardRenderer extends Renderer {
         const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth)
         const height = VC.punchcard.rowHeight * yValues.length + header;
 
-        const width = yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header;
+        const width = xValues.length > 0 ? yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header : 0;
 
         svg.attr('width', width).attr('height', height);
 

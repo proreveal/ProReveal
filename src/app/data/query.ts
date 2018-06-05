@@ -18,7 +18,7 @@ export abstract class Query {
     progress: Progress = new Progress();
     name: string;
     result: AccumulatedResponseDictionary;
-    lastUpdated: number; // epoch
+    lastUpdated: number = +new Date(); // epoch
     defaultOrdering = NumericalOrdering;
     defaultOrderingGetter = d => d;
     defaultOrderingDirection = OrderingDirection.Descending;
