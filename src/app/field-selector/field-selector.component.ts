@@ -7,6 +7,7 @@ import { levenshtein } from '../util';
 import { ChangeDetectorRef } from '@angular/core';
 import { Floating } from '../floating';
 import { ExplorationNode } from '../exploration/exploration-node';
+import { SpeechRecognitionService } from '../speech-recognition.service';
 
 @Component({
     selector: 'field-selector',
@@ -18,11 +19,10 @@ export class FieldSelectorComponent extends Floating implements OnInit {
 
     fields: FieldTrait[] = [];
     constants = Constants;
-    speechRecognition = new SpeechRecognition(5000, this.speechRecognized.bind(this));
     highlightedFields: FieldTrait[] = [];
     node: ExplorationNode;
 
-    constructor(private ref: ChangeDetectorRef) {
+    constructor(private ref: ChangeDetectorRef, private speech:SpeechRecognitionService) {
         super();
     }
 
@@ -33,8 +33,9 @@ export class FieldSelectorComponent extends Floating implements OnInit {
         super.show(left, top);
 
         this.fields = fields;
-        this.speechRecognition.words(this.fields.map(f => f.name));
-        this.speechRecognition.start();
+        this.speech.start(this.fields.map(f => f.name),
+            this.speechRecognized.bind(this)
+        );
         this.highlightedFields = [];
         this.node = node;
     }
@@ -42,7 +43,7 @@ export class FieldSelectorComponent extends Floating implements OnInit {
     hide() {
         super.hide();
 
-        this.speechRecognition.stop();
+        this.speech.stop();
         this.fields = [];
         this.highlightedFields = [];
     }

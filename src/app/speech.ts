@@ -38,7 +38,7 @@ export class SpeechRecognition {
                 this.timer.subscribe(this.expire.bind(this))
             }
             catch(e) {
-
+                console.log(e);
             }
         }
     }

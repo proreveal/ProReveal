@@ -14,6 +14,7 @@ import { ExplorationNodeViewComponent } from './exploration/exploration-node-vie
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import { Constants } from './constants';
 import * as util from './util';
+import { SpeechRecognitionService } from './speech-recognition.service';
 
 @Component({
     selector: 'app-root',
@@ -33,8 +34,10 @@ export class AppComponent implements OnInit {
     ongoingNodes: ExplorationNode[];
     completedNodes: ExplorationNode[];
     sortablejsOptions: any;
+    highlightedNodes: ExplorationNode[] = [];
+    searchKeyword: string;
 
-    constructor(private cd: ChangeDetectorRef) {
+    constructor(private cd: ChangeDetectorRef, private speech:SpeechRecognitionService) {
         this.sortablejsOptions = {
             onUpdate: this.ongoingQueriesReordered.bind(this)
         };
@@ -178,5 +181,40 @@ export class AppComponent implements OnInit {
         this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
             fields, node);
         $event.stopPropagation();
+    }
+
+    keywordSearched(keyword: string) {
+        if(keyword.length === 0) {
+            this.highlightedNodes = [];
+            return;
+        }
+
+        keyword = keyword.toLowerCase();
+
+        this.highlightedNodes =
+            this.completedNodes
+                .filter(node => node.fields
+                    .filter(field => field.name.toLowerCase().includes(keyword)
+                ).length > 0).concat(
+                    this.ongoingNodes
+                    .filter(node => node.fields
+                        .filter(field => field.name.toLowerCase().includes(keyword))
+                    .length > 0)
+                );
+    }
+
+    voiceSearchClicked() {
+        this.speech.start(this.dataset.fields!.map(f => f.name), this.voiceKeywordRecognized.bind(this))
+    }
+
+    voiceKeywordRecognized(event) {
+        if (event.results.length && event.results[0].length) {
+            let candidate: string = event.results[0][0].transcript;
+
+            this.searchKeyword = candidate;
+            this.keywordSearched(candidate);
+
+            this.cd.detectChanges();
+        }
     }
 }

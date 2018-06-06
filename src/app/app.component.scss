@@ -48,6 +48,15 @@ $ui-border-color: #ced4da;
     border-right: 2px solid $ui-border-color;
 }
 
+#search button {
+    border-left: 1px solid $ui-border-color;
+    border-radius: 0;
+}
+
+#search button:focus {
+    box-shadow: none;
+}
+
 #completed-node-view-header {
     grid-row: 2;
     grid-column: 1;
@@ -99,6 +108,10 @@ $ui-border-color: #ced4da;
 .query:hover {
     cursor: pointer;
     background: lighten($ui-background-color, 2%);
+}
+
+.highlighted .field-names{
+    font-weight: bold;
 }
 
 progress-ring {
