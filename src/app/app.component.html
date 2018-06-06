@@ -6,6 +6,11 @@
         <a href="#" class="navbar-brand">TouchExplorer
             <small> (movies.json)</small>
         </a>
+        <button class="btn btn-primary" (click)="run(1)">Run a job</button>
+        &nbsp;
+        <button class="btn btn-primary" (click)="run(10)">Run 10 jobs</button>
+        &nbsp;
+        <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>
     </section>
     <section id="node-view">
         <section id="search">
@@ -38,9 +43,6 @@
                     </ul>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
-                    <button class="btn btn-light">
-                        <fa-icon [icon]="['fas', 'n']"></fa-icon>
-                    </button>
                     <button class="btn btn-light">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
@@ -89,23 +91,13 @@
         </button>
     </section> -->
     <section id="main" class="styled-scroll">
-        <button class="btn btn-primary" (click)="run(1)">Run a job</button>
-        &nbsp;
-        <button class="btn btn-primary" (click)="run(10)">Run 10 jobs</button>
-        &nbsp;
-        <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>
         <div *ngIf="!activeNode">
             <p>
                 Choose a node to inspect.
             </p>
         </div>
         <div *ngIf="activeNode">
-            <h2>Query {{ activeNode.query.id }}</h2>
             <vis [node]="activeNode"></vis>
-            <p>
-                Description: {{ activeNode.query.desc() }}
-                <br /> Progress: {{ activeNode.query.progress.processed }} / {{ activeNode.query.progress.total }}
-            </p>
         </div>
     </section>
 

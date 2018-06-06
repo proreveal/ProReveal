@@ -1,7 +1,18 @@
-<div>
-    {{ node.query.progress.processedPercent() | percent }}
+<header class="query-desc mt-2 ml-2">
+    <!-- <strong>Q{{ node.query.id }}: </strong> -->
 
-    <button type="button" class="btn btn-light btn-sm" (click)="node.updateAutomatically=!node.updateAutomatically">
+<span class="aggregate-name">{{ node.query.accumulator.name.toUpperCase() }}</span>
+<span *ngIf="node.query.target === null">(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>)</span><span *ngIf="node.query.target !== null">(<field-badge [field]="node.query.target" class="mr-1"></field-badge>{{ node.query.target.name }})
+    </span><span class="keyword ml-1">GROUPED BY</span>
+    <ng-container *ngFor="let field of node.query.groupBy.fields; index as i">
+        <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="node.query.groupBy.fields.length > 1 && i < node.query.groupBy.fields.length - 1" class="keyword">,</span>
+
+    </ng-container>
+</header>
+
+<hr>
+
+<button type="button" class="btn btn-light btn-sm" (click)="node.updateAutomatically=!node.updateAutomatically">
         <fa-icon icon="check-square" [hidden]="!node.updateAutomatically"></fa-icon>
         <fa-icon [icon]="['far', 'square']" [hidden]="node.updateAutomatically"></fa-icon>
         Update automatically
@@ -23,7 +34,15 @@
             [attr.aria-valuenow]="node.query.progress.ongoingPercent() * 100"
             aria-valuemin="0" aria-valuemax="100"></div>
     </div>
+<p [hidden]="node.query.progress.processed > 0" class="alert alert-primary" role="alert">
+    This query has not been start yet. Reorder the ongoing list to give a high priority to this query.
+</p>
+<div [hidden]="node.query.progress.processed === 0">
+    {{ node.query.progress.processedPercent() | percent }}
+
+    <svg #svg></svg>
+    <tooltip #tooltip></tooltip>
 </div>
 
-<svg #svg></svg>
-<tooltip #tooltip></tooltip>
+
+

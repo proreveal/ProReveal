@@ -1,3 +1,22 @@
+.query-desc {
+    font-size: 1.5rem;
+}
+
+.query-desc field-badge {
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
+.aggregate-name {
+    font-family: 'Roboto Condensed';
+    font-weight:bold;
+}
+
+.keyword {
+    font-family: 'Roboto Condensed';
+    opacity: .5;
+}
+
 .progress {
     width: 300px;
     height: 4px;
