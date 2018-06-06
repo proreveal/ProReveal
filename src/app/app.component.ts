@@ -32,9 +32,18 @@ export class AppComponent implements OnInit {
     activeNode: ExplorationNode = null;
     ongoingNodes: ExplorationNode[];
     completedNodes: ExplorationNode[];
+    sortablejsOptions: any;
 
     constructor(private cd: ChangeDetectorRef) {
+        this.sortablejsOptions = {
+            onUpdate: this.ongoingQueriesReordered.bind(this)
+        };
+    }
 
+    ongoingQueriesReordered() {
+        // reflect the order of this.ongoingNodes to the engine
+        let queries = this.ongoingNodes.map(node => node.query);
+        this.engine.reorderOngoingQueries(queries);
     }
 
     fieldSelected(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {
@@ -97,11 +106,12 @@ export class AppComponent implements OnInit {
 
             this.run(80);
         })
+
     }
 
-    // toggleMetadataEditor() {
-    //     this.metadataEditor.toggle();
-    // }
+    toggleMetadataEditor() {
+        this.metadataEditor.toggle();
+    }
 
     // toggleEditable() {
     //     this.explorationView.toggleEditable();

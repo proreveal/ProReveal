@@ -82,4 +82,14 @@ export class Engine {
         return this.queue.empty();
     }
 
+    reorderOngoingQueries(queries: Query[]) {
+        let order = {};
+        queries.forEach((q, i) => order[q.id] = i + 1);
+        let n = this.ongoingQueries.length;
+        this.ongoingQueries.sort((a, b) => {
+            return (order[a.id] || n) - (order[b.id] || n);
+        });
+
+        this.queue.reschedule();
+    }
 }

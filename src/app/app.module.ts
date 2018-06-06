@@ -24,6 +24,7 @@ import { TooltipComponent } from './tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './vis/renderers/horizontal-bars-tooltip.component';
 import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
+import { SortablejsModule } from 'angular-sortablejs';
 
 library.add(fas, far);
 
@@ -44,6 +45,7 @@ library.add(fas, far);
     ],
     imports: [
         NgbModule.forRoot(),
+        SortablejsModule.forRoot({ animation: 150 }),
         BrowserModule,
         HttpClientModule,
         FontAwesomeModule,

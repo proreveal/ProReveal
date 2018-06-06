@@ -18,7 +18,7 @@
         </section>
         <h6 id="completed-node-view-header">Completed Queries</h6>
         <section id="completed-node-view" class="styled-scroll">
-            <ng-container *ngFor="let node of completedNodes">
+            <div *ngFor="let node of completedNodes">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -30,7 +30,7 @@
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
                     <button class="btn btn-light">
-                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                        <fa-icon [icon]="['fas', 'n']"></fa-icon>
                     </button>
                     <button class="btn btn-light">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
@@ -39,11 +39,14 @@
                         <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
                     </button>
                 </div>
-            </ng-container>
+            </div>
         </section>
         <h6 id="ongoing-node-view-header">Ongoing Queries</h6>
-        <section id="ongoing-node-view" class="styled-scroll">
-            <ng-container *ngFor="let node of ongoingNodes">
+        <section id="ongoing-node-view" class="styled-scroll"
+            [sortablejs]="ongoingNodes"
+            [sortablejsOptions]="sortablejsOptions"
+        >
+            <div *ngFor="let node of ongoingNodes">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -64,7 +67,7 @@
                         <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
                     </button>
                 </div>
-            </ng-container>
+            </div>
         </section>
     </section>
     <!-- <section id="exploration-view-wrapper">
