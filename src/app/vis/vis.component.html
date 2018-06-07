@@ -6,43 +6,48 @@
     </span><span class="keyword ml-1">GROUPED BY</span>
     <ng-container *ngFor="let field of node.query.groupBy.fields; index as i">
         <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="node.query.groupBy.fields.length > 1 && i < node.query.groupBy.fields.length - 1" class="keyword">,</span>
-
     </ng-container>
 </header>
 
 <hr>
 
-<button type="button" class="btn btn-light btn-sm" (click)="node.updateAutomatically=!node.updateAutomatically">
-        <fa-icon icon="check-square" [hidden]="!node.updateAutomatically"></fa-icon>
-        <fa-icon [icon]="['far', 'square']" [hidden]="node.updateAutomatically"></fa-icon>
-        Update automatically
-    </button>
-
-    <button type="button" class="btn btn-light btn-sm">
-        <fa-icon icon="sync-alt"></fa-icon>
-        Sync
-    </button>
-
-    <div class="progress">
-        <div class="progress-bar" role="progressbar"
-            [style.width.%]="node.query.progress.processedPercent() * 100"
-            [attr.aria-valuenow]="node.query.progress.processedPercent() * 100"
-            aria-valuemin="0" aria-valuemax="100">
-        </div>
-        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-            [style.width.%]="node.query.progress.ongoingPercent() * 100"
-            [attr.aria-valuenow]="node.query.progress.ongoingPercent() * 100"
-            aria-valuemin="0" aria-valuemax="100"></div>
-    </div>
 <p [hidden]="node.query.progress.processed > 0" class="alert alert-primary" role="alert">
-    This query has not been start yet. Reorder the ongoing list to give a high priority to this query.
+    This query has not been start yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
 </p>
+
 <div [hidden]="node.query.progress.processed === 0">
-    {{ node.query.progress.processedPercent() | percent }}
+    <div class="progress-control">
+        <div class="progress mb-1">
+            <div class="progress-bar" role="progressbar"
+                [style.width.%]="node.query.progress.processedPercent() * 100"
+                [attr.aria-valuenow]="node.query.progress.processedPercent() * 100"
+                aria-valuemin="0" aria-valuemax="100">
+            </div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                [style.width.%]="node.query.progress.ongoingPercent() * 100"
+                [attr.aria-valuenow]="node.query.progress.ongoingPercent() * 100"
+                aria-valuemin="0" aria-valuemax="100">
+            </div>
+        </div>
+        <div class="d-flex flex-row justify-content-between mb-1">
+            <div class="p-2 flex-grow-1">
+                {{ node.query.progress.processed }} / {{ node.query.progress.total}}
+                ({{ node.query.progress.processedPercent() | percent }})
+            </div>
+            <button type="button" class="btn btn-light btn-sm ml-1"
+                (click)="node.updateAutomatically=!node.updateAutomatically">
+                <fa-icon icon="check-square" [hidden]="!node.updateAutomatically"></fa-icon>
+                <fa-icon [icon]="['far', 'square']" [hidden]="node.updateAutomatically"></fa-icon>
+                Update automatically
+            </button>
+
+            <button type="button" class="btn btn-light btn-sm ml-1">
+                <fa-icon icon="sync-alt"></fa-icon>
+                Sync
+            </button>
+        </div>
+    </div>
 
     <svg #svg></svg>
     <tooltip #tooltip></tooltip>
 </div>
-
-
-

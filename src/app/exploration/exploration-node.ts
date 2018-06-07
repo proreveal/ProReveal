@@ -36,6 +36,7 @@ export class ExplorationNode {
 
     domainStart = Number.MAX_VALUE;
     domainEnd = -Number.MAX_VALUE;
+    maxUncertainty = 0;
 
     updateAutomatically = true;
 

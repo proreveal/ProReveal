@@ -108,6 +108,8 @@ export class AppComponent implements OnInit {
             });
 
             this.run(80);
+
+            this.nodeSelected(this.ongoingNodes[0]);
         })
 
     }

@@ -8,7 +8,8 @@ export const VisConstants = Object.freeze({
     },
     punchcard: {
         rowHeight: 20,
-        columnWidth: 30
+        columnWidth: 30,
+        legendSize: 250
     },
     padding: 5
 });

@@ -9,7 +9,6 @@
 
 .aggregate-name {
     font-family: 'Roboto Condensed';
-    font-weight:bold;
 }
 
 .keyword {
@@ -17,11 +16,20 @@
     opacity: .5;
 }
 
+.query-desc field-badge {
+    position: relative;
+    top: -.15rem;
+}
+
+.progress-control {
+    width: 400px;
+}
+
 .progress {
-    width: 300px;
-    height: 4px;
+    height: 6px;
 }
 
 .progress-bar-striped {
     opacity: .8;
 }
+

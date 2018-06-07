@@ -62,23 +62,13 @@ export class PunchcardRenderer extends Renderer {
         const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth)
         const height = VC.punchcard.rowHeight * yValues.length + header;
 
-        const width = xValues.length > 0 ? yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header : 0;
+        const matrixWidth = xValues.length > 0 ? (yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
+        const width = matrixWidth + VC.punchcard.legendSize;
 
         svg.attr('width', width).attr('height', height);
 
-        // const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
-        // const xMax = d3.max(data, d => d.ci3stdev.high);
-
-        // const niceTicks = d3.ticks(xMin, xMax, 10);
-        // const step = niceTicks[1] - niceTicks[0];
-        // const domainStart = (query as AggregateQuery).accumulator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
-        // const domainEnd = niceTicks[niceTicks.length - 1] + step;
-
-        // if (node.domainStart > domainStart) node.domainStart = domainStart;
-        // if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
-
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
-            .range([yLabelWidth, width - header]);
+            .range([yLabelWidth, matrixWidth - header]);
 
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
             .range([header, height]);
@@ -149,11 +139,31 @@ export class PunchcardRenderer extends Renderer {
         enter = rects
             .enter().append('rect').attr('class', 'area')
 
-        let quant = vsup.quantization().branching(2).layers(4)
-            .valueDomain([0, d3.max(data, d => d.ci95.center)])
-            .uncertaintyDomain([0, d3.max(data, d => d.ci95.high - d.ci95.center)]);
+        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci95.low);
+        const xMax = d3.max(data, d => d.ci95.high);
 
-        let zScale = vsup.scale().quantize(quant).range(d3.interpolateViridis);
+        const niceTicks = d3.ticks(xMin, xMax, 8);
+        const step = niceTicks[1] - niceTicks[0];
+        const domainStart = (query as AggregateQuery).accumulator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
+        const domainEnd = niceTicks[niceTicks.length - 1] + step;
+
+        if (node.domainStart > domainStart) node.domainStart = domainStart;
+        if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
+
+        let maxUncertainty = d3.max(data, d => d.ci95.high - d.ci95.center);
+
+        if(node.maxUncertainty < maxUncertainty) node.maxUncertainty = maxUncertainty;
+
+        maxUncertainty = node.maxUncertainty;
+
+
+        let quant = vsup.quantization().branching(2).layers(4)
+            .valueDomain([domainStart, domainEnd])
+            .uncertaintyDomain([0, maxUncertainty]);
+
+        let zScale = vsup.scale()
+            .quantize(quant)
+            .range(d3.interpolateViridis);
 
         rects.merge(enter)
             .attr('height', yScale.bandwidth())
@@ -165,88 +175,12 @@ export class PunchcardRenderer extends Renderer {
 
         rects.exit().remove();
 
-        // const rightBars = svg
-        //     .selectAll('rect.right.bar')
-        //     .data(data, (d: any) => d.id);
+        let legend = vsup.legend.arcmapLegend().scale(zScale).size(VC.punchcard.legendSize * 0.8);
 
-        // enter = rightBars
-        //     .enter().append('rect').attr('class', 'right bar')
-
-        // rightBars.merge(enter)
-        //     .attr('height', yScale.bandwidth())
-        //     .attr('width', d => xScale(d.ci3stdev.high) - xScale(d.ci3stdev.center))
-        //     .attr('transform', (d, i) => translate(xScale(d.ci3stdev.center), yScale(i + '')))
-        //     .attr('fill', this.gradient.rightUrl())
-
-        // rightBars.exit().remove();
-
-        // const centerLines = svg
-        //     .selectAll('line.center')
-        //     .data(data, (d: any) => d.id);
-
-        // enter = centerLines
-        //     .enter().append('line').attr('class', 'center')
-
-        // centerLines.merge(enter)
-        //     .attr('x1', (d, i) => xScale(d.ci3stdev.center))
-        //     .attr('y1', (d, i) => yScale(i + ''))
-        //     .attr('x2', (d, i) => xScale(d.ci3stdev.center))
-        //     .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth())
-        //     .style('stroke-width', done ? 2 : 1)
-        //     .style('stroke', 'black')
-        //     .style('shape-rendering', 'crispEdges')
-
-        // centerLines.exit().remove();
-
-        // if (done) {
-        //     const circles = svg.selectAll('circle')
-        //         .data(data, (d: any) => d.id);
-
-        //     enter = circles.enter().append('circle')
-        //         .attr('r', VC.horizontalBars.circleRadius)
-        //         .attr('fill', 'steelblue')
-
-        //     circles.merge(enter)
-        //         .attr('cx', d => xScale(d.ci3stdev.center))
-        //         .attr('cy', (d, i) => yScale(i + '') + yScale.bandwidth() / 2);
-
-        //     circles.exit().remove();
-        // }
-        // else {
-        //     svg.selectAll('circle')
-        //         .remove();
-        // }
-
-        // const eventBoxes = svg.selectAll('rect.event-box')
-        //     .data(data, (d: any) => d.id);
-
-        // enter = eventBoxes.enter().append('rect').attr('class', 'event-box');
-
-        // eventBoxes.merge(enter)
-        //     .style('fill', 'transparent')
-        //     .attr('height', yScale.bandwidth())
-        //     .attr('width', width)
-        //     .attr('transform', (d, i) => translate(0, yScale(i + '')))
-        //     .on('mouseover', (d, i) => {
-        //         const clientRect = nativeSvg.getBoundingClientRect();
-        //         tooltip.show(
-        //             clientRect.left + xScale(d.ci3stdev.center),
-        //             clientRect.top + yScale(i + ''),
-        //             HorizontalBarsTooltipComponent,
-        //             d
-        //         );
-        //     })
-        //     .on('mouseout', (d, i) => {
-        //         tooltip.hide();
-        //     })
-
-        // eventBoxes.exit().remove();
-
-        // const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
-
-        // selectOrAppend(svg, 'g', '.x.axis.bottom')
-        //     .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
-        //     .transition()
-        //     .call(bottomAxis as any)
+        selectOrAppend(svg, 'g', '.z.legend').selectAll('*').remove();
+        selectOrAppend(svg, 'g', '.z.legend')
+            .attr('transform', translate(matrixWidth, 50))
+            .append('g')
+            .call(legend);
     }
 }
