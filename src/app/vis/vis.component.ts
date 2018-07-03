@@ -6,6 +6,7 @@ import { AggregateQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
+import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
 
 @Component({
     selector: 'vis',
@@ -20,6 +21,13 @@ export class VisComponent implements OnInit, DoCheck {
     queryLastUpdated: number;
     lastNode: ExplorationNode;
     renderers: Renderer[];
+    accumulators: AccumulatorTrait[] = [
+        new SumAccumulator(),
+        new MeanAccumulator(),
+        new MaxAccumulator(),
+        new MinAccumulator()
+    ];
+
     constructor() { }
 
     recommend(query: AggregateQuery): Renderer[] {

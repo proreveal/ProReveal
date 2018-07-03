@@ -64,6 +64,7 @@ export interface AccumulatorTrait {
      * processed: percentage of processed rows (e.g., 0.03 for 3%)
      */
     approximate(value: AccumulatedValue, processed: number): ApproximatedInterval;
+    toString();
 }
 
 export class MinAccumulator implements AccumulatorTrait {
@@ -92,6 +93,10 @@ export class MinAccumulator implements AccumulatorTrait {
     approximate(value: AccumulatedValue) {
         return new ApproximatedInterval(value.min, 0);
     }
+
+    toString() {
+        return this.name.toUpperCase();
+    }
 }
 
 export class MaxAccumulator implements AccumulatorTrait {
@@ -119,6 +124,10 @@ export class MaxAccumulator implements AccumulatorTrait {
 
     approximate(value: AccumulatedValue) {
         return new ApproximatedInterval(value.max, 0);
+    }
+
+    toString() {
+        return this.name.toUpperCase();
     }
 }
 
@@ -152,6 +161,10 @@ export class CountAccumulator implements AccumulatorTrait {
         const stdem = stdev / Math.sqrt(value.count);
 
         return new ApproximatedInterval(mean, stdev);
+    }
+
+    toString() {
+        return this.name.toUpperCase();
     }
 }
 
@@ -189,6 +202,10 @@ export class SumAccumulator implements AccumulatorTrait {
 
         return new ApproximatedInterval(esum, estdem);
     }
+
+    toString() {
+        return this.name.toUpperCase();
+    }
 }
 
 export class MeanAccumulator implements AccumulatorTrait {
@@ -221,5 +238,9 @@ export class MeanAccumulator implements AccumulatorTrait {
         const stdem = stdev / Math.sqrt(value.count - value.nullCount);
 
         return new ApproximatedInterval(mean, stdem);
+    }
+
+    toString() {
+        return this.name.toUpperCase();
     }
 }

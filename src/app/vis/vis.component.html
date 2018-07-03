@@ -5,7 +5,9 @@
 <span *ngIf="node.query.target !== null">
     <form class="form-inline aggregate-form">
     <select class="form-control form-control-md">
-        <option>Large select</option>
+        <option *ngFor="let accumulator of accumulators">
+            {{ accumulator }}
+        </option>
     </select>
     </form>
     (<field-badge [field]="node.query.target" class="mr-1"></field-badge>{{ node.query.target.name }})
@@ -57,4 +59,21 @@
 
     <svg #svg></svg>
     <tooltip #tooltip></tooltip>
+
+    <div>
+        Sort a categorical axis
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary">Data</button>
+            <button type="button" class="btn btn-outline-secondary">Alaphabetical</button>
+            <button type="button" class="btn btn-outline-secondary">Value</button>
+        </div>
+    </div>
+
+    <div>
+        Sort a numerical axis (binning)
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary">Default</button>
+            <button type="button" class="btn btn-outline-secondary">Value</button>
+        </div>
+    </div>
 </div>
