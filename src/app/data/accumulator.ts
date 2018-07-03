@@ -166,7 +166,7 @@ export class SumAccumulator implements AccumulatorTrait {
     readonly alwaysNonNegative = false;
 
     reduce(a: PartialValue, b: number | null) {
-        if (isNull(b)) return new PartialValue(a.sum, 0, a.count + 1, 0, 0, a.nullCount + 1);
+        if (isNull(b)) return new PartialValue(a.sum, a.ssum, a.count + 1, 0, 0, a.nullCount + 1);
         return new PartialValue(a.sum + b, a.ssum + b * b, a.count + 1, 0, 0, a.nullCount);
     }
 
@@ -179,11 +179,11 @@ export class SumAccumulator implements AccumulatorTrait {
     }
 
     approximate(value: AccumulatedValue, processed: number) {
-        const mean = value.sum / value.count;
+        const mean = value.sum / (value.count - value.nullCount);
 
-        const variance = value.ssum / value.count - mean * mean;
+        const variance = value.ssum / (value.count - value.nullCount) - mean * mean;
         const stdev = Math.sqrt(variance);
-        const stdem = stdev / Math.sqrt(value.count);
+        const stdem = stdev / Math.sqrt(value.count - value.nullCount);
         const esum = value.sum / processed;
         const estdem = stdem / processed;
 
@@ -215,10 +215,10 @@ export class MeanAccumulator implements AccumulatorTrait {
     }
 
     approximate(value: AccumulatedValue) {
-        const mean = value.sum / value.count;
-        const variance = value.ssum / value.count - mean * mean;
+        const mean = value.sum / (value.count - value.nullCount);
+        const variance = value.ssum / (value.count - value.nullCount) - mean * mean;
         const stdev = Math.sqrt(variance);
-        const stdem = stdev / Math.sqrt(value.count);
+        const stdem = stdev / Math.sqrt(value.count - value.nullCount);
 
         return new ApproximatedInterval(mean, stdem);
     }

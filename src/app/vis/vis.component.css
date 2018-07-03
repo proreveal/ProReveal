@@ -7,6 +7,10 @@
     font-weight: normal;
 }
 
+.aggregate-form {
+    display: inline;
+}
+
 .aggregate-name {
     font-family: 'Roboto Condensed';
 }
