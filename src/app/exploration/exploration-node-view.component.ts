@@ -11,7 +11,8 @@ import { ExplorationNode } from './exploration-node';
 })
 export class ExplorationNodeViewComponent implements OnInit {
     @Input() node: ExplorationNode;
-    // @Input() editable: boolean;
+    @Input() hoveredNode: ExplorationNode;
+    @Input() activeNode: ExplorationNode;
 
     @Output('nodeSelected') nodeSelected: EventEmitter<{
         'node': ExplorationNode,

@@ -15,7 +15,10 @@
     <section id="node-view">
         <h6 id="completed-node-view-header">Completed Queries</h6>
         <section id="completed-node-view" class="styled-scroll">
-            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)">
+            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)"
+                (mouseenter)="hoveredNode = node"
+                (mouseleave)="hoveredNode = null"
+            >
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -37,7 +40,11 @@
         </section>
         <h6 id="ongoing-node-view-header">Ongoing Queries</h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
-            <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)">
+            <div *ngFor="let node of ongoingNodes"
+                [class.highlighted]="highlightedNodes.includes(node)"
+                (mouseenter)="hoveredNode = node"
+                (mouseleave)="hoveredNode = null"
+            >
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -84,7 +91,11 @@
             </div>
         </section>
         <section id="graph" class="styled-scroll">
-            <exploration-view #explorationView [root]="explorationRoot">
+            <exploration-view #explorationView
+                [root]="explorationRoot"
+                [hoveredNode]="hoveredNode"
+                [activeNode]="activeNode"
+                >
             </exploration-view>
         </section>
     </section>

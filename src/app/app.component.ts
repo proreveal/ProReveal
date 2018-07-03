@@ -28,7 +28,10 @@ export class AppComponent implements OnInit {
     explorationRoot: ExplorationNode;
     explorationLayout: ExplorationLayout = new ExplorationLayout();
     engine: Engine;
+
     activeNode: ExplorationNode = null;
+    hoveredNode: ExplorationNode = null;
+
     ongoingNodes: ExplorationNode[];
     completedNodes: ExplorationNode[];
     sortablejsOptions: any;
@@ -81,7 +84,7 @@ export class AppComponent implements OnInit {
     }
 
     layout() {
-        this.explorationLayout.layout(this.explorationRoot, true); //this.explorationView.editable);
+        this.explorationLayout.layout(this.explorationRoot, false); //this.explorationView.editable);
     }
 
     print(result: AccumulatedResponseDictionary) {

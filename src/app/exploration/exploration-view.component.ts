@@ -2,8 +2,6 @@ import { Component, OnInit, ViewChild, EventEmitter, Output } from '@angular/cor
 import { forwardRef, Input } from '@angular/core'
 import { Constants } from '../constants';
 import { ExplorationNode } from './exploration-node';
-import { Dataset } from '../data/dataset';
-import { FieldTrait } from '../data/field';
 import { ExplorationNodeViewComponent } from './exploration-node-view.component';
 
 @Component({
@@ -13,6 +11,8 @@ import { ExplorationNodeViewComponent } from './exploration-node-view.component'
 })
 export class ExplorationViewComponent implements OnInit {
     @Input() root: ExplorationNode;
+    @Input() hoveredNode: ExplorationNode;
+    @Input() activeNode: ExplorationNode;
 
     @Output('nodeSelected') nodeSelected: EventEmitter<{
         'node': ExplorationNode,

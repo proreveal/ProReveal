@@ -12,12 +12,19 @@ $ring-size: 10px;
   background:white;
   cursor:pointer;
   text-align: center;
-  line-height: $node-height;
-  padding-top: $link-thickness;
+
+  line-height: $node-height - $link-thickness;
+  margin-top: $link-thickness;
+  margin-left: $link-thickness;
+  border:2px solid white;
 }
 
-.node.highlighted {
-  box-shadow: 0px 0px 8px 10px rgba(179, 229, 252, 0.8);
+.node.hovered{
+    border:2px solid #a0ceff;
+}
+
+.node.active {
+    border:2px solid #007bff;
 }
 
 progress-ring {
@@ -36,8 +43,9 @@ progress-ring {
 }
 
 progress-mini-ring {
-  z-index:-1;
   display:inline-block;
+  position:relative;
+  top: -1px;
 }
 
 $link-color: #888;

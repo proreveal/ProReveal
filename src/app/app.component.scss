@@ -104,6 +104,7 @@ $ui-border-color: #ced4da;
     overflow-y: scroll;
     overflow-x: scroll;
     padding: 5px;
+    padding-left: 20px;
 }
 
 .query {
@@ -117,6 +118,11 @@ $ui-border-color: #ced4da;
 .query:hover {
     cursor: pointer;
     background: lighten($ui-background-color, 2%);
+}
+
+.highlighted {
+    box-shadow: 0 0 0 0.2rem inset rgba(0,123,255,.25);
+    z-index:3;
 }
 
 .highlighted .field-names{

@@ -1,12 +1,10 @@
 <div class="node" [style.top.px]="node.visual.top"
     [style.left.px]="node.visual.left"
     [style.z-index]="1024-node.visual.depth*2"
-    (click)="nodeSelected.emit({node: node, nodeView: this, left: node.visual.left, top: node.visual.top, child: false})">
-
-    <!-- <fa name="eye" class="focused" [hidden]="!(app.focusednode === node)"></fa> -->
-    <!--  <fa name="play" class="status" [hidden]="node.status != 'running'"></fa>
-  <fa name="pause" class="status" [hidden]="node.status != 'paused'"></fa>
-  <fa name="check" class="status" [hidden]="node.status != 'done'"></fa>-->
+    (click)="nodeSelected.emit({node: node, nodeView: this, left: node.visual.left, top: node.visual.top, child: false})"
+    [class.hovered]="hoveredNode === node"
+    [class.active]="activeNode === node"
+    >
 
     <fa-icon [icon]="['fas', 'database']" *ngIf="node.isRoot()"></fa-icon>
     <progress-mini-ring [processed]="node.query.progress.processedPercent()"
@@ -14,42 +12,6 @@
 
     <!-- <span style="font-size:12px; position: relative; top:-40px">{{ node.query.name }}</span> -->
 </div>
-
-<!-- <div class="label"
-    [style.top.px]="node.visual.top + node.visual.height"
-    [style.left.px]="node.visual.left + node.visual.width / 2"
-    [style.z-index]="1024 - node.visual.depth*2"
-    *ngIf="!node.isRoot()">
-    {{ node.fields[node.fields.length - 1].name }}
-</div> -->
-
-<!-- <div class="panel"
-    [style.top.px]="node.visual.top"
-    [style.left.px]="node.visual.left + node.width / 2"
-    [style.z-index]="1024-node.depth*2-1"
-    [hidden]="true">
-    <div class="background" [style.opacity]="app.focusednode === node ? 0.9 : 0" [style.width.%]="app.focusednode === node ? 100 : 0"></div>
-    <div class="background-glow" [style.opacity]="app.focusednode === node ? 0.9 : 0" [style.width.%]="app.focusednode === node ? 100 : 0"></div>
-    <div class="summary">
-        <p class="title">
-            <span class="column">
-                {{ node.topVlSpec ? node.topVlSpec.name : '' }}
-            </span>
-        </p>
-        <p class="action">
-            <fa name="play"></fa>
-            <fa name="stop"></fa>
-            <fa name="code-fork"></fa>
-            <fa name="remove"></fa>
-            <fa name="delete"></fa>
-        </p>
-    </div>
-</div> -->
-
-<!-- <div class="preview" [style.display]="preview ? 'block' : 'none'" [style.top.px]="node.top" [style.left.px]="node.left + node.width + 20"
-    #previewSvg>
-</div> -->
-
 
 <div class="horizontal-link" *ngIf="node.hasChildren()"
     [style.top.px]="node.visual.verticalCenter()"
@@ -71,7 +33,8 @@
 <ng-container *ngFor="let child of node.children; first as isFirst; last as isLast">
     <exploration-node-view
         [node]="child"
-
+        [hoveredNode]="hoveredNode"
+        [activeNode]="activeNode"
         (nodeSelected)="nodeSelected.emit($event)"
         (nodeUnselected)="nodeUnselected.emit($event)"
         ></exploration-node-view>
@@ -82,65 +45,3 @@
         [style.width.px]="constants.columnSpace * (1 - constants.branchRatio)">
     </div>
 </ng-container>
-
-<!-- next depth, at the bottom of the last child -->
-<!-- <ng-container *ngIf="editable && constants.usePlaceholder && node.hasChildren()">
-    <div class="placeholder"
-        [style.left.px]="node.firstChild().visual.left"
-        [style.top.px]="node.lastChild().visual.bottom(true)"
-        (click)="toggle($event, node.firstChild().visual.left, node.lastChild().visual.bottom(true), true)"
-        [class.closed]="selectorOpened"
-    >
-    </div>
-
-    <div class="icon"
-        [style.left.px]="node.firstChild().visual.left"
-        [style.top.px]="node.lastChild().visual.bottom(true)"
-    >
-        <fa-icon icon="plus" [hidden]="selectorOpened"></fa-icon>
-        <fa-icon icon="times" [hidden]="!selectorOpened"></fa-icon>
-    </div>
-
-    <div class="horizontal-link"
-        [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
-        [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
-        [style.width.px]="constants.columnSpace * (1 - constants.branchRatio)">
-    </div>
-
-    <div class="vertical-link"
-        [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
-        [style.top.px]="node.lastChild().visual.verticalCenter()"
-        [style.height.px]="constants.nodeHeight + constants.rowSpace">
-    </div>
-
-    <div class="vertical-joint"
-        [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
-        [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
-    >
-    </div>
-</ng-container> -->
-
-<!-- next depth, the same top -->
-<!-- <ng-container *ngIf="editable && constants.usePlaceholder && node.isLeaf()">
-    <div class="placeholder"
-        [style.left.px]="node.visual.right() + constants.columnSpace"
-        [style.top.px]="node.visual.top"
-        (click)="toggle($event, node.visual.right() + constants.columnSpace, node.visual.top, true)"
-        [class.closed]="selectorOpened"
-    >
-    </div>
-
-    <div class="icon"
-        [style.left.px]="node.visual.right() + constants.columnSpace"
-        [style.top.px]="node.visual.top"
-    >
-        <fa-icon icon="plus" [hidden]="selectorOpened"></fa-icon>
-        <fa-icon icon="times" [hidden]="!selectorOpened"></fa-icon>
-    </div>
-
-    <div class="horizontal-link"
-        [style.left.px]="node.visual.right()"
-        [style.top.px]="node.visual.verticalCenter()"
-        [style.width.px]="constants.columnSpace">
-    </div>
-</ng-container> -->
