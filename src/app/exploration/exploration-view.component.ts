@@ -13,7 +13,6 @@ import { ExplorationNodeViewComponent } from './exploration-node-view.component'
 })
 export class ExplorationViewComponent implements OnInit {
     @Input() root: ExplorationNode;
-    @Input() dataset: Dataset;
 
     @Output('nodeSelected') nodeSelected: EventEmitter<{
         'node': ExplorationNode,
@@ -30,14 +29,9 @@ export class ExplorationViewComponent implements OnInit {
     }> = new EventEmitter();
 
     constants = Constants;
-    editable: boolean = true;
 
     constructor() { }
 
     ngOnInit() {
-    }
-
-    toggleEditable() {
-        this.editable = !this.editable;
     }
 }

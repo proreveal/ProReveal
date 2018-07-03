@@ -1,6 +1,7 @@
 import { Job } from './job';
 import { Scheduler } from './scheduler';
 import { ServerError } from './exception';
+import { Query } from './query';
 
 export class Queue {
     jobs: Job[] = [];

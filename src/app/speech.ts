@@ -8,6 +8,7 @@ export class SpeechRecognition {
     constructor(public maxDuration:number = 5000, public handler:(event:any) => void) {
         if(!('webkitSpeechRecognition' in window)) {
             this.recognition = null;
+            console.log('SpeechRecognition API not detected');
         }
         else {
             this.recognition = new this.anyWindow.webkitSpeechRecognition();

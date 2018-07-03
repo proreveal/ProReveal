@@ -4,19 +4,19 @@ import * as d3 from 'd3';
 import * as d3util from '../d3-utils/d3-utils';
 
 @Component({
-    selector: 'progress-ring',
-    templateUrl: './progress-ring.component.html'
+    selector: 'progress-mini-ring',
+    templateUrl: './progress-mini-ring.component.html'
 })
-export class ProgressRingComponent implements OnInit, OnChanges {
+export class ProgressMiniRingComponent implements OnInit {
     @Input() processed: number;
     @Input() ongoing: number;
     @ViewChild('svg') svg: ElementRef;
 
     private g;
-    private percent;
 
-    outerRadius = 28;
     constants = Constants;
+    outerRadius = 5;
+    innerRadius = 2;
 
     constructor() {
     }
@@ -31,14 +31,9 @@ export class ProgressRingComponent implements OnInit, OnChanges {
 
         this.g = g;
 
+
         g
             .attr('transform', d3util.translate(this.outerRadius, this.outerRadius));
-
-        this.percent = g.append('text')
-            .attr('font-family', 'Roboto Condensed')
-            .attr('text-anchor', 'middle')
-            .attr('dy', '.33em')
-            .attr('dx', '.1em')
 
         this.update();
     }
@@ -61,8 +56,8 @@ export class ProgressRingComponent implements OnInit, OnChanges {
         }
 
         let arc = d3.arc()
-            .innerRadius(this.outerRadius - 5)
-            .outerRadius(this.outerRadius);
+            .innerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius)
 
         let pie = d3.pie().value((d: any) => d).sort(null)
         let data = pie([progress, ongoing, 1 - progress - ongoing]);
@@ -78,15 +73,6 @@ export class ProgressRingComponent implements OnInit, OnChanges {
 
         paths
             .attr('d', arc)
-            .attr('fill', (d, i) => ['#007bff', '#a0ceff', '#ddd'][i]);
-
-        this.percent.text(
-            Math.round(progress * 1000) / 10 + '%'
-        );
-
-        if(progress === 0)
-            this.percent.style('opacity', .3);
-        else
-            this.percent.style('opacity', 1);
+            .attr('fill', (d, i) => Constants.progressRingColors[i]);
     }
 }

@@ -13,24 +13,6 @@
         <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>
     </section>
     <section id="node-view">
-        <section id="search">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <fa-icon [icon]="['fas', 'search']"></fa-icon>
-                    </span>
-                </div>
-                <input type="text" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
-                <div class="input-group-append">
-                    <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
-                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                    </button>
-                    <button class="btn btn-light" type="button" (click)="voiceSearchClicked()">
-                        <fa-icon [icon]="['fas', 'microphone']"></fa-icon>
-                    </button>
-                </div>
-            </div>
-        </section>
         <h6 id="completed-node-view-header">Completed Queries</h6>
         <section id="completed-node-view" class="styled-scroll">
             <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)">
@@ -82,6 +64,28 @@
                     </button>
                 </div>
             </div>
+        </section>
+        <section id="search">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <fa-icon [icon]="['fas', 'search']"></fa-icon>
+                    </span>
+                </div>
+                <input type="text" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
+                <div class="input-group-append">
+                    <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
+                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                    </button>
+                    <button class="btn btn-light" type="button" (click)="voiceSearchClicked()">
+                        <fa-icon [icon]="['fas', 'microphone']"></fa-icon>
+                    </button>
+                </div>
+            </div>
+        </section>
+        <section id="graph" class="styled-scroll">
+            <exploration-view #explorationView [root]="explorationRoot">
+            </exploration-view>
         </section>
     </section>
     <!-- <section id="exploration-view-wrapper">

@@ -7,10 +7,10 @@
     <!--  <fa name="play" class="status" [hidden]="node.status != 'running'"></fa>
   <fa name="pause" class="status" [hidden]="node.status != 'paused'"></fa>
   <fa name="check" class="status" [hidden]="node.status != 'done'"></fa>-->
-    <progress-ring [processed]="node.query.progress.processedPercent()"
-        [ongoing]="node.query.progress.ongoingPercent()" *ngIf="!node.isRoot()"></progress-ring>
 
-    <progress-ring [processed]="1" [ongoing]="0" *ngIf="node.isRoot()"></progress-ring>
+    <fa-icon [icon]="['fas', 'database']" *ngIf="node.isRoot()"></fa-icon>
+    <progress-mini-ring [processed]="node.query.progress.processedPercent()"
+        [ongoing]="node.query.progress.ongoingPercent()" *ngIf="!node.isRoot()"></progress-mini-ring>
 
     <!-- <span style="font-size:12px; position: relative; top:-40px">{{ node.query.name }}</span> -->
 </div>
@@ -71,11 +71,11 @@
 <ng-container *ngFor="let child of node.children; first as isFirst; last as isLast">
     <exploration-node-view
         [node]="child"
-        [editable]="editable"
+
         (nodeSelected)="nodeSelected.emit($event)"
         (nodeUnselected)="nodeUnselected.emit($event)"
         ></exploration-node-view>
-
+        <!-- [editable]="editable" -->
     <div class="horizontal-link"
         [style.top.px]="child.visual.verticalCenter()"
         [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio + constants.linkThickness / 2 * (!isFirst && isLast)"
@@ -84,7 +84,7 @@
 </ng-container>
 
 <!-- next depth, at the bottom of the last child -->
-<ng-container *ngIf="editable && constants.usePlaceholder && node.hasChildren()">
+<!-- <ng-container *ngIf="editable && constants.usePlaceholder && node.hasChildren()">
     <div class="placeholder"
         [style.left.px]="node.firstChild().visual.left"
         [style.top.px]="node.lastChild().visual.bottom(true)"
@@ -100,7 +100,6 @@
         <fa-icon icon="plus" [hidden]="selectorOpened"></fa-icon>
         <fa-icon icon="times" [hidden]="!selectorOpened"></fa-icon>
     </div>
-
 
     <div class="horizontal-link"
         [style.left.px]="node.visual.right() + constants.columnSpace * constants.branchRatio"
@@ -119,10 +118,10 @@
         [style.top.px]="node.lastChild().visual.verticalCenter() + constants.rowSpace + constants.nodeHeight"
     >
     </div>
-</ng-container>
+</ng-container> -->
 
 <!-- next depth, the same top -->
-<ng-container *ngIf="editable && constants.usePlaceholder && node.isLeaf()">
+<!-- <ng-container *ngIf="editable && constants.usePlaceholder && node.isLeaf()">
     <div class="placeholder"
         [style.left.px]="node.visual.right() + constants.columnSpace"
         [style.top.px]="node.visual.top"
@@ -144,4 +143,4 @@
         [style.top.px]="node.visual.verticalCenter()"
         [style.width.px]="constants.columnSpace">
     </div>
-</ng-container>
+</ng-container> -->

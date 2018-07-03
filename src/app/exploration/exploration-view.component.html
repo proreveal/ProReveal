@@ -1,6 +1,6 @@
 <div id="nodes" *ngIf="root"
     [style.height.px]="root.visual.childrenHeight">
-    <exploration-node-view [node]="root" [editable]="editable"
+    <exploration-node-view [node]="root"
         (nodeSelected)="nodeSelected.emit($event)"
         (nodeUnselected)="nodeUnselected.emit($event)"
     ></exploration-node-view>

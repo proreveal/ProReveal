@@ -11,7 +11,7 @@ import { ExplorationNode } from './exploration-node';
 })
 export class ExplorationNodeViewComponent implements OnInit {
     @Input() node: ExplorationNode;
-    @Input() editable: boolean;
+    // @Input() editable: boolean;
 
     @Output('nodeSelected') nodeSelected: EventEmitter<{
         'node': ExplorationNode,
@@ -28,7 +28,7 @@ export class ExplorationNodeViewComponent implements OnInit {
     }> = new EventEmitter();
 
     constants = Constants;
-    selectorOpened = false;
+    // selectorOpened = false;
 
     constructor() {
     }
@@ -37,29 +37,29 @@ export class ExplorationNodeViewComponent implements OnInit {
     }
 
     // only applied to the child node
-    toggle($event: MouseEvent, left: number, top: number, child: boolean) {
-        $event.stopPropagation();
-        if(this.selectorOpened) {
-            this.selectorClosed();
-            this.nodeUnselected.emit({
-                node: this.node,
-                nodeView: this,
-                child: child
-            });
-        }
-        else {
-            this.selectorOpened = true;
-            this.nodeSelected.emit({
-                node: this.node,
-                nodeView: this,
-                child: child,
-                left: left,
-                top: top
-            });
-        }
-    }
+    // toggle($event: MouseEvent, left: number, top: number, child: boolean) {
+    //     $event.stopPropagation();
+    //     if(this.selectorOpened) {
+    //         this.selectorClosed();
+    //         this.nodeUnselected.emit({
+    //             node: this.node,
+    //             nodeView: this,
+    //             child: child
+    //         });
+    //     }
+    //     else {
+    //         this.selectorOpened = true;
+    //         this.nodeSelected.emit({
+    //             node: this.node,
+    //             nodeView: this,
+    //             child: child,
+    //             left: left,
+    //             top: top
+    //         });
+    //     }
+    // }
 
-    selectorClosed() {
-        this.selectorOpened = false;
-    }
+    // selectorClosed() {
+    //     this.selectorOpened = false;
+    // }
 }

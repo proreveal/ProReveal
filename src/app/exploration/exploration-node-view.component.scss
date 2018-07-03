@@ -1,20 +1,19 @@
 $link-thickness: 2px;
-$node-height: 60px;
-$node-width: 60px;
+$node-height: 16px;
+$node-width: 16px;
+$ring-size: 10px;
 
 .node {
   display:inline-block;
   width: $node-width;
   height: $node-height;
   border-radius: $node-height;
-  border:2px solid white;
   position:absolute;
-  margin-left:0px;
-  margin-top:0px;
   background:white;
   cursor:pointer;
-  word-wrap: break-word;
-  line-height:12px;
+  text-align: center;
+  line-height: $node-height;
+  padding-top: $link-thickness;
 }
 
 .node.highlighted {
@@ -36,11 +35,9 @@ progress-ring {
   pointer-events:none;
 }
 
-progress-ring {
-  position:absolute;
+progress-mini-ring {
   z-index:-1;
   display:inline-block;
-  height:100%;
 }
 
 $link-color: #888;
