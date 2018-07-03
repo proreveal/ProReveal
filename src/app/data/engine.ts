@@ -61,6 +61,13 @@ export class Engine {
         this.queue.reschedule();
     }
 
+    remove(query: Query) {
+        util.aremove(this.ongoingQueries, query);
+        util.aremove(this.completedQueries, query);
+
+        this.queue.remove(query);
+    }
+
     run() {
         if (this.queue.empty()) return;
 

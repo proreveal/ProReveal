@@ -38,4 +38,8 @@ export class Queue {
     reschedule() {
         this.jobs = this.scheduler.schedule(this.jobs);
     }
+
+    remove(query: Query){
+        this.jobs = this.jobs.filter(job => job.query !== query)
+    }
 }

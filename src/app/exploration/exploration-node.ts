@@ -26,6 +26,11 @@ export class Visual {
     }
 }
 
+export enum NodeState {
+    Running = "Running",
+    Paused = "Paused"
+};
+
 export class ExplorationNode {
     children: ExplorationNode[] = [];
     visual: Visual = new Visual();
@@ -39,6 +44,7 @@ export class ExplorationNode {
     maxUncertainty = 0;
 
     updateAutomatically = true;
+    state:NodeState = NodeState.Running;
 
     constructor(public parent: ExplorationNode, public fields: FieldTrait[], public query: Query | null) {
     }
@@ -65,5 +71,13 @@ export class ExplorationNode {
 
     isRoot() {
         return isNull(this.parent);
+    }
+
+    pause() {
+        this.state = NodeState.Paused;
+    }
+
+    run() {
+        this.state = NodeState.Running;
     }
 }

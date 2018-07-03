@@ -143,4 +143,8 @@ export function srange(n: number) {
     return arange(n).map(d => d.toString());
 }
 
-
+export function aremove(array: any[], item: any) {
+    let index = array.indexOf(item);
+    if(index >= 0)
+        array.splice(index, 1);
+}

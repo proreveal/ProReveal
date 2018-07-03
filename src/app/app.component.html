@@ -16,10 +16,11 @@
         <section id="search">
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <span class="input-group-text"><fa-icon [icon]="['fas', 'search']"></fa-icon></span>
+                    <span class="input-group-text">
+                        <fa-icon [icon]="['fas', 'search']"></fa-icon>
+                    </span>
                 </div>
-                <input type="text" class="form-control" placeholder="Search"
-                    (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
+                <input type="text" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
                 <div class="input-group-append">
                     <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
@@ -53,10 +54,7 @@
             </div>
         </section>
         <h6 id="ongoing-node-view-header">Ongoing Queries</h6>
-        <section id="ongoing-node-view" class="styled-scroll"
-            [sortablejs]="ongoingNodes"
-            [sortablejsOptions]="sortablejsOptions"
-        >
+        <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
             <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
@@ -66,12 +64,17 @@
                             {{ field.name }}
                         </li>
                     </ul>
+                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="node.state === NodeState.Paused"></fa-icon>
+                    <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="node.state === NodeState.Running"></fa-icon>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
-                    <button class="btn btn-light">
+                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Paused" (click)="activeNode.pause()">
                         <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     </button>
-                    <button class="btn btn-light">
+                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Running" (click)="activeNode.run()">
+                        <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                    </button>
+                    <button class="btn btn-light" (click)="deleteClicked(confirmDelete, node)">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
                     <button class="btn btn-light" (click)="plusClicked($event, node)">
@@ -111,3 +114,23 @@
 </div>
 
 <field-selector #fieldSelector (fieldSelected)="fieldSelected($event.node, $event.field)"></field-selector>
+
+<ng-template #confirmDelete let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Confirm Deletion</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p>
+            Are you sure?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger"
+        (click)="c()">Delete</button>
+        <button type="button" class="btn btn-outline-secondary"
+        (click)="d()">Cancel</button>
+    </div>
+</ng-template>

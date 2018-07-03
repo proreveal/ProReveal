@@ -3,18 +3,16 @@ import { Dataset } from './data/dataset';
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
-import { Query, AggregateQuery, EmptyQuery } from './data/query';
-import { SumAccumulator, AccumulatedResponseDictionary } from './data/accumulator';
-import { GroupBy } from './data/groupby';
+import { Query, EmptyQuery } from './data/query';
+import { AccumulatedResponseDictionary } from './data/accumulator';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
-import { ExplorationNode } from './exploration/exploration-node';
+import { ExplorationNode, NodeState } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
 import { ExplorationViewComponent } from './exploration/exploration-view.component';
-import { ExplorationNodeViewComponent } from './exploration/exploration-node-view.component';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
-import { Constants } from './constants';
 import * as util from './util';
 import { SpeechRecognitionService } from './speech-recognition.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-root',
@@ -36,8 +34,11 @@ export class AppComponent implements OnInit {
     sortablejsOptions: any;
     highlightedNodes: ExplorationNode[] = [];
     searchKeyword: string;
+    NodeState = NodeState;
 
-    constructor(private cd: ChangeDetectorRef, private speech:SpeechRecognitionService) {
+    constructor(private cd: ChangeDetectorRef,
+        private speech: SpeechRecognitionService,
+        private modalService: NgbModal) {
         this.sortablejsOptions = {
             onUpdate: this.ongoingQueriesReordered.bind(this)
         };
@@ -155,7 +156,9 @@ export class AppComponent implements OnInit {
     // }
 
     nodeSelected(node: ExplorationNode) {
-        this.activeNode = node;
+        if (this.activeNode === node)
+            this.activeNode = null;
+        else this.activeNode = node;
     }
 
     // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
@@ -186,7 +189,7 @@ export class AppComponent implements OnInit {
     }
 
     keywordSearched(keyword: string) {
-        if(keyword.length === 0) {
+        if (keyword.length === 0) {
             this.highlightedNodes = [];
             return;
         }
@@ -197,12 +200,12 @@ export class AppComponent implements OnInit {
             this.completedNodes
                 .filter(node => node.fields
                     .filter(field => field.name.toLowerCase().includes(keyword)
-                ).length > 0).concat(
-                    this.ongoingNodes
-                    .filter(node => node.fields
-                        .filter(field => field.name.toLowerCase().includes(keyword))
-                    .length > 0)
-                );
+                    ).length > 0).concat(
+                        this.ongoingNodes
+                            .filter(node => node.fields
+                                .filter(field => field.name.toLowerCase().includes(keyword))
+                                .length > 0)
+                    );
     }
 
     voiceSearchClicked() {
@@ -219,4 +222,17 @@ export class AppComponent implements OnInit {
             this.cd.detectChanges();
         }
     }
+
+    deleteClicked(modal, node: ExplorationNode) {
+        this.modalService
+            .open(modal, { ariaLabelledBy: 'modal-basic-title' }).result
+            .then((result) => {
+                this.engine.remove(node.query);
+                this.updateNodeLists();
+            }, (reason) => {
+                // console.log(`Dismissed`);
+            });
+    }
+
+
 }

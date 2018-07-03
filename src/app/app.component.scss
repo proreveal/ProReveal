@@ -140,6 +140,13 @@ progress-ring {
     border-bottom: 1px solid $ui-border-color;
 }
 
+.state-icon {
+    font-size:0.6em;
+    position: absolute;
+    left:3px;
+    top:3px;
+}
+
 /* #exploration-view-wrapper {
     grid-row: 2;
     grid-column: 2;
