@@ -26,6 +26,7 @@ import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
+import { SketchbookComponent } from './sketchbook/sketchbook.component';
 
 library.add(fas, far);
 
@@ -43,7 +44,8 @@ library.add(fas, far);
         HorizontalBarsTooltipComponent,
         TooltipHostDirective,
         FieldBadgeComponent,
-        ProgressMiniRingComponent
+        ProgressMiniRingComponent,
+        SketchbookComponent
     ],
     imports: [
         NgbModule.forRoot(),
