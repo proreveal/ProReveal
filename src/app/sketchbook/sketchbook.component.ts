@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
-import hmacSHA512 from 'crypto-js/hmac-sha512';
+import * as cryptojs from 'crypto-js';
+import { Point } from './point';
+import { Stroke } from './stroke';
 
 @Component({
     selector: 'sketchbook',
@@ -17,17 +19,35 @@ export class SketchbookComponent implements OnInit {
         this.svg = d3.select(this.svgRef.nativeElement);
         let svg = this.svg;
 
-        let data = [];
-        let line = d3.line().curve(d3.curveBasis);
-        let path = svg.append("path").attr('stroke', 'black').attr('fill', 'none');
+        let strokes:Stroke[] = [];
+        let stroke:Stroke;
+
+        let line = d3.line<Point>().curve(d3.curveBasis).x(d => d.x).y(d => d.y);
 
         drag.on('start', () => {
-
+            stroke = new Stroke();
+            strokes.push(stroke);
         });
 
         drag.on('drag', () => {
-            data.push(d3.mouse(this.svgRef.nativeElement));
-            path.datum(data).attr('d', line);
+            let xy = d3.mouse(this.svgRef.nativeElement);
+            let point = new Point(xy[0], xy[1]);
+
+            stroke.addPoint(point);
+
+            let paths = svg
+                .selectAll('path')
+                .data(strokes)
+
+            let pathsEnter = paths
+                .enter()
+                .append('path')
+                .style('stroke', 'black')
+                .style('fill', 'none');
+
+            paths
+                .merge(pathsEnter)
+                .attr('d', (stroke: Stroke) => line(stroke.points));
         });
 
         svg.call(drag);
@@ -37,7 +57,7 @@ export class SketchbookComponent implements OnInit {
         const request = new XMLHttpRequest();
         request.onload = function () {
             console.log(this);
-            if (this.status === 202) {
+            if (this.status < 300) {
             } else {
                 throw new Error(this.statusText);
             }
@@ -51,8 +71,8 @@ export class SketchbookComponent implements OnInit {
         let body = JSON.stringify(payload);
         let akey = 'd4b92463-f11c-4ab3-9c0d-6893f0dd86ea';
         let hkey = 'c164a02d-d7f7-4773-8900-cca46ab9ec69';
-        let hmac = hmacSHA512(body, akey + hkey);
-        console.log(hmac.toString());
+        let hmac = cryptojs.HmacSHA512(body, akey + hkey);
+        // console.log(hmac.toString());
         request.setRequestHeader('applicationKey', 'd4b92463-f11c-4ab3-9c0d-6893f0dd86ea');
         request.setRequestHeader('hmac', hmac.toString());
         request.setRequestHeader('Accept', 'application/json,application/vnd.myscript.jiix');
