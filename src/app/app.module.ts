@@ -8,7 +8,6 @@ import { ExplorationNodeViewComponent } from './exploration/exploration-node-vie
 import { ProgressRingComponent } from './exploration/progress-ring.component';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
-import { DataService } from './services/data.service';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -55,7 +54,7 @@ library.add(fas, far);
         FontAwesomeModule,
         FormsModule
     ],
-    providers: [DataService],
+    providers: [],
     bootstrap: [AppComponent],
     entryComponents: [ HorizontalBarsTooltipComponent ]
 })

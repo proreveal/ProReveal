@@ -12,16 +12,25 @@ import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
+import { Sketchable } from './sketchable';
 
 export class HorizontalBarsRenderer extends Renderer {
     gradient = new Gradient();
+    sketchable:Sketchable = new Sketchable();
 
-    setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+    setup(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
         if ((node.query as AggregateQuery).groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
 
-        this.gradient.setup(selectOrAppend(d3.select(nativeSvg), 'defs'));
+        let svg = d3.select(nativeSvg);
+
+        this.gradient.setup(selectOrAppend(svg, 'defs'));
+        selectOrAppend(svg, 'g', 'vis');
+        this.sketchable.setup(svg)
+            .on('start', () => {
+                tooltip.hide();
+            })
     }
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
@@ -29,6 +38,7 @@ export class HorizontalBarsRenderer extends Renderer {
         let query = node.query as AggregateQuery;
         let processedPercent = query.progress.processedPercent();
         let done = query.progress.done();
+        let visG = svg.select('g.vis');
 
         let data = query.resultList().map(
             value => {
@@ -72,7 +82,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height));
 
-        selectOrAppend(svg, 'g', '.sub.axis')
+        selectOrAppend(visG, 'g', '.sub.axis')
             .style('opacity', .2)
             .attr('transform', translate(0, VC.horizontalBars.axis.height))
             .transition()
@@ -82,12 +92,12 @@ export class HorizontalBarsRenderer extends Renderer {
 
         const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
 
-        selectOrAppend(svg, 'g', '.x.axis.top')
+        selectOrAppend(visG, 'g', '.x.axis.top')
             .attr('transform', translate(0, VC.horizontalBars.axis.height))
             .transition()
             .call(topAxis as any)
 
-        const labels = svg
+        const labels = visG
             .selectAll('text.label')
             .data(data, (d: any) => d.id);
 
@@ -102,7 +112,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         labels.exit().remove();
 
-        const labelLines = svg.selectAll('line.label').data(data, (d: any) => d.id);
+        const labelLines = visG.selectAll('line.label').data(data, (d: any) => d.id);
 
         enter = labelLines.enter().append('line').attr('class', 'label')
             .style('stroke', 'black')
@@ -116,7 +126,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         labelLines.exit().remove();
 
-        const leftBars = svg
+        const leftBars = visG
             .selectAll('rect.left.bar')
             .data(data, (d: any) => d.id);
 
@@ -131,7 +141,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         leftBars.exit().remove();
 
-        const rightBars = svg
+        const rightBars = visG
             .selectAll('rect.right.bar')
             .data(data, (d: any) => d.id);
 
@@ -146,7 +156,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         rightBars.exit().remove();
 
-        const centerLines = svg
+        const centerLines = visG
             .selectAll('line.center')
             .data(data, (d: any) => d.id);
 
@@ -165,7 +175,7 @@ export class HorizontalBarsRenderer extends Renderer {
         centerLines.exit().remove();
 
         if (done) {
-            const circles = svg.selectAll('circle')
+            const circles = visG.selectAll('circle')
                 .data(data, (d: any) => d.id);
 
             enter = circles.enter().append('circle')
@@ -179,11 +189,11 @@ export class HorizontalBarsRenderer extends Renderer {
             circles.exit().remove();
         }
         else {
-            svg.selectAll('circle')
+            visG.selectAll('circle')
                 .remove();
         }
 
-        const eventBoxes = svg.selectAll('rect.event-box')
+        const eventBoxes = visG.selectAll('rect.event-box')
             .data(data, (d: any) => d.id);
 
         enter = eventBoxes.enter().append('rect').attr('class', 'event-box');
@@ -194,6 +204,7 @@ export class HorizontalBarsRenderer extends Renderer {
             .attr('width', width)
             .attr('transform', (d, i) => translate(0, yScale(i + '')))
             .on('mouseover', (d, i) => {
+                if(this.sketchable.sketching) return;
                 const clientRect = nativeSvg.getBoundingClientRect();
                 tooltip.show(
                     clientRect.left + xScale(d.ci3stdev.center),
@@ -210,7 +221,7 @@ export class HorizontalBarsRenderer extends Renderer {
 
         const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
-        selectOrAppend(svg, 'g', '.x.axis.bottom')
+        selectOrAppend(visG, 'g', '.x.axis.bottom')
             .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
             .transition()
             .call(bottomAxis as any)

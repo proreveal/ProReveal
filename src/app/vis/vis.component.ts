@@ -46,7 +46,7 @@ export class VisComponent implements OnInit, DoCheck {
         this.renderers = this.recommend(this.node.query as AggregateQuery);
 
         this.renderers.forEach(renderer => {
-            renderer.setup(this.node, this.svg.nativeElement);
+            renderer.setup(this.node, this.svg.nativeElement, this.tooltip);
             renderer.render(this.node, this.svg.nativeElement, this.tooltip);
         })
     }
@@ -59,7 +59,7 @@ export class VisComponent implements OnInit, DoCheck {
                 this.renderers = this.recommend(this.node.query as AggregateQuery);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
                 this.renderers.forEach(renderer => {
-                    renderer.setup(this.node, this.svg.nativeElement);
+                    renderer.setup(this.node, this.svg.nativeElement, this.tooltip);
                 });
             }
 

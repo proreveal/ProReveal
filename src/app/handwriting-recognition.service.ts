@@ -31,34 +31,11 @@ export class HandwritingRecognitionService {
 
         const request = new XMLHttpRequest();
         let self = this;
-        // request.onload = function () {
-        //     console.log(this);
-        //     if (this.status < 300) {
-        //         self.strokes = [];
-        //         self.renderStrokes();
-
-        //     } else {
-        //         throw new Error(this.statusText);
-        //     }
-        // };
-
-        // request.onerror = function () {
-        //     throw new Error('XMLHttpRequest Error: ' + this.statusText);
-        // };
-        // request.open('POST', 'https://cloud.myscript.com/api/v4.0/iink/batch');
-
         let url = 'https://cloud.myscript.com/api/v4.0/iink/batch';
         let body = JSON.stringify(payload);
         let akey = Constants.myScriptApplicationKey;
         let hkey = Constants.myScriptHMACKey;
         let hmac = cryptojs.HmacSHA512(body, akey + hkey);
-
-        // request.setRequestHeader('applicationKey', akey);
-        // request.setRequestHeader('hmac', hmac.toString());
-        // request.setRequestHeader('Accept', 'application/json,application/vnd.myscript.jiix');
-        // request.setRequestHeader('Content-Type', 'application/json');
-
-        // request.send(body);
 
         return this.http.post(url, body, {
             headers: new HttpHeaders({

@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 
-import { Point } from './point';
-import { Stroke } from './stroke';
+import { Point } from '../vis/renderers/point';
+import { Stroke } from '../vis/renderers/stroke';
 import { HandwritingRecognitionService } from '../handwriting-recognition.service';
 
 @Component({
