@@ -12,8 +12,12 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import * as vsup from 'vsup';
+import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
 
-export class PunchcardRenderer extends Renderer {
+export class PunchcardRenderer implements Renderer {
+    constructor(private handwritingRecognitionService: HandwritingRecognitionService) {
+    }
+
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         if ((node.query as AggregateQuery).groupBy.fields.length !== 2) {
             throw 'Punchcards can be used for 2 categories!';
@@ -182,5 +186,9 @@ export class PunchcardRenderer extends Renderer {
             .attr('transform', translate(matrixWidth, 50))
             .append('g')
             .call(legend);
+    }
+
+    recognitionRequested() {
+
     }
 }

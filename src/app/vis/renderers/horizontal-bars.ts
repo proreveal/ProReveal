@@ -13,10 +13,15 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { Sketchable } from './sketchable';
+import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
 
-export class HorizontalBarsRenderer extends Renderer {
+export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
-    sketchable:Sketchable = new Sketchable();
+    sketchable:Sketchable;
+
+    constructor(private handwritingRecognitionService: HandwritingRecognitionService) {
+        this.sketchable = new Sketchable(handwritingRecognitionService);
+    }
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
         if ((node.query as AggregateQuery).groupBy.fields.length > 1) {
@@ -225,5 +230,12 @@ export class HorizontalBarsRenderer extends Renderer {
             .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
             .transition()
             .call(bottomAxis as any)
+    }
+
+    recognitionRequested() {
+        this.sketchable.recognize()
+            .subscribe((result) => {
+                console.log(result);
+            })
     }
 }

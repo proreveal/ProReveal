@@ -26,6 +26,7 @@ import { FieldBadgeComponent } from './field-badge/field-badge.component';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
 import { SketchbookComponent } from './sketchbook/sketchbook.component';
+import { Sketchable } from './vis/renderers/sketchable';
 
 library.add(fas, far);
 

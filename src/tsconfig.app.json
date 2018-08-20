@@ -4,7 +4,8 @@
     "outDir": "../out-tsc/app",
     "module": "es2015",
     "types": [],
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "allowJs": true
   },
   "exclude": [
     "src/test.ts",

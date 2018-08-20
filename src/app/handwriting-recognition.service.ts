@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Stroke } from './sketchbook/stroke';
+import { Stroke } from './vis/renderers/stroke';
 import * as cryptojs from 'crypto-js';
 import { Constants } from './constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';

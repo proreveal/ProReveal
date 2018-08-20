@@ -7,6 +7,7 @@ import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
 import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
+import { HandwritingRecognitionService } from '../handwriting-recognition.service';
 
 @Component({
     selector: 'vis',
@@ -28,14 +29,16 @@ export class VisComponent implements OnInit, DoCheck {
         new MinAccumulator()
     ];
 
-    constructor() { }
+    constructor(
+        private handwritingRecognitionService: HandwritingRecognitionService
+    ) { }
 
     recommend(query: AggregateQuery): Renderer[] {
         if(query.groupBy.fields.length === 1)
-            return [new HorizontalBarsRenderer()];
+            return [new HorizontalBarsRenderer(this.handwritingRecognitionService)];
 
         if(query.groupBy.fields.length === 2)
-            return [new PunchcardRenderer()];
+            return [new PunchcardRenderer(this.handwritingRecognitionService)];
 
         return [];
     }
@@ -68,5 +71,11 @@ export class VisComponent implements OnInit, DoCheck {
                 renderer.render(this.node, this.svg.nativeElement, this.tooltip);
             });
         }
+    }
+
+    recognize() {
+        this.renderers.forEach(renderer => {
+            renderer.recognitionRequested();
+        })
     }
 }
