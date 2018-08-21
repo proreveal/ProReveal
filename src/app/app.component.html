@@ -13,7 +13,7 @@
         <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>
     </section>
     <section id="node-view">
-        <h6 id="completed-node-view-header">Completed Queries</h6>
+        <h6 id="completed-node-view-header" class="section-header">Completed Queries</h6>
         <section id="completed-node-view" class="styled-scroll">
             <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)"
                 (mouseenter)="hoveredNode = node"
@@ -38,7 +38,7 @@
                 </div>
             </div>
         </section>
-        <h6 id="ongoing-node-view-header">Ongoing Queries</h6>
+        <h6 id="ongoing-node-view-header" class="section-header">Ongoing Queries</h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
             <div *ngFor="let node of ongoingNodes"
                 [class.highlighted]="highlightedNodes.includes(node)"
@@ -115,10 +115,25 @@
             </p>
         </div>
         <div *ngIf="activeNode">
-            <vis [node]="activeNode"></vis>
+            <vis [node]="activeNode" (safeguardAdded)="safeguardAdded($event)"></vis>
         </div>
     </section>
 
+    <section id="safeguard-view">
+        <h6 id="safeguard-view-header" class="section-header">Safeguards</h6>
+        <section id="safeguard-list" class="styled-scroll">
+            <div *ngFor="let sg of safeguards" class="safeguard alert alert-success">
+                <p>
+                    COUNT({{ sg.variable.fieldString() }} = {{ sg.variable.valueString() }})
+                    {{ sg.operator }}
+                    {{ sg.value }}
+                </p>
+                <p>
+                    Confidence: 0.99
+                </p>
+            </div>
+        </section>
+    </section>
     <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
 

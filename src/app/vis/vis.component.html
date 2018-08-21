@@ -57,7 +57,11 @@
         </div>
     </div>
 
-    <button class="btn btn-primary" (click)="recognize()">Recognize</button>
+    <div>
+        <button class="btn btn-primary" (click)="recognize()">Recognize</button>
+        &nbsp;
+        <button class="btn btn-danger" (click)="clear()">Clear</button>
+    </div>
 
     <svg #svg></svg>
     <tooltip #tooltip></tooltip>

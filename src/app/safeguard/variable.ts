@@ -1,31 +1,43 @@
-abstract class VariableTrait {
+import { FieldGroupedValueList } from "../data/field";
+
+export abstract class VariableTrait {
 
 }
 
-class SingleValueVariable {
+export class SingleValueVariable extends VariableTrait {
+    constructor(public fieldGroupedValueList: FieldGroupedValueList) {
+        super();
+    }
+
+    fieldString() {
+        return this.fieldGroupedValueList.list[0].field.name;
+    }
+
+    valueString() {
+        return this.fieldGroupedValueList.list[0].valueString();
+    }
+}
+
+export class SingleRankVariable {
 
 }
 
-class SingleRankVariable {
+export class DoubleValueVariable { // a < b
 
 }
 
-class DoubleValueVariable { // a < b
+export class GroupValueVariable { // g(*) > 3%
 
 }
 
-class GroupValueVariable { // g(*) > 3%
+export class GroupRankVariable {
 
 }
 
-class GroupRankVariable {
+export class DistributionVariable {
 
 }
 
-class DistributionVariable {
-
-}
-
-class LinearFittingVariable {
+export class LinearFittingVariable {
 
 }

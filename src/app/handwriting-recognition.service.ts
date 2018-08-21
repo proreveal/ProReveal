@@ -3,12 +3,26 @@ import { Stroke } from './vis/renderers/stroke';
 import * as cryptojs from 'crypto-js';
 import { Constants } from './constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface HandWriting {
+    expressions: Expression[]
+};
+
+// See https://developer.myscript.com/docs/interactive-ink/1.2/reference/jiix/
+type ExpressionType = 'number'|'='|'<'|'>';
+
+interface Expression {
+    type: ExpressionType,
+    operands: Expression[],
+    label: string,
+    value: number
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class HandwritingRecognitionService {
-
     constructor(private http: HttpClient) { }
 
     public recognize(strokes: Stroke[]) {

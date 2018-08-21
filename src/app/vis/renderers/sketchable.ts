@@ -1,14 +1,13 @@
 import * as d3 from 'd3';
 import { Point } from './point';
 import { Stroke } from './stroke';
-import { StrokeSet } from './stroke-set';
 import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
 
 export class Sketchable {
     svg: d3.Selection<d3.BaseType, {}, null, undefined>;
     strokesG: d3.Selection<d3.BaseType, {}, null, undefined>;
 
-    strokeSet:StrokeSet = new StrokeSet();
+    strokes:Stroke[] = [];
     line = d3.line<Point>().curve(d3.curveBasis).x(d => d.x).y(d => d.y);
     handlers: {[name:string]: () => void} = {};
     sketching = false;
@@ -27,7 +26,7 @@ export class Sketchable {
             stroke = new Stroke();
             let xy = d3.mouse(svg.node());
             stroke.addPoint(new Point(xy[0], xy[1], +new Date()));
-            this.strokeSet.add(stroke);
+            this.add(stroke);
             this.sketching = true;
 
             if(this.handlers.start)
@@ -59,7 +58,9 @@ export class Sketchable {
     renderStrokes() {
         let paths = this.strokesG
                 .selectAll('path')
-                .data(this.strokeSet.strokes)
+                .data(this.strokes)
+
+        paths.exit().remove();
 
         let pathsEnter = paths
             .enter()
@@ -73,7 +74,42 @@ export class Sketchable {
     }
 
     recognize() {
-        if(this.strokeSet.length === 0) return;
-        return this.handwritingRecognitionService.recognize(this.strokeSet.strokes);
+        if(this.length === 0) return;
+        return this.handwritingRecognitionService.recognize(this.strokes);
+    }
+
+    empty() {
+        this.strokes = [];
+    }
+
+    add(stroke) {
+        this.strokes.push(stroke);
+    }
+
+    getBoundingBox(): {x: number, y:number, width: number, height: number} {
+        let xMin, yMin, xMax, yMax;
+
+        xMin = xMax = this.strokes[0].points[0].x;
+        yMin = yMax = this.strokes[0].points[0].y;
+
+        this.strokes.forEach(stroke => {
+            stroke.points.forEach(point => {
+                if(xMin > point.x) xMin = point.x;
+                if(yMin > point.y) yMin = point.y;
+                if(xMax < point.x) xMax = point.x;
+                if(yMax < point.y) yMax = point.y;
+            })
+        })
+
+        return {
+            x: xMin,
+            y: yMin,
+            width: xMax - xMin,
+            height: yMax - yMin
+        };
+    }
+
+    get length() {
+        return this.strokes.length;
     }
 }

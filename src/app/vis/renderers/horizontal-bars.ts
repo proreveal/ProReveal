@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { VisConstants as VC } from '../vis-constants';
 import * as util from '../../util';
-import { AccumulatedResponseDictionary } from '../../data/accumulator';
 import { AggregateQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
@@ -13,11 +12,23 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { Sketchable } from './sketchable';
-import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
+import { HandwritingRecognitionService, HandWriting } from '../../handwriting-recognition.service';
+import { Safeguard } from '../../safeguard/safeguard';
+import { SingleValueVariable } from '../../safeguard/variable';
+import { Operators } from '../../safeguard/operator';
+
+type Datum = {
+    id: string,
+    keys: FieldGroupedValueList,
+    ci3stdev: ConfidenceInterval
+};
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
     sketchable:Sketchable;
+    yScale: d3.ScaleBand<string>;
+    data: Datum[];
+    node: ExplorationNode;
 
     constructor(private handwritingRecognitionService: HandwritingRecognitionService) {
         this.sketchable = new Sketchable(handwritingRecognitionService);
@@ -36,6 +47,8 @@ export class HorizontalBarsRenderer implements Renderer {
             .on('start', () => {
                 tooltip.hide();
             })
+
+        this.node = node;
     }
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
@@ -58,6 +71,7 @@ export class HorizontalBarsRenderer implements Renderer {
             });
 
         data.sort(node.ordering(query.defaultOrderingGetter, query.defaultOrderingDirection));
+        this.data = data;
 
         const height = VC.horizontalBars.axis.height * 2 +
             VC.horizontalBars.height * data.length;
@@ -84,6 +98,8 @@ export class HorizontalBarsRenderer implements Renderer {
             .range([VC.horizontalBars.axis.height,
             height - VC.horizontalBars.axis.height])
             .padding(0.1);
+
+        this.yScale = yScale;
 
         const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height));
 
@@ -233,9 +249,56 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     recognitionRequested() {
-        this.sketchable.recognize()
-            .subscribe((result) => {
-                console.log(result);
-            })
+        return this.sketchable.recognize()
+            .toPromise()
+            .then(this.translate.bind(this));
+    }
+
+    translate(handwriting:HandWriting) {
+        let box = this.sketchable.getBoundingBox();
+        let yCenter = box.y + box.height / 2;
+        let yScale = this.yScale;
+        let minDist = Infinity, minIndex = 0;
+
+        yScale.domain().forEach((value, index) => {
+            let y = yScale(value) + yScale.bandwidth() / 2;
+            let dist = Math.abs(yCenter - y);
+            if(dist < minDist)
+            {
+                minDist = dist;
+                minIndex = index;
+            }
+        });
+
+        let closestDatum = this.data[minIndex];
+
+        if(handwriting.expressions.length === 0) return;
+        let first = handwriting.expressions[0];
+        let resultSg:Safeguard = null;
+
+        if(first.type === '<' && first.operands[1].type === 'number') {
+            let sg = new Safeguard(
+                new SingleValueVariable(closestDatum.keys),
+                Operators.LessThan,
+                first.operands[1].value,
+                this.node
+            );
+            resultSg = sg;
+        }
+
+        console.log(handwriting);
+        console.log(this.data[minIndex]);
+
+        if(resultSg) {
+            this.sketchable.empty();
+            this.sketchable.renderStrokes();
+        }
+
+        return resultSg;
+    }
+
+    clearRequested() {
+        this.sketchable.empty();
+        this.sketchable.renderStrokes();
     }
 }

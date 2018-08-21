@@ -13,6 +13,7 @@ import { FieldSelectorComponent } from './field-selector/field-selector.componen
 import * as util from './util';
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Safeguard } from './safeguard/safeguard';
 
 @Component({
     selector: 'app-root',
@@ -38,6 +39,8 @@ export class AppComponent implements OnInit {
     highlightedNodes: ExplorationNode[] = [];
     searchKeyword: string;
     NodeState = NodeState;
+
+    safeguards: Safeguard[] = [];
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,
@@ -115,46 +118,6 @@ export class AppComponent implements OnInit {
 
             this.nodeSelected(this.ongoingNodes[0]);
         })
-
-        // const request = new XMLHttpRequest();
-        // request.onload = function () {
-        //     if (this.status === 202) {
-        //         let location = request.getResponseHeader("Operation-Location");
-
-        //         let timer = setInterval(function() {
-        //             const request2 = new XMLHttpRequest();
-        //             request2.onload = function () {
-        //                 if (this.status < 300) {
-        //                     let json = JSON.parse(request2.response);
-        //                     if(json.status === "Succeeded")
-        //                         clearInterval(timer);
-        //                     console.log(request2.response);
-        //                 } else {
-        //                     throw new Error(this.statusText);
-        //                 }
-        //             };
-
-        //             request2.onerror = function () {
-        //                 throw new Error('XMLHttpRequest Error: ' + this.statusText);
-        //             };
-        //             request2.open('GET', location);
-        //             request2.setRequestHeader('Ocp-Apim-Subscription-Key', '6b7065be6676439eb64bc3e6fe22f4dd');
-
-        //             request2.send();
-        //         }, 3000);
-
-        //     } else {
-        //         throw new Error(this.statusText);
-        //     }
-        // };
-
-        // request.onerror = function () {
-        //     throw new Error('XMLHttpRequest Error: ' + this.statusText);
-        // };
-        // request.open('POST', 'https://eastasia.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten');
-        // request.setRequestHeader('Content-Type', 'application/json');
-        // request.setRequestHeader('Ocp-Apim-Subscription-Key', '6b7065be6676439eb64bc3e6fe22f4dd');
-        // request.send(JSON.stringify({"url":"http://147.46.240.133:7777/t3.png"}));
     }
 
     toggleMetadataEditor() {
@@ -276,5 +239,8 @@ export class AppComponent implements OnInit {
             });
     }
 
-
+    safeguardAdded($event:{sg: Safeguard}) {
+        let sg = $event.sg;
+        this.safeguards.push(sg);
+    }
 }

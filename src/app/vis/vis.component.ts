@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChange, SimpleChanges, DoCheck, ChangeDetectorRef, ChangeDetectionStrategy, Output } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChange, SimpleChanges, DoCheck, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
@@ -8,6 +8,7 @@ import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
 import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
 import { HandwritingRecognitionService } from '../handwriting-recognition.service';
+import { Safeguard } from '../safeguard/safeguard';
 
 @Component({
     selector: 'vis',
@@ -16,6 +17,10 @@ import { HandwritingRecognitionService } from '../handwriting-recognition.servic
 })
 export class VisComponent implements OnInit, DoCheck {
     @Input() node: ExplorationNode;
+    @Output('safeguardAdded') safeguardAdded: EventEmitter<{
+        'sg': Safeguard
+    }> = new EventEmitter();
+
     @ViewChild('svg') svg: ElementRef;
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
@@ -75,7 +80,18 @@ export class VisComponent implements OnInit, DoCheck {
 
     recognize() {
         this.renderers.forEach(renderer => {
-            renderer.recognitionRequested();
+            renderer.recognitionRequested()
+                .then((sg: Safeguard | null) => {
+                    if(sg) this.safeguardAdded.emit({
+                        sg: sg
+                    });
+                });
+        })
+    }
+
+    clear() {
+        this.renderers.forEach(renderer => {
+            renderer.clearRequested();
         })
     }
 }

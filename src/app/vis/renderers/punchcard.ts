@@ -191,4 +191,9 @@ export class PunchcardRenderer implements Renderer {
     recognitionRequested() {
 
     }
+
+    clearRequested() {
+        // this.sketchable.empty();
+        // this.sketchable.renderStrokes();
+    }
 }

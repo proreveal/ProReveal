@@ -2,8 +2,9 @@ import { Query } from "../data/query";
 import { Operators } from "./operator";
 import { Value } from "./value";
 import { ExplorationNode } from "../exploration/exploration-node";
+import { VariableTrait } from "./variable";
 
-class Safeguard {
+export class Safeguard {
     constructor(
         public variable: VariableTrait,
         public operator: Operators,

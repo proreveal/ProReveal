@@ -17,4 +17,5 @@ export abstract class Renderer {
         tooltip: TooltipComponent);
 
     abstract recognitionRequested();
+    abstract clearRequested();
 }
