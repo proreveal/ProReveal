@@ -14,6 +14,18 @@
     padding: 0.2rem;
 }
 
-button {
-    width: 50%;
+.btn-success {
+    width: calc(100% - 80px);
+}
+
+.btn-danger {
+    width: 80px;
+}
+
+.operator {
+    font-weight: bold;
+}
+
+.constant {
+    font-style: italic;
 }

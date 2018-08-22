@@ -9,13 +9,29 @@
     <svg [attr.width.px]="handwritingWidth" [attr.height.px]="handwritingHeight">
 
     </svg>
+    <div *ngIf="safeguard">
+        <h6 class="section-header">Recognized</h6>
+        <div class="bg-white p-2 text-center">
+            <span [style.color]="VisConstants.variableHighlightColor">
+            COUNT({{ safeguard.variable.fieldString() }} = {{ safeguard.variable.valueString() }})
+            </span>
+            <span [style.color]="VisConstants.operatorHighlightColor"
+                class="operator">
+                {{ safeguard.operator }}
+            </span>
+            <span [style.color]="VisConstants.constantHighlightColor" class="constant">
+                {{ safeguard.value }}
+            </span>
+        </div>
+    </div>
+
     <h6 class="section-header">Variable</h6>
     <h6 class="section-header">Operand</h6>
     <h6 class="section-header">Constant</h6>
-    <button class="btn btn-success rounded-0">
+    <button class="btn btn-success rounded-0" (click)="confirm()">
         <fa-icon [icon]="['fas', 'check']"></fa-icon>
     </button>
-    <button class="btn btn-danger rounded-0">
+    <button class="btn btn-danger rounded-0" (click)="cancel()">
         <fa-icon [icon]="['fas', 'times']"></fa-icon>
     </button>
 </div>

@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Sketchable } from '../vis/renderers/sketchable';
+import { Safeguard } from '../safeguard/safeguard';
+import { VisConstants } from '../vis/vis-constants';
 
 @Component({
     selector: 'handwriting',
@@ -7,12 +9,20 @@ import { Sketchable } from '../vis/renderers/sketchable';
     styleUrls: ['./handwriting.component.scss']
 })
 export class HandwritingComponent implements OnInit {
+    // @Output('confirmed') confirmed: EventEmitter<{}> = new EventEmitter();
+    // @Output('canceled') canceled: EventEmitter<{}> = new EventEmitter();
+
     left = 500;
     top = 500;
     handwritingWidth = 200;
     handwritingHeight = 50;
     padding = 10;
     visible = false;
+    safeguard:Safeguard = null;
+    VisConstants = VisConstants;
+
+    confirmed: () => void;
+    canceled: () => void;
 
     constructor() { }
 
@@ -42,5 +52,15 @@ export class HandwritingComponent implements OnInit {
 
     hide() {
         this.visible = false;
+    }
+
+    confirm() {
+        if(this.confirmed) this.confirmed();
+        this.hide();
+    }
+
+    cancel() {
+        if(this.canceled) this.canceled;
+        this.hide();
     }
 }

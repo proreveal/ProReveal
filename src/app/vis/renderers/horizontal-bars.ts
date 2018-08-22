@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
-import { VisConstants as VC } from '../vis-constants';
+import { VisConstants as VC, VisConstants } from '../vis-constants';
 import * as util from '../../util';
 import { AggregateQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
@@ -339,23 +339,29 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.node
             );
 
-            this.sketchable.highlight(parseRange(operator.range), '#ea4335', 5);
-            this.sketchable.highlight(parseRange(operand.range), 'black', 5);
-
             this.labels.filter((d, i) => i === minIndex)
-                .style('stroke', '#34a853')
-                .style('fill', '#34a853')
+                .style('stroke', VisConstants.variableHighlightColor)
+                .style('fill', VisConstants.variableHighlightColor);
+
+            this.sketchable.highlight(parseRange(operator.range), VisConstants.operatorHighlightColor, 5);
+            this.sketchable.highlight(parseRange(operand.range), VisConstants.constantHighlightColor, 5);
         }
         else {
             console.log('Unknown handwriting', operator, operand);
         }
 
         if(resultSg) {
-            // this.sketchable.empty();
-            // this.sketchable.renderStrokes();
+            this.handwriting.safeguard = resultSg;
         }
 
-        return resultSg;
+        return new Promise((resolve, reject) => {
+            this.handwriting.confirmed = () => {
+                this.sketchable.empty();
+                this.sketchable.renderStrokes();
+                resolve(resultSg);
+            }
+            this.handwriting.canceled = reject;
+        });
     }
 
     clearRequested() {

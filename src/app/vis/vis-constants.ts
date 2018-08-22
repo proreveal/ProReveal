@@ -11,5 +11,8 @@ export const VisConstants = Object.freeze({
         columnWidth: 30,
         legendSize: 250
     },
-    padding: 5
+    padding: 5,
+    variableHighlightColor: '#f4511e',
+    operatorHighlightColor: '#303f9f',
+    constantHighlightColor: 'black'
 });
