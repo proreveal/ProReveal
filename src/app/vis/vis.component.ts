@@ -10,6 +10,7 @@ import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanA
 import { HandwritingRecognitionService } from '../handwriting-recognition.service';
 import { Safeguard } from '../safeguard/safeguard';
 import { HandwritingComponent } from '../handwriting/handwriting.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'vis',
@@ -35,20 +36,22 @@ export class VisComponent implements OnInit, DoCheck {
         new MaxAccumulator(),
         new MinAccumulator()
     ];
+    recognizing = false;
 
     constructor(
-        private handwritingRecognitionService: HandwritingRecognitionService
+        private handwritingRecognitionService: HandwritingRecognitionService,
+        private toastr: ToastrService
     ) { }
 
     recommend(query: AggregateQuery): Renderer[] {
-        if(query.groupBy.fields.length === 1)
+        if (query.groupBy.fields.length === 1)
             return [new HorizontalBarsRenderer(
                 this.handwritingRecognitionService,
                 this.tooltip,
                 this.handwriting
             )];
 
-        if(query.groupBy.fields.length === 2)
+        if (query.groupBy.fields.length === 2)
             return [new PunchcardRenderer(
                 this.handwritingRecognitionService,
                 this.tooltip,
@@ -73,7 +76,7 @@ export class VisComponent implements OnInit, DoCheck {
         if (this.queryLastUpdated < this.node.query.lastUpdated || this.lastNode != this.node) {
             this.queryLastUpdated = this.node.query.lastUpdated;
 
-            if(this.lastNode !== this.node) {
+            if (this.lastNode !== this.node) {
                 this.renderers = this.recommend(this.node.query as AggregateQuery);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
                 this.renderers.forEach(renderer => {
@@ -89,13 +92,25 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     recognize() {
+        this.recognizing = true;
+
         this.renderers.forEach(renderer => {
-            renderer.recognitionRequested()
-                .then((sg: Safeguard | null) => {
-                    if(sg) this.safeguardAdded.emit({
+            renderer.recognitionRequested((result) => {
+                this.recognizing = false;
+                return result;
+            })
+            .then((sg: Safeguard | null) => {
+                if (sg)
+                this.safeguardAdded.emit({
                         sg: sg
                     });
-                });
+                else {
+                    this.toastr.error('Failed to recognize handwriting')
+                }
+            })
+            .catch(e => {
+                console.log(e);
+            })
         })
     }
 

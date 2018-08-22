@@ -15,6 +15,6 @@ export abstract class Renderer {
     abstract setup(node: ExplorationNode, nativeSvg: SVGSVGElement);
     abstract render(node: ExplorationNode, nativeSvg: SVGSVGElement);
 
-    abstract recognitionRequested();
+    abstract recognitionRequested(callback?: (result:any) => any);
     abstract clearRequested();
 }

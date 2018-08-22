@@ -58,7 +58,11 @@
     </div>
 
     <div>
-        <button class="btn btn-primary" (click)="recognize()">Recognize</button>
+        <button class="btn btn-primary" (click)="recognize()"
+            [disabled]="recognizing || !renderers[0].sketchable.length">
+            <fa-icon [icon]="['fas', 'spinner']" [spin]="true" [hidden]="!recognizing"></fa-icon>
+            Recognize
+        </button>
         &nbsp;
         <button class="btn btn-danger" (click)="clear()">Clear</button>
     </div>

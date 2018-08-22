@@ -27,6 +27,9 @@ import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
 import { HandwritingComponent } from './handwriting/handwriting.component';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
+
 library.add(fas, far);
 
 @NgModule({
@@ -52,7 +55,9 @@ library.add(fas, far);
         BrowserModule,
         HttpClientModule,
         FontAwesomeModule,
-        FormsModule
+        FormsModule,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot()
     ],
     providers: [],
     bootstrap: [AppComponent],

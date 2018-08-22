@@ -66,13 +66,15 @@ export class Sketchable {
         let pathsEnter = paths
             .enter()
             .append('path')
-            .style('stroke', 'black')
             .style('stroke-linecap', 'round')
-            .style('fill', 'none');
+
 
         this.paths = paths
             .merge(pathsEnter)
-            .attr('d', (stroke: Stroke) => this.line(stroke.points));
+            .attr('d', (stroke: Stroke) => this.line(stroke.points))
+            .style('stroke-width', 1)
+            .style('stroke', 'black')
+            .style('fill', 'none');
     }
 
     recognize() {

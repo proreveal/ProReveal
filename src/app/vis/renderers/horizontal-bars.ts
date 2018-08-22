@@ -260,9 +260,13 @@ export class HorizontalBarsRenderer implements Renderer {
             .call(bottomAxis as any)
     }
 
-    recognitionRequested() {
-        return this.sketchable.recognize()
+    recognitionRequested(callback?: (result) => any) {
+        if(!this.sketchable.length) throw new Error('no stroke');
+
+        let promise = this.sketchable.recognize()
             .toPromise()
+
+        return (callback ? promise.then(callback) : promise)
             .then(this.translate.bind(this));
     }
 
@@ -297,13 +301,6 @@ export class HorizontalBarsRenderer implements Renderer {
         let closestDatum = this.data[minIndex];
 
         console.log(box);
-        this.handwriting.show(
-            this.nativeSvg,
-            this.sketchable,
-            {
-                minLeft: labelMinLeft
-            }
-        );
 
         if(response.expressions.length === 0) return;
         let first = response.expressions[0];
@@ -313,54 +310,74 @@ export class HorizontalBarsRenderer implements Renderer {
         console.log(response);
         console.log(this.data[minIndex]);
 
-        if(first.type == 'group') {
-            operator = first.operands[0];
-            operand = first.operands[1];
+        try {
+            if(first.type == 'group') {
+                operator = first.operands[0];
+                operand = first.operands[1];
+            }
+            else {
+                operator = first;
+                operand = first.operands[1];
+            }
+
+            if(['<', '=', '>', '≤', '≥'].includes(operator.label || operator.type)
+                && operand.type === 'number' && operand.value) {
+                let op = {
+                    '<': Operators.LessThan,
+                    '=': Operators.EqualTo,
+                    '>': Operators.GreaterThan,
+                    '≤': Operators.LessThanOrEqualTo,
+                    '≥': Operators.GreaterThanOrEqualTo
+                }[operator.label || operator.type];
+
+                resultSg = new Safeguard(
+                    new SingleValueVariable(closestDatum.keys),
+                    op,
+                    operand.value,
+                    this.node
+                );
+
+                this.labels.filter((d, i) => i === minIndex)
+                    .style('stroke', VisConstants.variableHighlightColor)
+                    .style('fill', VisConstants.variableHighlightColor);
+
+                this.sketchable.highlight(parseRange(operator.range), VisConstants.operatorHighlightColor, 5);
+                this.sketchable.highlight(parseRange(operand.range), VisConstants.constantHighlightColor, 5);
+            }
+            console.log(operator, operand);
+            throw new Error('Unknown handwriting')
         }
-        else {
-            operator = first;
-            operand = first.operands[1];
+        catch (e) {
+            console.log(e)
+            return Promise.resolve(null);
         }
 
-        if(['<', '=', '>', '≤', '≥'].includes(operator.label || operator.type)
-            && operand.type === 'number') {
-            let op = {
-                '<': Operators.LessThan,
-                '=': Operators.EqualTo,
-                '>': Operators.GreaterThan,
-                '≤': Operators.LessThanOrEqualTo,
-                '≥': Operators.GreaterThanOrEqualTo
-            }[operator.label || operator.type];
+        this.handwriting.show(
+            this.nativeSvg,
+            this.sketchable,
+            {
+                minLeft: labelMinLeft
+            }
+        );
 
-            resultSg = new Safeguard(
-                new SingleValueVariable(closestDatum.keys),
-                op,
-                operand.value,
-                this.node
-            );
-
-            this.labels.filter((d, i) => i === minIndex)
-                .style('stroke', VisConstants.variableHighlightColor)
-                .style('fill', VisConstants.variableHighlightColor);
-
-            this.sketchable.highlight(parseRange(operator.range), VisConstants.operatorHighlightColor, 5);
-            this.sketchable.highlight(parseRange(operand.range), VisConstants.constantHighlightColor, 5);
-        }
-        else {
-            console.log('Unknown handwriting', operator, operand);
-        }
-
-        if(resultSg) {
-            this.handwriting.safeguard = resultSg;
-        }
+        this.handwriting.safeguard = resultSg;
 
         return new Promise((resolve, reject) => {
             this.handwriting.confirmed = () => {
                 this.sketchable.empty();
                 this.sketchable.renderStrokes();
+                this.labels.style('stroke', 'none').style('fill', 'black');
+                this.handwriting.safeguard = null;
+
                 resolve(resultSg);
             }
-            this.handwriting.canceled = reject;
+            this.handwriting.canceled = () => {
+                this.sketchable.renderStrokes();
+                this.labels.style('stroke', 'none').style('fill', 'black');
+                this.handwriting.safeguard = null;
+
+                reject();
+            }
         });
     }
 

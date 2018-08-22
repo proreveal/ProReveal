@@ -60,7 +60,7 @@ export class HandwritingComponent implements OnInit {
     }
 
     cancel() {
-        if(this.canceled) this.canceled;
+        if(this.canceled) this.canceled();
         this.hide();
     }
 }
