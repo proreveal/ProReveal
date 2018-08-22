@@ -5,18 +5,38 @@ import { Constants } from './constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface HandWriting {
+export interface HandWritingResponse {
     expressions: Expression[]
 };
 
 // See https://developer.myscript.com/docs/interactive-ink/1.2/reference/jiix/
-type ExpressionType = 'number'|'='|'<'|'>';
+type ExpressionType = 'number' | '=' | '<' | '>' | '≤' | '≥' | 'group';
 
-interface Expression {
+export interface Expression {
     type: ExpressionType,
     operands: Expression[],
     label: string,
-    value: number
+    value: number,
+    symbol: string,
+    range: string // [0:0,0:20$]U[2:0,2:72$]U[3:0,4:72$]
+}
+
+export function parseRange(range: string) {
+    // [0:0,0:20$]U[2:0,2:72$]U[3:0,4:72$]
+    let reg = /\[(\d*):(\d*),(\d*):(\d*)\$\]/g;
+    let indices = [];
+
+    range.match(reg).forEach(matchedRange => {
+        let res = reg.exec(matchedRange);
+        let start = +res[1];
+        let end = +res[3];
+
+        for (let i = start; i <= end; i++) {
+            indices.push(i);
+        }
+    })
+
+    return indices;
 }
 
 @Injectable({
@@ -30,7 +50,8 @@ export class HandwritingRecognitionService {
             return {
                 "x": stroke.points.map(d => d.x),
                 "y": stroke.points.map(d => d.y),
-                "t": stroke.points.map(d => d.time)
+                "t": stroke.points.map(d => d.time),
+                "id": stroke.id
             }
         });
 

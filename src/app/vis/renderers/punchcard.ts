@@ -13,9 +13,13 @@ import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import * as vsup from 'vsup';
 import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
+import { HandwritingComponent } from '../../handwriting/handwriting.component';
 
 export class PunchcardRenderer implements Renderer {
-    constructor(private handwritingRecognitionService: HandwritingRecognitionService) {
+    constructor(private handwritingRecognitionService: HandwritingRecognitionService,
+        public tooltip:TooltipComponent,
+        public handwriting: HandwritingComponent
+    ) {
     }
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
@@ -24,7 +28,7 @@ export class PunchcardRenderer implements Renderer {
         }
     }
 
-    render(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
+    render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         let svg = d3.select(nativeSvg);
         let query = node.query as AggregateQuery;
         let processedPercent = query.progress.processedPercent();

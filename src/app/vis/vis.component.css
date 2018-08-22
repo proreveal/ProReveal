@@ -1,3 +1,7 @@
+.vis-content {
+    position: relative;
+}
+
 .query-desc {
     font-size: 1.5rem;
 }

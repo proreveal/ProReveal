@@ -1,0 +1,15 @@
+@import '../app.component.scss';
+
+.wrapper {
+    position: absolute;
+    border: 1px solid $ui-border-color;
+}
+
+.section-header {
+    font-family: 'Roboto Condensed';
+    background: $ui-background-color;
+    margin: 0;
+    border-bottom: 1px solid $ui-border-color;
+    font-size: 1rem;
+    padding: 0.2rem;
+}

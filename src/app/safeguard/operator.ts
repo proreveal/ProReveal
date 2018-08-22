@@ -1,7 +1,9 @@
 export enum Operators {
-    Equal =  "=",
+    EqualTo =  "=",
     LessThan = "<",
     GreaterThan = ">",
+    LessThanOrEqualTo = '≤',
+    GreaterThanOrEqualTo = '≥',
     InRange = "∈",
     NotInRange = "∉",
     Follow = "~",

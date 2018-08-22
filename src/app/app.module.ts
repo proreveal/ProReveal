@@ -27,6 +27,7 @@ import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
 import { SketchbookComponent } from './sketchbook/sketchbook.component';
 import { Sketchable } from './vis/renderers/sketchable';
+import { HandwritingComponent } from './handwriting/handwriting.component';
 
 library.add(fas, far);
 
@@ -45,7 +46,8 @@ library.add(fas, far);
         TooltipHostDirective,
         FieldBadgeComponent,
         ProgressMiniRingComponent,
-        SketchbookComponent
+        SketchbookComponent,
+        HandwritingComponent
     ],
     imports: [
         NgbModule.forRoot(),

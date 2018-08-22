@@ -24,7 +24,7 @@
     This query has not been start yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
 </p>
 
-<div [hidden]="node.query.progress.processed === 0">
+<div [hidden]="node.query.progress.processed === 0" class="vis-content">
     <div class="progress-control">
         <div class="progress mb-1">
             <div class="progress-bar" role="progressbar"
@@ -64,7 +64,9 @@
     </div>
 
     <svg #svg></svg>
+
     <tooltip #tooltip></tooltip>
+    <handwriting #handwriting></handwriting>
 
     <div>
         Sort a categorical axis

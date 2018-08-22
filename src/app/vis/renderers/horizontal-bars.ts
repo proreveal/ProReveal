@@ -12,10 +12,11 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { Sketchable } from './sketchable';
-import { HandwritingRecognitionService, HandWriting } from '../../handwriting-recognition.service';
+import { HandwritingRecognitionService, HandWritingResponse, parseRange, Expression } from '../../handwriting-recognition.service';
 import { Safeguard } from '../../safeguard/safeguard';
 import { SingleValueVariable } from '../../safeguard/variable';
 import { Operators } from '../../safeguard/operator';
+import { HandwritingComponent } from '../../handwriting/handwriting.component';
 
 type Datum = {
     id: string,
@@ -29,12 +30,20 @@ export class HorizontalBarsRenderer implements Renderer {
     yScale: d3.ScaleBand<string>;
     data: Datum[];
     node: ExplorationNode;
+    nativeSvg: SVGSVGElement;
+    labels: d3.Selection<d3.BaseType, {
+        id: string,
+        keys: FieldGroupedValueList,
+        ci3stdev: ConfidenceInterval,
+    }, d3.BaseType, {}>;
 
-    constructor(private handwritingRecognitionService: HandwritingRecognitionService) {
+    constructor(private handwritingRecognitionService: HandwritingRecognitionService,
+        public tooltip:TooltipComponent,
+        public handwriting: HandwritingComponent) {
         this.sketchable = new Sketchable(handwritingRecognitionService);
     }
 
-    setup(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
+    setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         if ((node.query as AggregateQuery).groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
@@ -45,13 +54,14 @@ export class HorizontalBarsRenderer implements Renderer {
         selectOrAppend(svg, 'g', 'vis');
         this.sketchable.setup(svg)
             .on('start', () => {
-                tooltip.hide();
+                this.tooltip.hide();
             })
 
         this.node = node;
+        this.nativeSvg = nativeSvg;
     }
 
-    render(node: ExplorationNode, nativeSvg: SVGSVGElement, tooltip: TooltipComponent) {
+    render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         let svg = d3.select(nativeSvg);
         let query = node.query as AggregateQuery;
         let processedPercent = query.progress.processedPercent();
@@ -118,7 +128,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .transition()
             .call(topAxis as any)
 
-        const labels = visG
+        let labels = visG
             .selectAll('text.label')
             .data(data, (d: any) => d.id);
 
@@ -127,7 +137,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('font-size', '.8rem')
             .attr('dy', '.8rem')
 
-        labels.merge(enter)
+        this.labels = labels.merge(enter)
             .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
             .text(d => d.keys.list[0].valueString())
 
@@ -227,15 +237,17 @@ export class HorizontalBarsRenderer implements Renderer {
             .on('mouseover', (d, i) => {
                 if(this.sketchable.sketching) return;
                 const clientRect = nativeSvg.getBoundingClientRect();
-                tooltip.show(
-                    clientRect.left + xScale(d.ci3stdev.center),
-                    clientRect.top + yScale(i + ''),
+                const parentRect = nativeSvg.parentElement.getBoundingClientRect();
+
+                this.tooltip.show(
+                    clientRect.left - parentRect.left + xScale(d.ci3stdev.center),
+                    clientRect.top - parentRect.top + yScale(i + ''),
                     HorizontalBarsTooltipComponent,
                     d
                 );
             })
             .on('mouseout', (d, i) => {
-                tooltip.hide();
+                this.tooltip.hide();
             })
 
         eventBoxes.exit().remove();
@@ -254,11 +266,14 @@ export class HorizontalBarsRenderer implements Renderer {
             .then(this.translate.bind(this));
     }
 
-    translate(handwriting:HandWriting) {
+    translate(response:HandWritingResponse) {
         let box = this.sketchable.getBoundingBox();
         let yCenter = box.y + box.height / 2;
         let yScale = this.yScale;
         let minDist = Infinity, minIndex = 0;
+        let candidates = [];
+        let labelMinLeft = Infinity;
+        let svgBox = this.nativeSvg.getBoundingClientRect();
 
         yScale.domain().forEach((value, index) => {
             let y = yScale(value) + yScale.bandwidth() / 2;
@@ -268,30 +283,76 @@ export class HorizontalBarsRenderer implements Renderer {
                 minDist = dist;
                 minIndex = index;
             }
+
+            if(box.y <= y && y <= box.y + box.height) {
+                candidates.push(value);
+                const label = this.labels.nodes()[index];
+                const labelBox = (label as SVGTextElement).getBoundingClientRect();
+                const left = labelBox.left - svgBox.left;
+
+                if(labelMinLeft > left) labelMinLeft = left;
+            }
         });
 
         let closestDatum = this.data[minIndex];
 
-        if(handwriting.expressions.length === 0) return;
-        let first = handwriting.expressions[0];
+        console.log(box);
+        this.handwriting.show(
+            this.nativeSvg,
+            this.sketchable,
+            {
+                minLeft: labelMinLeft
+            }
+        );
+
+        if(response.expressions.length === 0) return;
+        let first = response.expressions[0];
+        let operator:Expression, operand:Expression;
         let resultSg:Safeguard = null;
 
-        if(first.type === '<' && first.operands[1].type === 'number') {
-            let sg = new Safeguard(
-                new SingleValueVariable(closestDatum.keys),
-                Operators.LessThan,
-                first.operands[1].value,
-                this.node
-            );
-            resultSg = sg;
-        }
-
-        console.log(handwriting);
+        console.log(response);
         console.log(this.data[minIndex]);
 
+        if(first.type == 'group') {
+            operator = first.operands[0];
+            operand = first.operands[1];
+        }
+        else {
+            operator = first;
+            operand = first.operands[1];
+        }
+
+        if(['<', '=', '>', '≤', '≥'].includes(operator.label || operator.type)
+            && operand.type === 'number') {
+            let op = {
+                '<': Operators.LessThan,
+                '=': Operators.EqualTo,
+                '>': Operators.GreaterThan,
+                '≤': Operators.LessThanOrEqualTo,
+                '≥': Operators.GreaterThanOrEqualTo
+            }[operator.label || operator.type];
+
+            resultSg = new Safeguard(
+                new SingleValueVariable(closestDatum.keys),
+                op,
+                operand.value,
+                this.node
+            );
+
+            this.sketchable.highlight(parseRange(operator.range), '#ea4335', 5);
+            this.sketchable.highlight(parseRange(operand.range), 'black', 5);
+
+            this.labels.filter((d, i) => i === minIndex)
+                .style('stroke', '#34a853')
+                .style('stroke-width', 1.2)
+        }
+        else {
+            console.log('Unknown handwriting', operator, operand);
+        }
+
         if(resultSg) {
-            this.sketchable.empty();
-            this.sketchable.renderStrokes();
+            // this.sketchable.empty();
+            // this.sketchable.renderStrokes();
         }
 
         return resultSg;

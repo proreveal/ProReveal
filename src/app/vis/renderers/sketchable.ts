@@ -6,6 +6,7 @@ import { HandwritingRecognitionService } from '../../handwriting-recognition.ser
 export class Sketchable {
     svg: d3.Selection<d3.BaseType, {}, null, undefined>;
     strokesG: d3.Selection<d3.BaseType, {}, null, undefined>;
+    paths: d3.Selection<d3.BaseType, Stroke, d3.BaseType, {}>;
 
     strokes:Stroke[] = [];
     line = d3.line<Point>().curve(d3.curveBasis).x(d => d.x).y(d => d.y);
@@ -66,9 +67,10 @@ export class Sketchable {
             .enter()
             .append('path')
             .style('stroke', 'black')
+            .style('stroke-linecap', 'round')
             .style('fill', 'none');
 
-        paths
+        this.paths = paths
             .merge(pathsEnter)
             .attr('d', (stroke: Stroke) => this.line(stroke.points));
     }
@@ -111,5 +113,16 @@ export class Sketchable {
 
     get length() {
         return this.strokes.length;
+    }
+
+    highlight(ids:number[], color:string, width?:number) {
+        let selection = this.paths
+            .filter((d, i) => {
+                return ids.includes(i);
+            })
+            .style('stroke', color)
+
+        if(width)
+            selection.style('stroke-width', width);
     }
 }

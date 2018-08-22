@@ -9,6 +9,7 @@ import * as d3 from 'd3';
 import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
 import { HandwritingRecognitionService } from '../handwriting-recognition.service';
 import { Safeguard } from '../safeguard/safeguard';
+import { HandwritingComponent } from '../handwriting/handwriting.component';
 
 @Component({
     selector: 'vis',
@@ -23,6 +24,7 @@ export class VisComponent implements OnInit, DoCheck {
 
     @ViewChild('svg') svg: ElementRef;
     @ViewChild('tooltip') tooltip: TooltipComponent;
+    @ViewChild('handwriting') handwriting: HandwritingComponent;
 
     queryLastUpdated: number;
     lastNode: ExplorationNode;
@@ -40,10 +42,18 @@ export class VisComponent implements OnInit, DoCheck {
 
     recommend(query: AggregateQuery): Renderer[] {
         if(query.groupBy.fields.length === 1)
-            return [new HorizontalBarsRenderer(this.handwritingRecognitionService)];
+            return [new HorizontalBarsRenderer(
+                this.handwritingRecognitionService,
+                this.tooltip,
+                this.handwriting
+            )];
 
         if(query.groupBy.fields.length === 2)
-            return [new PunchcardRenderer(this.handwritingRecognitionService)];
+            return [new PunchcardRenderer(
+                this.handwritingRecognitionService,
+                this.tooltip,
+                this.handwriting
+            )];
 
         return [];
     }
@@ -54,8 +64,8 @@ export class VisComponent implements OnInit, DoCheck {
         this.renderers = this.recommend(this.node.query as AggregateQuery);
 
         this.renderers.forEach(renderer => {
-            renderer.setup(this.node, this.svg.nativeElement, this.tooltip);
-            renderer.render(this.node, this.svg.nativeElement, this.tooltip);
+            renderer.setup(this.node, this.svg.nativeElement);
+            renderer.render(this.node, this.svg.nativeElement);
         })
     }
 
@@ -67,13 +77,13 @@ export class VisComponent implements OnInit, DoCheck {
                 this.renderers = this.recommend(this.node.query as AggregateQuery);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
                 this.renderers.forEach(renderer => {
-                    renderer.setup(this.node, this.svg.nativeElement, this.tooltip);
+                    renderer.setup(this.node, this.svg.nativeElement);
                 });
             }
 
             this.lastNode = this.node;
             this.renderers.forEach(renderer => {
-                renderer.render(this.node, this.svg.nativeElement, this.tooltip);
+                renderer.render(this.node, this.svg.nativeElement);
             });
         }
     }
