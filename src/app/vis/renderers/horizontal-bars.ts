@@ -344,7 +344,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
             this.labels.filter((d, i) => i === minIndex)
                 .style('stroke', '#34a853')
-                .style('stroke-width', 1.2)
+                .style('fill', '#34a853')
         }
         else {
             console.log('Unknown handwriting', operator, operand);

@@ -12,6 +12,7 @@ export class HandwritingComponent implements OnInit {
     handwritingWidth = 200;
     handwritingHeight = 50;
     padding = 10;
+    visible = false;
 
     constructor() { }
 
@@ -35,9 +36,11 @@ export class HandwritingComponent implements OnInit {
 
         this.left = left - this.padding - 1;
         this.top = svgBox.top - parentBox.top + box.y - this.padding - 29;
+
+        this.visible = true;
     }
 
     hide() {
-
+        this.visible = false;
     }
 }

@@ -2,6 +2,7 @@
     [style.left.px]="left"
     [style.top.px]="top"
     class="wrapper shadow rounded"
+    [style.visibility]="visible ? 'visible' : 'hidden'"
     >
 
     <h6 class="section-header">Handwriting</h6>
@@ -11,4 +12,10 @@
     <h6 class="section-header">Variable</h6>
     <h6 class="section-header">Operand</h6>
     <h6 class="section-header">Constant</h6>
+    <button class="btn btn-success rounded-0">
+        <fa-icon [icon]="['fas', 'check']"></fa-icon>
+    </button>
+    <button class="btn btn-danger rounded-0">
+        <fa-icon [icon]="['fas', 'times']"></fa-icon>
+    </button>
 </div>

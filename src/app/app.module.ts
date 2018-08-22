@@ -25,8 +25,6 @@ import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
-import { SketchbookComponent } from './sketchbook/sketchbook.component';
-import { Sketchable } from './vis/renderers/sketchable';
 import { HandwritingComponent } from './handwriting/handwriting.component';
 
 library.add(fas, far);
@@ -46,7 +44,6 @@ library.add(fas, far);
         TooltipHostDirective,
         FieldBadgeComponent,
         ProgressMiniRingComponent,
-        SketchbookComponent,
         HandwritingComponent
     ],
     imports: [
