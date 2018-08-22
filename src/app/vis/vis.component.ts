@@ -105,7 +105,7 @@ export class VisComponent implements OnInit, DoCheck {
                         sg: sg
                     });
                 else {
-                    this.toastr.error('Failed to recognize handwriting')
+                    this.toastr.error('Failed to recognize a safeguard')
                 }
             })
             .catch(e => {

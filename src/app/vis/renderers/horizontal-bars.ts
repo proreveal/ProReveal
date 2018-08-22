@@ -344,8 +344,10 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.sketchable.highlight(parseRange(operator.range), VisConstants.operatorHighlightColor, 5);
                 this.sketchable.highlight(parseRange(operand.range), VisConstants.constantHighlightColor, 5);
             }
-            console.log(operator, operand);
-            throw new Error('Unknown handwriting')
+            else {
+                console.log(operator, operand);
+                throw new Error('Unknown handwriting')
+            }
         }
         catch (e) {
             console.log(e)
