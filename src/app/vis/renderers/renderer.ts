@@ -17,4 +17,5 @@ export abstract class Renderer {
 
     abstract recognitionRequested(callback?: (result:any) => any);
     abstract clearRequested();
+    abstract highlight(highlighted: number);
 }

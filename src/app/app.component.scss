@@ -1,5 +1,4 @@
-$ui-background-color: #e9ecef;
-$ui-border-color: #ced4da;
+@import 'theme.scss';
 
 #wrapper {
     display: grid;
@@ -38,8 +37,14 @@ $ui-border-color: #ced4da;
     background: $ui-background-color;
     margin: 0;
     padding: 0;
-    border-bottom: 1px solid $ui-border-color;
-    border-right: 1px solid $ui-border-color;
+    font-size: 1rem;
+}
+
+.section-subheader {
+    font-family: 'Roboto Condensed';
+    background: lighten($ui-background-color, 4%);
+    margin: 0;
+    padding: 0;
     font-size: 1rem;
     padding: 0.2rem;
 }
@@ -113,7 +118,7 @@ $ui-border-color: #ced4da;
     cursor: pointer;
     background: lighten($ui-background-color, 2%);
 }
-
+/*
 .highlighted {
     box-shadow: 0 0 0 0.2rem inset rgba(0,123,255,.25);
     z-index:3;
@@ -122,7 +127,7 @@ $ui-border-color: #ced4da;
 .highlighted .field-names{
     font-weight: bold;
 }
-
+*/
 progress-ring {
     height: 56px;
     display: block;
@@ -184,8 +189,8 @@ progress-ring {
     grid-row: 2;
     grid-column: 3;
 
-    display: grid;
-    grid-template-rows: auto 1fr;
+    /*display: grid;
+    grid-template-rows: auto 1fr;*/
 }
 
 #safeguard-view-header {
@@ -195,6 +200,60 @@ progress-ring {
 #safeguard-list {
     overflow-y: scroll;
     grid-row: 2;
+}
+
+#safeguard-view h4 {
+    font-size: 1rem;
+    cursor: pointer;
+    padding-left: 0.3rem;
+}
+
+#safeguard-view h4:hover {
+    background: darken($ui-background-color, 5%);
+}
+
+h4 small {
+    @include serif-italic();
+    font-size: 0.75rem;
+}
+
+h4 fa-icon {
+    display: inline-block;
+    width: 12px;
+    text-align: center;
+}
+
+.display {
+    @include serif-italic();
+}
+
+.guide {
+    font-size: .8rem;
+}
+
+.variable {
+    color: $variable-highlight-color;
+}
+
+.variable.highlighted {
+    background: lighten($variable-highlight-color, 50%);
+}
+
+.operator {
+    color: $operator-highlight-color;
+    font-weight: bold;
+}
+
+.operator.highlighted {
+    background: lighten($operator-highlight-color, 40%);
+}
+
+.constant {
+    color: $constant-highlight-color;
+}
+
+.constant.highlighted {
+    background: lighten($constant-highlight-color, 50%);
 }
 
 .safeguard {

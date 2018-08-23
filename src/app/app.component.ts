@@ -14,6 +14,8 @@ import * as util from './util';
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard } from './safeguard/safeguard';
+import { VisConstants } from './vis/vis-constants';
+import { VisComponent } from './vis/vis.component';
 
 @Component({
     selector: 'app-root',
@@ -24,6 +26,7 @@ export class AppComponent implements OnInit {
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
     @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent
+    @ViewChild('vis') vis: VisComponent;
 
     dataset: Dataset;
     explorationRoot: ExplorationNode;
@@ -40,7 +43,10 @@ export class AppComponent implements OnInit {
     searchKeyword: string;
     NodeState = NodeState;
 
+    activeSafeguardPanel = 0;
     safeguards: Safeguard[] = [];
+
+    VC = VisConstants;
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,
@@ -242,5 +248,11 @@ export class AppComponent implements OnInit {
     safeguardAdded($event:{sg: Safeguard}) {
         let sg = $event.sg;
         this.safeguards.push(sg);
+    }
+
+    highlighted = 0;
+    highlight(highlighted: number) {
+        this.highlighted = highlighted;
+        this.vis.highlight(highlighted);
     }
 }

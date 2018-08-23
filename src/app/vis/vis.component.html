@@ -1,3 +1,4 @@
+<div *ngIf="node && node.query">
 <header class="query-desc mt-2 ml-2">
     <!-- <strong>Q{{ node.query.id }}: </strong> -->
 
@@ -25,6 +26,7 @@
 </p>
 
 <div [hidden]="node.query.progress.processed === 0" class="vis-content">
+    <span class="variable highlighted">werwe</span>
     <div class="progress-control">
         <div class="progress mb-1">
             <div class="progress-bar" role="progressbar"
@@ -57,7 +59,7 @@
         </div>
     </div>
 
-    <div>
+    <!--<div>
         <button class="btn btn-primary" (click)="recognize()"
             [disabled]="recognizing || !renderers[0].sketchable.length">
             <fa-icon [icon]="['fas', 'spinner']" [spin]="true" [hidden]="!recognizing"></fa-icon>
@@ -66,7 +68,7 @@
         &nbsp;
         <button class="btn btn-danger" (click)="clear()">Clear</button>
     </div>
-
+-->
     <svg #svg></svg>
 
     <tooltip #tooltip></tooltip>
@@ -88,4 +90,5 @@
             <button type="button" class="btn btn-outline-secondary">Value</button>
         </div>
     </div>
+</div>
 </div>

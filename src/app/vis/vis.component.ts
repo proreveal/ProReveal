@@ -15,7 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'vis',
     templateUrl: './vis.component.html',
-    styleUrls: ['./vis.component.css']
+    styleUrls: ['./vis.component.scss']
 })
 export class VisComponent implements OnInit, DoCheck {
     @Input() node: ExplorationNode;
@@ -62,18 +62,19 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     ngOnInit() {
-        this.queryLastUpdated = this.node.query.lastUpdated;
+        /*this.queryLastUpdated = this.node.query.lastUpdated;
 
         this.renderers = this.recommend(this.node.query as AggregateQuery);
 
         this.renderers.forEach(renderer => {
             renderer.setup(this.node, this.svg.nativeElement);
             renderer.render(this.node, this.svg.nativeElement);
-        })
+        })*/
     }
 
     ngDoCheck() {
-        if (this.queryLastUpdated < this.node.query.lastUpdated || this.lastNode != this.node) {
+        if (this.node && this.svg &&
+            (this.queryLastUpdated < this.node.query.lastUpdated || this.lastNode != this.node)) {
             this.queryLastUpdated = this.node.query.lastUpdated;
 
             if (this.lastNode !== this.node) {
@@ -89,6 +90,12 @@ export class VisComponent implements OnInit, DoCheck {
                 renderer.render(this.node, this.svg.nativeElement);
             });
         }
+    }
+
+    highlight(highlighted: number) {
+        this.renderers.forEach(renderer => {
+            renderer.highlight(highlighted);
+        });
     }
 
     recognize() {

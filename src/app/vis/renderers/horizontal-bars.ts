@@ -36,6 +36,7 @@ export class HorizontalBarsRenderer implements Renderer {
         keys: FieldGroupedValueList,
         ci3stdev: ConfidenceInterval,
     }, d3.BaseType, {}>;
+    variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
 
     constructor(private handwritingRecognitionService: HandwritingRecognitionService,
         public tooltip:TooltipComponent,
@@ -258,6 +259,13 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
             .transition()
             .call(bottomAxis as any)
+
+        this.variableHighlight =
+            selectOrAppend(visG, 'rect', '.variable.highlighted')
+            .attr('width', labelWidth)
+            .attr('height', height - VC.horizontalBars.axis.height * 2)
+            .attr('transform', translate(0, VC.horizontalBars.height))
+            .attr('display', 'none')
     }
 
     recognitionRequested(callback?: (result) => any) {
@@ -386,5 +394,18 @@ export class HorizontalBarsRenderer implements Renderer {
     clearRequested() {
         this.sketchable.empty();
         this.sketchable.renderStrokes();
+    }
+
+    highlight(highlighted: number) {
+        this.variableHighlight.attr('display', 'none')
+        if(highlighted == 1) {
+            this.variableHighlight.attr('display', 'inline')
+        }
+        else if(highlighted == 2) {
+
+        }
+        else if(highlighted == 3) {
+
+        }
     }
 }

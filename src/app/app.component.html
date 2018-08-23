@@ -114,13 +114,103 @@
                 Choose a node to inspect.
             </p>
         </div>
-        <div *ngIf="activeNode">
-            <vis [node]="activeNode" (safeguardAdded)="safeguardAdded($event)"></vis>
+        <div [hidden]="!activeNode">
+            <vis #vis [node]="activeNode" (safeguardAdded)="safeguardAdded($event)"></vis>
         </div>
     </section>
 
     <section id="safeguard-view">
-        <h6 id="safeguard-view-header" class="section-header">Safeguards</h6>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 0">
+            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 0"></fa-icon>
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 0"></fa-icon>
+            Point <small>V(A) &lt; 5</small>
+        </h4>
+        <div class="m-0"><!--</p> [hidden]="activeSafeguardPanel != 0">-->
+            <div class="display text-center p-2">
+                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
+                    >V(A)</span>
+                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
+                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
+                >&lt;</span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                >5</span>
+            </div>
+            <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable"></fa-icon>
+                    Variable
+                </h5>
+                <p class="p-1 guide m-0">
+                    Please pick a <span class="variable font-weight-bold">variable</span> by clicking on a category on the chart.
+                </p>
+            </div>
+            <h5 class="section-subheader p-1 border border-right-0" (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
+                <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="operator"></fa-icon>
+                Operator
+            </h5>
+            <h5 class="section-subheader p-1 border border-right-0" (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
+                <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
+                Constant
+            </h5>
+        </div>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 1">
+            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
+            Comparative <small>V(A) &lt; V(B)</small>
+        </h4>
+        <div class="m-0 p-2"><!-- [hidden]="activeSafeguardPanel != 1">-->
+            <div class="display text-center p-2">
+                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
+                    >V(A)</span>
+                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
+                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
+                >&lt;</span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                >V(B)</span>
+            </div>
+        </div>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 2">
+            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
+            Group <small>&#123;Rank(A), Rank(B)&#125; = &#123;1, 2&#125;</small>
+        </h4>
+        <div class="m-0 p-2"> <!--</p>[hidden]="activeSafeguardPanel != 2">-->
+            <div class="display text-center p-2">
+                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
+                    >V(A)</span>
+                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
+                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
+                >&lt;</span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                >5</span>
+            </div>
+        </div>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 3">
+            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
+            Distributive <small>V(·) ~ N(5, 2)</small>
+        </h4>
+        <div class="m-0 p-2"> <!--</p> [hidden]="activeSafeguardPanel != 3">-->
+            <div class="display text-center p-2">
+                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
+                    >V(·)</span>
+                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
+                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
+                >~</span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                >N(5, 2)</span>
+            </div>
+        </div>
+            <!--&mu;, &sigma;)</small></h6>-->
+        <!--<h6 id="safeguard-view-header" class="section-header">Safeguards</h6>-->
         <section id="safeguard-list" class="styled-scroll">
             <div *ngFor="let sg of safeguards" class="safeguard alert alert-success">
                 <p>

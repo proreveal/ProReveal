@@ -200,4 +200,8 @@ export class PunchcardRenderer implements Renderer {
         // this.sketchable.empty();
         // this.sketchable.renderStrokes();
     }
+
+    highlight() {
+
+    }
 }

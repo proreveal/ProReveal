@@ -41,3 +41,10 @@
     opacity: .8;
 }
 
+@import '../theme.scss';
+
+:host /deep/ .variable.highlighted {
+    fill: lighten($variable-highlight-color, 0%);
+    opacity: 0.2;
+    pointer-events: none;
+}

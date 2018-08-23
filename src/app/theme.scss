@@ -1,0 +1,15 @@
+$ui-background-color: #e9ecef;
+$ui-border-color: #ced4da;
+$variable-highlight-color: #0288d1;
+$operator-highlight-color: #f4511e;
+$constant-highlight-color: #303f9f;
+
+@mixin serif {
+    font-family: 'Noto Serif', serif;
+}
+
+@mixin serif-italic {
+    @include serif;
+    font-style: italic;
+}
+
