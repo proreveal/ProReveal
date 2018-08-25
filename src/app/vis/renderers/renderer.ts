@@ -7,7 +7,7 @@ import { HandwritingComponent } from "../../handwriting/handwriting.component";
  * A renderer does not have states. States must be saved in a node.
  */
 export abstract class Renderer {
-    constructor(handwritingRecognitionService: HandwritingRecognitionService)
+    constructor()
     {
 
     }
@@ -15,7 +15,5 @@ export abstract class Renderer {
     abstract setup(node: ExplorationNode, nativeSvg: SVGSVGElement);
     abstract render(node: ExplorationNode, nativeSvg: SVGSVGElement);
 
-    abstract recognitionRequested(callback?: (result:any) => any);
-    abstract clearRequested();
     abstract highlight(highlighted: number);
 }

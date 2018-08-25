@@ -16,9 +16,7 @@ import { HandwritingRecognitionService } from '../../handwriting-recognition.ser
 import { HandwritingComponent } from '../../handwriting/handwriting.component';
 
 export class PunchcardRenderer implements Renderer {
-    constructor(private handwritingRecognitionService: HandwritingRecognitionService,
-        public tooltip:TooltipComponent,
-        public handwriting: HandwritingComponent
+    constructor(public tooltip:TooltipComponent
     ) {
     }
 
@@ -190,15 +188,6 @@ export class PunchcardRenderer implements Renderer {
             .attr('transform', translate(matrixWidth, 50))
             .append('g')
             .call(legend);
-    }
-
-    recognitionRequested() {
-
-    }
-
-    clearRequested() {
-        // this.sketchable.empty();
-        // this.sketchable.renderStrokes();
     }
 
     highlight() {
