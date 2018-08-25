@@ -231,6 +231,26 @@ h4 fa-icon {
     font-size: .8rem;
 }
 
+.w-20 {
+    display: inline-block;
+    width: calc(20% + 1px);
+}
+
+#safeguard-view .btn-secondary {
+    background-color: lighten($operator-highlight-color, 15%);
+    border-color: lighten($operator-highlight-color, 10%);
+}
+
+#safeguard-view .btn-secondary:hover {
+    background-color: lighten($operator-highlight-color, 10%);
+    border-color: lighten($operator-highlight-color, 5%);
+}
+
+#safeguard-view .btn-secondary.active {
+    background-color: lighten($operator-highlight-color, 0%);
+    border-color: $operator-highlight-color;
+}
+
 .variable {
     color: $variable-highlight-color;
 }

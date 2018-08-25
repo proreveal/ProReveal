@@ -16,6 +16,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
+import { Operators } from './safeguard/operator';
 
 @Component({
     selector: 'app-root',
@@ -255,4 +256,7 @@ export class AppComponent implements OnInit {
         this.highlighted = highlighted;
         this.vis.highlight(highlighted);
     }
+
+    Operators = Operators;
+    selectedOperator = Operators.LessThan;
 }

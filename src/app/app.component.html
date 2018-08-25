@@ -146,14 +146,53 @@
                     Please pick a <span class="variable font-weight-bold">variable</span> by clicking on a category on the chart.
                 </p>
             </div>
-            <h5 class="section-subheader p-1 border border-right-0" (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
-                <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="operator"></fa-icon>
-                Operator
-            </h5>
-            <h5 class="section-subheader p-1 border border-right-0" (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
-                <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
-                Constant
-            </h5>
+            <div (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="operator"></fa-icon>
+                    Operator
+                </h5>
+                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                    <label class="btn btn-sm btn-secondary rounded-0 w-20"
+                        [class.active]="selectedOperator === Operators.LessThan"
+                        (click)="selectedOperator = Operators.LessThan">
+                        <input type="radio" name="options" id="option1" autocomplete="off">
+                        &lt;
+                    </label>
+                    <label class="btn btn-sm btn-secondary w-20"
+                        [class.active]="selectedOperator === Operators.LessThanOrEqualTo"
+                        (click)="selectedOperator = Operators.LessThanOrEqualTo">
+                        <input type="radio" name="options" id="option2" autocomplete="off">
+                        ≤
+                    </label>
+                    <label class="btn btn-sm btn-secondary w-20"
+                        [class.active]="selectedOperator === Operators.EqualTo"
+                        (click)="selectedOperator = Operators.EqualTo">
+                        <input type="radio" name="options" id="option3" autocomplete="off">
+                        =
+                    </label>
+                    <label class="btn btn-sm btn-secondary w-20"
+                        [class.active]="selectedOperator === Operators.GreaterThanOrEqualTo"
+                        (click)="selectedOperator = Operators.GreaterThanOrEqualTo">
+                        <input type="radio" name="options" id="option4" autocomplete="off">
+                        ≥
+                    </label>
+                    <label class="btn btn-sm btn-secondary rounded-0 w-20"
+                        [class.active]="selectedOperator === Operators.GreaterThan"
+                        (click)="selectedOperator = Operators.GreaterThan">
+                        <input type="radio" name="options" id="option5" autocomplete="off">
+                        &gt;
+                    </label>
+                </div>
+            </div>
+            <div (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
+                    Constant
+                </h5>
+                <div class="p-1 guide m-0">
+                    <input type="number" class="form-control form-control-sm">
+                </div>
+            </div>
         </div>
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 1">
             <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
