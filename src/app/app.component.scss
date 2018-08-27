@@ -200,6 +200,11 @@ h4 small {
     font-size: 0.75rem;
 }
 
+h4 fa-icon {
+    text-align:center;
+    display:inline-block;
+    width: 16px;
+}
 .display {
     @include serif-italic();
 }

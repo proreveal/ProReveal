@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
     searchKeyword: string;
     NodeState = NodeState;
 
-    activeSafeguardPanel = 0;
+    activeSafeguardPanel = 1;
     safeguards: Safeguard[] = [];
 
     VC = VisConstants;
@@ -258,11 +258,6 @@ export class AppComponent implements OnInit {
         this.constant = constant;
     }
 
-    safeguardAdded($event: { sg: Safeguard }) {
-        let sg = $event.sg;
-        this.safeguards.push(sg);
-    }
-
     highlighted = 0;
     highlight(highlighted: number) {
         this.highlighted = highlighted;
@@ -270,8 +265,27 @@ export class AppComponent implements OnInit {
     }
 
     Operators = Operators;
-    selectedOperator = Operators.LessThan;
+    operator = Operators.LessThan;
     PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo, Operators.EqualTo,
         Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
 
+    createPointSafeguard() {
+        if(!this.variable) return;
+
+        let sg = new Safeguard(this.variable, this.operator, this.constant, this.activeNode);
+
+        this.safeguards.push(sg);
+
+        this.variable = null;
+        this.constant = 0;
+    }
+
+    toggle(panel:number) {
+        if(this.activeSafeguardPanel === panel) {
+            this.activeSafeguardPanel = 0;
+        }
+        else {
+            this.activeSafeguardPanel = panel;
+        }
+    }
 }

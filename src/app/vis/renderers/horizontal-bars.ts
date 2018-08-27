@@ -219,7 +219,7 @@ export class HorizontalBarsRenderer implements Renderer {
         const eventBoxes = visG.selectAll('rect.event-box')
             .data(data, (d: any) => d.id);
 
-        enter = eventBoxes.enter().append('rect').attr('class', 'event-box');
+        enter = eventBoxes.enter().append('rect').attr('class', 'event-box clickable');
 
         eventBoxes.merge(enter)
             .style('fill', 'transparent')
@@ -243,6 +243,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .on('click', (d, i) => {
                 let variable = new SingleValueVariable(d.keys.list[0]);
                 this.vis.variableSelected.emit(variable)
+                this.vis.constantSelected.emit(d.ci3stdev.center);
             });
 
         eventBoxes.exit().remove();

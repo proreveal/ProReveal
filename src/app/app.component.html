@@ -113,13 +113,33 @@
         </div>
     </section>
 
-    <section id="safeguard-view">
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 0">
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 0"></fa-icon>
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 0"></fa-icon>
+    <section id="safeguard-view" class="active">
+        <h4 class="section-header p-1 border-right-0 border-top border-bottom">
+            Safeguard List
+        </h4>
+        <section id="safeguard-list" class="styled-scroll">
+            <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
+                The list is empty! Click on buttons below to create a safegaurd.
+            </p>
+            <div *ngFor="let sg of safeguards" class="safeguard alert alert-success">
+                <p>
+                    COUNT({{ sg.variable.fieldString() }} = {{ sg.variable.valueString() }})
+                    {{ sg.operator }}
+                    {{ sg.value }}
+                </p>
+                <p>
+                    Confidence: 0.99
+                </p>
+            </div>
+        </section>
+
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom"
+            (click)="toggle(1)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
             Point <small>V(A) &lt; 5</small>
         </h4>
-        <div class="m-0 mb-1"><!--</p> [hidden]="activeSafeguardPanel != 0">-->
+        <div class="m-0" [hidden]="activeSafeguardPanel != 1">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -130,7 +150,7 @@
                     COUNT({{ variable.fieldString() }} = {{ variable.valueString() }})</span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >{{ selectedOperator }}</span>
+                >{{ operator }}</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
                 >{{ constant | number }}</span>
@@ -152,8 +172,8 @@
                 <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
                     <label class="btn btn-sm btn-secondary rounded-0 w-20"
                         *ngFor="let op of PointOperators"
-                        [class.active]="selectedOperator === op"
-                        (click)="selectedOperator = op">
+                        [class.active]="operator === op"
+                        (click)="operator = op">
                         <input type="radio" name="options" autocomplete="off">
                         {{ op }}
                     </label>
@@ -165,19 +185,27 @@
                     Constant
                 </h5>
                 <div class="p-1 guide m-0">
+                    <p class="m-0">
+                        Please pick a <span class="constant font-weight-bold">constant</span> by clicking on the x axis.
+                    </p>
                     <input type="number" class="form-control form-control-sm" [(ngModel)]="constant">
                 </div>
             </div>
-            <button class="btn btn-primary w-100 rounded-0 border-right-0">
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
                 Create a Safeguard
             </button>
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 1">
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
+
+
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(2)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
             Comparative <small>V(A) &lt; V(B)</small>
         </h4>
-        <div class="m-0 p-2"><!-- [hidden]="activeSafeguardPanel != 1">-->
+        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 2">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -189,13 +217,21 @@
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
                 >V(B)</span>
             </div>
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                Create a Safeguard
+            </button>
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 2">
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
+
+
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(3)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
             Group <small>&#123;Rank(A), Rank(B)&#125; = &#123;1, 2&#125;</small>
         </h4>
-        <div class="m-0 p-2"> <!--</p>[hidden]="activeSafeguardPanel != 2">-->
+        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 3">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -207,13 +243,21 @@
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
                 >5</span>
             </div>
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                Create a Safeguard
+            </button>
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 3">
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
+
+
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(4)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 4"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 4"></fa-icon>
             Distributive <small>V(·) ~ N(5, 2)</small>
         </h4>
-        <div class="m-0 p-2"> <!--</p> [hidden]="activeSafeguardPanel != 3">-->
+        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 4">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -225,21 +269,13 @@
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
                 >N(5, 2)</span>
             </div>
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                Create a Safeguard
+            </button>
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-            <!--&mu;, &sigma;)</small></h6>-->
-        <!--<h6 id="safeguard-view-header" class="section-header">Safeguards</h6>-->
-        <section id="safeguard-list" class="styled-scroll">
-            <div *ngFor="let sg of safeguards" class="safeguard alert alert-success">
-                <p>
-                    COUNT({{ sg.variable.fieldString() }} = {{ sg.variable.valueString() }})
-                    {{ sg.operator }}
-                    {{ sg.value }}
-                </p>
-                <p>
-                    Confidence: 0.99
-                </p>
-            </div>
-        </section>
     </section>
     <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
