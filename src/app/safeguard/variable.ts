@@ -22,8 +22,27 @@ export class SingleRankVariable {
 
 }
 
-export class DoubleValueVariable { // a < b
+export class DoubleValueVariable extends VariableTrait{ // a < b
+    constructor(public variable1: SingleValueVariable,
+                public variable2: SingleValueVariable) {
+        super();
+    }
 
+    fieldString1() {
+        return this.variable1.fieldString();
+    }
+
+    valueString1() {
+        return this.variable1.valueString();
+    }
+
+    fieldString2() {
+        return this.variable2.fieldString();
+    }
+
+    valueString2() {
+        return this.variable2.valueString();
+    }
 }
 
 export class GroupValueVariable { // g(*) > 3%

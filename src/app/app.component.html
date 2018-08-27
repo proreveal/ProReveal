@@ -194,7 +194,7 @@
             <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
                 Create a Safeguard
             </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -205,22 +205,64 @@
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
             Comparative <small>V(A) &lt; V(B)</small>
         </h4>
-        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 2">
+        <div class="m-0" [hidden]="activeSafeguardPanel != 2">
             <div class="display text-center p-2">
-                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span *ngIf="!variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
                     >V(A)</span>
+                <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                COUNT({{ variable.fieldString() }} = {{ variable.valueString() }})</span>
+
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >&lt;</span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                >{{ operator }}</span>
+                <span *ngIf="!variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 4"
+                    (mouseenter)="highlight(4)" (mouseleave)="highlight(0)"
                 >V(B)</span>
+                <span *ngIf="variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 1"
+                (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
+                COUNT({{ variable2.fieldString() }} = {{ variable2.valueString() }})</span>
             </div>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+            <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable"></fa-icon>
+                    1st Variable
+                </h5>
+                <p class="p-1 guide m-0">
+                    Please pick the <span class="variable font-weight-bold">first variable</span> by clicking on a category on the chart.
+                </p>
+            </div>
+            <div (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="operator"></fa-icon>
+                    Operator
+                </h5>
+                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                    <label class="btn btn-sm btn-secondary rounded-0 w-20"
+                        *ngFor="let op of PointOperators"
+                        [class.active]="operator === op"
+                        (click)="operator = op">
+                        <input type="radio" name="options" autocomplete="off">
+                        {{ op }}
+                    </label>
+                </div>
+            </div>
+            <div (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable2"></fa-icon>
+                    2nd Variable
+                </h5>
+                <div class="p-1 guide m-0">
+                    <p class="m-0">
+                        Please pick the <span class="variable2 font-weight-bold">second variable</span> by <em>right-</em>clicking on a category on the chart.
+                    </p>
+                </div>
+            </div>
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createComparativeSafeguard()">
                 Create a Safeguard
             </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>

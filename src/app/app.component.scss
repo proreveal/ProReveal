@@ -241,6 +241,14 @@ h4 fa-icon {
     background: lighten($variable-highlight-color, 50%);
 }
 
+.variable2 {
+    color: $variable2-highlight-color;
+}
+
+.variable2.highlighted {
+    background: lighten($variable2-highlight-color, 40%);
+}
+
 .operator {
     color: $operator-highlight-color;
     font-weight: bold;

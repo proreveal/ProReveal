@@ -34,6 +34,7 @@ export class HorizontalBarsRenderer implements Renderer {
         ci3stdev: ConfidenceInterval,
     }, d3.BaseType, {}>;
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
+    variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
     constantHighlight: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 
     constructor(public vis:VisComponent, public tooltip:TooltipComponent) {
@@ -79,7 +80,8 @@ export class HorizontalBarsRenderer implements Renderer {
             VC.horizontalBars.height * data.length;
         const width = 800;
 
-        svg.attr('width', width).attr('height', height);
+        svg.attr('width', width).attr('height', height)
+            .on('contextmenu', () => d3.event.preventDefault());
 
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width : 0;
@@ -242,9 +244,16 @@ export class HorizontalBarsRenderer implements Renderer {
             })
             .on('click', (d, i) => {
                 let variable = new SingleValueVariable(d.keys.list[0]);
-                this.vis.variableSelected.emit(variable)
+                this.vis.variableSelected.emit({variable: variable});
                 this.vis.constantSelected.emit(d.ci3stdev.center);
-            });
+            })
+            .on('contextmenu', (d, i) => {
+                let variable = new SingleValueVariable(d.keys.list[0]);
+                this.vis.variableSelected.emit({
+                    variable: variable,
+                    secondary: true});
+                d3.event.preventDefault();
+            })
 
         eventBoxes.exit().remove();
 
@@ -257,6 +266,13 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.variableHighlight =
             selectOrAppend(visG, 'rect', '.variable.highlighted')
+            .attr('width', labelWidth)
+            .attr('height', height - VC.horizontalBars.axis.height * 2)
+            .attr('transform', translate(0, VC.horizontalBars.height))
+            .attr('display', 'none')
+
+        this.variableHighlight2 =
+            selectOrAppend(visG, 'rect', '.variable2.highlighted')
             .attr('width', labelWidth)
             .attr('height', height - VC.horizontalBars.axis.height * 2)
             .attr('transform', translate(0, VC.horizontalBars.height))
@@ -288,6 +304,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
     highlight(highlighted: number) {
         this.variableHighlight.attr('display', 'none')
+        this.variableHighlight2.attr('display', 'none')
         this.constantHighlight.style('opacity', 0)
 
         if(highlighted == 1) {
@@ -298,6 +315,9 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if(highlighted == 3) {
             this.constantHighlight.style('opacity', 1)
+        }
+        else if(highlighted == 4) {
+            this.variableHighlight2.attr('display', 'inline')
         }
     }
 }

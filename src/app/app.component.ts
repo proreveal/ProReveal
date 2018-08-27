@@ -17,7 +17,7 @@ import { Safeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait } from './safeguard/variable';
+import { VariableTrait, DoubleValueVariable } from './safeguard/variable';
 import { Constant } from './safeguard/constant';
 
 @Component({
@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
     searchKeyword: string;
     NodeState = NodeState;
 
-    activeSafeguardPanel = 1;
+    activeSafeguardPanel = 2;
     safeguards: Safeguard[] = [];
 
     VC = VisConstants;
@@ -249,8 +249,12 @@ export class AppComponent implements OnInit {
     }
 
     variable: VariableTrait;
-    variableSelected(variable: VariableTrait) {
-        this.variable = variable;
+    variable2: VariableTrait;
+    variableSelected($event:{variable: VariableTrait, secondary?: boolean}) {
+        if($event.secondary)
+            this.variable2 = $event.variable;
+        else
+            this.variable = $event.variable;
     }
 
     constant:Constant = 10;
@@ -278,6 +282,23 @@ export class AppComponent implements OnInit {
 
         this.variable = null;
         this.constant = 0;
+    }
+
+    createComparativeSafeguard() {
+        if(!this.variable) return;
+        if(!this.variable2) return;
+
+        let sg = new Safeguard(
+            new DoubleValueVariable(this.variable, this.variable2),
+            this.operator, this.constant, this.activeNode);
+        this.safeguards.push(sg);
+
+        this.variable = null;
+        this.variable2 = null;
+    }
+
+    cancelSafeguard() {
+        this.activeSafeguardPanel = 0;
     }
 
     toggle(panel:number) {

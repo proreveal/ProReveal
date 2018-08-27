@@ -20,7 +20,9 @@ import { Constant } from '../safeguard/constant';
 })
 export class VisComponent implements OnInit, DoCheck {
     @Input() node: ExplorationNode;
-    @Output('variableSelected') variableSelected: EventEmitter<VariableTrait>
+    @Output('variableSelected') variableSelected: EventEmitter<{
+        variable: VariableTrait,
+        secondary?: boolean}>
         = new EventEmitter();
 
     @Output('constantSelected') constantSelected: EventEmitter<Constant>
@@ -63,14 +65,6 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     ngOnInit() {
-        /*this.queryLastUpdated = this.node.query.lastUpdated;
-
-        this.renderers = this.recommend(this.node.query as AggregateQuery);
-
-        this.renderers.forEach(renderer => {
-            renderer.setup(this.node, this.svg.nativeElement);
-            renderer.render(this.node, this.svg.nativeElement);
-        })*/
     }
 
     ngDoCheck() {
