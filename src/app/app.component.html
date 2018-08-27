@@ -99,15 +99,6 @@
             </exploration-view>
         </section>
     </section>
-    <!-- <section id="exploration-view-wrapper">
-        <exploration-view #explorationView [root]="explorationRoot" [dataset]="dataset"
-            (nodeSelected)="nodeSelected($event.node, $event.nodeView, $event.left, $event.top, $event.child)"
-            (nodeUnselected)="nodeUnselected($event.node, $event.nodeView, $event.child)">
-        </exploration-view>
-        <button (click)="toggleEditable()" class="btn btn-primary" id="toggle-editable">
-            <fa-icon icon="edit"></fa-icon>
-        </button>
-    </section> -->
     <section id="main" class="styled-scroll">
         <div *ngIf="!activeNode">
             <p>
@@ -115,27 +106,34 @@
             </p>
         </div>
         <div [hidden]="!activeNode">
-            <vis #vis [node]="activeNode" (safeguardAdded)="safeguardAdded($event)"></vis>
+            <vis #vis [node]="activeNode"
+                (variableSelected)="variableSelected($event)"
+                (constantSelected)="constantSelected($event)"
+                (safeguardAdded)="safeguardAdded($event)"></vis>
         </div>
     </section>
 
     <section id="safeguard-view">
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 0">
-            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 0"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 0"></fa-icon>
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 0"></fa-icon>
             Point <small>V(A) &lt; 5</small>
         </h4>
-        <div class="m-0"><!--</p> [hidden]="activeSafeguardPanel != 0">-->
+        <div class="m-0 mb-1"><!--</p> [hidden]="activeSafeguardPanel != 0">-->
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
+                    *ngIf="!variable"
                     >V(A)</span>
+                <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                    COUNT({{ variable.fieldString() }} = {{ variable.valueString() }})</span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >&lt;</span>
+                >{{ selectedOperator }}</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >5</span>
+                >{{ constant | number }}</span>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -153,34 +151,11 @@
                 </h5>
                 <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
                     <label class="btn btn-sm btn-secondary rounded-0 w-20"
-                        [class.active]="selectedOperator === Operators.LessThan"
-                        (click)="selectedOperator = Operators.LessThan">
-                        <input type="radio" name="options" id="option1" autocomplete="off">
-                        &lt;
-                    </label>
-                    <label class="btn btn-sm btn-secondary w-20"
-                        [class.active]="selectedOperator === Operators.LessThanOrEqualTo"
-                        (click)="selectedOperator = Operators.LessThanOrEqualTo">
-                        <input type="radio" name="options" id="option2" autocomplete="off">
-                        ≤
-                    </label>
-                    <label class="btn btn-sm btn-secondary w-20"
-                        [class.active]="selectedOperator === Operators.EqualTo"
-                        (click)="selectedOperator = Operators.EqualTo">
-                        <input type="radio" name="options" id="option3" autocomplete="off">
-                        =
-                    </label>
-                    <label class="btn btn-sm btn-secondary w-20"
-                        [class.active]="selectedOperator === Operators.GreaterThanOrEqualTo"
-                        (click)="selectedOperator = Operators.GreaterThanOrEqualTo">
-                        <input type="radio" name="options" id="option4" autocomplete="off">
-                        ≥
-                    </label>
-                    <label class="btn btn-sm btn-secondary rounded-0 w-20"
-                        [class.active]="selectedOperator === Operators.GreaterThan"
-                        (click)="selectedOperator = Operators.GreaterThan">
-                        <input type="radio" name="options" id="option5" autocomplete="off">
-                        &gt;
+                        *ngFor="let op of PointOperators"
+                        [class.active]="selectedOperator === op"
+                        (click)="selectedOperator = op">
+                        <input type="radio" name="options" autocomplete="off">
+                        {{ op }}
                     </label>
                 </div>
             </div>
@@ -190,12 +165,15 @@
                     Constant
                 </h5>
                 <div class="p-1 guide m-0">
-                    <input type="number" class="form-control form-control-sm">
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="constant">
                 </div>
             </div>
+            <button class="btn btn-primary w-100 rounded-0 border-right-0">
+                Create a Safeguard
+            </button>
         </div>
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 1">
-            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
             Comparative <small>V(A) &lt; V(B)</small>
         </h4>
@@ -213,7 +191,7 @@
             </div>
         </div>
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 2">
-            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
             Group <small>&#123;Rank(A), Rank(B)&#125; = &#123;1, 2&#125;</small>
         </h4>
@@ -231,7 +209,7 @@
             </div>
         </div>
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="activeSafeguardPanel = 3">
-            <fa-icon [icon]="['fas', 'caret-right']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
             Distributive <small>V(·) ~ N(5, 2)</small>
         </h4>

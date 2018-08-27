@@ -1,20 +1,20 @@
-import { FieldGroupedValueList } from "../data/field";
+import { FieldGroupedValueList, FieldGroupedValue } from "../data/field";
 
 export abstract class VariableTrait {
 
 }
 
 export class SingleValueVariable extends VariableTrait {
-    constructor(public fieldGroupedValueList: FieldGroupedValueList) {
+    constructor(public fieldGroupedValue: FieldGroupedValue) {
         super();
     }
 
     fieldString() {
-        return this.fieldGroupedValueList.list[0].field.name;
+        return this.fieldGroupedValue.field.name;
     }
 
     valueString() {
-        return this.fieldGroupedValueList.list[0].valueString();
+        return this.fieldGroupedValue.valueString();
     }
 }
 

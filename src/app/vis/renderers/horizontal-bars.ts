@@ -14,6 +14,7 @@ import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.compon
 import { Safeguard } from '../../safeguard/safeguard';
 import { SingleValueVariable } from '../../safeguard/variable';
 import { Operators } from '../../safeguard/operator';
+import { VisComponent } from '../vis.component';
 
 type Datum = {
     id: string,
@@ -33,8 +34,9 @@ export class HorizontalBarsRenderer implements Renderer {
         ci3stdev: ConfidenceInterval,
     }, d3.BaseType, {}>;
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
+    constantHighlight: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 
-    constructor(public tooltip:TooltipComponent) {
+    constructor(public vis:VisComponent, public tooltip:TooltipComponent) {
     }
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
@@ -238,6 +240,10 @@ export class HorizontalBarsRenderer implements Renderer {
             .on('mouseout', (d, i) => {
                 this.tooltip.hide();
             })
+            .on('click', (d, i) => {
+                let variable = new SingleValueVariable(d.keys.list[0]);
+                this.vis.variableSelected.emit(variable)
+            });
 
         eventBoxes.exit().remove();
 
@@ -254,10 +260,35 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('height', height - VC.horizontalBars.axis.height * 2)
             .attr('transform', translate(0, VC.horizontalBars.height))
             .attr('display', 'none')
+
+        this.constantHighlight = selectOrAppend(visG, 'g', 'constant-highlight-wrapper')
+            .attr('class', 'constant-highlight-wrapper')
+            .style('opacity', 0)
+
+        let selection = this.constantHighlight
+            .selectAll('rect.constant.highlighted')
+            .data([0, height - VC.horizontalBars.axis.height]);
+
+        let enter2 = selection
+            .enter()
+            .append('rect')
+            .attr('class', 'constant highlighted')
+            .attr('width', width - labelWidth + VC.padding)
+            .attr('height', VC.horizontalBars.axis.height)
+            .attr('transform', d => translate(labelWidth - VC.padding, d))
+            .on('click', (d, i) => {
+                let x = xScale.invert(d3.event.offsetX);
+                let step = d3.tickStep(xScale.domain()[0], xScale.domain()[1], 10) / 10;
+
+                this.vis.constantSelected.emit(Math.round(x / step) * step);
+            })
+
     }
 
     highlight(highlighted: number) {
         this.variableHighlight.attr('display', 'none')
+        this.constantHighlight.style('opacity', 0)
+
         if(highlighted == 1) {
             this.variableHighlight.attr('display', 'inline')
         }
@@ -265,7 +296,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         }
         else if(highlighted == 3) {
-
+            this.constantHighlight.style('opacity', 1)
         }
     }
 }

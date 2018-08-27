@@ -9,6 +9,9 @@ import * as d3 from 'd3';
 import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
 import { Safeguard } from '../safeguard/safeguard';
 import { ToastrService } from 'ngx-toastr';
+import { FieldGroupedValueList } from '../data/field';
+import { VariableTrait } from '../safeguard/variable';
+import { Constant } from '../safeguard/constant';
 
 @Component({
     selector: 'vis',
@@ -17,6 +20,12 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class VisComponent implements OnInit, DoCheck {
     @Input() node: ExplorationNode;
+    @Output('variableSelected') variableSelected: EventEmitter<VariableTrait>
+        = new EventEmitter();
+
+    @Output('constantSelected') constantSelected: EventEmitter<Constant>
+        = new EventEmitter();
+
     @Output('safeguardAdded') safeguardAdded: EventEmitter<{
         'sg': Safeguard
     }> = new EventEmitter();
@@ -41,6 +50,7 @@ export class VisComponent implements OnInit, DoCheck {
     recommend(query: AggregateQuery): Renderer {
         if (query.groupBy.fields.length === 1)
             return new HorizontalBarsRenderer(
+                this,
                 this.tooltip
             );
 

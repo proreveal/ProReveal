@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Dataset } from './data/dataset';
-import { FieldTrait, VlType } from './data/field';
+import { FieldTrait, VlType, FieldGroupedValueList } from './data/field';
 import { Engine, Priority } from './data/engine';
 
 import { Query, EmptyQuery } from './data/query';
@@ -17,6 +17,8 @@ import { Safeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
+import { VariableTrait } from './safeguard/variable';
+import { Constant } from './safeguard/constant';
 
 @Component({
     selector: 'app-root',
@@ -246,7 +248,17 @@ export class AppComponent implements OnInit {
             });
     }
 
-    safeguardAdded($event:{sg: Safeguard}) {
+    variable: VariableTrait;
+    variableSelected(variable: VariableTrait) {
+        this.variable = variable;
+    }
+
+    constant:Constant = 10;
+    constantSelected(constant: Constant) {
+        this.constant = constant;
+    }
+
+    safeguardAdded($event: { sg: Safeguard }) {
         let sg = $event.sg;
         this.safeguards.push(sg);
     }
@@ -259,4 +271,7 @@ export class AppComponent implements OnInit {
 
     Operators = Operators;
     selectedOperator = Operators.LessThan;
+    PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo, Operators.EqualTo,
+        Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
+
 }

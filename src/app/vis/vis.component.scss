@@ -48,3 +48,12 @@
     opacity: 0.2;
     pointer-events: none;
 }
+
+:host /deep/ .constant.highlighted {
+    fill: lighten($constant-highlight-color, 0%);
+    opacity: 0.2;
+}
+
+:host /deep/ .event-box.clickable {
+    cursor: pointer;
+}
