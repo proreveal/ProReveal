@@ -256,7 +256,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SafeguardTypes.Point;
+    activeSafeguardPanel = SafeguardTypes.None;
     safeguards: Safeguard[] = [];
 
     variable: SingleVariable;
