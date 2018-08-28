@@ -17,7 +17,7 @@ import { Safeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait, DoubleValueVariable } from './safeguard/variable';
+import { VariableTrait, DoubleValueVariable, SingleValueVariable } from './safeguard/variable';
 import { Constant } from './safeguard/constant';
 
 @Component({
@@ -289,7 +289,8 @@ export class AppComponent implements OnInit {
         if(!this.variable2) return;
 
         let sg = new Safeguard(
-            new DoubleValueVariable(this.variable, this.variable2),
+            new DoubleValueVariable(this.variable as SingleValueVariable,
+                this.variable2 as SingleValueVariable),
             this.operator, this.constant, this.activeNode);
         this.safeguards.push(sg);
 
