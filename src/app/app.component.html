@@ -79,7 +79,7 @@
                         <fa-icon [icon]="['fas', 'search']"></fa-icon>
                     </span>
                 </div>
-                <input type="text" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
+                <input type="text" name="keyword" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
                 <div class="input-group-append">
                     <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
@@ -133,21 +133,24 @@
             </div>
         </section>
 
+        <!-- Point -->
         <h4 class="section-header p-2 border-right-0 border-top border-bottom"
             (click)="toggle(1)">
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
             Point <small>V(A) &lt; 5</small>
         </h4>
-        <div class="m-0" [hidden]="activeSafeguardPanel != 1">
+        <div class="mb-2" [hidden]="activeSafeguardPanel != 1">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
                     *ngIf="!variable"
-                    >V(A)</span>
+                    ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
                 <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    COUNT({{ variable.fieldString() }} = {{ variable.valueString() }})</span>
+                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable.fieldString() }}
+                    =
+                    {{ variable.valueString() }})<span *ngIf="useRank">)</span></span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >{{ operator }}</span>
@@ -163,6 +166,11 @@
                 <p class="p-1 guide m-0">
                     Please pick a <span class="variable font-weight-bold">variable</span> by clicking on a category on the chart.
                 </p>
+                <div class="form-group-sm form-check m-0 mx-1">
+                    <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
+                         [(ngModel)]="useRank">
+                    <label class="form-check-label guide" for="use-rank1">Use Rank</label>
+                </div>
             </div>
             <div (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -199,7 +207,33 @@
             </button>
         </div>
 
+        <!-- Range -->
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(3)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
+            Range <small>V(A) ∈ [5, 10]</small>
+        </h4>
+        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 3">
+            <div class="display text-center p-2">
+                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
+                    >V(A)</span>
+                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
+                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
+                >&lt;</span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                >5</span>
+            </div>
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                Create a Safeguard
+            </button>
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
+        <!-- Comparative -->
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(2)">
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
@@ -267,33 +301,7 @@
             </button>
         </div>
 
-
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(3)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
-            Group <small>&#123;Rank(A), Rank(B)&#125; = &#123;1, 2&#125;</small>
-        </h4>
-        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 3">
-            <div class="display text-center p-2">
-                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    >V(A)</span>
-                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
-                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >&lt;</span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >5</span>
-            </div>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
-                Create a Safeguard
-            </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-
-
+        <!-- Distributive -->
         <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(4)">
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 4"></fa-icon>
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 4"></fa-icon>

@@ -4,7 +4,9 @@ export abstract class VariableTrait {
 
 }
 
-export class SingleValueVariable extends VariableTrait {
+export class SingleVariable extends VariableTrait {
+    rank = false;
+
     constructor(public fieldGroupedValue: FieldGroupedValue) {
         super();
     }
@@ -18,13 +20,9 @@ export class SingleValueVariable extends VariableTrait {
     }
 }
 
-export class SingleRankVariable {
-
-}
-
 export class DoubleValueVariable extends VariableTrait{ // a < b
-    constructor(public variable1: SingleValueVariable,
-                public variable2: SingleValueVariable) {
+    constructor(public variable1: SingleVariable,
+                public variable2: SingleVariable) {
         super();
     }
 

@@ -17,7 +17,7 @@ import { Safeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait, DoubleValueVariable, SingleValueVariable } from './safeguard/variable';
+import { VariableTrait, DoubleValueVariable, SingleVariable } from './safeguard/variable';
 import { Constant } from './safeguard/constant';
 
 @Component({
@@ -245,12 +245,13 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = 3;
+    activeSafeguardPanel = 1;
     safeguards: Safeguard[] = [];
 
-    variable: VariableTrait;
-    variable2: VariableTrait;
-    variableSelected($event:{variable: VariableTrait, secondary?: boolean}) {
+    variable: SingleVariable;
+    variable2: SingleVariable;
+    useRank = false;
+    variableSelected($event:{variable: SingleVariable, secondary?: boolean}) {
         if($event.secondary)
             this.variable2 = $event.variable;
         else
@@ -268,6 +269,9 @@ export class AppComponent implements OnInit {
         this.vis.highlight(highlighted);
     }
 
+    useRankToggled() {
+    }
+
     Operators = Operators;
     operator = Operators.LessThan;
     PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo, Operators.EqualTo,
@@ -276,6 +280,7 @@ export class AppComponent implements OnInit {
     createPointSafeguard() {
         if(!this.variable) return;
 
+        this.variable.rank = this.useRank;
         let sg = new Safeguard(this.variable, this.operator, this.constant, this.activeNode);
 
         this.safeguards.push(sg);
@@ -289,8 +294,8 @@ export class AppComponent implements OnInit {
         if(!this.variable2) return;
 
         let sg = new Safeguard(
-            new DoubleValueVariable(this.variable as SingleValueVariable,
-                this.variable2 as SingleValueVariable),
+            new DoubleValueVariable(this.variable as SingleVariable,
+                this.variable2 as SingleVariable),
             this.operator, this.constant, this.activeNode);
         this.safeguards.push(sg);
 
