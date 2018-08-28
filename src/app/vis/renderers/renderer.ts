@@ -3,6 +3,8 @@ import { TooltipComponent } from "../../tooltip/tooltip.component";
 import { HandwritingRecognitionService } from "../../handwriting-recognition.service";
 import { HandwritingComponent } from "../../handwriting/handwriting.component";
 import { SafeguardTypes } from '../../safeguard/safeguard';
+import { Constant } from '../../safeguard/constant';
+
 /**
  * A renderer does not have states. States must be saved in a node.
  */
@@ -17,4 +19,5 @@ export abstract class Renderer {
 
     abstract highlight(highlighted: number);
     abstract setCreationMode(panel: SafeguardTypes);
+    abstract constantUserChanged(constant: Constant);
 }

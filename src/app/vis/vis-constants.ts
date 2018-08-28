@@ -14,5 +14,6 @@ export const VisConstants = Object.freeze({
     padding: 5,
     variableHighlightColor: '#f4511e',
     operatorHighlightColor: '#303f9f',
-    constantHighlightColor: 'black'
+    constantHighlightColor: 'black',
+    pointBrushSize: 5
 });

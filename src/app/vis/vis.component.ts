@@ -91,4 +91,8 @@ export class VisComponent implements OnInit, DoCheck {
     setCreationMode(creating: SafeguardTypes) {
         this.renderer.setCreationMode(creating);
     }
+
+    constantUserChanged(constant: Constant) {
+        this.renderer.constantUserChanged(constant);
+    }
 }

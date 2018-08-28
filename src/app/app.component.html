@@ -194,9 +194,10 @@
                 </h5>
                 <div class="p-1 guide m-0">
                     <p class="m-0">
-                        Please pick a <span class="constant font-weight-bold">constant</span> by clicking on the x axis.
+                        Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
-                    <input type="number" class="form-control form-control-sm" [(ngModel)]="constant">
+                    <input type="number" class="form-control form-control-sm" [ngModel]="constant | number"
+                        (ngModelChange)="constant=$event; constantUserChanged($event)">
                 </div>
             </div>
             <div class="p-1">

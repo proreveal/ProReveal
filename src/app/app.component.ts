@@ -280,6 +280,10 @@ export class AppComponent implements OnInit {
     useRankToggled() {
     }
 
+    constantUserChanged() {
+        this.vis.constantUserChanged(this.constant);
+    }
+
     Operators = Operators;
     operator = Operators.LessThan;
     PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo, Operators.EqualTo,
