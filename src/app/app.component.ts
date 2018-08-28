@@ -46,9 +46,6 @@ export class AppComponent implements OnInit {
     searchKeyword: string;
     NodeState = NodeState;
 
-    activeSafeguardPanel = 2;
-    safeguards: Safeguard[] = [];
-
     VC = VisConstants;
 
     constructor(private cd: ChangeDetectorRef,
@@ -247,6 +244,9 @@ export class AppComponent implements OnInit {
                 // console.log(`Dismissed`);
             });
     }
+
+    activeSafeguardPanel = 3;
+    safeguards: Safeguard[] = [];
 
     variable: VariableTrait;
     variable2: VariableTrait;
