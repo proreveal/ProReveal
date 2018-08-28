@@ -59,6 +59,13 @@
     font-weight: bold;
 }
 
+:host /deep/ .variable2.text-highlighted {
+    fill: darken($variable2-highlight-color, 10%);
+    stroke: darken($variable2-highlight-color, 10%);
+    stroke-width: .5px;
+    font-weight: bold;
+}
+
 :host /deep/ .variable2.highlighted {
     fill: lighten($variable2-highlight-color, 0%);
     opacity: 0.2;

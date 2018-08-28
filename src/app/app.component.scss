@@ -218,6 +218,11 @@ h4 fa-icon {
     width: calc(25% + 1px);
 }
 
+.w-20-fixed {
+    display: inline-block;
+    width: calc(20% + 1px);
+}
+
 #safeguard-view .btn-secondary {
     background-color: lighten($operator-highlight-color, 15%);
     border-color: lighten($operator-highlight-color, 10%);

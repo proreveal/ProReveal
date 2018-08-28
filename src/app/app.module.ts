@@ -29,6 +29,7 @@ import { HandwritingComponent } from './handwriting/handwriting.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { PIndicatorComponent } from './safeguard/p-indicator.component';
 
 library.add(fas, far);
 
@@ -47,7 +48,8 @@ library.add(fas, far);
         TooltipHostDirective,
         FieldBadgeComponent,
         ProgressMiniRingComponent,
-        HandwritingComponent
+        HandwritingComponent,
+        PIndicatorComponent
     ],
     imports: [
         NgbModule.forRoot(),

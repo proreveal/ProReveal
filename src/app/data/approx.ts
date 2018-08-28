@@ -1,7 +1,8 @@
 const Z95 = 1.96;
 
 export class ApproximatedInterval {
-    constructor(public center: number, public stdem: number) {
+    constructor(public mean: number, public stdem: number, public n: number,
+        public stdev: number) {
 
     }
 
@@ -10,11 +11,11 @@ export class ApproximatedInterval {
     }
 
     range(factor: number) {
-        return new ConfidenceInterval(this.center, this.center - factor * this.stdem, this.center + factor * this.stdem);
+        return new ConfidenceInterval(this.mean, this.mean - factor * this.stdem, this.mean + factor * this.stdem);
     }
 
     desc() {
-        return `${this.center} +- ${this.stdem}`;
+        return `${this.mean} +- ${this.stdem}`;
     }
 }
 

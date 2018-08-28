@@ -200,19 +200,9 @@
                         (ngModelChange)="constant=$event; constantUserChanged($event)">
                 </div>
             </div>
-            <div class="p-1">
+            <div class="p-1 guide">
                 <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && constant">
-                    <div *ngFor="let p of [EstimatePoint(activeNode.query, variable, operator, constant)]"
-                        class="alert m-0 p-2 guide text-align-center" role="alert"
-                        [class.alert-success]="p >= 0.95"
-                        [class.alert-warning]="p < 0.95 && p >= 0.5"
-                        [class.alert-danger]="p < 0.5"
-                    >
-                    <span [hidden]="p < 0.95">It holds certainly!</span>
-                    <span [hidden]="p >= 0.95 || p < 0.5">It holds probably.</span>
-                    <span [hidden]="p >= 0.5">It holds unlikely.</span>
-                    (<em>p = {{ p | number }} </em>)
-                    </div>
+                    <p-indicator [p]="EstimatePoint(activeNode.query, variable, operator, constant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -226,12 +216,12 @@
         </div>
 
         <!-- Range -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(3)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 3"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 3"></fa-icon>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Range)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Range"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Range"></fa-icon>
             Range <small>V(A) ∈ [5, 10]</small>
         </h4>
-        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 3">
+        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -252,12 +242,12 @@
         </div>
 
         <!-- Comparative -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(2)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 2"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 2"></fa-icon>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Comparative)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Comparative"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Comparative"></fa-icon>
             Comparative <small>V(A) &lt; V(B)</small>
         </h4>
-        <div class="m-0" [hidden]="activeSafeguardPanel != 2">
+        <div class="m-0" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
                 <span *ngIf="!variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -272,7 +262,7 @@
                 <span *ngIf="!variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 4"
                     (mouseenter)="highlight(4)" (mouseleave)="highlight(0)"
                 >V(B)</span>
-                <span *ngIf="variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 1"
+                <span *ngIf="variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 4"
                 (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
                 COUNT({{ variable2.fieldString() }} = {{ variable2.valueString() }})</span>
             </div>
@@ -291,8 +281,8 @@
                     Operator
                 </h5>
                 <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                    <label class="btn btn-sm btn-secondary rounded-0 w-20"
-                        *ngFor="let op of PointOperators"
+                    <label class="btn btn-sm btn-secondary rounded-0 w-25-fixed"
+                        *ngFor="let op of ComparativeOperators"
                         [class.active]="operator === op"
                         (click)="operator = op">
                         <input type="radio" name="options" autocomplete="off">
@@ -311,12 +301,19 @@
                     </p>
                 </div>
             </div>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createComparativeSafeguard()">
-                Create a Safeguard
-            </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="p-1 guide">
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && variable2">
+                    <p-indicator [p]="CompareMeans(activeNode.query, variable, operator, variable2)"></p-indicator>
+                </div>
+            </div>
+            <div class="p-1">
+                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
 
         <!-- Distributive -->

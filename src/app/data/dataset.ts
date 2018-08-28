@@ -57,4 +57,8 @@ export class Dataset {
 
         return fields[0];
     }
+
+    get length() {
+        return this.rows.length;
+    }
 }

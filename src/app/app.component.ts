@@ -13,7 +13,7 @@ import { FieldSelectorComponent } from './field-selector/field-selector.componen
 import * as util from './util';
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Safeguard } from './safeguard/safeguard';
+import { Safeguard, SafeguardTypes } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
@@ -46,11 +46,12 @@ export class AppComponent implements OnInit {
     sortablejsOptions: any;
     highlightedNodes: ExplorationNode[] = [];
     searchKeyword: string;
+
     NodeState = NodeState;
-
-
     VC = VisConstants;
     EstimatePoint = Safeguard.EstimatePoint;
+    CompareMeans = Safeguard.CompareMeans;
+    SGT = SafeguardTypes;
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,
@@ -124,7 +125,7 @@ export class AppComponent implements OnInit {
                 }
             });
 
-            this.run(80);
+            this.run(67);
 
             this.nodeSelected(this.ongoingNodes[0]);
 
@@ -255,7 +256,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = 1;
+    activeSafeguardPanel = 3;
     safeguards: Safeguard[] = [];
 
     variable: SingleVariable;
@@ -290,6 +291,8 @@ export class AppComponent implements OnInit {
     operator = Operators.LessThan;
     PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo,
         Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
+    ComparativeOperators = [Operators.LessThan, Operators.LessThanOrEqualTo,
+        Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
 
     createPointSafeguard() {
         if(!this.variable) return;
@@ -323,6 +326,10 @@ export class AppComponent implements OnInit {
     }
 
     toggle(panel:number) {
+        this.variable = null;
+        this.variable2 = null;
+        this.constant = null;
+
         if(this.activeSafeguardPanel === panel) {
             this.activeSafeguardPanel = 0;
             this.vis.setCreationMode(0);

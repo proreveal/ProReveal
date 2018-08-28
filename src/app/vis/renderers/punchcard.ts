@@ -36,7 +36,7 @@ export class PunchcardRenderer implements Renderer {
         let data = query.resultList().map(
             value => {
                 const ai = query.accumulator
-                    .approximate(value[1], processedPercent);
+                    .approximate(value[1], processedPercent, query.dataset.length);
 
                 return {
                     id: value[0].hash,

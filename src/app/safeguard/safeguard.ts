@@ -29,9 +29,12 @@ export class Safeguard {
     static EstimatePoint(query: AggregateQuery, variable: SingleVariable,
         operator: Operators, constant: number) {
         let result = query.result[variable.fieldGroupedValue.hash].accumulatedValue;
-        let ai = query.accumulator.approximate(result, query.progress.processedPercent());
+        let ai = query.accumulator.approximate(
+                result,
+                query.progress.processedPercent(),
+                query.dataset.length);
 
-        let z = (constant - ai.center) / ai.stdem;
+        let z = (constant - ai.mean) / ai.stdem;
         let cp = Safeguard.normal.cdf(z);
 
         if(operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo) {
@@ -43,5 +46,11 @@ export class Safeguard {
         else {
             throw new Error(`Invalid operator ${operator}`);
         }
+    }
+
+    // http://195.134.76.37/applets/AppletTtest/Appl_Ttest2.html
+    static CompareMeans(query: AggregateQuery, variable: SingleVariable,
+        operator: Operators, variable2: SingleVariable) {
+        return 0.5
     }
 }
