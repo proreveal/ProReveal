@@ -1,4 +1,6 @@
 .te-tooltip {
     padding-top: 0px;
     pointer-events: none;
+    position: absolute;
 }
+

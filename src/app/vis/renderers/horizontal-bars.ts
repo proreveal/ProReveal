@@ -12,7 +12,7 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { Safeguard } from '../../safeguard/safeguard';
-import { SingleValueVariable } from '../../safeguard/variable';
+import { SingleVariable } from '../../safeguard/variable';
 import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 
@@ -243,12 +243,12 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.tooltip.hide();
             })
             .on('click', (d, i) => {
-                let variable = new SingleValueVariable(d.keys.list[0]);
+                let variable = new SingleVariable(d.keys.list[0]);
                 this.vis.variableSelected.emit({variable: variable});
                 this.vis.constantSelected.emit(d.ci3stdev.center);
             })
             .on('contextmenu', (d, i) => {
-                let variable = new SingleValueVariable(d.keys.list[0]);
+                let variable = new SingleVariable(d.keys.list[0]);
                 this.vis.variableSelected.emit({
                     variable: variable,
                     secondary: true});

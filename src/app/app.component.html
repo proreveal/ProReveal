@@ -140,7 +140,7 @@
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
             Point <small>V(A) &lt; 5</small>
         </h4>
-        <div class="mb-2" [hidden]="activeSafeguardPanel != 1">
+        <div class="mb-0" [hidden]="activeSafeguardPanel != 1">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
@@ -199,12 +199,19 @@
                     <input type="number" class="form-control form-control-sm" [(ngModel)]="constant">
                 </div>
             </div>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
-                Create a Safeguard
-            </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="p-1">
+                <div class="alert alert-success m-0 p-2 guide text-align-center" role="alert">
+                    It holds! (<em>p = 0.01</em>)
+                </div>
+            </div>
+            <div class="p-1">
+                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
 
         <!-- Range -->
