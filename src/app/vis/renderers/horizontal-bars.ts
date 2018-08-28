@@ -195,6 +195,8 @@ export class HorizontalBarsRenderer implements Renderer {
 
                     this.vis.variableSelected.emit({variable: variable});
                     this.vis.constantSelected.emit(d.ci3stdev.center);
+
+                    this.constantUserChanged(d.ci3stdev.center);
                 }
             })
             .on('contextmenu', (d, i) => {

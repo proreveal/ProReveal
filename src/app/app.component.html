@@ -178,7 +178,7 @@
                     Operator
                 </h5>
                 <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                    <label class="btn btn-sm btn-secondary rounded-0 w-20"
+                    <label class="btn btn-sm btn-secondary rounded-0 w-25-fixed"
                         *ngFor="let op of PointOperators"
                         [class.active]="operator === op"
                         (click)="operator = op">
@@ -201,8 +201,18 @@
                 </div>
             </div>
             <div class="p-1">
-                <div class="alert alert-success m-0 p-2 guide text-align-center" role="alert">
-                    It holds! (<em>p = 0.01</em>)
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && constant">
+                    <div *ngFor="let p of [EstimatePoint(activeNode.query, variable, operator, constant)]"
+                        class="alert m-0 p-2 guide text-align-center" role="alert"
+                        [class.alert-success]="p >= 0.95"
+                        [class.alert-warning]="p < 0.95 && p >= 0.5"
+                        [class.alert-danger]="p < 0.5"
+                    >
+                    <span [hidden]="p < 0.95">It holds certainly!</span>
+                    <span [hidden]="p >= 0.95 || p < 0.5">It holds probably.</span>
+                    <span [hidden]="p >= 0.5">It holds unlikely.</span>
+                    (<em>p = {{ p | number }} </em>)
+                    </div>
                 </div>
             </div>
             <div class="p-1">

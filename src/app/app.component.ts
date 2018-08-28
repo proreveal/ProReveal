@@ -48,7 +48,9 @@ export class AppComponent implements OnInit {
     searchKeyword: string;
     NodeState = NodeState;
 
+
     VC = VisConstants;
+    EstimatePoint = Safeguard.EstimatePoint;
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,
@@ -286,7 +288,7 @@ export class AppComponent implements OnInit {
 
     Operators = Operators;
     operator = Operators.LessThan;
-    PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo, Operators.EqualTo,
+    PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo,
         Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
 
     createPointSafeguard() {
