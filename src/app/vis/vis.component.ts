@@ -7,7 +7,7 @@ import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
 import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
-import { Safeguard } from '../safeguard/safeguard';
+import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { ToastrService } from 'ngx-toastr';
 import { FieldGroupedValueList } from '../data/field';
 import { VariableTrait } from '../safeguard/variable';
@@ -31,8 +31,7 @@ export class VisComponent implements OnInit, DoCheck {
     @Output('safeguardAdded') safeguardAdded: EventEmitter<{
         'sg': Safeguard
     }> = new EventEmitter();
-
-    @ViewChild('svg') svg: ElementRef;
+    @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
     queryLastUpdated: number;
@@ -44,7 +43,8 @@ export class VisComponent implements OnInit, DoCheck {
         new MaxAccumulator(),
         new MinAccumulator()
     ];
-    recognizing = false;
+    creatingSg = false;
+
 
     constructor(private toastr: ToastrService
     ) { }
@@ -58,6 +58,7 @@ export class VisComponent implements OnInit, DoCheck {
 
         if (query.groupBy.fields.length === 2)
             return new PunchcardRenderer(
+                this,
                 this.tooltip
             );
 
@@ -85,5 +86,9 @@ export class VisComponent implements OnInit, DoCheck {
 
     highlight(highlighted: number) {
         this.renderer.highlight(highlighted);
+    }
+
+    setCreationMode(creating: SafeguardTypes) {
+        this.renderer.setCreationMode(creating);
     }
 }

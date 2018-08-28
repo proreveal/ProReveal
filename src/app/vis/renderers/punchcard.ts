@@ -14,9 +14,10 @@ import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.compon
 import * as vsup from 'vsup';
 import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
 import { HandwritingComponent } from '../../handwriting/handwriting.component';
+import { VisComponent } from '../vis.component';
 
 export class PunchcardRenderer implements Renderer {
-    constructor(public tooltip:TooltipComponent
+    constructor(public vis:VisComponent, public tooltip:TooltipComponent
     ) {
     }
 
@@ -191,6 +192,10 @@ export class PunchcardRenderer implements Renderer {
     }
 
     highlight() {
+
+    }
+
+    setCreationMode() {
 
     }
 }

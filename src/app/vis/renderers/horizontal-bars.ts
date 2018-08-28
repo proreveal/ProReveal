@@ -11,7 +11,7 @@ import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
-import { Safeguard } from '../../safeguard/safeguard';
+import { Safeguard, SafeguardTypes} from '../../safeguard/safeguard';
 import { SingleVariable } from '../../safeguard/variable';
 import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
@@ -28,7 +28,15 @@ export class HorizontalBarsRenderer implements Renderer {
     data: Datum[];
     node: ExplorationNode;
     nativeSvg: SVGSVGElement;
+    variable: SingleVariable;
+    variable2: SingleVariable;
+
     labels: d3.Selection<d3.BaseType, {
+        id: string,
+        keys: FieldGroupedValueList,
+        ci3stdev: ConfidenceInterval,
+    }, d3.BaseType, {}>;
+    eventBoxes: d3.Selection<d3.BaseType, {
         id: string,
         keys: FieldGroupedValueList,
         ci3stdev: ConfidenceInterval,
@@ -128,6 +136,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         let enter = labels.enter().append('text').attr('class', 'label')
             .style('text-anchor', 'end')
+            .style('pointer-events', 'none')
             .attr('font-size', '.8rem')
             .attr('dy', '.8rem')
 
@@ -221,14 +230,13 @@ export class HorizontalBarsRenderer implements Renderer {
         const eventBoxes = visG.selectAll('rect.event-box')
             .data(data, (d: any) => d.id);
 
-        enter = eventBoxes.enter().append('rect').attr('class', 'event-box clickable');
+        enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable');
 
-        eventBoxes.merge(enter)
-            .style('fill', 'transparent')
+        this.eventBoxes = eventBoxes.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', width)
             .attr('transform', (d, i) => translate(0, yScale(i + '')))
-            .on('mouseover', (d, i) => {
+            .on('mouseenter', (d, i) => {
                 const clientRect = nativeSvg.getBoundingClientRect();
                 const parentRect = nativeSvg.parentElement.getBoundingClientRect();
 
@@ -238,14 +246,34 @@ export class HorizontalBarsRenderer implements Renderer {
                     HorizontalBarsTooltipComponent,
                     d
                 );
+
+                if([SafeguardTypes.Point, SafeguardTypes.Range].includes(this.creationMode))
+                {
+                    let ele = d3.select(this.eventBoxes.nodes()[i]);
+                    ele.classed('highlighted', true)
+                }
             })
-            .on('mouseout', (d, i) => {
+            .on('mouseleave', (d, i) => {
                 this.tooltip.hide();
+                if([SafeguardTypes.Point, SafeguardTypes.Range].includes(this.creationMode))
+                {
+                    if(!this.variable || this.variable.fieldGroupedValue.hash
+                        !== d.keys.list[0].hash) {
+                        let ele = d3.select(this.eventBoxes.nodes()[i]);
+                        ele.classed('highlighted', false)
+                    }
+                }
             })
             .on('click', (d, i) => {
-                let variable = new SingleVariable(d.keys.list[0]);
-                this.vis.variableSelected.emit({variable: variable});
-                this.vis.constantSelected.emit(d.ci3stdev.center);
+                if([SafeguardTypes.Point, SafeguardTypes.Range].includes(this.creationMode))
+                {
+                    let variable = new SingleVariable(d.keys.list[0]);
+                    this.variable = variable;
+                    this.updateHighlight();
+
+                    this.vis.variableSelected.emit({variable: variable});
+                    this.vis.constantSelected.emit(d.ci3stdev.center);
+                }
             })
             .on('contextmenu', (d, i) => {
                 let variable = new SingleVariable(d.keys.list[0]);
@@ -270,6 +298,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('height', height - VC.horizontalBars.axis.height * 2)
             .attr('transform', translate(0, VC.horizontalBars.height))
             .attr('display', 'none')
+            .style('pointer-events', 'none')
 
         this.variableHighlight2 =
             selectOrAppend(visG, 'rect', '.variable2.highlighted')
@@ -277,6 +306,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('height', height - VC.horizontalBars.axis.height * 2)
             .attr('transform', translate(0, VC.horizontalBars.height))
             .attr('display', 'none')
+            .style('pointer-events', 'none')
 
         this.constantHighlight = selectOrAppend(visG, 'g', 'constant-highlight-wrapper')
             .attr('class', 'constant-highlight-wrapper')
@@ -299,6 +329,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
                 this.vis.constantSelected.emit(Math.round(x / step) * step);
             })
+            .style('pointer-events', 'none')
 
     }
 
@@ -319,5 +350,23 @@ export class HorizontalBarsRenderer implements Renderer {
         else if(highlighted == 4) {
             this.variableHighlight2.attr('display', 'inline')
         }
+    }
+
+    creationMode: SafeguardTypes;
+    setCreationMode(panel: SafeguardTypes) {
+        this.creationMode = panel;
+        if(panel == SafeguardTypes.None) {
+            this.eventBoxes.style('cursor', 'auto');
+        }
+        else if(panel == SafeguardTypes.Point) {
+            this.eventBoxes.style('cursor', 'pointer');
+        }
+    }
+
+    updateHighlight() {
+        this.eventBoxes
+            .classed('highlighted', false)
+            .filter((d, i) => this.variable && this.variable.fieldGroupedValue.hash === d.keys.list[0].hash)
+            .classed('highlighted', true)
     }
 }

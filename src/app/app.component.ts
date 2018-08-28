@@ -19,6 +19,8 @@ import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariableTrait, DoubleValueVariable, SingleVariable } from './safeguard/variable';
 import { Constant } from './safeguard/constant';
+import { of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
@@ -28,7 +30,7 @@ import { Constant } from './safeguard/constant';
 export class AppComponent implements OnInit {
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
-    @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent
+    @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
     @ViewChild('vis') vis: VisComponent;
 
     dataset: Dataset;
@@ -123,6 +125,12 @@ export class AppComponent implements OnInit {
             this.run(80);
 
             this.nodeSelected(this.ongoingNodes[0]);
+
+            of(0).pipe(
+                delay(1000)
+            ).subscribe(() => {
+                this.vis.setCreationMode(this.activeSafeguardPanel);
+            })
         })
     }
 
@@ -305,14 +313,17 @@ export class AppComponent implements OnInit {
 
     cancelSafeguard() {
         this.activeSafeguardPanel = 0;
+        this.vis.setCreationMode(0);
     }
 
     toggle(panel:number) {
         if(this.activeSafeguardPanel === panel) {
             this.activeSafeguardPanel = 0;
+            this.vis.setCreationMode(0);
         }
         else {
             this.activeSafeguardPanel = panel;
+            this.vis.setCreationMode(panel);
         }
     }
 }
