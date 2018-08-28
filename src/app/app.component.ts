@@ -256,7 +256,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = 3;
+    activeSafeguardPanel = SafeguardTypes.Point;
     safeguards: Safeguard[] = [];
 
     variable: SingleVariable;
@@ -269,9 +269,14 @@ export class AppComponent implements OnInit {
             this.variable = $event.variable;
     }
 
-    constant:Constant = 10;
+    pointConstant:number = 10;
+    rangeConstant:[number, number] = [0, 10];
+
     constantSelected(constant: Constant) {
-        this.constant = constant;
+        if(typeof constant === 'number')
+            this.pointConstant = constant;
+        else
+            this.rangeConstant = constant;
     }
 
     highlighted = 0;
@@ -283,8 +288,8 @@ export class AppComponent implements OnInit {
     useRankToggled() {
     }
 
-    constantUserChanged() {
-        this.vis.constantUserChanged(this.constant);
+    constantUserChanged(constant: Constant) {
+        this.vis.constantUserChanged(constant);
     }
 
     Operators = Operators;
@@ -298,12 +303,12 @@ export class AppComponent implements OnInit {
         if(!this.variable) return;
 
         this.variable.rank = this.useRank;
-        let sg = new Safeguard(this.variable, this.operator, this.constant, this.activeNode);
+        let sg = new Safeguard(this.variable, this.operator, this.pointConstant, this.activeNode);
 
         this.safeguards.push(sg);
 
         this.variable = null;
-        this.constant = 0;
+        this.pointConstant = 0;
     }
 
     createComparativeSafeguard() {
@@ -313,7 +318,7 @@ export class AppComponent implements OnInit {
         let sg = new Safeguard(
             new DoubleValueVariable(this.variable as SingleVariable,
                 this.variable2 as SingleVariable),
-            this.operator, this.constant, this.activeNode);
+            this.operator, this.pointConstant, this.activeNode);
         this.safeguards.push(sg);
 
         this.variable = null;
@@ -321,22 +326,29 @@ export class AppComponent implements OnInit {
     }
 
     cancelSafeguard() {
-        this.activeSafeguardPanel = 0;
-        this.vis.setCreationMode(0);
+        this.activeSafeguardPanel = SafeguardTypes.None;
+        this.vis.setCreationMode(SafeguardTypes.None);
     }
 
-    toggle(panel:number) {
+    toggle(panel:SafeguardTypes) {
         this.variable = null;
         this.variable2 = null;
-        this.constant = null;
+        this.pointConstant = null;
 
         if(this.activeSafeguardPanel === panel) {
-            this.activeSafeguardPanel = 0;
-            this.vis.setCreationMode(0);
+            this.cancelSafeguard();
         }
         else {
             this.activeSafeguardPanel = panel;
             this.vis.setCreationMode(panel);
+        }
+    }
+
+    checkOrder() {
+        if(this.rangeConstant[0] > this.rangeConstant[1]) {
+            let temp = this.rangeConstant[0];
+            this.rangeConstant[0] = this.rangeConstant[1];
+            this.rangeConstant[1] = temp;
         }
     }
 }

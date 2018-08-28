@@ -156,7 +156,7 @@
                 >{{ operator }}</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >{{ constant | number }}</span>
+                >{{ pointConstant | number }}</span>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -196,13 +196,13 @@
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
-                    <input type="number" class="form-control form-control-sm" [ngModel]="constant | number"
-                        (ngModelChange)="constant=$event; constantUserChanged($event)">
+                    <input type="number" class="form-control form-control-sm" [ngModel]="pointConstant | number"
+                        (ngModelChange)="pointConstant=$event; constantUserChanged($event)">
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && constant">
-                    <p-indicator [p]="EstimatePoint(activeNode.query, variable, operator, constant)"></p-indicator>
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && pointConstant">
+                    <p-indicator [p]="EstimatePoint(activeNode.query, variable, operator, pointConstant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -221,24 +221,68 @@
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Range"></fa-icon>
             Range <small>V(A) ∈ [5, 10]</small>
         </h4>
-        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != SGT.Range">
+        <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
                 <span class="variable pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    >V(A)</span>
+                    *ngIf="!variable"
+                    ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
+                <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable.fieldString() }}
+                    =
+                    {{ variable.valueString() }})<span *ngIf="useRank">)</span></span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >&lt;</span>
+                >∈</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >5</span>
+                >
+                    [{{ rangeConstant[0] | number }}, {{ rangeConstant[1] | number}}]
+                </span>
             </div>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
-                Create a Safeguard
-            </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable"></fa-icon>
+                    Variable
+                </h5>
+                <p class="p-1 guide m-0">
+                    Please pick a <span class="variable font-weight-bold">variable</span> by clicking on a category on the chart.
+                </p>
+                <div class="form-group-sm form-check m-0 mx-1">
+                    <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
+                         [(ngModel)]="useRank">
+                    <label class="form-check-label guide" for="use-rank1">Use Rank</label>
+                </div>
+            </div>
+            <div (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
+                    Constant
+                </h5>
+                <div class="p-1 guide m-0">
+                    <p class="m-0">
+                        Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
+                    </p>
+                    <input type="number" class="form-control form-control-sm mb-1" [ngModel]="rangeConstant[0] | number"
+                        (ngModelChange)="rangeConstant[0]=$event; checkOrder(); constantUserChanged(rangeConstant)">
+                    <input type="number" class="form-control form-control-sm" [ngModel]="rangeConstant[1] | number"
+                        (ngModelChange)="rangeConstant[1]=$event; checkOrder(); constantUserChanged(rangeConstant)">
+                </div>
+            </div>
+            <div class="p-1 guide">
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && constant">
+                    <p-indicator [p]="EstimatePoint(activeNode.query, variable, operator, constant)"></p-indicator>
+                </div>
+            </div>
+            <div class="p-1">
+                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
 
         <!-- Comparative -->

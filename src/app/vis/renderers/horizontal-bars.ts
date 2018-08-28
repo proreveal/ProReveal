@@ -365,12 +365,19 @@ export class HorizontalBarsRenderer implements Renderer {
             [width - VC.padding + VC.pointBrushSize, height - VC.horizontalBars.axis.height]])
             .on('brush', () => {
                 let sel = d3.event.selection;
-                let center = (sel[0] + sel[1]) / 2;
-                let constant = xScale.invert(center);
 
-                this.constant = constant;
-                this.brushLine.attr('x1', center).attr('x2', center)
-                this.vis.constantSelected.emit(constant);
+                if(this.creationMode === SafeguardTypes.Point) {
+                    let center = (sel[0] + sel[1]) / 2;
+                    let constant = xScale.invert(center);
+
+                    this.constant = constant;
+                    this.brushLine.attr('x1', center).attr('x2', center)
+                    this.vis.constantSelected.emit(constant);
+                }
+                else if(this.creationMode === SafeguardTypes.Range) {
+                    this.constant = sel.map(xScale.invert);
+                    this.vis.constantSelected.emit(sel.map(xScale.invert));
+                }
             })
 
         this.brushG.call(this.brush);
@@ -384,8 +391,13 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('y2', height - VC.horizontalBars.axis.height)
 
         if(this.constant) {
-            let center = xScale(this.constant as number);
-            this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+            if(this.creationMode === SafeguardTypes.Point) {
+                let center = xScale(this.constant as number);
+                this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+            }
+            else if(this.creationMode === SafeguardTypes.Range) {
+                this.brushG.call(this.brush.move, (this.constant as [number, number]).map(this.xScale))
+            }
         }
 
         this.labelWidth = labelWidth;
@@ -443,6 +455,19 @@ export class HorizontalBarsRenderer implements Renderer {
             let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
             this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
         }
+        else if(panel === SafeguardTypes.Range) {
+            this.variable = null;
+            this.variable2 = null;
+            this.constant = null;
+
+            this.updateHighlight();
+            this.labels.style('cursor', 'pointer');
+
+            this.brushG.attr('display', 'inline');
+            this.brushG.selectAll('rect.overlay').attr('display', 'inline');
+            this.brushG.selectAll('rect.handle').attr('display', 'inline');
+            this.brushLine.attr('display', 'none');
+        }
         else if(panel === SafeguardTypes.Comparative) {
             this.variable = null;
             this.variable2 = null;
@@ -487,7 +512,12 @@ export class HorizontalBarsRenderer implements Renderer {
     constantUserChanged(constant: Constant) {
         this.constant = constant;
 
-        let center = this.xScale(constant as number);
-        this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+        if(this.creationMode === SafeguardTypes.Point) {
+            let center = this.xScale(constant as number);
+            this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+        }
+        else if(this.creationMode === SafeguardTypes.Range) {
+            this.brushG.call(this.brush.move, (constant as [number, number]).map(this.xScale))
+        }
     }
 }
