@@ -1,6 +1,6 @@
 import { Query } from "../data/query";
 import { Operators } from "./operator";
-import { Constant } from "./constant";
+import { ConstantTrait } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
 import { VariableTrait, SingleVariable } from "./variable";
 import { AggregateQuery } from "../data/query";
@@ -20,7 +20,7 @@ export class Safeguard {
     constructor(
         public variable: VariableTrait,
         public operator: Operators,
-        public constant: Constant,
+        public constant: ConstantTrait,
         public node: ExplorationNode
     ) {
 

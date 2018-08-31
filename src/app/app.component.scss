@@ -238,12 +238,12 @@ h4 fa-icon {
     border-color: $operator-highlight-color;
 }
 
-.variable {
-    color: $variable-highlight-color;
+.variable1 {
+    color: $variable1-highlight-color;
 }
 
-.variable.highlighted {
-    background: lighten($variable-highlight-color, 50%);
+.variable1.highlighted {
+    background: lighten($variable1-highlight-color, 50%);
 }
 
 .variable2 {

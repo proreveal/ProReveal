@@ -195,7 +195,7 @@ export class PunchcardRenderer implements Renderer {
 
     }
 
-    setCreationMode() {
+    setSafeguardType() {
 
     }
 

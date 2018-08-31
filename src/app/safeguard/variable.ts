@@ -1,5 +1,10 @@
 import { FieldGroupedValueList, FieldGroupedValue } from "../data/field";
 
+export enum VariableTypes {
+    Value,
+    Rank
+}
+
 export abstract class VariableTrait {
 
 }

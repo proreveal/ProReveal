@@ -10,8 +10,8 @@ import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanA
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { ToastrService } from 'ngx-toastr';
 import { FieldGroupedValueList } from '../data/field';
-import { VariableTrait } from '../safeguard/variable';
-import { Constant } from '../safeguard/constant';
+import { VariableTrait, VariableTypes } from '../safeguard/variable';
+import { ConstantTrait } from '../safeguard/constant';
 
 @Component({
     selector: 'vis',
@@ -25,7 +25,7 @@ export class VisComponent implements OnInit, DoCheck {
         secondary?: boolean}>
         = new EventEmitter();
 
-    @Output('constantSelected') constantSelected: EventEmitter<Constant>
+    @Output('constantSelected') constantSelected: EventEmitter<ConstantTrait>
         = new EventEmitter();
 
     @Output('safeguardAdded') safeguardAdded: EventEmitter<{
@@ -88,11 +88,15 @@ export class VisComponent implements OnInit, DoCheck {
         this.renderer.highlight(highlighted);
     }
 
-    setCreationMode(creating: SafeguardTypes) {
-        this.renderer.setCreationMode(creating);
+    setSafeguardType(set: SafeguardTypes) {
+        this.renderer.setSafeguardType(set);
     }
 
-    constantUserChanged(constant: Constant) {
+    setVariableType(type: VariableTypes) {
+        this.renderer.setVariableType(type);
+    }
+
+    constantUserChanged(constant: ConstantTrait) {
         this.renderer.constantUserChanged(constant);
     }
 }

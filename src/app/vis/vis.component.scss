@@ -47,14 +47,14 @@
     fill: transparent;
 }
 
-:host /deep/ .variable.highlighted {
-    fill: lighten($variable-highlight-color, 0%);
+:host /deep/ .variable1.highlighted {
+    fill: lighten($variable1-highlight-color, 0%);
     opacity: 0.2;
 }
 
-:host /deep/ .variable.text-highlighted {
-    fill: darken($variable-highlight-color, 10%);
-    stroke: darken($variable-highlight-color, 10%);
+:host /deep/ .variable1.text-highlighted {
+    fill: darken($variable1-highlight-color, 10%);
+    stroke: darken($variable1-highlight-color, 10%);
     stroke-width: .5px;
     font-weight: bold;
 }

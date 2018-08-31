@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
-import { VisConstants as VC, VisConstants } from '../vis-constants';
+import { VisConstants as VC } from '../vis-constants';
 import * as util from '../../util';
 import { AggregateQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
@@ -11,12 +11,13 @@ import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
-import { Safeguard, SafeguardTypes} from '../../safeguard/safeguard';
-import { SingleVariable } from '../../safeguard/variable';
+import { Safeguard, SafeguardTypes as SGT} from '../../safeguard/safeguard';
+import { SingleVariable, VariableTypes as VT } from '../../safeguard/variable';
 import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { Constant } from '../../safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant } from '../../safeguard/constant';
+import { FlexBrush } from './brush';
 
 type Datum = {
     id: string,
@@ -30,21 +31,20 @@ export class HorizontalBarsRenderer implements Renderer {
     data: Datum[];
     node: ExplorationNode;
     nativeSvg: SVGSVGElement;
-    variable: SingleVariable;
+    variable1: SingleVariable;
     variable2: SingleVariable;
     labelWidth: number;
     width: number;
-
-    brush: d3.BrushBehavior<Datum> = d3.brushX();
+    flexBrush = new FlexBrush<Datum>();
 
     labels: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
+    ranks: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
     variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
     constantHighlight: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    brushG: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     xScale: ScaleLinear<number, number>;
+
     visG;
     interactionG;
 
@@ -65,11 +65,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.nativeSvg = nativeSvg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
-        this.brushG = selectOrAppend(this.interactionG, 'g', '.brush-wrapper')
-        this.brushLine = selectOrAppend(this.interactionG, 'line', '.brush-line.constant')
-            .attr('class', 'brush-line constant')
-            .attr('display', 'none')
-            .attr('pointer-events', 'none')
+        this.flexBrush.setup(this.interactionG);
     }
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
@@ -101,7 +97,7 @@ export class HorizontalBarsRenderer implements Renderer {
         svg.attr('width', width).attr('height', height)
             .on('contextmenu', () => d3.event.preventDefault());
 
-        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
+        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length + 4 /* rank */);
         const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width : 0;
 
         const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
@@ -145,12 +141,12 @@ export class HorizontalBarsRenderer implements Renderer {
         const eventBoxes = visG.selectAll('rect.event-box')
             .data(data, (d: any) => d.id);
 
-        let enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable');
+        let enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable1');
 
         this.eventBoxes = eventBoxes.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', width)
-            .attr('class', 'event-box variable')
+            .attr('class', 'event-box variable1')
             .attr('transform', (d, i) => translate(0, yScale(i + '')))
             .style('pointer-events', 'none')
 
@@ -160,7 +156,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .selectAll('text.label')
             .data(data, (d: any) => d.id);
 
-        enter = labels.enter().append('text').attr('class', 'label variable')
+        enter = labels.enter().append('text').attr('class', 'label variable1')
             .style('text-anchor', 'end')
             .attr('font-size', '.8rem')
             .attr('dy', '.8rem')
@@ -168,7 +164,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.labels = labels.merge(enter)
             .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
-            .text(d => d.keys.list[0].valueString())
+            .text((d, i) => `${d.keys.list[0].valueString()}`)
             .on('mouseenter', (d, i) => {
                 const clientRect = nativeSvg.getBoundingClientRect();
                 const parentRect = nativeSvg.parentElement.getBoundingClientRect();
@@ -180,7 +176,7 @@ export class HorizontalBarsRenderer implements Renderer {
                     d
                 );
 
-                if([SafeguardTypes.Point, SafeguardTypes.Range, SafeguardTypes.Comparative].includes(this.creationMode))
+                if([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType))
                 {
                     let ele = d3.select(this.eventBoxes.nodes()[i]);
                     ele.classed('highlighted', true)
@@ -188,9 +184,9 @@ export class HorizontalBarsRenderer implements Renderer {
             })
             .on('mouseleave', (d, i) => {
                 this.tooltip.hide();
-                if([SafeguardTypes.Point, SafeguardTypes.Range, SafeguardTypes.Comparative].includes(this.creationMode))
+                if([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType))
                 {
-                    if((!this.variable || this.variable.fieldGroupedValue.hash
+                    if((!this.variable1 || this.variable1.fieldGroupedValue.hash
                         !== d.keys.list[0].hash) &&
                         (!this.variable2 || this.variable2.fieldGroupedValue.hash
                         !== d.keys.list[0].hash)) {
@@ -200,29 +196,29 @@ export class HorizontalBarsRenderer implements Renderer {
                 }
             })
             .on('click', (d, i) => {
-                if([SafeguardTypes.Point, SafeguardTypes.Range, SafeguardTypes.Comparative].includes(this.creationMode))
+                if([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType))
                 {
                     let variable = new SingleVariable(d.keys.list[0]);
                     if(this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash)
                         return;
-                    this.variable = variable;
+                    this.variable1 = variable;
                     this.updateHighlight();
 
                     this.vis.variableSelected.emit({variable: variable});
 
-                    if(this.creationMode === SafeguardTypes.Point) {
+                    if(this.safeguardType === SGT.Point) {
                         this.vis.constantSelected.emit(d.ci3stdev.center);
                         this.constantUserChanged(d.ci3stdev.center);
                     }
                 }
             })
             .on('contextmenu', (d, i) => {
-                if(this.creationMode != SafeguardTypes.Comparative) return;
+                if(this.safeguardType != SGT.Comparative) return;
                 d3.event.preventDefault();
 
                 let variable = new SingleVariable(d.keys.list[0]);
 
-                if(this.variable && variable.fieldGroupedValue.hash === this.variable.fieldGroupedValue.hash)
+                if(this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
                     return;
                 this.variable2 = variable;
                 this.updateHighlight();
@@ -233,6 +229,22 @@ export class HorizontalBarsRenderer implements Renderer {
             })
 
         labels.exit().remove();
+
+        let ranks = visG
+            .selectAll('text.rank')
+            .data(data, (d: any) => d.id);
+
+        enter = ranks.enter().append('text').attr('class', 'rank variable1')
+            .attr('font-size', '.8rem')
+            .attr('dy', '.8rem')
+            .style('opacity', 0.5)
+            .style('user-select', 'none')
+
+        this.ranks = ranks.merge(enter)
+            .attr('transform', (d, i) => translate(0, yScale(i + '')))
+            .text((d, i) => `${i + 1}`)
+
+        ranks.exit().remove();
 
         const labelLines = visG.selectAll('line.label').data(data, (d: any) => d.id);
 
@@ -323,7 +335,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .call(bottomAxis as any)
 
         this.variableHighlight =
-            selectOrAppend(visG, 'rect', '.variable.highlighted')
+            selectOrAppend(visG, 'rect', '.variable1.highlighted')
             .attr('width', labelWidth)
             .attr('height', height - VC.horizontalBars.axis.height * 2)
             .attr('transform', translate(0, VC.horizontalBars.height))
@@ -361,42 +373,30 @@ export class HorizontalBarsRenderer implements Renderer {
             })
             .style('pointer-events', 'none')
 
-        this.brush.extent([[labelWidth - VC.pointBrushSize, VC.horizontalBars.axis.height],
-            [width - VC.padding + VC.pointBrushSize, height - VC.horizontalBars.axis.height]])
-            .on('brush', () => {
+        this.flexBrush.on('brush', () => {
+            if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let sel = d3.event.selection;
+                let center = (sel[0] + sel[1]) / 2;
+                this.vis.constantSelected.emit(new PointValueConstant(this.xScale.invert(center)));
+            }
+        })
 
-                if(this.creationMode === SafeguardTypes.Point) {
-                    let center = (sel[0] + sel[1]) / 2;
-                    let constant = xScale.invert(center);
-
-                    this.constant = constant;
-                    this.brushLine.attr('x1', center).attr('x2', center)
-                    this.vis.constantSelected.emit(constant);
-                }
-                else if(this.creationMode === SafeguardTypes.Range) {
-                    this.constant = sel.map(xScale.invert);
-                    this.vis.constantSelected.emit(sel.map(xScale.invert));
-                }
-            })
-
-        this.brushG.call(this.brush);
-
-        this.brushG.select('rect.selection').style('stroke-width', 0);
-
-        this.brushLine
-            .attr('x1', labelWidth + 1)
-            .attr('x2', labelWidth + 1)
-            .attr('y1', VC.horizontalBars.axis.height)
-            .attr('y2', height - VC.horizontalBars.axis.height)
+        this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
+            [width - VC.padding, height - VC.horizontalBars.axis.height]]);
 
         if(this.constant) {
-            if(this.creationMode === SafeguardTypes.Point) {
+            if(this.safeguardType === SGT.Point) {
                 let center = xScale(this.constant as number);
-                this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+                this.flexBrush.move(center);
             }
-            else if(this.creationMode === SafeguardTypes.Range) {
-                this.brushG.call(this.brush.move, (this.constant as [number, number]).map(this.xScale))
+            else if(this.safeguardType === SGT.Range) {
+                // this.brushG.call(this.brush.move, (this.constant as [number, number]).map(this.xScale))
+            }
+        }
+        else {
+            if(this.safeguardType === SGT.Point) {
+                let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
+                this.flexBrush.move(center);
             }
         }
 
@@ -426,65 +426,51 @@ export class HorizontalBarsRenderer implements Renderer {
         }
     }
 
-    constant: Constant;
+    constant: ConstantTrait;
 
-    creationMode: SafeguardTypes;
-    setCreationMode(panel: SafeguardTypes) {
-        this.creationMode = panel;
-        if(panel == SafeguardTypes.None) {
+    safeguardType: SGT;
+    setSafeguardType(st: SGT) {
+        this.safeguardType = st;
+
+        this.variable1 = null;
+        this.variable2 = null;
+        this.constant = null;
+        this.updateHighlight();
+
+        if(st == SGT.None) {
             this.labels.style('cursor', 'auto');
-            this.brushG.attr('display', 'none');
-            this.brushLine.attr('display', 'none');
-            this.variable = null;
-            this.variable2 = null;
-            this.constant = null;
+            this.flexBrush.hide();
         }
-        else if(panel == SafeguardTypes.Point) {
-            this.variable = null;
-            this.variable2 = null;
-            this.constant = null;
-            this.updateHighlight();
-
+        else if(st == SGT.Point) {
             this.labels.style('cursor', 'pointer');
 
-            this.brushG.attr('display', 'inline');
-            this.brushG.selectAll('rect.overlay').attr('display', 'none');
-            this.brushG.selectAll('rect.handle').attr('display', 'none');
-            this.brushLine.attr('display', 'inline');
-
+            this.flexBrush.show();
             let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
-            this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+            this.flexBrush.move(center);
         }
-        else if(panel === SafeguardTypes.Range) {
-            this.variable = null;
-            this.variable2 = null;
-            this.constant = null;
-
-            this.updateHighlight();
+        else if(st === SGT.Range) {
             this.labels.style('cursor', 'pointer');
 
-            this.brushG.attr('display', 'inline');
-            this.brushG.selectAll('rect.overlay').attr('display', 'inline');
-            this.brushG.selectAll('rect.handle').attr('display', 'inline');
-            this.brushLine.attr('display', 'none');
+            this.flexBrush.show();
         }
-        else if(panel === SafeguardTypes.Comparative) {
-            this.variable = null;
-            this.variable2 = null;
-            this.constant = null;
-            this.updateHighlight();
-
+        else if(st === SGT.Comparative) {
             this.labels.style('cursor', 'pointer');
-            this.brushG.attr('display', 'none');
-            this.brushLine.attr('display', 'none')
+
+            this.flexBrush.hide();
         }
+    }
+
+    variableType: VT;
+    setVariableType(vt: VT) {
+        this.variableType = vt;
+
     }
 
     updateHighlight() {
         this.eventBoxes
             .classed('highlighted', false)
             .filter((d, i) =>
-                this.variable && this.variable.fieldGroupedValue.hash === d.keys.list[0].hash ||
+                this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
                 )
             .classed('highlighted', true)
@@ -492,7 +478,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.labels
             .classed('text-highlighted', false)
             .filter((d, i) =>
-                this.variable && this.variable.fieldGroupedValue.hash === d.keys.list[0].hash ||
+                this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
             )
             .classed('text-highlighted', true)
@@ -509,15 +495,15 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     /* Invokes brush's event chain */
-    constantUserChanged(constant: Constant) {
+    constantUserChanged(constant: ConstantTrait, $event) {
         this.constant = constant;
 
-        if(this.creationMode === SafeguardTypes.Point) {
-            let center = this.xScale(constant as number);
-            this.brushG.call(this.brush.move, [center - VC.pointBrushSize, center + VC.pointBrushSize]);
+        if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            let center = this.xScale((constant as PointValueConstant).value);
+            this.flexBrush.move(center);
         }
-        else if(this.creationMode === SafeguardTypes.Range) {
-            this.brushG.call(this.brush.move, (constant as [number, number]).map(this.xScale))
+        else if(this.safeguardType === SGT.Range) {
+            // this.brushG.call(this.brush.move, (constant as [number, number]).map(this.xScale))
         }
     }
 }

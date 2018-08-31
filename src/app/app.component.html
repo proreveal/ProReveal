@@ -135,18 +135,18 @@
 
         <!-- Point -->
         <h4 class="section-header p-2 border-right-0 border-top border-bottom"
-            (click)="toggle(1)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 1"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 1"></fa-icon>
+            (click)="toggle(SGT.Point)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Point"></fa-icon>
             Point <small>V(A) &lt; 5</small>
         </h4>
-        <div class="mb-0" [hidden]="activeSafeguardPanel != 1">
+        <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
-                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    *ngIf="!variable"
+                    *ngIf="!variable1"
                     ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
-                <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                     <span *ngIf="useRank">Rank(</span>COUNT({{ variable.fieldString() }}
                     =
@@ -156,35 +156,20 @@
                 >{{ operator }}</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >{{ pointConstant | number }}</span>
+                >{{ pointValueConstant.value | number:numberFormat }}</span>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable"></fa-icon>
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable1"></fa-icon>
                     Variable
                 </h5>
                 <p class="p-1 guide m-0">
-                    Please pick a <span class="variable font-weight-bold">variable</span> by clicking on a category on the chart.
+                    Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on the chart.
                 </p>
                 <div class="form-group-sm form-check m-0 mx-1">
                     <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
                          [(ngModel)]="useRank">
                     <label class="form-check-label guide" for="use-rank1">Use Rank</label>
-                </div>
-            </div>
-            <div (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
-                <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="operator"></fa-icon>
-                    Operator
-                </h5>
-                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                    <label class="btn btn-sm btn-secondary rounded-0 w-25-fixed"
-                        *ngFor="let op of PointOperators"
-                        [class.active]="operator === op"
-                        (click)="operator = op">
-                        <input type="radio" name="options" autocomplete="off">
-                        {{ op }}
-                    </label>
                 </div>
             </div>
             <div (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
@@ -196,13 +181,24 @@
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
+                    <input type="number" class="form-control form-control-sm" [ngModel]="pointValueConstant.value | number: numberFormat"
+                        (change)="pointValueConstant.value = $event.target.value; constantUserChanged(pointValueConstant, $event)">
+                </div>
+                <h5 class="section-subheader p-1 border border-right-0">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
+                    Rank Constant
+                </h5>
+                <div class="p-1 guide m-0">
+                    <p class="m-0">
+                        Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
+                    </p>
                     <input type="number" class="form-control form-control-sm" [ngModel]="pointConstant | number"
                         (ngModelChange)="pointConstant=$event; constantUserChanged($event)">
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && pointConstant">
-                    <p-indicator [p]="EstimatePoint(activeNode.query, variable, operator, pointConstant)"></p-indicator>
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && pointConstant">
+                    <p-indicator [p]="EstimatePoint(activeNode.query, variable1, operator, pointConstant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -223,15 +219,15 @@
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    *ngIf="!variable"
+                    *ngIf="!variable1"
                     ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
-                <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable.fieldString() }}
+                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable1.fieldString() }}
                     =
-                    {{ variable.valueString() }})<span *ngIf="useRank">)</span></span>
+                    {{ variable1.valueString() }})<span *ngIf="useRank">)</span></span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >∈</span>
@@ -243,11 +239,11 @@
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable"></fa-icon>
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable1"></fa-icon>
                     Variable
                 </h5>
                 <p class="p-1 guide m-0">
-                    Please pick a <span class="variable font-weight-bold">variable</span> by clicking on a category on the chart.
+                    Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on the chart.
                 </p>
                 <div class="form-group-sm form-check m-0 mx-1">
                     <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
@@ -271,8 +267,8 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && constant">
-                    <p-indicator [p]="EstimatePoint(activeNode.query, variable, operator, constant)"></p-indicator>
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && constant">
+                    <p-indicator [p]="EstimatePoint(activeNode.query, variable1, operator, constant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -293,12 +289,12 @@
         </h4>
         <div class="m-0" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <span *ngIf="!variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span *ngIf="!variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
                     >V(A)</span>
-                <span *ngIf="variable" class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                 (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                COUNT({{ variable.fieldString() }} = {{ variable.valueString() }})</span>
+                COUNT({{ variable1.fieldString() }} = {{ variable1.valueString() }})</span>
 
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
@@ -312,11 +308,11 @@
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable"></fa-icon>
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable1"></fa-icon>
                     1st Variable
                 </h5>
                 <p class="p-1 guide m-0">
-                    Please pick the <span class="variable font-weight-bold">first variable</span> by clicking on a category on the chart.
+                    Please pick the <span class="variable1 font-weight-bold">first variable</span> by clicking on a category on the chart.
                 </p>
             </div>
             <div (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
@@ -346,8 +342,8 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable && variable2">
-                    <p-indicator [p]="CompareMeans(activeNode.query, variable, operator, variable2)"></p-indicator>
+                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && variable2">
+                    <p-indicator [p]="CompareMeans(activeNode.query, variable1, operator, variable2)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -368,7 +364,7 @@
         </h4>
         <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 4">
             <div class="display text-center p-2">
-                <span class="variable pr-1" [class.highlighted]="highlighted == 1"
+                <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
                     >V(·)</span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"

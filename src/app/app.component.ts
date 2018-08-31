@@ -17,8 +17,8 @@ import { Safeguard, SafeguardTypes } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait, DoubleValueVariable, SingleVariable } from './safeguard/variable';
-import { Constant } from './safeguard/constant';
+import { VariableTrait, DoubleValueVariable, SingleVariable, VariableTypes } from './safeguard/variable';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
@@ -52,6 +52,7 @@ export class AppComponent implements OnInit {
     EstimatePoint = Safeguard.EstimatePoint;
     CompareMeans = Safeguard.CompareMeans;
     SGT = SafeguardTypes;
+    numberFormat = '1.1-1';
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,
@@ -132,7 +133,8 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.vis.setCreationMode(this.activeSafeguardPanel);
+                this.vis.setSafeguardType(this.activeSafeguardPanel);
+                this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
             })
         })
     }
@@ -256,27 +258,40 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SafeguardTypes.None;
+    activeSafeguardPanel = SafeguardTypes.Point;
     safeguards: Safeguard[] = [];
 
-    variable: SingleVariable;
+    variable1: SingleVariable;
     variable2: SingleVariable;
     useRank = false;
     variableSelected($event:{variable: SingleVariable, secondary?: boolean}) {
         if($event.secondary)
             this.variable2 = $event.variable;
         else
-            this.variable = $event.variable;
+            this.variable1 = $event.variable;
     }
 
-    pointConstant:number = 10;
+    constant: ConstantTrait;
+
+    pointValueConstant: PointValueConstant = new PointValueConstant(10);
+    pointRankConstant: PointRankConstant = new PointRankConstant(10);
+
+    rangeValueConstant: RangeValueConstant = new RangeValueConstant(10, 20);
+    rangeRankConstant: RangeRankConstant = new RangeRankConstant(10, 20);
+
     rangeConstant:[number, number] = [0, 10];
 
-    constantSelected(constant: Constant) {
-        if(typeof constant === 'number')
-            this.pointConstant = constant;
+    constantSelected(constant: ConstantTrait) {
+        if(constant instanceof PointValueConstant)
+            this.pointValueConstant = constant;
+        else if(constant instanceof PointRankConstant)
+            this.pointRankConstant = constant;
+        else if(constant instanceof RangeValueConstant)
+            this.rangeValueConstant = constant;
+        else if(constant instanceof RangeRankConstant)
+            this.rangeRankConstant = constant;
         else
-            this.rangeConstant = constant;
+            throw new Error(`Unknown Constant Type ${constant}`);
     }
 
     highlighted = 0;
@@ -285,63 +300,59 @@ export class AppComponent implements OnInit {
         this.vis.highlight(highlighted);
     }
 
-    useRankToggled() {
-    }
-
-    constantUserChanged(constant: Constant) {
+    constantUserChanged(constant: ConstantTrait, $event) {
         this.vis.constantUserChanged(constant);
     }
 
     Operators = Operators;
     operator = Operators.LessThan;
-    PointOperators = [Operators.LessThan, Operators.LessThanOrEqualTo,
-        Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
-    ComparativeOperators = [Operators.LessThan, Operators.LessThanOrEqualTo,
-        Operators.GreaterThanOrEqualTo, Operators.GreaterThan];
 
     createPointSafeguard() {
-        if(!this.variable) return;
+        if(!this.variable1) return;
 
-        this.variable.rank = this.useRank;
-        let sg = new Safeguard(this.variable, this.operator, this.pointConstant, this.activeNode);
+        this.variable1.rank = this.useRank;
+        let sg = new Safeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
 
-        this.variable = null;
-        this.pointConstant = 0;
+        this.variable1 = null;
     }
 
     createComparativeSafeguard() {
-        if(!this.variable) return;
+        if(!this.variable1) return;
         if(!this.variable2) return;
 
         let sg = new Safeguard(
-            new DoubleValueVariable(this.variable as SingleVariable,
+            new DoubleValueVariable(this.variable1 as SingleVariable,
                 this.variable2 as SingleVariable),
-            this.operator, this.pointConstant, this.activeNode);
+            this.operator, this.pointValueConstant, this.activeNode);
         this.safeguards.push(sg);
 
-        this.variable = null;
+        this.variable1 = null;
         this.variable2 = null;
     }
 
     cancelSafeguard() {
         this.activeSafeguardPanel = SafeguardTypes.None;
-        this.vis.setCreationMode(SafeguardTypes.None);
+        this.vis.setSafeguardType(SafeguardTypes.None);
     }
 
     toggle(panel:SafeguardTypes) {
-        this.variable = null;
+        this.variable1 = null;
         this.variable2 = null;
-        this.pointConstant = null;
+        this.pointRankConstant = null;
 
         if(this.activeSafeguardPanel === panel) {
             this.cancelSafeguard();
         }
         else {
             this.activeSafeguardPanel = panel;
-            this.vis.setCreationMode(panel);
+            this.vis.setSafeguardType(panel);
         }
+    }
+
+    useRankToggled() {
+        this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
     }
 
     checkOrder() {
