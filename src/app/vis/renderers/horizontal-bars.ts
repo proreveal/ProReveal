@@ -17,7 +17,7 @@ import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant } from '../../safeguard/constant';
-import { FlexBrush } from './brush';
+import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 
 type Datum = {
     id: string,
@@ -381,8 +381,22 @@ export class HorizontalBarsRenderer implements Renderer {
             }
         })
 
-        this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
-            [width - VC.padding, height - VC.horizontalBars.axis.height]]);
+        if(this.variableType == VT.Value) {
+            this.flexBrush.snap = null;
+            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
+                [width - VC.padding, height - VC.horizontalBars.axis.height]]);
+        }
+        else {
+            let start = VC.horizontalBars.axis.height;
+            let step = VC.horizontalBars.height;
+
+            this.flexBrush.snap = d => {
+                return Math.round((d - start) / step) * step + start;
+            };
+
+            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
+                [width, height - VC.horizontalBars.axis.height]]);
+        }
 
         if(this.constant) {
             if(this.safeguardType === SGT.Point) {
@@ -464,6 +478,12 @@ export class HorizontalBarsRenderer implements Renderer {
     setVariableType(vt: VT) {
         this.variableType = vt;
 
+        if(vt == VT.Value) {
+            this.flexBrush.setDirection(FlexBrushDirection.X);
+        }
+        else if(vt === VT.Rank) {
+            this.flexBrush.setDirection(FlexBrushDirection.Y);
+        }
     }
 
     updateHighlight() {

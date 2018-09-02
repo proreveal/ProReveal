@@ -94,6 +94,7 @@ export class VisComponent implements OnInit, DoCheck {
 
     setVariableType(type: VariableTypes) {
         this.renderer.setVariableType(type);
+        this.renderer.render(this.node, this.svg.nativeElement);
     }
 
     constantUserChanged(constant: ConstantTrait) {
