@@ -193,46 +193,8 @@ export class HorizontalBarsRenderer implements Renderer {
                     }
                 }
             })
-            .on('click', (d, i) => {
-                if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-                    let variable = new SingleVariable(d.keys.list[0]);
-                    if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash)
-                        return;
-                    this.variable1 = variable;
-                    this.updateHighlight();
-
-                    this.vis.variableSelected.emit({ variable: variable });
-
-                    if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-                        let constant = new PointValueConstant(d.ci3stdev.center);
-
-                        this.vis.constantSelected.emit(constant);
-                        this.constantUserChanged(constant);
-                    }
-                    else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                        let constant = new PointRankConstant(this.getRank(this.variable1));
-
-                        this.vis.constantSelected.emit(constant);
-                        this.constantUserChanged(constant);
-                    }
-                }
-            })
-            .on('contextmenu', (d, i) => {
-                if (this.safeguardType != SGT.Comparative) return;
-                d3.event.preventDefault();
-
-                let variable = new SingleVariable(d.keys.list[0]);
-
-                if (this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
-                    return;
-                this.variable2 = variable;
-                this.updateHighlight();
-
-                this.vis.variableSelected.emit({
-                    variable: variable,
-                    secondary: true
-                });
-            })
+            .on('click', (d, i) => this.datumSelected(d, i))
+            .on('contextmenu', (d, i) => this.datumSelected2(d, i))
 
         labels.exit().remove();
 
@@ -365,6 +327,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .data([0, height - VC.horizontalBars.axis.height]);
 
         this.flexBrush.on('brush', () => {
+
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
@@ -479,8 +442,6 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if (st == SGT.Point) {
             this.labels.style('cursor', 'pointer');
-            // let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
-            // this.flexBrush.move(center);
         }
         else if (st === SGT.Range) {
             this.labels.style('cursor', 'pointer');
@@ -541,7 +502,7 @@ export class HorizontalBarsRenderer implements Renderer {
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
-        else if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+        else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
             let center = this.yScale((constant as PointRankConstant).rank.toString());
             this.flexBrush.show();
             this.flexBrush.move(center);
@@ -561,4 +522,56 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         return 1;
     }
+
+    datumSelected(d:Datum, i) {
+        if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+
+        console.log(d3.event.sourceEvent);
+        let variable = new SingleVariable(d.keys.list[0]);
+        if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
+        this.variable1 = variable;
+        this.updateHighlight();
+
+        this.vis.variableSelected.emit({ variable: variable });
+
+        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            let constant = new PointValueConstant(d.ci3stdev.center);
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+        else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            let constant = new PointRankConstant(this.getRank(this.variable1));
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+    }
+
+    datumSelected2(d:Datum, i) {
+        if (this.safeguardType != SGT.Comparative) return;
+        d3.event.preventDefault();
+
+        let variable = new SingleVariable(d.keys.list[0]);
+
+        if (this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
+            return;
+        this.variable2 = variable;
+        this.updateHighlight();
+
+        this.vis.variableSelected.emit({
+            variable: variable,
+            secondary: true
+        });
+    }
+
+    /*
+        constant selection:
+            by selecting a category, no d3.event.sourceEvent
+            by brushing, has d3.event.sourceEvent
+            from outside (user input) = constantUserChanged, does not have d3.event.sourceEvent
+
+        No vis.component handler propagates
+
+    */
 }
