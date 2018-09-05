@@ -206,9 +206,11 @@ export class HorizontalBarsRenderer implements Renderer {
 
                     this.vis.variableSelected.emit({variable: variable});
 
-                    if(this.safeguardType === SGT.Point) {
-                        this.vis.constantSelected.emit(d.ci3stdev.center);
-                        this.constantUserChanged(d.ci3stdev.center);
+                    if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+                        let constant = new PointValueConstant(d.ci3stdev.center);
+
+                        this.vis.constantSelected.emit(constant);
+                        this.constantUserChanged(constant);
                     }
                 }
             })
@@ -358,26 +360,13 @@ export class HorizontalBarsRenderer implements Renderer {
             .selectAll('rect.constant.highlighted')
             .data([0, height - VC.horizontalBars.axis.height]);
 
-        let enter2 = selection
-            .enter()
-            .append('rect')
-            .attr('class', 'constant highlighted')
-            .attr('width', width - labelWidth + VC.padding)
-            .attr('height', VC.horizontalBars.axis.height)
-            .attr('transform', d => translate(labelWidth - VC.padding, d))
-            .on('click', (d, i) => {
-                let x = xScale.invert(d3.event.offsetX);
-                let step = d3.tickStep(xScale.domain()[0], xScale.domain()[1], 10) / 10;
-
-                this.vis.constantSelected.emit(Math.round(x / step) * step);
-            })
-            .style('pointer-events', 'none')
-
         this.flexBrush.on('brush', () => {
             if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
-                this.vis.constantSelected.emit(new PointValueConstant(this.xScale.invert(center)));
+                let constant = new PointValueConstant(this.xScale.invert(center));
+                this.constant = constant;
+                this.vis.constantSelected.emit(constant);
             }
         })
 
@@ -399,8 +388,9 @@ export class HorizontalBarsRenderer implements Renderer {
         }
 
         if(this.constant) {
-            if(this.safeguardType === SGT.Point) {
-                let center = xScale(this.constant as number);
+            if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+                this.flexBrush.show();
+                let center = xScale((this.constant as PointValueConstant).value);
                 this.flexBrush.move(center);
             }
             else if(this.safeguardType === SGT.Range) {
@@ -409,8 +399,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else {
             if(this.safeguardType === SGT.Point) {
-                let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
-                this.flexBrush.move(center);
+                this.flexBrush.hide();
             }
         }
 
@@ -515,11 +504,11 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     /* Invokes brush's event chain */
-    constantUserChanged(constant: ConstantTrait, $event) {
+    constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
-
         if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
             let center = this.xScale((constant as PointValueConstant).value);
+            this.flexBrush.show();
             this.flexBrush.move(center);
         }
         else if(this.safeguardType === SGT.Range) {

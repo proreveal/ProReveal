@@ -21,6 +21,7 @@ import { VariableTrait, DoubleValueVariable, SingleVariable, VariableTypes } fro
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 
 @Component({
     selector: 'app-root',
@@ -264,6 +265,7 @@ export class AppComponent implements OnInit {
     variable1: SingleVariable;
     variable2: SingleVariable;
     useRank = false;
+
     variableSelected($event:{variable: SingleVariable, secondary?: boolean}) {
         if($event.secondary)
             this.variable2 = $event.variable;
@@ -282,8 +284,16 @@ export class AppComponent implements OnInit {
     rangeConstant:[number, number] = [0, 10];
 
     constantSelected(constant: ConstantTrait) {
-        if(constant instanceof PointValueConstant)
+        if(constant instanceof PointValueConstant) {
+            let value = (this.vis.renderer as HorizontalBarsRenderer).data.filter(d => d.id === this.variable1.fieldGroupedValue.hash)[0]
             this.pointValueConstant = constant;
+            if(constant.value >= value.ci3stdev.center) {
+                this.operator = Operators.LessThanOrEqualTo;
+            }
+            else {
+                this.operator = Operators.GreaterThanOrEqualTo;
+            }
+        }
         else if(constant instanceof PointRankConstant)
             this.pointRankConstant = constant;
         else if(constant instanceof RangeValueConstant)
@@ -305,7 +315,7 @@ export class AppComponent implements OnInit {
     }
 
     Operators = Operators;
-    operator = Operators.LessThan;
+    operator = Operators.LessThanOrEqualTo;
 
     createPointSafeguard() {
         if(!this.variable1) return;

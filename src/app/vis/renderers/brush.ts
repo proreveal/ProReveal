@@ -32,7 +32,7 @@ export class FlexBrush<Datum> {
     }
 
     setup(g:G) {
-        this.g = selectOrAppend(g, 'g', '.brush-wrapper') as G;
+        this.g = selectOrAppend(g as any, 'g', '.brush-wrapper') as G;
     }
 
     setDirection(direction: FlexBrushDirection) {
@@ -93,7 +93,7 @@ export class FlexBrush<Datum> {
                 .attr('d', this.getHandle)
         // ...
 
-        let brushLine = selectOrAppend(this.g, 'line', '.brush-line')
+        let brushLine = selectOrAppend(this.g as any, 'line', '.brush-line')
 
         brushLine
             .style('stroke', 'black')
@@ -130,7 +130,7 @@ export class FlexBrush<Datum> {
                     return this.direction == FlexBrushDirection.X ? extent[1][1] : extent[1][0];
                 })
 
-            if(this.handlers.brush) {
+            if(this.handlers.brush && d3.event.sourceEvent) {
                 this.handlers.brush();
             }
         })

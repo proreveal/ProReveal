@@ -148,9 +148,9 @@
                     ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
                 <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable.fieldString() }}
+                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable1.fieldString() }}
                     =
-                    {{ variable.valueString() }})<span *ngIf="useRank">)</span></span>
+                    {{ variable1.valueString() }})<span *ngIf="useRank">)</span></span>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >{{ operator }}</span>
@@ -173,22 +173,22 @@
                 </div>
             </div>
             <div (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
-                <h5 class="section-subheader p-1 border border-right-0">
+                <h5 class="section-subheader p-1 border border-right-0" [hidden]="useRank">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
                     Constant
                 </h5>
-                <div class="p-1 guide m-0">
+                <div class="p-1 guide m-0" [hidden]="useRank">
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
                     <input type="number" class="form-control form-control-sm" [ngModel]="pointValueConstant.value | number: numberFormat"
                         (change)="pointValueConstant.value = $event.target.value; constantUserChanged(pointValueConstant, $event)">
                 </div>
-                <h5 class="section-subheader p-1 border border-right-0">
+                <h5 class="section-subheader p-1 border border-right-0" [hidden]="!useRank">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
                     Rank Constant
                 </h5>
-                <div class="p-1 guide m-0">
+                <div class="p-1 guide m-0" [hidden]="!useRank">
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>

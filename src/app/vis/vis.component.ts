@@ -98,6 +98,6 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     constantUserChanged(constant: ConstantTrait) {
-        this.renderer.constantUserChanged(constant);
+        this.renderer.constantUserChanged(constant, null);
     }
 }

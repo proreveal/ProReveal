@@ -25,7 +25,6 @@ import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
-import { HandwritingComponent } from './handwriting/handwriting.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
@@ -48,7 +47,6 @@ library.add(fas, far);
         TooltipHostDirective,
         FieldBadgeComponent,
         ProgressMiniRingComponent,
-        HandwritingComponent,
         PIndicatorComponent
     ],
     imports: [

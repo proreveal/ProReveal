@@ -199,6 +199,9 @@ export class PunchcardRenderer implements Renderer {
 
     }
 
+    setVariableType() {
+
+    }
     constantUserChanged() {
 
     }

@@ -21,5 +21,5 @@ export abstract class Renderer {
     abstract highlight(highlighted: number);
     abstract setSafeguardType(st: SafeguardTypes);
     abstract setVariableType(type: VariableTypes);
-    abstract constantUserChanged(constant: ConstantTrait);
+    abstract constantUserChanged(constant: ConstantTrait, $event);
 }
