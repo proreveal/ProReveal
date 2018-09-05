@@ -196,7 +196,7 @@
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
                     <input type="number" class="form-control form-control-sm" [ngModel]="pointRankConstant.rank | number: rankFormat"
-                        (ngModelChange)="pointConstant=$event; constantUserChanged($event)">
+                        (ngModelChange)="pointRankConstant.rank=$event; constantUserChanged($event)">
                 </div>
             </div>
             <div class="p-1 guide">
@@ -235,9 +235,14 @@
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >∈</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="!useRank"
                 >
-                    [{{ rangeConstant[0] | number }}, {{ rangeConstant[1] | number}}]
+                    [{{ rangeValueConstant.from | number: numberFormat }}, {{ rangeValueConstant.to | number: numberFormat}}]
+                </span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="useRank"
+                >
+                    [{{ rangeRankConstant.from | number: rankFormat }}, {{ rangeRankConstant.to | number: rankFormat}}]
                 </span>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
@@ -255,18 +260,31 @@
                 </div>
             </div>
             <div (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
-                <h5 class="section-subheader p-1 border border-right-0">
+                <h5 class="section-subheader p-1 border border-right-0" [hidden]="useRank">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
                     Constant
                 </h5>
-                <div class="p-1 guide m-0">
+                <div class="p-1 guide m-0" [hidden]="useRank">
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
-                    <input type="number" class="form-control form-control-sm mb-1" [ngModel]="rangeConstant[0] | number"
-                        (ngModelChange)="rangeConstant[0]=$event; checkOrder(); constantUserChanged(rangeConstant)">
-                    <input type="number" class="form-control form-control-sm" [ngModel]="rangeConstant[1] | number"
-                        (ngModelChange)="rangeConstant[1]=$event; checkOrder(); constantUserChanged(rangeConstant)">
+                    <input type="number" class="form-control form-control-sm mb-1" [ngModel]="rangeValueConstant.from | number: numberFormat"
+                        (ngModelChange)="rangeValueConstant.from=$event; checkOrder(); constantUserChanged(rangeValueConstant)">
+                    <input type="number" class="form-control form-control-sm" [ngModel]="rangeValueConstant.to | number: numberFormat"
+                        (ngModelChange)="rangeValueConstant.to=$event; checkOrder(); constantUserChanged(rangeValueConstant)">
+                </div>
+                <h5 class="section-subheader p-1 border border-right-0" [hidden]="!useRank">
+                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
+                    Rank Constants
+                </h5>
+                <div class="p-1 guide m-0" [hidden]="!useRank">
+                    <p class="m-0">
+                        Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
+                    </p>
+                    <input type="number" class="form-control form-control-sm mb-1" [ngModel]="rangeRankConstant.from | number: rankFormat"
+                        (ngModelChange)="rangeRankConstant.from=$event; checkOrder(); constantUserChanged(rangeRankConstant)">
+                    <input type="number" class="form-control form-control-sm" [ngModel]="rangeRankConstant.to | number: rankFormat"
+                        (ngModelChange)="rangeRankConstant.to=$event; checkOrder(); constantUserChanged(rangeRankConstant)">
                 </div>
             </div>
             <div class="p-1 guide">

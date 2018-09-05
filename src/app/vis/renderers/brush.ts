@@ -50,6 +50,13 @@ export class FlexBrush<Datum> {
 
     setMode(mode: FlexBrushMode) {
         this.mode = mode;
+        if(this.brushLine) {
+            if(this.mode === FlexBrushMode.Point)
+                this.brushLine.attr('display', 'inline')
+            else
+                this.brushLine.attr('display', 'none')
+        }
+
     }
 
     getHandle(dir:string, size = 10) {
@@ -116,19 +123,21 @@ export class FlexBrush<Datum> {
                 return translate(x, y);
             })
 
-            brushLine
-                .attr(this.direction == FlexBrushDirection.X ? 'x1' : 'y1', () => {
-                    return (d3.event.selection[0] + d3.event.selection[1]) / 2
-                })
-                .attr(this.direction == FlexBrushDirection.X ? 'x2' : 'y2', () => {
-                    return (d3.event.selection[0] + d3.event.selection[1]) / 2
-                })
-                .attr(this.direction == FlexBrushDirection.X ? 'y1' : 'x1', () => {
-                    return this.direction == FlexBrushDirection.X ? extent[0][1] : extent[0][0];
-                })
-                .attr(this.direction == FlexBrushDirection.X ? 'y2' : 'x2', () => {
-                    return this.direction == FlexBrushDirection.X ? extent[1][1] : extent[1][0];
-                })
+            if(this.mode === FlexBrushMode.Point) {
+                brushLine
+                    .attr(this.direction == FlexBrushDirection.X ? 'x1' : 'y1', () => {
+                        return (d3.event.selection[0] + d3.event.selection[1]) / 2
+                    })
+                    .attr(this.direction == FlexBrushDirection.X ? 'x2' : 'y2', () => {
+                        return (d3.event.selection[0] + d3.event.selection[1]) / 2
+                    })
+                    .attr(this.direction == FlexBrushDirection.X ? 'y1' : 'x1', () => {
+                        return this.direction == FlexBrushDirection.X ? extent[0][1] : extent[0][0];
+                    })
+                    .attr(this.direction == FlexBrushDirection.X ? 'y2' : 'x2', () => {
+                        return this.direction == FlexBrushDirection.X ? extent[1][1] : extent[1][0];
+                    })
+            }
 
             if(this.handlers.brush && d3.event.sourceEvent) {
                 this.handlers.brush();
@@ -140,10 +149,18 @@ export class FlexBrush<Datum> {
                 handles.attr('display', 'none')
 
             if(this.snap) {
-                let center = (d3.event.selection[0] + d3.event.selection[1]) / 2;
+                if(this.mode === FlexBrushMode.Point) {
+                    let center = (d3.event.selection[0] + d3.event.selection[1]) / 2;
 
-                center = this.snap(center);
-                this.move(center, true)
+                    center = this.snap(center);
+                    this.move(center, true)
+                }
+                else {
+                    let s1 = this.snap(d3.event.selection[0]);
+                    let s2 = this.snap(d3.event.selection[1]);
+
+                    this.move([s1, s2], true);
+                }
             }
         })
 
@@ -167,7 +184,9 @@ export class FlexBrush<Datum> {
                 this.g.call(this.brush.move, [range - VC.pointBrushSize, range + VC.pointBrushSize]);
         }
         else {
-            this.g.call(this.brush.move, range);
+            if(transition)
+                this.g.transition().call(this.brush.move as any, range);
+            else  this.g.call(this.brush.move, range);
         }
     }
 

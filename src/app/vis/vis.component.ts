@@ -60,7 +60,7 @@ export class VisComponent implements OnInit, DoCheck {
             return new PunchcardRenderer(
                 this,
                 this.tooltip
-            );
+            ) as any;
 
         return null;
     }
@@ -99,6 +99,6 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     constantUserChanged(constant: ConstantTrait) {
-        this.renderer.constantUserChanged(constant, null);
+        this.renderer.constantUserChanged(constant);
     }
 }

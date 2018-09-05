@@ -261,7 +261,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SafeguardTypes.Point;
+    activeSafeguardPanel = SafeguardTypes.Range;
     safeguards: Safeguard[] = [];
 
     variable1: SingleVariable;
@@ -282,8 +282,6 @@ export class AppComponent implements OnInit {
 
     rangeValueConstant: RangeValueConstant = new RangeValueConstant(10, 20);
     rangeRankConstant: RangeRankConstant = new RangeRankConstant(10, 20);
-
-    rangeConstant:[number, number] = [0, 10];
 
     constantSelected(constant: ConstantTrait) {
         if(constant instanceof PointValueConstant) {
@@ -372,10 +370,7 @@ export class AppComponent implements OnInit {
     }
 
     checkOrder() {
-        if(this.rangeConstant[0] > this.rangeConstant[1]) {
-            let temp = this.rangeConstant[0];
-            this.rangeConstant[0] = this.rangeConstant[1];
-            this.rangeConstant[1] = temp;
-        }
+        this.rangeValueConstant.checkOrder();
+        this.rangeRankConstant.checkOrder();
     }
 }

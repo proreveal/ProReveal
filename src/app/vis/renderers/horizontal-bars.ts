@@ -338,12 +338,27 @@ export class HorizontalBarsRenderer implements Renderer {
             else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
-                let eachBand = this.yScale.step();
                 let index = Math.round((center - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
                 let constant = new PointRankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
+            else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+                let sel = d3.event.selection;
+                let constant = new RangeValueConstant(this.xScale.invert(sel[0]), this.xScale.invert(sel[1]));
+                this.constant = constant;
+                this.vis.constantSelected.emit(constant);
+            }
+            else if(this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+                let sel = d3.event.selection;
+                let index1 = Math.round((sel[0] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
+                let index2 = Math.round((sel[1] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
+                let constant = new RangeRankConstant(index1, index2);
+                this.constant = constant;
+                this.vis.constantSelected.emit(constant);
+            }
+
+            // ADD CODE FOR SGS
         })
 
         if (this.variableType == VT.Value) {
@@ -362,15 +377,18 @@ export class HorizontalBarsRenderer implements Renderer {
                 return Math.round((d - start) / step) * step + start;
             };
 
-            this.flexBrush.render([[0, VC.horizontalBars.axis.height + this.yScale.step()],
+            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
             [width, height - VC.horizontalBars.axis.height]]);
         }
+
+        // ADD CODE FOR SGS
 
 
         if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
             if (!this.constant && this.variable1) {
                 this.constant = new PointValueConstant(this.getDatum(this.variable1)
                     .ci3stdev.center);
+                this.vis.constantSelected.emit(this.constant);
             }
 
             if (this.constant) {
@@ -383,6 +401,7 @@ export class HorizontalBarsRenderer implements Renderer {
         else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
             if (!this.constant && this.variable1) {
                 this.constant = new PointRankConstant(this.getRank(this.variable1))
+                this.vis.constantSelected.emit(this.constant);
             }
 
             if (this.constant) {
@@ -392,13 +411,38 @@ export class HorizontalBarsRenderer implements Renderer {
             }
             else this.flexBrush.hide();
         }
-        else if (this.safeguardType === SGT.Range) {
-            // this.brushG.call(this.brush.move, (this.constant as [number, number]).map(this.xScale))
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+            if (!this.constant && this.variable1) {
+                let range = this.getDatum(this.variable1).ci3stdev;
+                this.constant = new RangeValueConstant(range.low, range.high);
+                this.vis.constantSelected.emit(this.constant);
+            }
+
+            if (this.constant) {
+                this.flexBrush.show();
+                let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
+                this.flexBrush.move(range);
+            }
+            else this.flexBrush.hide();
         }
-        // if(this.safeguardType === SGT.Point) {
-        //         // this.flexBrush.move()
-        //     this.flexBrush.hide();
-        // }
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+            if (!this.constant && this.variable1) {
+                let rank = this.getRank(this.variable1);
+                this.constant = new RangeRankConstant(rank - 1, rank);
+                this.vis.constantSelected.emit(this.constant);
+            }
+
+            if (this.constant) {
+                this.flexBrush.show();
+                let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
+                this.flexBrush.move(range);
+            }
+            else this.flexBrush.hide();
+        }
+
+
+        // ADD CODE FOR SGS
+
 
         this.labelWidth = labelWidth;
         this.width = width;
@@ -419,7 +463,6 @@ export class HorizontalBarsRenderer implements Renderer {
 
         }
         else if (highlighted == 3) {
-            // this.constantHighlight.style('opacity', 1)
         }
         else if (highlighted == 4) {
             this.variableHighlight2.attr('display', 'inline')
@@ -442,9 +485,11 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if (st == SGT.Point) {
             this.labels.style('cursor', 'pointer');
+            this.flexBrush.setMode(FlexBrushMode.Point);
         }
         else if (st === SGT.Range) {
             this.labels.style('cursor', 'pointer');
+            this.flexBrush.setMode(FlexBrushMode.Range);
         }
         else if (st === SGT.Comparative) {
             this.labels.style('cursor', 'pointer');
@@ -493,7 +538,6 @@ export class HorizontalBarsRenderer implements Renderer {
             .classed('variable2', true)
     }
 
-    /* Invokes brush's event chain */
     /* invoked when a constant is selected indirectly (by clicking on a category) */
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
@@ -507,9 +551,18 @@ export class HorizontalBarsRenderer implements Renderer {
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
-        else if (this.safeguardType === SGT.Range) {
-            // this.brushG.call(this.brush.move, (constant as [number, number]).map(this.xScale))
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+            let range = (constant as RangeValueConstant).range.map(this.xScale) as [number, number];
+            this.flexBrush.show();
+            this.flexBrush.move(range);
         }
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+            let range = (constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number]
+            this.flexBrush.show();
+            this.flexBrush.move(range);
+        }
+
+        // ADD CODE FOR SGS
     }
 
     getDatum(variable: SingleVariable): Datum {
@@ -546,6 +599,22 @@ export class HorizontalBarsRenderer implements Renderer {
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+            let range = d.ci3stdev;
+            let constant = new RangeValueConstant(range.low, range.high);
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+            let rank = this.getRank(this.variable1);
+            let constant = new RangeRankConstant(rank - 1, rank);
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+
+        // ADD CODE FOR SGS
     }
 
     datumSelected2(d:Datum, i) {
