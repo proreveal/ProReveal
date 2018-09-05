@@ -11,8 +11,8 @@ import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
-import { Safeguard, SafeguardTypes as SGT} from '../../safeguard/safeguard';
-import { SingleVariable, VariableTypes as VT } from '../../safeguard/variable';
+import { Safeguard, SafeguardTypes as SGT } from '../../safeguard/safeguard';
+import { SingleVariable, VariableTypes as VT, VariableTrait } from '../../safeguard/variable';
 import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
@@ -48,7 +48,7 @@ export class HorizontalBarsRenderer implements Renderer {
     visG;
     interactionG;
 
-    constructor(public vis:VisComponent, public tooltip:TooltipComponent) {
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
@@ -176,38 +176,41 @@ export class HorizontalBarsRenderer implements Renderer {
                     d
                 );
 
-                if([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType))
-                {
+                if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
                     let ele = d3.select(this.eventBoxes.nodes()[i]);
                     ele.classed('highlighted', true)
                 }
             })
             .on('mouseleave', (d, i) => {
                 this.tooltip.hide();
-                if([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType))
-                {
-                    if((!this.variable1 || this.variable1.fieldGroupedValue.hash
+                if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+                    if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
                         !== d.keys.list[0].hash) &&
                         (!this.variable2 || this.variable2.fieldGroupedValue.hash
-                        !== d.keys.list[0].hash)) {
+                            !== d.keys.list[0].hash)) {
                         let ele = d3.select(this.eventBoxes.nodes()[i]);
                         ele.classed('highlighted', false)
                     }
                 }
             })
             .on('click', (d, i) => {
-                if([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType))
-                {
+                if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
                     let variable = new SingleVariable(d.keys.list[0]);
-                    if(this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash)
+                    if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash)
                         return;
                     this.variable1 = variable;
                     this.updateHighlight();
 
-                    this.vis.variableSelected.emit({variable: variable});
+                    this.vis.variableSelected.emit({ variable: variable });
 
-                    if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+                    if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                         let constant = new PointValueConstant(d.ci3stdev.center);
+
+                        this.vis.constantSelected.emit(constant);
+                        this.constantUserChanged(constant);
+                    }
+                    else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+                        let constant = new PointRankConstant(this.getRank(this.variable1));
 
                         this.vis.constantSelected.emit(constant);
                         this.constantUserChanged(constant);
@@ -215,19 +218,20 @@ export class HorizontalBarsRenderer implements Renderer {
                 }
             })
             .on('contextmenu', (d, i) => {
-                if(this.safeguardType != SGT.Comparative) return;
+                if (this.safeguardType != SGT.Comparative) return;
                 d3.event.preventDefault();
 
                 let variable = new SingleVariable(d.keys.list[0]);
 
-                if(this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
+                if (this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
                     return;
                 this.variable2 = variable;
                 this.updateHighlight();
 
                 this.vis.variableSelected.emit({
                     variable: variable,
-                    secondary: true});
+                    secondary: true
+                });
             })
 
         labels.exit().remove();
@@ -338,19 +342,19 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.variableHighlight =
             selectOrAppend(visG, 'rect', '.variable1.highlighted')
-            .attr('width', labelWidth)
-            .attr('height', height - VC.horizontalBars.axis.height * 2)
-            .attr('transform', translate(0, VC.horizontalBars.height))
-            .attr('display', 'none')
-            .style('pointer-events', 'none')
+                .attr('width', labelWidth)
+                .attr('height', height - VC.horizontalBars.axis.height * 2)
+                .attr('transform', translate(0, VC.horizontalBars.height))
+                .attr('display', 'none')
+                .style('pointer-events', 'none')
 
         this.variableHighlight2 =
             selectOrAppend(visG, 'rect', '.variable2.highlighted')
-            .attr('width', labelWidth)
-            .attr('height', height - VC.horizontalBars.axis.height * 2)
-            .attr('transform', translate(0, VC.horizontalBars.height))
-            .attr('display', 'none')
-            .style('pointer-events', 'none')
+                .attr('width', labelWidth)
+                .attr('height', height - VC.horizontalBars.axis.height * 2)
+                .attr('transform', translate(0, VC.horizontalBars.height))
+                .attr('display', 'none')
+                .style('pointer-events', 'none')
 
         this.constantHighlight = selectOrAppend(visG, 'g', 'constant-highlight-wrapper')
             .attr('class', 'constant-highlight-wrapper')
@@ -361,47 +365,77 @@ export class HorizontalBarsRenderer implements Renderer {
             .data([0, height - VC.horizontalBars.axis.height]);
 
         this.flexBrush.on('brush', () => {
-            if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
                 let constant = new PointValueConstant(this.xScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
+            else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+                let sel = d3.event.selection;
+                let center = (sel[0] + sel[1]) / 2;
+                let eachBand = this.yScale.step();
+                let index = Math.round((center - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
+                let constant = new PointRankConstant(index);
+                this.constant = constant;
+                this.vis.constantSelected.emit(constant);
+            }
         })
 
-        if(this.variableType == VT.Value) {
+        if (this.variableType == VT.Value) {
             this.flexBrush.snap = null;
+
+            this.flexBrush.setDirection(FlexBrushDirection.X);
             this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
-                [width - VC.padding, height - VC.horizontalBars.axis.height]]);
+            [width - VC.padding, height - VC.horizontalBars.axis.height]]);
         }
         else {
             let start = VC.horizontalBars.axis.height;
             let step = VC.horizontalBars.height;
 
+            this.flexBrush.setDirection(FlexBrushDirection.Y);
             this.flexBrush.snap = d => {
                 return Math.round((d - start) / step) * step + start;
             };
 
-            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
-                [width, height - VC.horizontalBars.axis.height]]);
+            this.flexBrush.render([[0, VC.horizontalBars.axis.height + this.yScale.step()],
+            [width, height - VC.horizontalBars.axis.height]]);
         }
 
-        if(this.constant) {
-            if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+
+        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            if (!this.constant && this.variable1) {
+                this.constant = new PointValueConstant(this.getDatum(this.variable1)
+                    .ci3stdev.center);
+            }
+
+            if (this.constant) {
                 this.flexBrush.show();
                 let center = xScale((this.constant as PointValueConstant).value);
                 this.flexBrush.move(center);
             }
-            else if(this.safeguardType === SGT.Range) {
-                // this.brushG.call(this.brush.move, (this.constant as [number, number]).map(this.xScale))
-            }
+            else this.flexBrush.hide();
         }
-        else {
-            if(this.safeguardType === SGT.Point) {
-                this.flexBrush.hide();
+        else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            if (!this.constant && this.variable1) {
+                this.constant = new PointRankConstant(this.getRank(this.variable1))
             }
+
+            if (this.constant) {
+                this.flexBrush.show();
+                let center = yScale((this.constant as PointRankConstant).rank.toString());
+                this.flexBrush.move(center);
+            }
+            else this.flexBrush.hide();
         }
+        else if (this.safeguardType === SGT.Range) {
+            // this.brushG.call(this.brush.move, (this.constant as [number, number]).map(this.xScale))
+        }
+        // if(this.safeguardType === SGT.Point) {
+        //         // this.flexBrush.move()
+        //     this.flexBrush.hide();
+        // }
 
         this.labelWidth = labelWidth;
         this.width = width;
@@ -415,16 +449,16 @@ export class HorizontalBarsRenderer implements Renderer {
         this.variableHighlight2.attr('display', 'none')
         this.constantHighlight.style('opacity', 0)
 
-        if(highlighted == 1) {
+        if (highlighted == 1) {
             this.variableHighlight.attr('display', 'inline')
         }
-        else if(highlighted == 2) {
+        else if (highlighted == 2) {
 
         }
-        else if(highlighted == 3) {
+        else if (highlighted == 3) {
             // this.constantHighlight.style('opacity', 1)
         }
-        else if(highlighted == 4) {
+        else if (highlighted == 4) {
             this.variableHighlight2.attr('display', 'inline')
         }
     }
@@ -440,26 +474,19 @@ export class HorizontalBarsRenderer implements Renderer {
         this.constant = null;
         this.updateHighlight();
 
-        if(st == SGT.None) {
+        if (st == SGT.None) {
             this.labels.style('cursor', 'auto');
-            this.flexBrush.hide();
         }
-        else if(st == SGT.Point) {
+        else if (st == SGT.Point) {
             this.labels.style('cursor', 'pointer');
-
-            this.flexBrush.show();
-            let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
-            this.flexBrush.move(center);
+            // let center = (this.width - this.labelWidth) / 2 + this.labelWidth;
+            // this.flexBrush.move(center);
         }
-        else if(st === SGT.Range) {
+        else if (st === SGT.Range) {
             this.labels.style('cursor', 'pointer');
-
-            this.flexBrush.show();
         }
-        else if(st === SGT.Comparative) {
+        else if (st === SGT.Comparative) {
             this.labels.style('cursor', 'pointer');
-
-            this.flexBrush.hide();
         }
     }
 
@@ -467,10 +494,12 @@ export class HorizontalBarsRenderer implements Renderer {
     setVariableType(vt: VT) {
         this.variableType = vt;
 
-        if(vt == VT.Value) {
+        this.constant = null;
+
+        if (vt == VT.Value) {
             this.flexBrush.setDirection(FlexBrushDirection.X);
         }
-        else if(vt === VT.Rank) {
+        else if (vt === VT.Rank) {
             this.flexBrush.setDirection(FlexBrushDirection.Y);
         }
     }
@@ -481,7 +510,7 @@ export class HorizontalBarsRenderer implements Renderer {
             .filter((d, i) =>
                 this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
-                )
+            )
             .classed('highlighted', true)
 
         this.labels
@@ -504,15 +533,32 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     /* Invokes brush's event chain */
+    /* invoked when a constant is selected indirectly (by clicking on a category) */
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
-        if(this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
             let center = this.xScale((constant as PointValueConstant).value);
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
-        else if(this.safeguardType === SGT.Range) {
+        else if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            let center = this.yScale((constant as PointRankConstant).rank.toString());
+            this.flexBrush.show();
+            this.flexBrush.move(center);
+        }
+        else if (this.safeguardType === SGT.Range) {
             // this.brushG.call(this.brush.move, (constant as [number, number]).map(this.xScale))
         }
+    }
+
+    getDatum(variable: SingleVariable): Datum {
+        return this.data.find(d => d.id === variable.fieldGroupedValue.hash);
+    }
+
+    getRank(variable: SingleVariable): number {
+        for (let i = 0; i < this.data.length; i++) {
+            if (this.data[i].id == variable.fieldGroupedValue.hash) return i + 1;
+        }
+        return 1;
     }
 }

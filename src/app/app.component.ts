@@ -53,7 +53,9 @@ export class AppComponent implements OnInit {
     EstimatePoint = Safeguard.EstimatePoint;
     CompareMeans = Safeguard.CompareMeans;
     SGT = SafeguardTypes;
+    VT = VariableTypes;
     numberFormat = '1.1-1';
+    rankFormat = '1.0-0';
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,
@@ -285,17 +287,21 @@ export class AppComponent implements OnInit {
 
     constantSelected(constant: ConstantTrait) {
         if(constant instanceof PointValueConstant) {
-            let value = (this.vis.renderer as HorizontalBarsRenderer).data.filter(d => d.id === this.variable1.fieldGroupedValue.hash)[0]
+            let value = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
             this.pointValueConstant = constant;
-            if(constant.value >= value.ci3stdev.center) {
+            if(constant.value >= value.ci3stdev.center)
                 this.operator = Operators.LessThanOrEqualTo;
-            }
-            else {
+            else
                 this.operator = Operators.GreaterThanOrEqualTo;
-            }
         }
-        else if(constant instanceof PointRankConstant)
+        else if(constant instanceof PointRankConstant) {
+            let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1)
             this.pointRankConstant = constant;
+            if(constant.rank >= value)
+                this.operator = Operators.LessThanOrEqualTo;
+            else
+                this.operator = Operators.GreaterThanOrEqualTo;
+        }
         else if(constant instanceof RangeValueConstant)
             this.rangeValueConstant = constant;
         else if(constant instanceof RangeRankConstant)

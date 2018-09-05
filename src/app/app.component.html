@@ -155,8 +155,11 @@
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >{{ operator }}</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="!useRank"
                 >{{ pointValueConstant.value | number:numberFormat }}</span>
+                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
+                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="useRank"
+                >{{ pointRankConstant.rank | number:rankFormat }}</span>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -192,7 +195,7 @@
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
-                    <input type="number" class="form-control form-control-sm" [ngModel]="pointConstant | number"
+                    <input type="number" class="form-control form-control-sm" [ngModel]="pointRankConstant.rank | number: rankFormat"
                         (ngModelChange)="pointConstant=$event; constantUserChanged($event)">
                 </div>
             </div>

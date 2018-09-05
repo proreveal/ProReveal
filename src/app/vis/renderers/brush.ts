@@ -143,7 +143,6 @@ export class FlexBrush<Datum> {
                 let center = (d3.event.selection[0] + d3.event.selection[1]) / 2;
 
                 center = this.snap(center);
-                console.log(center);
                 this.move(center, true)
             }
         })
