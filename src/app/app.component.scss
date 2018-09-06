@@ -207,6 +207,7 @@ h4 fa-icon {
 }
 .display {
     @include serif-italic();
+    font-size: .8rem;
 }
 
 .guide {

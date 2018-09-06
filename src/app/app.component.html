@@ -142,15 +142,11 @@
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
-                <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
+                <variable-indicator [variable]="variable1" [className]="'variable1'"
+                    [useRank]="useRank" [highlighted]="highlighted == 1"
+                    *ngIf="activeNode" [query]="activeNode.query"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    *ngIf="!variable1"
-                    ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
-                <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable1.fieldString() }}
-                    =
-                    {{ variable1.valueString() }})<span *ngIf="useRank">)</span></span>
+                ></variable-indicator>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >{{ operator }}</span>
@@ -185,7 +181,8 @@
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
                     <input type="number" class="form-control form-control-sm" [ngModel]="pointValueConstant.value | number: numberFormat"
-                        (change)="pointValueConstant.value = $event.target.value; constantUserChanged(pointValueConstant, $event)">
+                        (change)="pointValueConstant.value = $event.target.value; constantUserChanged(pointValueConstant, $event)"
+                        pattern="-?(\d+|\d+\.\d+|\.\d+)([eE][-+]?\d+)?">
                 </div>
                 <h5 class="section-subheader p-1 border border-right-0" [hidden]="!useRank">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
@@ -222,15 +219,11 @@
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
+                <variable-indicator [variable]="variable1" [className]="'variable1'"
+                    [useRank]="useRank" [highlighted]="highlighted == 1"
+                    *ngIf="activeNode" [query]="activeNode.query"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    *ngIf="!variable1"
-                    ><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
-                <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    <span *ngIf="useRank">Rank(</span>COUNT({{ variable1.fieldString() }}
-                    =
-                    {{ variable1.valueString() }})<span *ngIf="useRank">)</span></span>
+                ></variable-indicator>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >∈</span>
@@ -310,22 +303,19 @@
         </h4>
         <div class="m-0" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <span *ngIf="!variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
+                <variable-indicator [variable]="variable1" [className]="'variable1'"
+                    [useRank]="useRank" [highlighted]="highlighted == 1"
+                    *ngIf="activeNode" [query]="activeNode.query"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    >V(A)</span>
-                <span *ngIf="variable1" class="variable1 pr-1" [class.highlighted]="highlighted == 1"
-                (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                COUNT({{ variable1.fieldString() }} = {{ variable1.valueString() }})</span>
-
+                ></variable-indicator>
                 <span class="operator pr-1" [class.highlighted]="highlighted == 2"
                     (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
                 >{{ operator }}</span>
-                <span *ngIf="!variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 4"
+                <variable-indicator [variable]="variable2" [className]="'variable2'"
+                    [useRank]="useRank" [highlighted]="highlighted == 4"
+                    *ngIf="activeNode" [query]="activeNode.query"
                     (mouseenter)="highlight(4)" (mouseleave)="highlight(0)"
-                >V(B)</span>
-                <span *ngIf="variable2" class="variable2 pr-1" [class.highlighted]="highlighted == 4"
-                (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
-                COUNT({{ variable2.fieldString() }} = {{ variable2.valueString() }})</span>
+                ></variable-indicator>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">

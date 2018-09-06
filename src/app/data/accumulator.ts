@@ -56,6 +56,7 @@ export interface AccumulatorTrait {
     readonly initAccumulatedValue: AccumulatedValue;
     readonly name: string;
     readonly alwaysNonNegative: boolean;
+    readonly requireTargetField: boolean;
 
     reduce(a: PartialValue, b: number | null): PartialValue;
     accumulate(a: AccumulatedValue, b: PartialValue): AccumulatedValue;
@@ -78,6 +79,7 @@ export class MinAccumulator implements AccumulatorTrait {
 
     readonly name = "min";
     readonly alwaysNonNegative = false;
+    readonly requireTargetField = false;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, a.min, 0, a.nullCount + 1);
@@ -110,6 +112,7 @@ export class MaxAccumulator implements AccumulatorTrait {
 
     readonly name = "max";
     readonly alwaysNonNegative = false;
+    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, a.max, 0, a.nullCount + 1);
@@ -142,6 +145,7 @@ export class CountAccumulator implements AccumulatorTrait {
 
     readonly name = "count";
     readonly alwaysNonNegative = true;
+    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, 0, 0, a.nullCount + 1);
@@ -180,6 +184,7 @@ export class SumAccumulator implements AccumulatorTrait {
 
     readonly name = "sum";
     readonly alwaysNonNegative = false;
+    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(a.sum, a.ssum, a.count + 1, 0, 0, a.nullCount + 1);
@@ -196,7 +201,11 @@ export class SumAccumulator implements AccumulatorTrait {
 
     // TODO
     approximate(value: AccumulatedValue, processed: number) {
-        const n = value.count - value.nullCount;
+        let n = value.count - value.nullCount;
+        if(n == 1) {
+            console.warn('cannot approximation because n = 1, set n to 2');
+            n = 2;
+        }
         const mean = value.sum / n;
 
         const variance = value.ssum / n - mean * mean;
@@ -222,6 +231,7 @@ export class MeanAccumulator implements AccumulatorTrait {
 
     readonly name = "mean";
     readonly alwaysNonNegative = false;
+    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(a.sum, a.ssum, a.count + 1, 0, 0, a.nullCount + 1);

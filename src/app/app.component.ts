@@ -129,9 +129,14 @@ export class AppComponent implements OnInit {
                 }
             });
 
-            this.run(67);
+            // create sum(x) by y
 
-            this.nodeSelected(this.ongoingNodes[0]);
+            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+            this.run(5);
+
+            // normal
+
+            //this.nodeSelected(this.ongoingNodes[0]);
 
             of(0).pipe(
                 delay(1000)
@@ -261,12 +266,25 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Distributive;
+    activeSafeguardPanel = SGT.Point;
     safeguards: Safeguard[] = [];
 
     variable1: SingleVariable;
     variable2: SingleVariable;
     useRank = false;
+
+    constant: ConstantTrait;
+
+    pointValueConstant: PointValueConstant = new PointValueConstant(10);
+    pointRankConstant: PointRankConstant = new PointRankConstant(10);
+
+    rangeValueConstant: RangeValueConstant = new RangeValueConstant(10, 20);
+    rangeRankConstant: RangeRankConstant = new RangeRankConstant(10, 20);
+
+    powerLawConstant: PowerLawConstant = new PowerLawConstant();
+
+    Operators = Operators;
+    operator = Operators.LessThanOrEqualTo;
 
     variableSelected($event:{variable: SingleVariable, secondary?: boolean}) {
         if($event.secondary)
@@ -284,15 +302,6 @@ export class AppComponent implements OnInit {
         }
     }
 
-    constant: ConstantTrait;
-
-    pointValueConstant: PointValueConstant = new PointValueConstant(10);
-    pointRankConstant: PointRankConstant = new PointRankConstant(10);
-
-    rangeValueConstant: RangeValueConstant = new RangeValueConstant(10, 20);
-    rangeRankConstant: RangeRankConstant = new RangeRankConstant(10, 20);
-
-    powerLawConstant: PowerLawConstant = new PowerLawConstant();
 
     constantSelected(constant: ConstantTrait) {
         if(constant instanceof PointValueConstant) {
@@ -330,9 +339,6 @@ export class AppComponent implements OnInit {
     constantUserChanged(constant: ConstantTrait, $event) {
         this.vis.constantUserChanged(constant);
     }
-
-    Operators = Operators;
-    operator = Operators.LessThanOrEqualTo;
 
     createPointSafeguard() {
         if(!this.variable1) return;

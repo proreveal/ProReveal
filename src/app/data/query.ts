@@ -85,6 +85,8 @@ export class EmptyQuery extends Query {
 export class AggregateQuery extends Query {
     name = "AggregateQuery";
     result: AccumulatedResponseDictionary = {};
+    defaultOrdering = NumericalOrdering;
+    defaultOrderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
 
     /**
      *
@@ -239,6 +241,7 @@ export class Frequency1DQuery extends AggregateQuery {
             this.sampler);
     }
 }
+
 
 
 

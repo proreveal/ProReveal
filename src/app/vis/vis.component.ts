@@ -43,8 +43,6 @@ export class VisComponent implements OnInit, DoCheck {
         new MaxAccumulator(),
         new MinAccumulator()
     ];
-    creatingSg = false;
-
 
     constructor(private toastr: ToastrService
     ) { }
@@ -85,7 +83,7 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     highlight(highlighted: number) {
-        this.renderer.highlight(highlighted);
+        if(this.renderer) this.renderer.highlight(highlighted);
     }
 
     setSafeguardType(set: SafeguardTypes) {
