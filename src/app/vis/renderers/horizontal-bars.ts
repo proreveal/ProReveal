@@ -16,7 +16,7 @@ import { SingleVariable, VariableTypes as VT, VariableTrait } from '../../safegu
 import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant } from '../../safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 
 type Datum = {
@@ -381,16 +381,9 @@ export class HorizontalBarsRenderer implements Renderer {
             [width, height - VC.horizontalBars.axis.height]]);
         }
 
-        // ADD CODE FOR SGS
-
+        if(!this.constant && this.variable1) this.setDefaultConstantFromVariable();
 
         if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-            if (!this.constant && this.variable1) {
-                this.constant = new PointValueConstant(this.getDatum(this.variable1)
-                    .ci3stdev.center);
-                this.vis.constantSelected.emit(this.constant);
-            }
-
             if (this.constant) {
                 this.flexBrush.show();
                 let center = xScale((this.constant as PointValueConstant).value);
@@ -399,11 +392,6 @@ export class HorizontalBarsRenderer implements Renderer {
             else this.flexBrush.hide();
         }
         else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-            if (!this.constant && this.variable1) {
-                this.constant = new PointRankConstant(this.getRank(this.variable1))
-                this.vis.constantSelected.emit(this.constant);
-            }
-
             if (this.constant) {
                 this.flexBrush.show();
                 let center = yScale((this.constant as PointRankConstant).rank.toString());
@@ -412,12 +400,6 @@ export class HorizontalBarsRenderer implements Renderer {
             else this.flexBrush.hide();
         }
         else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-            if (!this.constant && this.variable1) {
-                let range = this.getDatum(this.variable1).ci3stdev;
-                this.constant = new RangeValueConstant(range.low, range.high);
-                this.vis.constantSelected.emit(this.constant);
-            }
-
             if (this.constant) {
                 this.flexBrush.show();
                 let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
@@ -426,12 +408,6 @@ export class HorizontalBarsRenderer implements Renderer {
             else this.flexBrush.hide();
         }
         else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-            if (!this.constant && this.variable1) {
-                let rank = this.getRank(this.variable1);
-                this.constant = new RangeRankConstant(rank - 1, rank);
-                this.vis.constantSelected.emit(this.constant);
-            }
-
             if (this.constant) {
                 this.flexBrush.show();
                 let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
@@ -439,14 +415,23 @@ export class HorizontalBarsRenderer implements Renderer {
             }
             else this.flexBrush.hide();
         }
+        else if(this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+            this.flexBrush.hide();
+        }
+        else if(this.safeguardType === SGT.Comparative) {
+            this.flexBrush.hide();
+        }
+        else if(this.safeguardType === SGT.Distributive) {
+            this.flexBrush.hide();
+        }
 
 
         // ADD CODE FOR SGS
 
-
         this.labelWidth = labelWidth;
         this.width = width;
         this.xScale = xScale;
+
 
         this.updateHighlight();
     }
@@ -579,42 +564,13 @@ export class HorizontalBarsRenderer implements Renderer {
     datumSelected(d:Datum, i) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        console.log(d3.event.sourceEvent);
         let variable = new SingleVariable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
         this.variable1 = variable;
         this.updateHighlight();
 
         this.vis.variableSelected.emit({ variable: variable });
-
-        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-            let constant = new PointValueConstant(d.ci3stdev.center);
-
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-        else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-            let constant = new PointRankConstant(this.getRank(this.variable1));
-
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-            let range = d.ci3stdev;
-            let constant = new RangeValueConstant(range.low, range.high);
-
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-            let rank = this.getRank(this.variable1);
-            let constant = new RangeRankConstant(rank - 1, rank);
-
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-
-        // ADD CODE FOR SGS
+        if(!this.constant) this.setDefaultConstantFromVariable();
     }
 
     datumSelected2(d:Datum, i) {
@@ -632,6 +588,37 @@ export class HorizontalBarsRenderer implements Renderer {
             variable: variable,
             secondary: true
         });
+    }
+
+    setDefaultConstantFromVariable() {
+        if(this.constant) return;
+        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            let constant = new PointValueConstant(this.getDatum(this.variable1).ci3stdev.center);
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+        else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            let constant = new PointRankConstant(this.getRank(this.variable1));
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+            let range = this.getDatum(this.variable1).ci3stdev;
+            let constant = new RangeValueConstant(range.low, range.high);
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+            let rank = this.getRank(this.variable1);
+            let constant = new RangeRankConstant(rank - 1, rank);
+
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+
+        // add codes for SGS
     }
 
     /*

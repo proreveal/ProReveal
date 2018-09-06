@@ -1,3 +1,5 @@
+import * as regression from 'regression';
+
 export abstract class ConstantTrait {
 
 }
@@ -47,5 +49,22 @@ export class RangeRankConstant extends ConstantTrait {
             this.from = this.to;
             this.to = temp;
         }
+    }
+}
+
+export class PowerLawConstant extends ConstantTrait {
+    // a*x^b
+    constructor(public a = 1, public b = 1) {
+        super();
+    }
+
+    static Regression(data: [number, number][]) {
+        console.log(regression.power(data));
+    }
+}
+
+export class GaussianConstant extends ConstantTrait {
+    constructor(public mean = 0, public stdev = 1) {
+        super();
     }
 }

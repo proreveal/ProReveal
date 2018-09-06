@@ -13,7 +13,7 @@ import { FieldSelectorComponent } from './field-selector/field-selector.componen
 import * as util from './util';
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Safeguard, SafeguardTypes } from './safeguard/safeguard';
+import { Safeguard, SafeguardTypes as SGT } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
@@ -48,11 +48,11 @@ export class AppComponent implements OnInit {
     highlightedNodes: ExplorationNode[] = [];
     searchKeyword: string;
 
+    SGT = SGT;
     NodeState = NodeState;
     VC = VisConstants;
     EstimatePoint = Safeguard.EstimatePoint;
     CompareMeans = Safeguard.CompareMeans;
-    SGT = SafeguardTypes;
     VT = VariableTypes;
     numberFormat = '1.1-1';
     rankFormat = '1.0-0';
@@ -261,7 +261,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SafeguardTypes.Range;
+    activeSafeguardPanel = SGT.Distributive;
     safeguards: Safeguard[] = [];
 
     variable1: SingleVariable;
@@ -273,6 +273,15 @@ export class AppComponent implements OnInit {
             this.variable2 = $event.variable;
         else
             this.variable1 = $event.variable;
+
+        if(this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
+            let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
+            let value2 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable2)
+
+            if(value1.ci3stdev.center < value2.ci3stdev.center)
+                this.operator = Operators.LessThanOrEqualTo;
+            else this.operator = Operators.GreaterThanOrEqualTo;
+        }
     }
 
     constant: ConstantTrait;
@@ -347,21 +356,21 @@ export class AppComponent implements OnInit {
     }
 
     cancelSafeguard() {
-        this.activeSafeguardPanel = SafeguardTypes.None;
-        this.vis.setSafeguardType(SafeguardTypes.None);
+        this.activeSafeguardPanel = SGT.None;
+        this.vis.setSafeguardType(SGT.None);
     }
 
-    toggle(panel:SafeguardTypes) {
+    toggle(sgt:SGT) {
         this.variable1 = null;
         this.variable2 = null;
         this.pointRankConstant = null;
 
-        if(this.activeSafeguardPanel === panel) {
+        if(this.activeSafeguardPanel === sgt) {
             this.cancelSafeguard();
         }
         else {
-            this.activeSafeguardPanel = panel;
-            this.vis.setSafeguardType(panel);
+            this.activeSafeguardPanel = sgt;
+            this.vis.setSafeguardType(sgt);
         }
     }
 

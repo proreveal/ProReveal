@@ -336,21 +336,6 @@
                     Please pick the <span class="variable1 font-weight-bold">first variable</span> by clicking on a category on the chart.
                 </p>
             </div>
-            <div (mouseenter)="highlight(2)" (mouseleave)="highlight(0)">
-                <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="operator"></fa-icon>
-                    Operator
-                </h5>
-                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                    <label class="btn btn-sm btn-secondary rounded-0 w-25-fixed"
-                        *ngFor="let op of ComparativeOperators"
-                        [class.active]="operator === op"
-                        (click)="operator = op">
-                        <input type="radio" name="options" autocomplete="off">
-                        {{ op }}
-                    </label>
-                </div>
-            </div>
             <div (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable2"></fa-icon>
@@ -378,12 +363,12 @@
         </div>
 
         <!-- Distributive -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(4)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != 4"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == 4"></fa-icon>
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Distributive)">
+            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
+            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
             Distributive <small>V(·) ~ N(5, 2)</small>
         </h4>
-        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != 4">
+        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != SGT.Distributive">
             <div class="display text-center p-2">
                 <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
                     (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
