@@ -386,50 +386,37 @@ export class HorizontalBarsRenderer implements Renderer {
 
         if(!this.constant) this.setDefaultConstantFromVariable();
 
-        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-            if (this.constant) {
-                this.flexBrush.show();
-                let center = xScale((this.constant as PointValueConstant).value);
-                this.flexBrush.move(center);
-            }
-            else this.flexBrush.hide();
-        }
-        else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-            if (this.constant) {
-                this.flexBrush.show();
-                let center = yScale((this.constant as PointRankConstant).rank.toString());
-                this.flexBrush.move(center);
-            }
-            else this.flexBrush.hide();
-        }
-        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-            if (this.constant) {
-                this.flexBrush.show();
-                let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
-                this.flexBrush.move(range);
-            }
-            else this.flexBrush.hide();
-        }
-        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-            if (this.constant) {
-                this.flexBrush.show();
-                let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
-                this.flexBrush.move(range);
-            }
-            else this.flexBrush.hide();
-        }
-        else if(this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+        if([SGT.Point, SGT.Range].includes(this.safeguardType) && this.constant)
+            this.flexBrush.show();
+        else
             this.flexBrush.hide();
-        }
-        else if(this.safeguardType === SGT.Comparative) {
-            this.flexBrush.hide();
-        }
-        else if(this.safeguardType === SGT.Distributive) {
 
+        if(this.safeguardType === SGT.Distributive) this.distributionLine.show();
+        else this.distributionLine.hide();
+
+        if(this.constant) {
+            if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+                    let center = xScale((this.constant as PointValueConstant).value);
+                    this.flexBrush.move(center);
+            }
+            else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+                    let center = yScale((this.constant as PointRankConstant).rank.toString());
+                    this.flexBrush.move(center);
+            }
+            else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+                    let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
+                    this.flexBrush.move(range);
+            }
+            else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+                    let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
+                    this.flexBrush.move(range);
+            }
+        }
+
+        if(this.safeguardType === SGT.Distributive) {
             this.distributionLine.render(
                 this.data.length, this.xScale, this.yScale, this.constant as Distribution
             )
-            this.flexBrush.hide();
         }
 
         // ADD CODE FOR SGS

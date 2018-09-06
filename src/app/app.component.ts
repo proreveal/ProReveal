@@ -367,7 +367,6 @@ export class AppComponent implements OnInit {
     toggle(sgt:SGT) {
         this.variable1 = null;
         this.variable2 = null;
-        this.pointRankConstant = null;
 
         if(this.activeSafeguardPanel === sgt) {
             this.cancelSafeguard();
