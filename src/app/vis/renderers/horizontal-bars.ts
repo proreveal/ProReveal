@@ -16,8 +16,9 @@ import { SingleVariable, VariableTypes as VT, VariableTrait } from '../../safegu
 import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant } from '../../safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, Distribution } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
+import { DistributionLine } from './distribution-line';
 
 type Datum = {
     id: string,
@@ -36,6 +37,7 @@ export class HorizontalBarsRenderer implements Renderer {
     labelWidth: number;
     width: number;
     flexBrush = new FlexBrush<Datum>();
+    distributionLine = new DistributionLine();
 
     labels: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     ranks: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
@@ -66,6 +68,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
         this.flexBrush.setup(this.interactionG);
+        this.distributionLine.setup(this.interactionG);
     }
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
@@ -381,7 +384,7 @@ export class HorizontalBarsRenderer implements Renderer {
             [width, height - VC.horizontalBars.axis.height]]);
         }
 
-        if(!this.constant && this.variable1) this.setDefaultConstantFromVariable();
+        if(!this.constant) this.setDefaultConstantFromVariable();
 
         if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
             if (this.constant) {
@@ -422,9 +425,12 @@ export class HorizontalBarsRenderer implements Renderer {
             this.flexBrush.hide();
         }
         else if(this.safeguardType === SGT.Distributive) {
+
+            this.distributionLine.render(
+                this.data.length, this.xScale, this.yScale, this.constant as Distribution
+            )
             this.flexBrush.hide();
         }
-
 
         // ADD CODE FOR SGS
 
@@ -590,30 +596,39 @@ export class HorizontalBarsRenderer implements Renderer {
         });
     }
 
-    setDefaultConstantFromVariable() {
+    setDefaultConstantFromVariable(removeCurrentConstant = false) {
+        if(removeCurrentConstant) this.constant = null;
         if(this.constant) return;
-        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-            let constant = new PointValueConstant(this.getDatum(this.variable1).ci3stdev.center);
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-        else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-            let constant = new PointRankConstant(this.getRank(this.variable1));
+        if(this.variable1) {
+            if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3stdev.center);
+                this.vis.constantSelected.emit(constant);
+                this.constantUserChanged(constant);
+            }
+            else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+                let constant = new PointRankConstant(this.getRank(this.variable1));
 
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-        else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-            let range = this.getDatum(this.variable1).ci3stdev;
-            let constant = new RangeValueConstant(range.low, range.high);
+                this.vis.constantSelected.emit(constant);
+                this.constantUserChanged(constant);
+            }
+            else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
+                let range = this.getDatum(this.variable1).ci3stdev;
+                let constant = new RangeValueConstant(range.low, range.high);
 
-            this.vis.constantSelected.emit(constant);
-            this.constantUserChanged(constant);
-        }
-        else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-            let rank = this.getRank(this.variable1);
-            let constant = new RangeRankConstant(rank - 1, rank);
+                this.vis.constantSelected.emit(constant);
+                this.constantUserChanged(constant);
+            }
+            else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+                let rank = this.getRank(this.variable1);
+                let constant = new RangeRankConstant(rank - 1, rank);
 
+                this.vis.constantSelected.emit(constant);
+                this.constantUserChanged(constant);
+            }
+        }
+        else if(this.safeguardType === SGT.Distributive) {
+            // regression
+            let constant = PowerLawConstant.Regression(this.data.map((d, i) => [i + 1, d.ci3stdev.center] as [number, number]))
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }

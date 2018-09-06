@@ -18,7 +18,7 @@ import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariableTrait, DoubleValueVariable, SingleVariable, VariableTypes } from './safeguard/variable';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant } from './safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
@@ -292,6 +292,8 @@ export class AppComponent implements OnInit {
     rangeValueConstant: RangeValueConstant = new RangeValueConstant(10, 20);
     rangeRankConstant: RangeRankConstant = new RangeRankConstant(10, 20);
 
+    powerLawConstant: PowerLawConstant = new PowerLawConstant();
+
     constantSelected(constant: ConstantTrait) {
         if(constant instanceof PointValueConstant) {
             let value = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
@@ -313,6 +315,8 @@ export class AppComponent implements OnInit {
             this.rangeValueConstant = constant;
         else if(constant instanceof RangeRankConstant)
             this.rangeRankConstant = constant;
+        else if(constant instanceof PowerLawConstant)
+            this.powerLawConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);
     }
@@ -381,5 +385,9 @@ export class AppComponent implements OnInit {
     checkOrder() {
         this.rangeValueConstant.checkOrder();
         this.rangeRankConstant.checkOrder();
+    }
+
+    fit() {
+        (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
     }
 }

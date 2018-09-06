@@ -378,8 +378,9 @@
                 >~</span>
                 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
                     (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >N(5, 2)</span>
+                >{{ powerLawConstant.a | number }}x<sup>{{ powerLawConstant.b | number }}</sup> </span>
             </div>
+            <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
             <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
                 Create a Safeguard
             </button>

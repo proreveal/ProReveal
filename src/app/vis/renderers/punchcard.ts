@@ -12,8 +12,6 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import * as vsup from 'vsup';
-import { HandwritingRecognitionService } from '../../handwriting-recognition.service';
-import { HandwritingComponent } from '../../handwriting/handwriting.component';
 import { VisComponent } from '../vis.component';
 
 export class PunchcardRenderer implements Renderer {
@@ -202,7 +200,9 @@ export class PunchcardRenderer implements Renderer {
     setVariableType() {
 
     }
+
     constantUserChanged() {
 
     }
+
 }
