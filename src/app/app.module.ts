@@ -28,8 +28,12 @@ import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.comp
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-import { PIndicatorComponent } from './safeguard/p-indicator.component';
-import { VariableIndicatorComponent } from './variable-indicator/variable-indicator.component';
+import { PIndicatorComponent } from './display/p-indicator.component';
+import { VariableIndicatorComponent } from './display/variable-indicator.component';
+import { PointComponent } from './display/sg-point.component';
+import { ComparativeComponent } from './display/sg-comparative.component';
+import { DistributiveComponent } from './display/sg-distributive.component';
+import { RangeComponent } from './display/sg-range.component';
 
 library.add(fas, far);
 
@@ -49,7 +53,11 @@ library.add(fas, far);
         FieldBadgeComponent,
         ProgressMiniRingComponent,
         PIndicatorComponent,
-        VariableIndicatorComponent
+        VariableIndicatorComponent,
+        PointComponent,
+        ComparativeComponent,
+        DistributiveComponent,
+        RangeComponent
     ],
     imports: [
         NgbModule.forRoot(),

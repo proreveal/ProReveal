@@ -1,5 +1,5 @@
 <span class="{{ className }} pr-1" [class.highlighted]="highlighted"
-    *ngIf="!variable"><span *ngIf="useRank">Rank(</span>V(A)<span *ngIf="useRank">)</span></span>
+    *ngIf="!variable"><span *ngIf="useRank">Rank(</span>V(<span class="placeholder {{ className }}"></span>)<span *ngIf="useRank">)</span></span>
 <span *ngIf="variable" class="{{ className }} pr-1" [class.highlighted]="highlighted">
     <span *ngIf="useRank">Rank(</span>{{ query.accumulator.name.toUpperCase() }}<sub>{{ variable.fieldString() }} =
     {{ variable.valueString() }}</sub>(<!--

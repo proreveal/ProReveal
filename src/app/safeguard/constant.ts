@@ -9,12 +9,16 @@ export interface Distribution {
 }
 
 export class PointValueConstant extends ConstantTrait {
+    isRank = false;
+
     constructor(public value: number) {
         super();
     }
 }
 
 export class PointRankConstant extends ConstantTrait {
+    isRank = true;
+
     constructor(public rank: number) {
         super();
     }

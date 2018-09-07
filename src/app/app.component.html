@@ -142,20 +142,11 @@
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
-                <variable-indicator [variable]="variable1" [className]="'variable1'"
-                    [useRank]="useRank" [highlighted]="highlighted == 1"
-                    *ngIf="activeNode" [query]="activeNode.query"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                ></variable-indicator>
-                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
-                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >{{ operator }}</span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="!useRank"
-                >{{ pointValueConstant.value | number:numberFormat }}</span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="useRank"
-                >{{ pointRankConstant.rank | number:rankFormat }}</span>
+                <sg-point *ngIf="activeNode"
+                    [highlighted]="highlighted" [query]="activeNode.query"
+                    [variable]="variable1" [useRank]="useRank"
+                    [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
+                    (highlight)="highlight($event)"></sg-point>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -218,24 +209,10 @@
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <variable-indicator [variable]="variable1" [className]="'variable1'"
-                    [useRank]="useRank" [highlighted]="highlighted == 1"
-                    *ngIf="activeNode" [query]="activeNode.query"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                ></variable-indicator>
-                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
-                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >∈</span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="!useRank"
-                >
-                    [{{ rangeValueConstant.from | number: numberFormat }}, {{ rangeValueConstant.to | number: numberFormat}}]
-                </span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)" *ngIf="useRank"
-                >
-                    [{{ rangeRankConstant.from | number: rankFormat }}, {{ rangeRankConstant.to | number: rankFormat}}]
-                </span>
+                <sg-range *ngIf="activeNode"
+                    [highlighted]="highlighted" [query]="activeNode.query"
+                    [variable]="variable" [constant]="useRank ? rangeRankConstant : rangeValueConstant"
+                    (highlight)="highlight($event)"></sg-range>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -302,19 +279,10 @@
         </h4>
         <div class="m-0" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <variable-indicator [variable]="variable1" [className]="'variable1'"
-                    [useRank]="useRank" [highlighted]="highlighted == 1"
-                    *ngIf="activeNode" [query]="activeNode.query"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                ></variable-indicator>
-                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
-                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >{{ operator }}</span>
-                <variable-indicator [variable]="variable2" [className]="'variable2'"
-                    [useRank]="useRank" [highlighted]="highlighted == 4"
-                    *ngIf="activeNode" [query]="activeNode.query"
-                    (mouseenter)="highlight(4)" (mouseleave)="highlight(0)"
-                ></variable-indicator>
+                <sg-comparative *ngIf="activeNode"
+                    [highlighted]="highlighted" [query]="activeNode.query"
+                    [variable1]="variable1" [variable2]="variable2"
+                    [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -359,15 +327,9 @@
         </h4>
         <div class="m-0 p-2" [hidden]="activeSafeguardPanel != SGT.Distributive">
             <div class="display text-center p-2">
-                <span class="variable1 pr-1" [class.highlighted]="highlighted == 1"
-                    (mouseenter)="highlight(1)" (mouseleave)="highlight(0)"
-                    >V(·)</span>
-                <span class="operator pr-1" [class.highlighted]="highlighted == 2"
-                    (mouseenter)="highlight(2)" (mouseleave)="highlight(0)"
-                >~</span>
-                <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-                    (mouseenter)="highlight(3)" (mouseleave)="highlight(0)"
-                >{{ powerLawConstant.a | number }}x<sup>{{ powerLawConstant.b | number }}</sup> </span>
+                <sg-distributive *ngIf="activeNode"
+                    [highlighted]="highlighted" [query]="query"
+                    [constant]="powerLawConstant" (highlight)="highlight($event)"></sg-distributive>
             </div>
             <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
             <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createDistributiveSafeguard()">

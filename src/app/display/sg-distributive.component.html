@@ -1,0 +1,6 @@
+
+<span class="variable1 pr-1">V(·)</span>
+<span class="operator pr-1">~</span>
+<span class="constant pr-1" [class.highlighted]="highlighted == 3"
+    (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
+>{{ constant.a | number }}x<sup>{{ constant.b | number }}</sup> </span>

@@ -54,8 +54,6 @@ export class AppComponent implements OnInit {
     EstimatePoint = Safeguard.EstimatePoint;
     CompareMeans = Safeguard.CompareMeans;
     VT = VariableTypes;
-    numberFormat = '1.1-1';
-    rankFormat = '1.0-0';
 
     constructor(private cd: ChangeDetectorRef,
         private speech: SpeechRecognitionService,

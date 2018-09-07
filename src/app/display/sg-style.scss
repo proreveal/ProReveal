@@ -15,3 +15,20 @@
 .variable2.highlighted {
     background: lighten($variable2-highlight-color, 40%);
 }
+
+.operator {
+    color: $operator-highlight-color;
+    font-weight: bold;
+}
+
+.operator.highlighted {
+    background: lighten($operator-highlight-color, 40%);
+}
+
+.constant {
+    color: $constant-highlight-color;
+}
+
+.constant.highlighted {
+    background: lighten($constant-highlight-color, 50%);
+}
