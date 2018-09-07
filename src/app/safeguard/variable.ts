@@ -48,15 +48,15 @@ export class DoubleValueVariable extends VariableTrait{ // a < b
     }
 }
 
+export class DistributionVariable extends VariableTrait {
+
+}
+
 export class GroupValueVariable { // g(*) > 3%
 
 }
 
 export class GroupRankVariable {
-
-}
-
-export class DistributionVariable {
 
 }
 

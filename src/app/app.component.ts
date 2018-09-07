@@ -17,7 +17,7 @@ import { Safeguard, SafeguardTypes as SGT } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait, DoubleValueVariable, SingleVariable, VariableTypes } from './safeguard/variable';
+import { VariableTrait, DoubleValueVariable, SingleVariable, VariableTypes, DistributionVariable } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -273,13 +273,11 @@ export class AppComponent implements OnInit {
     variable2: SingleVariable;
     useRank = false;
 
-    constant: ConstantTrait;
+    pointValueConstant: PointValueConstant = new PointValueConstant(0);
+    pointRankConstant: PointRankConstant = new PointRankConstant(1);
 
-    pointValueConstant: PointValueConstant = new PointValueConstant(10);
-    pointRankConstant: PointRankConstant = new PointRankConstant(10);
-
-    rangeValueConstant: RangeValueConstant = new RangeValueConstant(10, 20);
-    rangeRankConstant: RangeRankConstant = new RangeRankConstant(10, 20);
+    rangeValueConstant: RangeValueConstant = new RangeValueConstant(0, 1);
+    rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
 
@@ -344,11 +342,32 @@ export class AppComponent implements OnInit {
         if(!this.variable1) return;
 
         this.variable1.rank = this.useRank;
-        let sg = new Safeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
+        let sg;
+        if(this.useRank) sg = new Safeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
+        else sg = new Safeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
 
         this.variable1 = null;
+        this.pointRankConstant = null;
+        this.pointValueConstant = null;
+        this.toggle(SGT.None);
+    }
+
+    createRangeSafeguard() {
+        if(!this.variable1) return;
+
+        this.variable1.rank = this.useRank;
+        let sg;
+        if(this.useRank) sg = new Safeguard(this.variable1, this.operator, this.rangeRankConstant, this.activeNode);
+        else sg = new Safeguard(this.variable1, this.operator, this.rangeValueConstant, this.activeNode);
+
+        this.safeguards.push(sg);
+
+        this.variable1 = null;
+        this.rangeRankConstant = null;
+        this.rangeValueConstant = null;
+        this.toggle(SGT.None);
     }
 
     createComparativeSafeguard() {
@@ -363,6 +382,14 @@ export class AppComponent implements OnInit {
 
         this.variable1 = null;
         this.variable2 = null;
+        this.toggle(SGT.None);
+    }
+
+    createDistributiveSafeguard() {
+        let sg = new Safeguard(new DistributionVariable(), Operators.Follow, this.powerLawConstant, this.activeNode);
+        this.safeguards.push(sg)
+
+        this.toggle(SGT.None);
     }
 
     cancelSafeguard() {
@@ -378,6 +405,12 @@ export class AppComponent implements OnInit {
             this.cancelSafeguard();
         }
         else {
+            this.pointValueConstant = new PointValueConstant(0);
+            this.pointRankConstant = new PointRankConstant(1);
+            this.rangeValueConstant = new RangeValueConstant(0, 1);
+            this.rangeRankConstant = new RangeRankConstant(1, 2);
+            this.powerLawConstant = new PowerLawConstant();
+
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
         }

@@ -16,7 +16,6 @@ export class VariableIndicatorComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
-        console.log(this.query);
     }
 
 }

@@ -285,7 +285,7 @@
                 </div>
             </div>
             <div class="p-1">
-                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createRangeSafeguard()">
                     Create a Safeguard
                 </button>
                 <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
@@ -342,7 +342,7 @@
                 </div>
             </div>
             <div class="p-1">
-                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createComparativeSafeguard()">
                     Create a Safeguard
                 </button>
                 <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
@@ -370,10 +370,10 @@
                 >{{ powerLawConstant.a | number }}x<sup>{{ powerLawConstant.b | number }}</sup> </span>
             </div>
             <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createPointSafeguard()">
+            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createDistributiveSafeguard()">
                 Create a Safeguard
             </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="createPointSafeguard()">
+            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
