@@ -13,11 +13,11 @@ import { FieldSelectorComponent } from './field-selector/field-selector.componen
 import * as util from './util';
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Safeguard, SafeguardTypes as SGT } from './safeguard/safeguard';
+import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait, DoubleValueVariable, SingleVariable, VariableTypes, DistributionVariable } from './safeguard/variable';
+import { VariableTrait, DoubleVariable, SingleVariable, VariableTypes, DistributionVariable } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -341,8 +341,8 @@ export class AppComponent implements OnInit {
 
         this.variable1.rank = this.useRank;
         let sg;
-        if(this.useRank) sg = new Safeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
-        else sg = new Safeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
+        if(this.useRank) sg = new PointSafeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
+        else sg = new PointSafeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
 
@@ -357,8 +357,8 @@ export class AppComponent implements OnInit {
 
         this.variable1.rank = this.useRank;
         let sg;
-        if(this.useRank) sg = new Safeguard(this.variable1, this.operator, this.rangeRankConstant, this.activeNode);
-        else sg = new Safeguard(this.variable1, this.operator, this.rangeValueConstant, this.activeNode);
+        if(this.useRank) sg = new RangeSafeguard(this.variable1, this.rangeRankConstant, this.activeNode);
+        else sg = new RangeSafeguard(this.variable1, this.rangeValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
 
@@ -372,10 +372,10 @@ export class AppComponent implements OnInit {
         if(!this.variable1) return;
         if(!this.variable2) return;
 
-        let sg = new Safeguard(
-            new DoubleValueVariable(this.variable1 as SingleVariable,
+        let sg = new ComparativeSafeguard(
+            new DoubleVariable(this.variable1 as SingleVariable,
                 this.variable2 as SingleVariable),
-            this.operator, this.pointValueConstant, this.activeNode);
+            this.operator, this.activeNode);
         this.safeguards.push(sg);
 
         this.variable1 = null;
@@ -384,7 +384,7 @@ export class AppComponent implements OnInit {
     }
 
     createDistributiveSafeguard() {
-        let sg = new Safeguard(new DistributionVariable(), Operators.Follow, this.powerLawConstant, this.activeNode);
+        let sg = new DistributiveSafeguard(this.powerLawConstant, this.activeNode);
         this.safeguards.push(sg)
 
         this.toggle(SGT.None);

@@ -25,26 +25,26 @@ export class SingleVariable extends VariableTrait {
     }
 }
 
-export class DoubleValueVariable extends VariableTrait{ // a < b
-    constructor(public variable1: SingleVariable,
-                public variable2: SingleVariable) {
+export class DoubleVariable extends VariableTrait{ // a < b
+    constructor(public first: SingleVariable,
+                public second: SingleVariable) {
         super();
     }
 
     fieldString1() {
-        return this.variable1.fieldString();
+        return this.first.fieldString();
     }
 
     valueString1() {
-        return this.variable1.valueString();
+        return this.first.valueString();
     }
 
     fieldString2() {
-        return this.variable2.fieldString();
+        return this.second.fieldString();
     }
 
     valueString2() {
-        return this.variable2.valueString();
+        return this.second.valueString();
     }
 }
 

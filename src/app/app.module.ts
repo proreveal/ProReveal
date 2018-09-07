@@ -34,6 +34,7 @@ import { PointComponent } from './display/sg-point.component';
 import { ComparativeComponent } from './display/sg-comparative.component';
 import { DistributiveComponent } from './display/sg-distributive.component';
 import { RangeComponent } from './display/sg-range.component';
+import { SgDisplayComponent } from './display/sg-display.component';
 
 library.add(fas, far);
 
@@ -57,7 +58,8 @@ library.add(fas, far);
         PointComponent,
         ComparativeComponent,
         DistributiveComponent,
-        RangeComponent
+        RangeComponent,
+        SgDisplayComponent
     ],
     imports: [
         NgbModule.forRoot(),

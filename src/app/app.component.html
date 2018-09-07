@@ -121,15 +121,8 @@
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
                 The list is empty! Click on buttons below to create a safegaurd.
             </p>
-            <div *ngFor="let sg of safeguards" class="safeguard alert alert-success">
-                <p>
-                    COUNT({{ sg.variable.fieldString() }} = {{ sg.variable.valueString() }})
-                    {{ sg.operator }}
-                    {{ sg.value }}
-                </p>
-                <p>
-                    Confidence: 0.99
-                </p>
+            <div *ngFor="let sg of safeguards" class="safeguard">
+                <sg-display [safeguard]="sg"></sg-display>
             </div>
         </section>
 
