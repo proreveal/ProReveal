@@ -180,9 +180,8 @@
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
-                    <input type="number" class="form-control form-control-sm" [ngModel]="pointValueConstant.value | number: numberFormat"
-                        (change)="pointValueConstant.value = $event.target.value; constantUserChanged(pointValueConstant, $event)"
-                        pattern="-?(\d+|\d+\.\d+|\.\d+)([eE][-+]?\d+)?">
+                    <input type="text" class="form-control form-control-sm" [ngModel]="pointValueConstant.value | number: numberFormat"
+                        (change)="pointValueConstant.value=toNumber($event.target.value); constantUserChanged(pointValueConstant, $event)">
                 </div>
                 <h5 class="section-subheader p-1 border border-right-0" [hidden]="!useRank">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
@@ -193,7 +192,7 @@
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
                     <input type="number" class="form-control form-control-sm" [ngModel]="pointRankConstant.rank | number: rankFormat"
-                        (ngModelChange)="pointRankConstant.rank=$event; constantUserChanged($event)">
+                        (change)="pointRankConstant.rank=$event.target.value; constantUserChanged($event)">
                 </div>
             </div>
             <div class="p-1 guide">
@@ -261,10 +260,10 @@
                     <p class="m-0">
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
-                    <input type="number" class="form-control form-control-sm mb-1" [ngModel]="rangeValueConstant.from | number: numberFormat"
-                        (ngModelChange)="rangeValueConstant.from=$event; checkOrder(); constantUserChanged(rangeValueConstant)">
-                    <input type="number" class="form-control form-control-sm" [ngModel]="rangeValueConstant.to | number: numberFormat"
-                        (ngModelChange)="rangeValueConstant.to=$event; checkOrder(); constantUserChanged(rangeValueConstant)">
+                    <input type="text" class="form-control form-control-sm mb-1" [ngModel]="rangeValueConstant.from | number: numberFormat"
+                        (change)="rangeValueConstant.from=toNumber($event.target.value); checkOrder(); constantUserChanged(rangeValueConstant)">
+                    <input type="text" class="form-control form-control-sm" [ngModel]="rangeValueConstant.to | number: numberFormat"
+                        (change)="rangeValueConstant.to=toNumber($event.target.value); checkOrder(); constantUserChanged(rangeValueConstant)">
                 </div>
                 <h5 class="section-subheader p-1 border border-right-0" [hidden]="!useRank">
                     <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="constant"></fa-icon>
@@ -275,9 +274,9 @@
                         Please select a <span class="constant font-weight-bold">constant</span> by moving the line.
                     </p>
                     <input type="number" class="form-control form-control-sm mb-1" [ngModel]="rangeRankConstant.from | number: rankFormat"
-                        (ngModelChange)="rangeRankConstant.from=$event; checkOrder(); constantUserChanged(rangeRankConstant)">
+                        (change)="rangeRankConstant.from=$event.target.value; checkOrder(); constantUserChanged(rangeRankConstant)">
                     <input type="number" class="form-control form-control-sm" [ngModel]="rangeRankConstant.to | number: rankFormat"
-                        (ngModelChange)="rangeRankConstant.to=$event; checkOrder(); constantUserChanged(rangeRankConstant)">
+                        (change)="rangeRankConstant.to=$event.target.value; checkOrder(); constantUserChanged(rangeRankConstant)">
                 </div>
             </div>
             <div class="p-1 guide">

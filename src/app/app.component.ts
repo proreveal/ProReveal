@@ -395,4 +395,10 @@ export class AppComponent implements OnInit {
     fit() {
         (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
     }
+
+    toNumber(s:string) {
+        let num = +s.replace(/,/g, '');
+        if(isNaN(num)) num = 0;
+        return num;
+    }
 }
