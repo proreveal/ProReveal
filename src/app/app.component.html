@@ -332,7 +332,8 @@
             <div class="display text-center p-2">
                 <sg-distributive *ngIf="activeNode"
                     [highlighted]="highlighted" [query]="query"
-                    [constant]="powerLawConstant" (highlight)="highlight($event)"></sg-distributive>
+                    [constant]="useGaussian ? gaussianConstant : powerLawConstant"
+                    (highlight)="highlight($event)"></sg-distributive>
             </div>
             <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
             <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createDistributiveSafeguard()">

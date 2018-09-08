@@ -267,13 +267,13 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Distributive;
+    activeSafeguardPanel = SGT.None;
     safeguards: Safeguard[] = [];
 
     variable1: SingleVariable;
     variable2: SingleVariable;
     useRank = false;
-    useGaussian = false;
+    useGaussian = true;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
     pointRankConstant: PointRankConstant = new PointRankConstant(1);

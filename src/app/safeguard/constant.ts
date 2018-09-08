@@ -11,6 +11,7 @@ export abstract class ConstantTrait {
 }
 
 export interface Distribution {
+    name: string;
     compute(left:number, right: number): number;
 }
 
@@ -67,6 +68,7 @@ export class RangeRankConstant extends ConstantTrait {
 }
 
 export class PowerLawConstant extends ConstantTrait implements Distribution {
+    name='power';
     // a*x^b
     constructor(public a = 1, public b = 1, public r2 = 0.95) {
         super();
@@ -87,6 +89,7 @@ export class PowerLawConstant extends ConstantTrait implements Distribution {
 }
 
 export class GaussianConstant extends ConstantTrait implements Distribution {
+    name='gaussian';
     normal: NormalDistribution;
 
     constructor(public n, public mean = 0, public stdev = 1) {
