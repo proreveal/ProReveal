@@ -167,10 +167,12 @@ export class FlexBrush<Datum> {
         if(this.mode == FlexBrushMode.Point) {
             this.g.selectAll('.handle').attr('display', 'none')
             this.g.selectAll('rect.overlay').attr('display', 'none');
+            brushLine.attr('display', 'inline')
         }
         else if(this.mode == FlexBrushMode.Range) {
             this.g.selectAll('.handle').attr('display', 'visible')
             this.g.selectAll('rect.overlay').attr('display', 'visible');
+            brushLine.attr('display', 'none')
         }
     }
 
