@@ -145,7 +145,7 @@ export class CountAccumulator implements AccumulatorTrait {
 
     readonly name = "count";
     readonly alwaysNonNegative = true;
-    readonly requireTargetField = true;
+    readonly requireTargetField = false;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, 0, 0, a.nullCount + 1);

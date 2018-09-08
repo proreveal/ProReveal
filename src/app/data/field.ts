@@ -158,12 +158,16 @@ export class FieldValueList {
 export class FieldGroupedValue {
     hash: string;
 
-    constructor(public field: FieldTrait, public value: GroupIdType) {
-        this.hash = `${field.name}:${value}`;
+    constructor(public field: FieldTrait, public groupId: GroupIdType) {
+        this.hash = `${field.name}:${groupId}`;
+    }
+
+    value() {
+        return this.field.ungroup(this.groupId);
     }
 
     valueString() {
-        return this.field.ungroupString(this.value);
+        return this.field.ungroupString(this.groupId);
     }
 }
 
@@ -175,6 +179,6 @@ export class FieldGroupedValueList {
     }
 
     desc() {
-        return this.list.map(item => `${item.field.name}: ${item.field.ungroup(item.value)}`).join(', ');
+        return this.list.map(item => `${item.field.name}: ${item.field.ungroup(item.groupId)}`).join(', ');
     }
 }

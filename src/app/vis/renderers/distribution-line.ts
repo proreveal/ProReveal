@@ -15,18 +15,26 @@ export class DistributionLine {
         this.g = selectOrAppend(g as any, 'g', '.distribution-line-wrapper') as G;
     }
 
-    render(n: number,
+    render<Datum>(
+        distribution: ConstantTrait & Distribution,
+        data: Datum[],
+        yGetter: (Datum, number) => [number, number],
         x: d3.ScaleLinear<number, number>,
         y: d3.ScaleBand<string>,
-        distribution: ConstantTrait & Distribution) {
+        ) {
 
-        let data = d3.range(n);
-        let line = d3.line<number>()
-            .x(d => x(distribution.compute(d)))
-            .y(d => y(d.toString()));
+        let filtered = data.map((d, i) => [d, i]).filter(d => yGetter(d[0], d[1]) != null)
+
+        let line = d3.line<[Datum, number]>()
+            .x(d => {
+                return x(distribution.compute.apply(distribution, yGetter(d[0], d[1])));
+            })
+            .y(d => y(d[1].toString()))
+            //.curve(d3.curveBasis);
+
 
         let path = this.g.selectAll('path')
-            .data([data]);
+            .data([filtered]);
 
         path.exit().remove();
 

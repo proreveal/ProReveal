@@ -13,6 +13,7 @@ import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
+import { FittingTypes } from '../../safeguard/constant';
 
 export class PunchcardRenderer implements Renderer {
     constructor(public vis:VisComponent, public tooltip:TooltipComponent
@@ -198,6 +199,11 @@ export class PunchcardRenderer implements Renderer {
     }
 
     setVariableType() {
+
+    }
+
+    setFittingType(type: FittingTypes)
+    {
 
     }
 

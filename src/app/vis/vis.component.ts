@@ -11,7 +11,7 @@ import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { ToastrService } from 'ngx-toastr';
 import { FieldGroupedValueList } from '../data/field';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
-import { ConstantTrait } from '../safeguard/constant';
+import { ConstantTrait, FittingTypes } from '../safeguard/constant';
 
 @Component({
     selector: 'vis',
@@ -93,6 +93,11 @@ export class VisComponent implements OnInit, DoCheck {
 
     setVariableType(type: VariableTypes) {
         this.renderer.setVariableType(type);
+        this.renderer.render(this.node, this.svg.nativeElement);
+    }
+
+    setFittingType(type: FittingTypes) {
+        this.renderer.setFittingType(type);
         this.renderer.render(this.node, this.svg.nativeElement);
     }
 

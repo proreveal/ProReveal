@@ -18,7 +18,7 @@ import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariableTrait, DoubleVariable, SingleVariable, VariableTypes, DistributionVariable } from './safeguard/variable';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant } from './safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, GaussianConstant, FittingTypes } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
@@ -129,12 +129,15 @@ export class AppComponent implements OnInit {
 
             // create sum(x) by y
 
-            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-            this.run(5);
+            // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+            // this.run(5);
 
-            // normal
+            // normal (categorical)
+            // this.nodeSelected(this.ongoingNodes[0]);
 
-            //this.nodeSelected(this.ongoingNodes[0]);
+            // normal (numerical)
+            this.run(110);
+            this.nodeSelected(this.ongoingNodes[0]);
 
             of(0).pipe(
                 delay(1000)
@@ -264,12 +267,13 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Point;
+    activeSafeguardPanel = SGT.Distributive;
     safeguards: Safeguard[] = [];
 
     variable1: SingleVariable;
     variable2: SingleVariable;
     useRank = false;
+    useGaussian = false;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
     pointRankConstant: PointRankConstant = new PointRankConstant(1);
@@ -278,6 +282,7 @@ export class AppComponent implements OnInit {
     rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
+    gaussianConstant: GaussianConstant = new GaussianConstant(10);
 
     Operators = Operators;
     operator = Operators.LessThanOrEqualTo;
@@ -297,7 +302,6 @@ export class AppComponent implements OnInit {
             else this.operator = Operators.GreaterThanOrEqualTo;
         }
     }
-
 
     constantSelected(constant: ConstantTrait) {
         if(constant instanceof PointValueConstant) {
@@ -322,6 +326,8 @@ export class AppComponent implements OnInit {
             this.rangeRankConstant = constant;
         else if(constant instanceof PowerLawConstant)
             this.powerLawConstant = constant;
+        else if(constant instanceof GaussianConstant)
+            this.gaussianConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);
     }
@@ -416,6 +422,10 @@ export class AppComponent implements OnInit {
 
     useRankToggled() {
         this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
+    }
+
+    useGaussianToggled() {
+        this.vis.setFittingType(this.useGaussian ? FittingTypes.Gaussian : FittingTypes.PowerLaw);
     }
 
     checkOrder() {

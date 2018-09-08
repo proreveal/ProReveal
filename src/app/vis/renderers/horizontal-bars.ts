@@ -13,12 +13,12 @@ import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { Safeguard, SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { SingleVariable, VariableTypes as VT, VariableTrait } from '../../safeguard/variable';
-import { Operators } from '../../safeguard/operator';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, Distribution } from '../../safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, Distribution, GaussianConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
+import { FittingTypes as FT } from '../../safeguard/constant';
 
 type Datum = {
     id: string,
@@ -100,8 +100,8 @@ export class HorizontalBarsRenderer implements Renderer {
         svg.attr('width', width).attr('height', height)
             .on('contextmenu', () => d3.event.preventDefault());
 
-        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length + 4 /* rank */);
-        const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width : 0;
+        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length );
+        const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0;
 
         const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
         const xMax = d3.max(data, d => d.ci3stdev.high);
@@ -414,9 +414,27 @@ export class HorizontalBarsRenderer implements Renderer {
         }
 
         if(this.safeguardType === SGT.Distributive) {
-            this.distributionLine.render(
-                this.data.length, this.xScale, this.yScale, this.constant as Distribution
-            )
+            if(this.fittingType == FT.PowerLaw) {
+                this.distributionLine.render<Datum>(
+                    this.constant as Distribution,
+                    this.data,
+                    (d: Datum, i: number) => {return [i, 0]; },
+                    this.xScale, this.yScale
+                )
+            }
+            else {
+                this.distributionLine.render<Datum>(
+                    this.constant as Distribution,
+                    this.data,
+                    (d: Datum, i: number) => {
+                        let range = d.keys.list[0].value();
+                        if(range == null) return null;
+                        return range;
+                    },
+                    this.xScale, this.yScale
+                )
+            }
+
         }
 
         // ADD CODE FOR SGS
@@ -486,6 +504,13 @@ export class HorizontalBarsRenderer implements Renderer {
         else if (vt === VT.Rank) {
             this.flexBrush.setDirection(FlexBrushDirection.Y);
         }
+    }
+
+    fittingType: FT = FT.Gaussian;
+    setFittingType(ft: FT) {
+        this.fittingType = ft;
+
+        this.constant = null;
     }
 
     updateHighlight() {
@@ -614,8 +639,20 @@ export class HorizontalBarsRenderer implements Renderer {
             }
         }
         else if(this.safeguardType === SGT.Distributive) {
-            // regression
-            let constant = PowerLawConstant.Regression(this.data.map((d, i) => [i + 1, d.ci3stdev.center] as [number, number]))
+            let constant;
+            if(this.fittingType == FT.Gaussian) {
+                let data = this.data.map(d => {
+                    let range = d.keys.list[0].value();
+                    if(range == null) return [0, 0] as [number, number];
+                    return [(range[0] + range[1]) / 2, d.ci3stdev.center] as [number, number];
+                });
+
+                constant = GaussianConstant.Regression(data);
+            }
+            else if(this.fittingType == FT.PowerLaw) {
+                constant = PowerLawConstant.Regression(this.data.map((d, i) => [i + 1, d.ci3stdev.center] as [number, number]));
+            }
+
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }

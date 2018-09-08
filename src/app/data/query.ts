@@ -184,7 +184,7 @@ export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
     defaultOrdering = NumericalOrdering;
     defaultOrderingDirection = OrderingDirection.Ascending;
-    defaultOrderingGetter = d => (d.keys as FieldGroupedValueList).list[0].value;
+    defaultOrderingGetter = d => (d.keys as FieldGroupedValueList).list[0].groupId;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
