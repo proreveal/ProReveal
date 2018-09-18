@@ -12,13 +12,14 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { Safeguard, SafeguardTypes as SGT } from '../../safeguard/safeguard';
+import { FittingTypes as FT } from '../../safeguard/constant';
 import { SingleVariable, VariableTypes as VT, VariableTrait } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, Distribution, GaussianConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
-import { FittingTypes as FT } from '../../safeguard/constant';
+
 
 type Datum = {
     id: string,

@@ -24,6 +24,10 @@ export function translate(x: number, y: number) {
     return `translate(${x}, ${y})`;
 }
 
+export function scale(x: number, y: number) {
+    return `scale(${x}, ${y})`;
+}
+
 export function srange(n: number) {
     return arange(n).map(d => d.toString());
 }

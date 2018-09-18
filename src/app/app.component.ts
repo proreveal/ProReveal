@@ -3,7 +3,7 @@ import { Dataset } from './data/dataset';
 import { FieldTrait, VlType, FieldGroupedValueList } from './data/field';
 import { Engine, Priority } from './data/engine';
 
-import { Query, EmptyQuery } from './data/query';
+import { Query, EmptyQuery, AggregateQuery } from './data/query';
 import { AccumulatedResponseDictionary } from './data/accumulator';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode, NodeState } from './exploration/exploration-node';
@@ -136,8 +136,16 @@ export class AppComponent implements OnInit {
             // this.nodeSelected(this.ongoingNodes[0]);
 
             // normal (numerical)
-            this.run(110);
-            this.nodeSelected(this.ongoingNodes[0]);
+            // this.run(110);
+            // this.nodeSelected(this.ongoingNodes[0]);
+
+            // create two categorical
+
+            this.run(2);
+            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
+            this.run(10);
+            //this.nodeSelected(this.ongoingNodes[0]);
+
 
             of(0).pipe(
                 delay(1000)
@@ -188,10 +196,22 @@ export class AppComponent implements OnInit {
     //     }
     // }
 
+    rankAllowed() {
+        return this.activeNode && this.activeNode.query && (this.activeNode.query as AggregateQuery).groupBy.fields.length == 1;
+    }
+
     nodeSelected(node: ExplorationNode) {
         if (this.activeNode === node)
             this.activeNode = null;
-        else this.activeNode = node;
+        else if(this.activeNode) {
+            this.activeNode = node;
+            this.cancelSafeguard();
+        }
+        else {
+            this.activeNode = node;
+        }
+
+        if(!this.rankAllowed()) this.useRank = false;
     }
 
     // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
@@ -267,7 +287,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.None;
+    activeSafeguardPanel = SGT.Range;
     safeguards: Safeguard[] = [];
 
     variable1: SingleVariable;
@@ -417,6 +437,7 @@ export class AppComponent implements OnInit {
 
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
+            this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
         }
     }
 

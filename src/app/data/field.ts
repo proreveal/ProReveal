@@ -171,11 +171,13 @@ export class FieldGroupedValue {
     }
 }
 
+export const HashSeparator = '_';
+
 export class FieldGroupedValueList {
     hash: string;
 
     constructor(public list: FieldGroupedValue[]) {
-        this.hash = list.map(d => d.hash).join('_');
+        this.hash = list.map(d => d.hash).join(HashSeparator);
     }
 
     desc() {

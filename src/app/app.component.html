@@ -149,7 +149,7 @@
                 <p class="p-1 guide m-0">
                     Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on the chart.
                 </p>
-                <div class="form-group-sm form-check m-0 mx-1">
+                <div class="form-group-sm form-check m-0 mx-1" [hidden]="!rankAllowed()">
                     <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
                          [(ngModel)]="useRank">
                     <label class="form-check-label guide" for="use-rank1">Use Rank</label>
@@ -204,7 +204,7 @@
             <div class="display text-center p-2">
                 <sg-range *ngIf="activeNode"
                     [highlighted]="highlighted" [query]="activeNode.query"
-                    [variable]="variable" [constant]="useRank ? rangeRankConstant : rangeValueConstant"
+                    [variable]="variable1" [constant]="useRank ? rangeRankConstant : rangeValueConstant"
                     (highlight)="highlight($event)"></sg-range>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
@@ -215,7 +215,7 @@
                 <p class="p-1 guide m-0">
                     Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on the chart.
                 </p>
-                <div class="form-group-sm form-check m-0 mx-1">
+                <div class="form-group-sm form-check m-0 mx-1" [hidden]="!rankAllowed()">
                     <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
                          [(ngModel)]="useRank">
                     <label class="form-check-label guide" for="use-rank1">Use Rank</label>

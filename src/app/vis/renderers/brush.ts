@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { VisConstants as VC } from '../vis-constants';
-import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
+import { translate, selectOrAppend, scale } from '../../d3-utils/d3-utils';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 type Extent = [[number, number], [number, number]];
@@ -16,9 +16,14 @@ export enum FlexBrushMode {
     Range
 };
 
+export interface FlexBrushOptions {
+    yResize?: number
+};
+
 export class FlexBrush<Datum> {
     brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     g: G;
+    handleG: G;
     extent: Extent;
     brush: d3.BrushBehavior<Datum>;
     handles: string[];
@@ -26,13 +31,14 @@ export class FlexBrush<Datum> {
     snap: (number) => number;
 
     constructor(public direction:FlexBrushDirection = FlexBrushDirection.X,
-        public mode = FlexBrushMode.Point) {
+        public mode = FlexBrushMode.Point, public options:FlexBrushOptions = {}) {
         this.setDirection(direction);
         this.setMode(mode);
     }
 
     setup(g:G) {
         this.g = selectOrAppend(g as any, 'g', '.brush-wrapper') as G;
+        this.handleG = selectOrAppend(this.g as any, 'g', '.brush-handle') as G;
     }
 
     setDirection(direction: FlexBrushDirection) {
@@ -86,7 +92,10 @@ export class FlexBrush<Datum> {
 
         this.g.select('rect.selection').style('stroke-width', 0);
 
-        let handles = this.g.selectAll('.fb-handle')
+        if(this.direction == FlexBrushDirection.X) {
+            this.handleG.attr('transform', translate(0, extent[0][1] - 33 * (this.options.yResize || 1)));
+        }
+        let handles = this.handleG.selectAll('.fb-handle')
             .data(this.handles);
 
         handles.exit().remove();
@@ -98,6 +107,7 @@ export class FlexBrush<Datum> {
             .attr('class', 'fb-handle')
             .merge(handles)
                 .attr('d', this.getHandle)
+                .attr('transform', scale(1, this.options.yResize || 1))
         // ...
 
         let brushLine = selectOrAppend(this.g as any, 'line', '.brush-line')
@@ -120,7 +130,7 @@ export class FlexBrush<Datum> {
                 else if(d == 'n') y = sel[0];
                 else if(d == 's') y = sel[1];
 
-                return translate(x, y);
+                return translate(x, y) + scale(1, this.options.yResize || 1);
             })
 
             if(this.mode === FlexBrushMode.Point) {

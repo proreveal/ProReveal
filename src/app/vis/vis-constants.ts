@@ -9,7 +9,8 @@ export const VisConstants = Object.freeze({
     punchcard: {
         rowHeight: 20,
         columnWidth: 30,
-        legendSize: 250
+        legendSize: 200,
+        swatchHeight: 20
     },
     padding: 5,
     variableHighlightColor: '#f4511e',
