@@ -1,11 +1,6 @@
 import * as util from '../util';
 import { Dataset } from './dataset';
 import { FieldTrait, VlType } from './field';
-import { assert, assertIn } from './assert';
-import {
-    AccumulatorTrait, AccumulatedResponseDictionary,
-    PartialResponse
-} from './accumulator';
 import { Query } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
@@ -57,7 +52,7 @@ export class Engine {
             this.ongoingQueries.push(query);
         }
 
-        query.jobs().forEach(job => this.queue.append(job));
+        query.jobs.forEach(job => this.queue.append(job));
         this.queue.reschedule();
     }
 
@@ -73,11 +68,11 @@ export class Engine {
 
         const job = this.queue.pop();
 
-        job.query.progress.ongoing = 1;
-        const partialResponses = job.run();
-        job.query.progress.ongoing = 0;
+        job.query.progress.ongoingBlocks = 1;
+        const partialKeyValues = job.run();
+        job.query.progress.ongoingBlocks = 0;
 
-        job.query.accumulate(job, partialResponses);
+        job.query.accumulate(job, partialKeyValues);
 
         if(job.query.progress.done()) {
             this.ongoingQueries.splice(0, 1);

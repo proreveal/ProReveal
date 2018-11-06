@@ -1,8 +1,9 @@
-import { AggregateQuery, Query } from './query';
-import { FieldValue, FieldValueList, FieldTrait } from './field';
-import { PartialValue, PartialResponse, AccumulatorTrait } from './accumulator';
+import { Query } from './query';
+import { FieldTrait } from './field';
+import { AccumulatorTrait } from './accum';
 import { Dataset } from './dataset';
 import { GroupBy } from './groupby';
+import { PartialKeyValue } from './keyvalue';
 
 export abstract class Job {
     static Id = 1;
@@ -12,7 +13,7 @@ export abstract class Job {
         this.id = Job.Id++;
     }
 
-    abstract run(): PartialResponse[];
+    abstract run(): PartialKeyValue[];
     abstract name(): string;
 }
 
@@ -29,7 +30,7 @@ export class AggregateJob extends Job {
     }
 
     run() {
-        let result: { [key: string]: PartialResponse } = {};
+        let result: { [key: string]: PartialKeyValue } = {};
 
         this.sample.forEach(i => {
             let row = this.dataset.rows[i];
@@ -39,12 +40,12 @@ export class AggregateJob extends Job {
 
             if (!result[hash])
                 result[hash] = {
-                    fieldGroupedValueList: fieldGroupedValueList,
-                    partialValue: this.accumulator.initPartialValue
+                    key: fieldGroupedValueList,
+                    value: this.accumulator.initPartialValue
                 };
 
-            result[hash].partialValue =
-            this.accumulator.reduce(result[hash].partialValue,
+            result[hash].value =
+            this.accumulator.reduce(result[hash].value,
                     (this.target ? row[this.target.name] : 0));
         })
 

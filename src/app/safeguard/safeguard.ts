@@ -29,11 +29,12 @@ export class Safeguard {
 
     static EstimatePoint(query: AggregateQuery, variable: SingleVariable,
         operator: Operators, constant: number) {
-        let result = query.result[variable.fieldGroupedValue.hash].accumulatedValue;
-        let ai = query.accumulator.approximate(
+        let result = query.result[variable.fieldGroupedValue.hash].value;
+        let ai = query.approximator.approximate(
             result,
             query.progress.processedPercent(),
-            query.dataset.length);
+            query.progress.processedRows,
+            query.progress.totalRows);
         let z = (constant - ai.mean) / ai.stdem;
         let cp = Safeguard.normal.cdf(z);
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo) {

@@ -2,12 +2,10 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { getCurrentTarget } from '../util';
 import { Constants } from '../constants';
 import { FieldTrait } from '../data/field';
-import { SpeechRecognition } from '../speech';
 import { levenshtein } from '../util';
 import { ChangeDetectorRef } from '@angular/core';
 import { Floating } from '../floating';
 import { ExplorationNode } from '../exploration/exploration-node';
-import { SpeechRecognitionService } from '../speech-recognition.service';
 
 @Component({
     selector: 'field-selector',
@@ -22,7 +20,7 @@ export class FieldSelectorComponent extends Floating implements OnInit {
     highlightedFields: FieldTrait[] = [];
     node: ExplorationNode;
 
-    constructor(private ref: ChangeDetectorRef, private speech:SpeechRecognitionService) {
+    constructor(private ref: ChangeDetectorRef) {
         super();
     }
 
@@ -33,9 +31,6 @@ export class FieldSelectorComponent extends Floating implements OnInit {
         super.show(left, top);
 
         this.fields = fields;
-        this.speech.start(this.fields.map(f => f.name),
-            this.speechRecognized.bind(this)
-        );
         this.highlightedFields = [];
         this.node = node;
     }
@@ -43,7 +38,6 @@ export class FieldSelectorComponent extends Floating implements OnInit {
     hide() {
         super.hide();
 
-        this.speech.stop();
         this.fields = [];
         this.highlightedFields = [];
     }

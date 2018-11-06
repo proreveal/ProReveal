@@ -80,14 +80,9 @@
                     </span>
                 </div>
                 <input type="text" name="keyword" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
-                <div class="input-group-append">
-                    <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
-                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                    </button>
-                    <button class="btn btn-light" type="button" (click)="voiceSearchClicked()">
-                        <fa-icon [icon]="['fas', 'microphone']"></fa-icon>
-                    </button>
-                </div>
+                <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
+                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                </button>
             </div>
         </section>
         <section id="graph" class="styled-scroll">

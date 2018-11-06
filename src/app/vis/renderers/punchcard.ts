@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { VisConstants as VC } from '../vis-constants';
 import * as util from '../../util';
-import { AccumulatedResponseDictionary } from '../../data/accumulator';
 import { AggregateQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
@@ -10,12 +9,10 @@ import { FieldGroupedValueList, FieldGroupedValue } from '../../data/field';
 import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
-import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
-import { FittingTypes, ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant } from '../../safeguard/constant';
-import { Safeguard, SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { FittingTypes as FT } from '../../safeguard/constant';
+import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } from '../../safeguard/constant';
+import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, SingleCombinedVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 
@@ -67,13 +64,15 @@ export class PunchcardRenderer implements Renderer {
     render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         let query = node.query as AggregateQuery;
         let processedPercent = query.progress.processedPercent();
-        let done = query.progress.done();
         let visG = d3.select(nativeSvg).select('g.vis');
 
         let data = query.resultList().map(
             value => {
-                const ai = query.accumulator
-                    .approximate(value[1], processedPercent, query.dataset.length);
+                const ai = query.approximator
+                    .approximate(value[1],
+                        processedPercent,
+                        query.progress.processedRows,
+                        query.progress.totalRows);
 
                 return {
                     id: value[0].hash,
@@ -144,7 +143,7 @@ export class PunchcardRenderer implements Renderer {
             .attr('dy', '.8rem')
 
         yLabels.merge(enter)
-            .attr('transform', (d, i) => translate(yLabelWidth - VC.padding, yScale(d.hash)))
+            .attr('transform', (d) => translate(yLabelWidth - VC.padding, yScale(d.hash)))
             .text(d => d.valueString())
 
         yLabels.exit().remove();
@@ -158,7 +157,7 @@ export class PunchcardRenderer implements Renderer {
             .attr('font-size', '.8rem')
 
         xLabels.merge(enter)
-            .attr('transform', (d, i) => translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
+            .attr('transform', (d) => translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
             .text(d => d.valueString())
 
         xLabels.exit().remove();
@@ -171,8 +170,8 @@ export class PunchcardRenderer implements Renderer {
             .style('opacity', 0.2);
 
         xLabelLines.merge(enter)
-            .attr('x1', (d, i) => xScale(d.hash) + xScale.bandwidth() / 2)
-            .attr('x2', (d, i) => xScale(d.hash) + xScale.bandwidth() / 2)
+            .attr('x1', (d) => xScale(d.hash) + xScale.bandwidth() / 2)
+            .attr('x2', (d) => xScale(d.hash) + xScale.bandwidth() / 2)
             .attr('y1', yScale.range()[0])
             .attr('y2', yScale.range()[1])
 
@@ -188,8 +187,8 @@ export class PunchcardRenderer implements Renderer {
         yLabelLines.merge(enter)
             .attr('x1', xScale.range()[0])
             .attr('x2', xScale.range()[1])
-            .attr('y1', (d, i) => yScale(d.hash) + yScale.bandwidth() / 2)
-            .attr('y2', (d, i) => yScale(d.hash) + yScale.bandwidth() / 2)
+            .attr('y1', (d) => yScale(d.hash) + yScale.bandwidth() / 2)
+            .attr('y2', (d) => yScale(d.hash) + yScale.bandwidth() / 2)
 
         yLabelLines.exit().remove();
 
@@ -229,7 +228,7 @@ export class PunchcardRenderer implements Renderer {
         rects.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', xScale.bandwidth())
-            .attr('transform', (d, i) => {
+            .attr('transform', (d) => {
                 return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
             })
             .attr('fill', d => zScale(d.ci3stdev.center, d.ci3stdev.high - d.ci3stdev.center));
@@ -246,13 +245,13 @@ export class PunchcardRenderer implements Renderer {
         eventRects.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', xScale.bandwidth())
-            .attr('transform', (d, i) => {
+            .attr('transform', (d) => {
                 return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
             })
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
-            .on('click', (d, i) => this.datumSelected(d, i))
-            .on('contextmenu', (d, i) => this.datumSelected2(d, i))
+            .on('click', (d, i) => this.datumSelected(d))
+            .on('contextmenu', (d, i) => this.datumSelected2(d))
 
         eventRects.exit().remove();
 
@@ -278,10 +277,10 @@ export class PunchcardRenderer implements Renderer {
         let samples = swatch.selectAll('rect').data(swatchData);
 
         samples.enter().append('rect').merge(samples)
-            .attr('x', (d, i) => d)
+            .attr('x', (d) => d)
             .attr('width', VC.punchcard.legendSize / numSamples)
             .attr('height', VC.punchcard.swatchHeight)
-            .attr('fill', (d, i) => zScale(this.swatchXScale(d), 0))
+            .attr('fill', (d) => zScale(this.swatchXScale(d), 0))
             .style('shape-rendering', 'crispEdges')
 
         let swatchAxis = d3.axisBottom(d3.scaleLinear<number>()
@@ -449,7 +448,7 @@ export class PunchcardRenderer implements Renderer {
     updateHighlight() {
         this.eventRects
             .classed('stroke-highlighted', false)
-            .filter((d, i) =>
+            .filter((d) =>
                 this.variable1 && this.variable1.hash === d.keys.hash ||
                 this.variable2 && this.variable2.hash === d.keys.hash
             )
@@ -457,7 +456,7 @@ export class PunchcardRenderer implements Renderer {
 
         this.eventRects
             .classed('variable2', false)
-            .filter((d, i) => this.variable2 && this.variable2.hash === d.keys.hash)
+            .filter((d) => this.variable2 && this.variable2.hash === d.keys.hash)
             .classed('variable2', true)
     }
 
@@ -499,7 +498,7 @@ export class PunchcardRenderer implements Renderer {
         return 1;
     }
 
-    datumSelected(d: Datum, i) {
+    datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
         let variable = new SingleCombinedVariable(d.keys.list[0], d.keys.list[1]);
@@ -516,7 +515,7 @@ export class PunchcardRenderer implements Renderer {
         if (!this.constant) this.setDefaultConstantFromVariable();
     }
 
-    datumSelected2(d: Datum, i) {
+    datumSelected2(d: Datum) {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 

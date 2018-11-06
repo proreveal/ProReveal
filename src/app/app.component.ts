@@ -4,14 +4,12 @@ import { FieldTrait, VlType, FieldGroupedValueList } from './data/field';
 import { Engine, Priority } from './data/engine';
 
 import { Query, EmptyQuery, AggregateQuery } from './data/query';
-import { AccumulatedResponseDictionary } from './data/accumulator';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode, NodeState } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
 import { ExplorationViewComponent } from './exploration/exploration-view.component';
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import * as util from './util';
-import { SpeechRecognitionService } from './speech-recognition.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
@@ -22,6 +20,7 @@ import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstan
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
+import { AccumulatedKeyValues } from './data/keyvalue';
 
 @Component({
     selector: 'app-root',
@@ -56,7 +55,6 @@ export class AppComponent implements OnInit {
     VT = VariableTypes;
 
     constructor(private cd: ChangeDetectorRef,
-        private speech: SpeechRecognitionService,
         private modalService: NgbModal) {
         this.sortablejsOptions = {
             onUpdate: this.ongoingQueriesReordered.bind(this)
@@ -103,11 +101,11 @@ export class AppComponent implements OnInit {
         this.explorationLayout.layout(this.explorationRoot, false); //this.explorationView.editable);
     }
 
-    print(result: AccumulatedResponseDictionary) {
+    print(result: AccumulatedKeyValues) {
         for (const key in result) {
             const res = result[key];
 
-            console.log(res.fieldGroupedValueList, res.accumulatedValue);
+            console.log(res.key, res.value);
         }
     }
 
@@ -261,10 +259,6 @@ export class AppComponent implements OnInit {
                                 .filter(field => field.name.toLowerCase().includes(keyword))
                                 .length > 0)
                     );
-    }
-
-    voiceSearchClicked() {
-        this.speech.start(this.dataset.fields!.map(f => f.name), this.voiceKeywordRecognized.bind(this))
     }
 
     voiceKeywordRecognized(event) {

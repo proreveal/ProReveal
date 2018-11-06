@@ -21,11 +21,11 @@
 
 <hr>
 
-<p [hidden]="node.query.progress.processed > 0" class="alert alert-primary" role="alert">
+<p [hidden]="node.query.progress.processedBlocks > 0" class="alert alert-primary" role="alert">
     This query has not been start yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
 </p>
 
-<div [hidden]="node.query.progress.processed === 0" class="vis-content">
+<div [hidden]="node.query.progress.processedBlocks === 0" class="vis-content">
     <span class="variable highlighted">werwe</span>
     <div class="progress-control">
         <div class="progress mb-1">
@@ -42,7 +42,7 @@
         </div>
         <div class="d-flex flex-row justify-content-between mb-1">
             <div class="p-2 flex-grow-1">
-                {{ node.query.progress.processed }} / {{ node.query.progress.total}}
+                {{ node.query.progress.processedBlocks }} / {{ node.query.progress.totalBlocks}}
                 ({{ node.query.progress.processedPercent() | percent }})
             </div>
             <button type="button" class="btn btn-light btn-sm ml-1"

@@ -81,8 +81,11 @@ export class HorizontalBarsRenderer implements Renderer {
 
         let data = query.resultList().map(
             value => {
-                const ai = query.accumulator
-                    .approximate(value[1], processedPercent, query.dataset.length);
+                const ai = query.approximator
+                    .approximate(value[1],
+                        processedPercent,
+                        query.progress.processedRows,
+                        query.progress.totalRows);
 
                 return {
                     id: value[0].hash,

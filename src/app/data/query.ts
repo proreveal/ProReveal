@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType, FieldGroupedValueList } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatedResponseDictionary, AccumulatorTrait, PartialResponse, SumAccumulator, CountAccumulator, AccumulatedResponse, AccumulatedValue } from './accumulator';
+import { AccumulatorTrait, SumAccumulator, CountAccumulator, AccumulatedValue } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -10,31 +10,33 @@ import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
 import { OrderingType, NumericalOrdering, OrderingDirection } from './ordering';
-import { ConfidenceInterval } from './approx';
+import { ConfidenceInterval, ApproximatorTrait, SumApproximator, CountApproximator } from './approx';
+import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 
 export abstract class Query {
     id: number;
     static Id = 1;
     progress: Progress = new Progress();
     name: string;
-    result: AccumulatedResponseDictionary;
+    result: AccumulatedKeyValues;
     lastUpdated: number = +new Date(); // epoch
     defaultOrdering = NumericalOrdering;
     defaultOrderingGetter = d => d;
     defaultOrderingDirection = OrderingDirection.Descending;
+    jobs: Job[];
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
+        this.jobs = [];
     }
 
     resultList(): [FieldGroupedValueList, AccumulatedValue][] {
         return Object.keys(this.result).map<[FieldGroupedValueList, AccumulatedValue]>(key =>
-            [this.result[key].fieldGroupedValueList, this.result[key].accumulatedValue]
+            [this.result[key].key, this.result[key].value]
         );
     }
 
-    abstract jobs(): Job[];
-    abstract accumulate(job: Job, partialResponses: PartialResponse[]);
+    abstract accumulate(job: Job, partialKeyValues: PartialKeyValue[]);
     abstract combine(field: FieldTrait): Query;
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
     abstract desc(): string;
@@ -50,11 +52,7 @@ export class EmptyQuery extends Query {
         super(dataset, sampler);
     }
 
-    jobs() {
-        return [];
-    }
-
-    accumulate(job: Job, partialResponses: PartialResponse[]) {
+    accumulate(job: Job, partialResponses: PartialKeyValue[]) {
         this.lastUpdated = +new Date();
     }
 
@@ -84,7 +82,7 @@ export class EmptyQuery extends Query {
  */
 export class AggregateQuery extends Query {
     name = "AggregateQuery";
-    result: AccumulatedResponseDictionary = {};
+    result: AccumulatedKeyValues = {};
     defaultOrdering = NumericalOrdering;
     defaultOrderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
 
@@ -98,21 +96,21 @@ export class AggregateQuery extends Query {
      */
     constructor(
         public accumulator: AccumulatorTrait,
+        public approximator: ApproximatorTrait,
         public target: FieldTrait,
         public dataset: Dataset,
         public groupBy: GroupBy,
         public sampler: Sampler = new UniformRandomSampler(100)
     ) {
         super(dataset, sampler);
-    }
 
-    jobs() {
         // create samples
         let samples = this.sampler.sample(this.dataset.rows.length);
 
-        this.progress.total = samples.length;
+        this.progress.totalBlocks = samples.length;
+        this.progress.totalRows = dataset.length;
 
-        return samples.map((sample, i) =>
+        this.jobs = samples.map((sample, i) =>
             new AggregateJob(
                 this.accumulator,
                 this.target,
@@ -123,22 +121,23 @@ export class AggregateQuery extends Query {
                 sample));
     }
 
-    accumulate(job: Job, partialResponses: PartialResponse[]) {
+    accumulate(job: AggregateJob, partialResponses: PartialKeyValue[]) {
         this.lastUpdated = +new Date();
 
-        this.progress.processed++;
+        this.progress.processedRows += job.sample.length;
+        this.progress.processedBlocks++;
 
         partialResponses.forEach(pres => {
-            const hash = pres.fieldGroupedValueList.hash;
+            const hash = pres.key.hash;
 
             if (!this.result[hash])
                 this.result[hash] = {
-                    fieldGroupedValueList: pres.fieldGroupedValueList,
-                    accumulatedValue: this.accumulator.initAccumulatedValue
+                    key: pres.key,
+                    value: this.accumulator.initAccumulatedValue
                 };
 
-            this.result[hash].accumulatedValue =
-                this.accumulator.accumulate(this.result[hash].accumulatedValue, pres.partialValue);
+            this.result[hash].value =
+                this.accumulator.accumulate(this.result[hash].value, pres.value);
         });
     }
 
@@ -146,6 +145,7 @@ export class AggregateQuery extends Query {
         if (field.vlType === VlType.Quantitative && this.target === null) {
             return new AggregateQuery(
                 new SumAccumulator(),
+                new SumApproximator(),
                 field,
                 this.dataset,
                 this.groupBy,
@@ -155,6 +155,7 @@ export class AggregateQuery extends Query {
 
         return new AggregateQuery(
             this.accumulator,
+            this.approximator,
             this.target,
             this.dataset,
             new GroupBy(this.groupBy.fields.concat(field)),
@@ -189,6 +190,7 @@ export class Histogram1DQuery extends AggregateQuery {
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
+            new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping]),
@@ -200,6 +202,7 @@ export class Histogram1DQuery extends AggregateQuery {
     combine(field: FieldTrait) {
         return new AggregateQuery(
             new SumAccumulator(),
+            new SumApproximator(),
             this.grouping,
             this.dataset,
             new GroupBy([field]),
@@ -218,6 +221,7 @@ export class Frequency1DQuery extends AggregateQuery {
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
+            new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping]),
@@ -229,12 +233,14 @@ export class Frequency1DQuery extends AggregateQuery {
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
             return new AggregateQuery(new SumAccumulator(),
+                new SumApproximator(),
                 field,
                 this.dataset,
                 new GroupBy([this.grouping]),
                 this.sampler);
         }
         return new AggregateQuery(new CountAccumulator(),
+            new CountApproximator(),
             null,
             this.dataset,
             new GroupBy([this.grouping, field]),

@@ -1,11 +1,9 @@
-import { FieldTrait, FieldValueList, FieldGroupedValueList } from './field';
 import { isNull } from 'util';
-import { ApproximatedInterval } from './approx';
-
-
+import { ApproximatedInterval, MinApproximator } from './approx';
 
 /**
- * only a value
+ * indicates a unit value of a specific category.
+ * By default, we compute count, sum, ssum of Y by X.
  */
 export class PartialValue {
     constructor(public sum: number,
@@ -15,14 +13,6 @@ export class PartialValue {
         public max: number,
         public nullCount: number) {
     }
-}
-
-/**
- * a single row of response (keys & value)
- */
-export interface PartialResponse {
-    fieldGroupedValueList: FieldGroupedValueList;
-    partialValue: PartialValue;
 }
 
 /**
@@ -38,19 +28,6 @@ export class AccumulatedValue {
     }
 }
 
-/**
- * a single row of response (keys & value)
- */
-export interface AccumulatedResponse {
-    fieldGroupedValueList: FieldGroupedValueList;
-    accumulatedValue: AccumulatedValue;
-}
-
-/**
- * a set of rows (hash => (keys & value))
- */
-export type AccumulatedResponseDictionary = { [hash: string]: AccumulatedResponse };
-
 export interface AccumulatorTrait {
     readonly initPartialValue: PartialValue;
     readonly initAccumulatedValue: AccumulatedValue;
@@ -61,12 +38,7 @@ export interface AccumulatorTrait {
     reduce(a: PartialValue, b: number | null): PartialValue;
     accumulate(a: AccumulatedValue, b: PartialValue): AccumulatedValue;
     desc(value: AccumulatedValue): string;
-    /**
-     * processed: percentage of processed rows (e.g., 0.03 for 3%)
-     */
-    approximate(value: AccumulatedValue,
-        processed: number,
-        numRows: number): ApproximatedInterval;
+
     toString();
 }
 
@@ -92,10 +64,6 @@ export class MinAccumulator implements AccumulatorTrait {
 
     desc(value: AccumulatedValue) {
         return `${value.min} (count=${value.count}, nullCount=${value.nullCount})`;
-    }
-
-    approximate(value: AccumulatedValue) {
-        return new ApproximatedInterval(value.min, 0, value.count, 0);
     }
 
     toString() {
@@ -125,10 +93,6 @@ export class MaxAccumulator implements AccumulatorTrait {
 
     desc(value: AccumulatedValue) {
         return `${value.max} (count=${value.count}, nullCount=${value.nullCount})`;
-    }
-
-    approximate(value: AccumulatedValue) {
-        return new ApproximatedInterval(value.max, 0, value.count, 0);
     }
 
     toString() {
@@ -161,7 +125,7 @@ export class CountAccumulator implements AccumulatorTrait {
     }
 
     // TODO
-    approximate(value: AccumulatedValue, processed: number, numRows: number) {
+    approximate(value: AccumulatedValue, processed: number) {
         const mean = (value.count + 1 - processed) / processed;
         const variance = (value.count + 1) * (1 - processed) / processed;
         const stdev = Math.sqrt(variance);
@@ -202,7 +166,7 @@ export class SumAccumulator implements AccumulatorTrait {
     // TODO
     approximate(value: AccumulatedValue, processed: number) {
         let n = value.count - value.nullCount;
-        if(n == 1) {
+        if (n == 1) {
             console.warn('cannot approximation because n = 1, set n to 2');
             n = 2;
         }

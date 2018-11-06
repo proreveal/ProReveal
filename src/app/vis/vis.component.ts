@@ -6,7 +6,7 @@ import { AggregateQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
-import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accumulator';
+import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accum';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { ToastrService } from 'ngx-toastr';
 import { FieldGroupedValueList } from '../data/field';
