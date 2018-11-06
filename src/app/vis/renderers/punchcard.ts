@@ -351,16 +351,16 @@ export class PunchcardRenderer implements Renderer {
         }
         else if(false) {
             // we can't do about ranking
-            let start = VC.horizontalBars.axis.height;
-            let step = VC.horizontalBars.height;
+            // let start = VC.horizontalBars.axis.height;
+            // let step = VC.horizontalBars.height;
 
-            this.flexBrush.setDirection(FlexBrushDirection.Y);
-            this.flexBrush.snap = d => {
-                return Math.round((d - start) / step) * step + start;
-            };
+            // this.flexBrush.setDirection(FlexBrushDirection.Y);
+            // this.flexBrush.snap = d => {
+            //     return Math.round((d - start) / step) * step + start;
+            // };
 
-            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
-            [width, height - VC.horizontalBars.axis.height]]);
+            // this.flexBrush.render([[0, VC.horizontalBars.axis.height],
+            // [width, height - VC.horizontalBars.axis.height]]);
         }
 
         if (!this.constant) this.setDefaultConstantFromVariable();
@@ -428,7 +428,7 @@ export class PunchcardRenderer implements Renderer {
         }
         else if (st === SGT.Range) {
             this.eventRects.style('display', 'inline');
-            this.flexBrush.setMode(FlexBrushMode.Range);
+            this.flexBrush.setMode(FlexBrushMode.SymmetricRange);
         }
         else if (st === SGT.Comparative) {
             this.eventRects.style('display', 'inline');
@@ -505,6 +505,11 @@ export class PunchcardRenderer implements Renderer {
         let variable = new SingleCombinedVariable(d.keys.list[0], d.keys.list[1]);
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
+
+        if(this.safeguardType === SGT.Range) {
+            this.flexBrush.center = this.swatchXScale.invert(d.ci3stdev.center);
+        }
+
         this.updateHighlight();
 
         this.vis.variableSelected.emit({ variable: variable });

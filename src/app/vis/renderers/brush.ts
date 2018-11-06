@@ -13,7 +13,8 @@ export enum FlexBrushDirection {
 
 export enum FlexBrushMode {
     Point,
-    Range
+    Range,
+    SymmetricRange
 };
 
 export interface FlexBrushOptions {
@@ -29,6 +30,7 @@ export class FlexBrush<Datum> {
     handles: string[];
     handlers:{brush?: () => void} = {};
     snap: (number) => number;
+    center: number;
 
     constructor(public direction:FlexBrushDirection = FlexBrushDirection.X,
         public mode = FlexBrushMode.Point, public options:FlexBrushOptions = {}) {
@@ -57,7 +59,7 @@ export class FlexBrush<Datum> {
     setMode(mode: FlexBrushMode) {
         this.mode = mode;
         if(this.brushLine) {
-            if(this.mode === FlexBrushMode.Point)
+            if(this.mode === FlexBrushMode.Point || this.mode == FlexBrushMode.SymmetricRange)
                 this.brushLine.attr('display', 'inline')
             else
                 this.brushLine.attr('display', 'none')
@@ -95,6 +97,7 @@ export class FlexBrush<Datum> {
         if(this.direction == FlexBrushDirection.X) {
             this.handleG.attr('transform', translate(0, extent[0][1] - 33 * (this.options.yResize || 1)));
         }
+
         let handles = this.handleG.selectAll('.fb-handle')
             .data(this.handles);
 
@@ -116,11 +119,14 @@ export class FlexBrush<Datum> {
             .style('stroke', 'black')
             .attr('pointer-events', 'none')
 
+        let lastSelection;
         this.brush
         .on('start', () => {
             handles.attr('display', 'inline')
+            lastSelection = d3.event.selection;
         })
         .on('brush', () => {
+            if (!d3.event.sourceEvent) return;
             handles
             .attr('transform', (d, i) => {
                 let x = 0, y = 0;
@@ -133,7 +139,7 @@ export class FlexBrush<Datum> {
                 return translate(x, y) + scale(1, this.options.yResize || 1);
             })
 
-            if(this.mode === FlexBrushMode.Point) {
+            if(this.mode === FlexBrushMode.Point || this.mode === FlexBrushMode.SymmetricRange) {
                 brushLine
                     .attr(this.direction == FlexBrushDirection.X ? 'x1' : 'y1', () => {
                         return (d3.event.selection[0] + d3.event.selection[1]) / 2
@@ -147,6 +153,20 @@ export class FlexBrush<Datum> {
                     .attr(this.direction == FlexBrushDirection.X ? 'y2' : 'x2', () => {
                         return this.direction == FlexBrushDirection.X ? extent[1][1] : extent[1][0];
                     })
+            }
+
+            if(this.mode === FlexBrushMode.SymmetricRange) {
+                let selection = d3.event.selection;
+                if(lastSelection[0] !== selection[0]) {
+                    lastSelection[0] = selection[0];
+                    let dist = this.center - d3.event.selection[0];
+                    this.move([selection[0], this.center + dist]);
+                }
+                else if(lastSelection[1] !== selection[1]) {
+                    lastSelection[1] = selection[1];
+                    let dist = selection[1] - this.center;
+                    this.move([this.center - dist, selection[1]]);
+                }
             }
 
             if(this.handlers.brush && d3.event.sourceEvent) {
@@ -175,14 +195,23 @@ export class FlexBrush<Datum> {
         })
 
         if(this.mode == FlexBrushMode.Point) {
+            this.g.selectAll('rect.selection').attr('pointer-events', 'all').attr('cursor', 'move');
             this.g.selectAll('.handle').attr('display', 'none')
             this.g.selectAll('rect.overlay').attr('display', 'none');
             brushLine.attr('display', 'inline')
         }
         else if(this.mode == FlexBrushMode.Range) {
+            this.g.selectAll('rect.selection').attr('pointer-events', 'all').attr('cursor', 'move');
             this.g.selectAll('.handle').attr('display', 'visible')
             this.g.selectAll('rect.overlay').attr('display', 'visible');
             brushLine.attr('display', 'none')
+        }
+        else if(this.mode == FlexBrushMode.SymmetricRange) {
+            this.g.selectAll('.handle').attr('display', 'visible')
+            this.g.selectAll('rect.selection').attr('pointer-events', 'none')
+                .attr('cursor', 'auto');
+            this.g.selectAll('rect.overlay').attr('display', 'none');
+            brushLine.attr('display', 'inline')
         }
     }
 

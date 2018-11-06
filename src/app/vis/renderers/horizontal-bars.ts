@@ -586,6 +586,10 @@ export class HorizontalBarsRenderer implements Renderer {
         let variable = new SingleVariable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
         this.variable1 = variable;
+
+        if(this.safeguardType === SGT.Range) {
+            this.flexBrush.center = this.xScale(d.ci3stdev.center);
+        }
         this.updateHighlight();
 
         this.vis.variableSelected.emit({ variable: variable });

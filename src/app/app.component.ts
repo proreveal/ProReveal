@@ -142,6 +142,8 @@ export class AppComponent implements OnInit {
             // create two categorical
 
             this.run(2);
+            // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
+            // this.run(10);
             const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             this.run(10);
             //this.nodeSelected(this.ongoingNodes[0]);
