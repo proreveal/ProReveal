@@ -124,16 +124,6 @@ export class CountAccumulator implements AccumulatorTrait {
         return `${value.count} (count=${value.count}, nullCount=${value.nullCount})`;
     }
 
-    // TODO
-    approximate(value: AccumulatedValue, processed: number) {
-        const mean = (value.count + 1 - processed) / processed;
-        const variance = (value.count + 1) * (1 - processed) / processed;
-        const stdev = Math.sqrt(variance);
-        const stdem = stdev / Math.sqrt(value.count);
-
-        return new ApproximatedInterval(mean, stdem, value.count, stdev);
-    }
-
     toString() {
         return this.name.toUpperCase();
     }
@@ -163,23 +153,23 @@ export class SumAccumulator implements AccumulatorTrait {
         return `${value.sum} (count=${value.count}, nullCount=${value.nullCount})`;
     }
 
-    // TODO
-    approximate(value: AccumulatedValue, processed: number) {
-        let n = value.count - value.nullCount;
-        if (n == 1) {
-            console.warn('cannot approximation because n = 1, set n to 2');
-            n = 2;
-        }
-        const mean = value.sum / n;
+    // // TODO
+    // approximate(value: AccumulatedValue, processed: number) {
+    //     let n = value.count - value.nullCount;
+    //     if (n == 1) {
+    //         console.warn('cannot approximation because n = 1, set n to 2');
+    //         n = 2;
+    //     }
+    //     const mean = value.sum / n;
 
-        const variance = value.ssum / n - mean * mean;
-        const stdev = Math.sqrt(variance * n / (n - 1));
-        const stdem = stdev / Math.sqrt(n);
-        const esum = value.sum / processed;
-        const estdem = stdem / processed;
+    //     const variance = value.ssum / n - mean * mean;
+    //     const stdev = Math.sqrt(variance * n / (n - 1));
+    //     const stdem = stdev / Math.sqrt(n);
+    //     const esum = value.sum / processed;
+    //     const estdem = stdem / processed;
 
-        return new ApproximatedInterval(esum, estdem, n, stdev / processed);
-    }
+    //     return new ApproximatedInterval(esum, estdem, n, stdev / processed);
+    // }
 
     toString() {
         return this.name.toUpperCase();
@@ -210,16 +200,16 @@ export class MeanAccumulator implements AccumulatorTrait {
         return `${value.sum / value.count} (count=${value.count}, nullCount=${value.nullCount})`;
     }
 
-    // TODO
-    approximate(value: AccumulatedValue) {
-        const n = value.count - value.nullCount;
-        const mean = value.sum / n;
-        const variance = value.ssum / n - mean * mean;
-        const stdev = Math.sqrt(variance * n / (n - 1));
-        const stdem = stdev / Math.sqrt(n);
+    // // TODO
+    // approximate(value: AccumulatedValue) {
+    //     const n = value.count - value.nullCount;
+    //     const mean = value.sum / n;
+    //     const variance = value.ssum / n - mean * mean;
+    //     const stdev = Math.sqrt(variance * n / (n - 1));
+    //     const stdem = stdev / Math.sqrt(n);
 
-        return new ApproximatedInterval(mean, stdem, n, stdev);
-    }
+    //     return new ApproximatedInterval(mean, stdem, n, stdev);
+    // }
 
     toString() {
         return this.name.toUpperCase();

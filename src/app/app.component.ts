@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Dataset } from './data/dataset';
-import { FieldTrait, VlType, FieldGroupedValueList } from './data/field';
+import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
 import { Query, EmptyQuery, AggregateQuery } from './data/query';
@@ -15,7 +15,7 @@ import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, Compa
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariableTrait, DoubleVariable, SingleVariable, VariableTypes, DistributionVariable } from './safeguard/variable';
+import { DoubleVariable, SingleVariable, VariableTypes } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, GaussianConstant, FittingTypes } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -120,15 +120,15 @@ export class AppComponent implements OnInit {
 
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
-                    const [node, query] = this.fieldSelected(this.explorationRoot, field,
+                    const [] = this.fieldSelected(this.explorationRoot, field,
                         Priority.Lowest);
                 }
             });
 
             // create sum(x) by y
 
-            // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-            // this.run(5);
+            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+            this.run(5);
 
             // normal (categorical)
             // this.nodeSelected(this.ongoingNodes[0]);
@@ -139,11 +139,11 @@ export class AppComponent implements OnInit {
 
             // create two categorical
 
-            this.run(2);
+            // this.run(2);
             // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
             // this.run(10);
-            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
-            this.run(10);
+            // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
+            // this.run(10);
             //this.nodeSelected(this.ongoingNodes[0]);
 
 
@@ -275,12 +275,11 @@ export class AppComponent implements OnInit {
     deleteClicked(modal, node: ExplorationNode) {
         this.modalService
             .open(modal, { ariaLabelledBy: 'modal-basic-title' }).result
-            .then((result) => {
-                this.engine.remove(node.query);
-                this.updateNodeLists();
-            }, (reason) => {
-                // console.log(`Dismissed`);
-            });
+            .then(() => {
+                    this.engine.remove(node.query);
+                    this.updateNodeLists();
+                }, () => {
+                });
     }
 
     activeSafeguardPanel = SGT.Range;
@@ -354,7 +353,7 @@ export class AppComponent implements OnInit {
         this.vis.highlight(highlighted);
     }
 
-    constantUserChanged(constant: ConstantTrait, $event) {
+    constantUserChanged(constant: ConstantTrait) {
         this.vis.constantUserChanged(constant);
     }
 

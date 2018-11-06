@@ -3,9 +3,8 @@ import { AccumulatedValue } from "./accum";
 const Z95 = 1.96;
 
 export class ApproximatedInterval {
-    constructor(public mean: number, public stdem: number, public n: number,
+    constructor(public center: number, public stdem: number, public n: number,
         public stdev: number) {
-
     }
 
     ci95() {
@@ -13,11 +12,11 @@ export class ApproximatedInterval {
     }
 
     range(factor: number) {
-        return new ConfidenceInterval(this.mean, this.mean - factor * this.stdem, this.mean + factor * this.stdem);
+        return new ConfidenceInterval(this.center, this.center - factor * this.stdem, this.center + factor * this.stdem);
     }
 
     desc() {
-        return `${this.mean} +- ${this.stdem}`;
+        return `${this.center} +- ${this.stdem}`;
     }
 }
 
@@ -41,40 +40,53 @@ export interface ApproximatorTrait {
 }
 
 export class MinApproximator implements ApproximatorTrait {
-    approximate(value: AccumulatedValue, p: number, N: number) {
+    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         return new ApproximatedInterval(value.min, 0, value.count, 0);
     }
 }
 
 export class MaxApproximator implements ApproximatorTrait {
-    approximate(value: AccumulatedValue, p: number, N: number) {
+    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         return new ApproximatedInterval(value.max, 0, value.count, 0);
     }
 }
 
 export class CountApproximator implements ApproximatorTrait {
-    approximate(value: AccumulatedValue, p: number, N: number) {
-        let Ny_bar = N * value.count / N;
+    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+        let n1 = value.count - value.nullCount;
+        let Ny_bar = N * n1 / n;
+        let s_squared = n1 * (n - n1) / n / (n - 1);
+        let s = Math.sqrt(s_squared);
 
-        return new ApproximatedInterval(value.max, 0, value.count, 0);
+        return new ApproximatedInterval(Ny_bar, Math.sqrt(N * (N - n)) * s / Math.sqrt(n), value.count, 0);
     }
 }
 
 
 export class MeanApproximator implements ApproximatorTrait {
-    approximate(value: AccumulatedValue, p: number, N: number) {
-        let Ny_bar = N * value.count / N;
+    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+        let n1 = value.count - value.nullCount;
+        if(n1 == 1) n1 = 2;
+        let X_bar = value.sum / n1;
+        let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
+        let s = Math.sqrt(s_squared);
 
-        return new ApproximatedInterval(value.max, 0, value.count, 0);
+        return new ApproximatedInterval(X_bar, Math.sqrt(1 - n / N) * s / Math.sqrt(n1), value.count, 0);
     }
 }
 
 
 export class SumApproximator implements ApproximatorTrait {
-    approximate(value: AccumulatedValue, p: number, N: number) {
-        let Ny_bar = N * value.count / N;
+    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+        let n1 = value.count - value.nullCount;
+        if(n1 == 1) n1 = 2;
+        let N1_hat = N * n1 / n;
 
-        return new ApproximatedInterval(value.max, 0, value.count, 0);
+        let X_bar = value.sum / n1;
+        let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
+        let s = Math.sqrt(s_squared);
+
+        return new ApproximatedInterval(X_bar * N1_hat, Math.sqrt(N * (N - n) * n1 / n) * s / Math.sqrt(n), value.count, 0);
     }
 }
 

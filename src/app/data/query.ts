@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType, FieldGroupedValueList } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatorTrait, SumAccumulator, CountAccumulator, AccumulatedValue } from './accum';
+import { AccumulatorTrait, SumAccumulator, CountAccumulator, AccumulatedValue, MeanAccumulator } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -10,7 +10,7 @@ import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
 import { OrderingType, NumericalOrdering, OrderingDirection } from './ordering';
-import { ConfidenceInterval, ApproximatorTrait, SumApproximator, CountApproximator } from './approx';
+import { ConfidenceInterval, ApproximatorTrait, SumApproximator, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 
 export abstract class Query {
@@ -144,8 +144,8 @@ export class AggregateQuery extends Query {
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative && this.target === null) {
             return new AggregateQuery(
-                new SumAccumulator(),
-                new SumApproximator(),
+                new MeanAccumulator(),
+                new MeanApproximator(),
                 field,
                 this.dataset,
                 this.groupBy,
@@ -201,8 +201,8 @@ export class Histogram1DQuery extends AggregateQuery {
 
     combine(field: FieldTrait) {
         return new AggregateQuery(
-            new SumAccumulator(),
-            new SumApproximator(),
+            new MeanAccumulator(),
+            new MeanApproximator(),
             this.grouping,
             this.dataset,
             new GroupBy([field]),
@@ -232,14 +232,16 @@ export class Frequency1DQuery extends AggregateQuery {
 
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
-            return new AggregateQuery(new SumAccumulator(),
-                new SumApproximator(),
+            return new AggregateQuery(
+                new MeanAccumulator(),
+                new MeanApproximator(),
                 field,
                 this.dataset,
                 new GroupBy([this.grouping]),
                 this.sampler);
         }
-        return new AggregateQuery(new CountAccumulator(),
+        return new AggregateQuery(
+            new CountAccumulator(),
             new CountApproximator(),
             null,
             this.dataset,

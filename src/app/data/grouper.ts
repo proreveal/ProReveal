@@ -11,7 +11,7 @@ export const NullString = '(empty)';
  * maps a string value to a number
  */
 export class CategoricalGrouper {
-    size = 0;
+    size = 1;
     dict = {};
     inverse = { NullGroupId: null };
 

@@ -35,7 +35,7 @@ export class Safeguard {
             query.progress.processedPercent(),
             query.progress.processedRows,
             query.progress.totalRows);
-        let z = (constant - ai.mean) / ai.stdem;
+        let z = (constant - ai.center) / ai.stdem;
         let cp = Safeguard.normal.cdf(z);
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo) {
             return 1 - cp;
