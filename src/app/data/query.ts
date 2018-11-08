@@ -13,6 +13,12 @@ import { OrderingType, NumericalOrdering, OrderingDirection } from './ordering';
 import { ConfidenceInterval, ApproximatorTrait, SumApproximator, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 
+export type Datum = {
+    id: string,
+    keys: FieldGroupedValueList,
+    ci3: ConfidenceInterval
+};
+
 export abstract class Query {
     id: number;
     static Id = 1;
@@ -20,20 +26,14 @@ export abstract class Query {
     name: string;
     result: AccumulatedKeyValues;
     lastUpdated: number = +new Date(); // epoch
-    defaultOrdering = NumericalOrdering;
-    defaultOrderingGetter = d => d;
-    defaultOrderingDirection = OrderingDirection.Descending;
+    ordering = NumericalOrdering;
+    orderingAttributeGetter = d => d;
+    orderingDirection = OrderingDirection.Descending;
     jobs: Job[];
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
         this.jobs = [];
-    }
-
-    resultList(): [FieldGroupedValueList, AccumulatedValue][] {
-        return Object.keys(this.result).map<[FieldGroupedValueList, AccumulatedValue]>(key =>
-            [this.result[key].key, this.result[key].value]
-        );
     }
 
     abstract accumulate(job: Job, partialKeyValues: PartialKeyValue[]);
@@ -83,8 +83,8 @@ export class EmptyQuery extends Query {
 export class AggregateQuery extends Query {
     name = "AggregateQuery";
     result: AccumulatedKeyValues = {};
-    defaultOrdering = NumericalOrdering;
-    defaultOrderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
+    ordering = NumericalOrdering;
+    orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
 
     /**
      *
@@ -176,6 +176,29 @@ export class AggregateQuery extends Query {
 
         return desc;
     }
+
+    resultData(): Datum[] {
+        let data = Object.keys(this.result).map(k => {
+            let key = this.result[k].key;
+            let value = this.result[k].value;
+
+            const ai = this.approximator
+                .approximate(value,
+                    this.progress.processedPercent(),
+                    this.progress.processedRows,
+                    this.progress.totalRows);
+
+            return {
+                id: key.hash,
+                keys: key,
+                ci3: ai.range(3)
+            }
+        })
+
+        data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
+
+        return data;
+    }
 }
 
 /**
@@ -183,9 +206,9 @@ export class AggregateQuery extends Query {
  */
 export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
-    defaultOrdering = NumericalOrdering;
-    defaultOrderingDirection = OrderingDirection.Ascending;
-    defaultOrderingGetter = d => (d.keys as FieldGroupedValueList).list[0].groupId;
+    ordering = NumericalOrdering;
+    orderingDirection = OrderingDirection.Ascending;
+    orderingAttributeGetter = d => (d.keys as FieldGroupedValueList).list[0].groupId;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
@@ -215,8 +238,8 @@ export class Histogram1DQuery extends AggregateQuery {
  */
 export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
-    defaultOrdering = NumericalOrdering;
-    defaultOrderingGetter = d => (d.ci3stdev as ConfidenceInterval).center;
+    ordering = NumericalOrdering;
+    orderingAttributeGetter = d => (d.ci3stdev as ConfidenceInterval).center;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(

@@ -2,30 +2,21 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { VisConstants as VC } from '../vis-constants';
 import * as util from '../../util';
-import { AggregateQuery } from '../../data/query';
+import { AggregateQuery, Datum } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
-import { FieldGroupedValueList } from '../../data/field';
-import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
-import { Safeguard, SafeguardTypes as SGT } from '../../safeguard/safeguard';
+import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { FittingTypes as FT } from '../../safeguard/constant';
-import { SingleVariable, VariableTypes as VT, VariableTrait } from '../../safeguard/variable';
+import { Variable, VariableTypes as VT } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, Distribution, GaussianConstant } from '../../safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
-
-
-type Datum = {
-    id: string,
-    keys: FieldGroupedValueList,
-    ci3stdev: ConfidenceInterval
-};
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
@@ -33,8 +24,8 @@ export class HorizontalBarsRenderer implements Renderer {
     data: Datum[];
     node: ExplorationNode;
     nativeSvg: SVGSVGElement;
-    variable1: SingleVariable;
-    variable2: SingleVariable;
+    variable1: Variable;
+    variable2: Variable;
     labelWidth: number;
     width: number;
     flexBrush = new FlexBrush<Datum>();
@@ -78,23 +69,8 @@ export class HorizontalBarsRenderer implements Renderer {
         let processedPercent = query.progress.processedPercent();
         let done = query.progress.done();
         let visG = svg.select('g.vis');
+        let data = query.resultData();
 
-        let data = query.resultList().map(
-            value => {
-                const ai = query.approximator
-                    .approximate(value[1],
-                        processedPercent,
-                        query.progress.processedRows,
-                        query.progress.totalRows);
-
-                return {
-                    id: value[0].hash,
-                    keys: value[0],
-                    ci3stdev: ai.range(3)
-                };
-            });
-
-        data.sort(node.ordering(query.defaultOrderingGetter, query.defaultOrderingDirection));
         this.data = data;
 
         const height = VC.horizontalBars.axis.height * 2 +
@@ -107,8 +83,8 @@ export class HorizontalBarsRenderer implements Renderer {
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length );
         const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0;
 
-        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
-        const xMax = d3.max(data, d => d.ci3stdev.high);
+        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
+        const xMax = d3.max(data, d => d.ci3.high);
 
         const niceTicks = d3.ticks(xMin, xMax, 10);
         const step = niceTicks[1] - niceTicks[0];
@@ -171,13 +147,13 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.labels = labels.merge(enter)
             .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
-            .text((d, i) => `${d.keys.list[0].valueString()}`)
+            .text((d) => `${d.keys.list[0].valueString()}`)
             .on('mouseenter', (d, i) => {
                 const clientRect = nativeSvg.getBoundingClientRect();
                 const parentRect = nativeSvg.parentElement.getBoundingClientRect();
 
                 this.tooltip.show(
-                    clientRect.left - parentRect.left + xScale(d.ci3stdev.center),
+                    clientRect.left - parentRect.left + xScale(d.ci3.center),
                     clientRect.top - parentRect.top + yScale(i + ''),
                     HorizontalBarsTooltipComponent,
                     d
@@ -200,8 +176,8 @@ export class HorizontalBarsRenderer implements Renderer {
                     }
                 }
             })
-            .on('click', (d, i) => this.datumSelected(d, i))
-            .on('contextmenu', (d, i) => this.datumSelected2(d, i))
+            .on('click', (d, i) => this.datumSelected(d))
+            .on('contextmenu', (d, i) => this.datumSelected2(d))
 
         labels.exit().remove();
 
@@ -244,8 +220,8 @@ export class HorizontalBarsRenderer implements Renderer {
 
         leftBars.merge(enter)
             .attr('height', yScale.bandwidth())
-            .attr('width', d => xScale(d.ci3stdev.center) - xScale(d.ci3stdev.low))
-            .attr('transform', (d, i) => translate(xScale(d.ci3stdev.low), yScale(i + '')))
+            .attr('width', d => xScale(d.ci3.center) - xScale(d.ci3.low))
+            .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
             .attr('fill', this.gradient.leftUrl())
 
         leftBars.exit().remove();
@@ -259,8 +235,8 @@ export class HorizontalBarsRenderer implements Renderer {
 
         rightBars.merge(enter)
             .attr('height', yScale.bandwidth())
-            .attr('width', d => xScale(d.ci3stdev.high) - xScale(d.ci3stdev.center))
-            .attr('transform', (d, i) => translate(xScale(d.ci3stdev.center), yScale(i + '')))
+            .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.center))
+            .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
             .attr('fill', this.gradient.rightUrl())
 
         rightBars.exit().remove();
@@ -273,9 +249,9 @@ export class HorizontalBarsRenderer implements Renderer {
             .enter().append('line').attr('class', 'center')
 
         centerLines.merge(enter)
-            .attr('x1', (d, i) => xScale(d.ci3stdev.center))
+            .attr('x1', (d) => xScale(d.ci3.center))
             .attr('y1', (d, i) => yScale(i + ''))
-            .attr('x2', (d, i) => xScale(d.ci3stdev.center))
+            .attr('x2', (d) => xScale(d.ci3.center))
             .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth())
             .style('stroke-width', done ? 2 : 1)
             .style('stroke', 'black')
@@ -292,7 +268,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('fill', 'steelblue')
 
             circles.merge(enter)
-                .attr('cx', d => xScale(d.ci3stdev.center))
+                .attr('cx', d => xScale(d.ci3.center))
                 .attr('cy', (d, i) => yScale(i + '') + yScale.bandwidth() / 2);
 
             circles.exit().remove();
@@ -329,9 +305,6 @@ export class HorizontalBarsRenderer implements Renderer {
             .attr('class', 'constant-highlight-wrapper')
             .style('opacity', 0)
 
-        let selection = this.constantHighlight
-            .selectAll('rect.constant.highlighted')
-            .data([0, height - VC.horizontalBars.axis.height]);
 
         this.flexBrush.on('brush', () => {
 
@@ -420,7 +393,7 @@ export class HorizontalBarsRenderer implements Renderer {
         if(this.safeguardType === SGT.Distributive) {
             if(this.fittingType == FT.PowerLaw) {
                 this.distributionLine.render<Datum>(
-                    this.constant as Distribution,
+                    this.constant as DistributionTrait,
                     this.data,
                     (d: Datum, i: number) => {return [i, 0]; },
                     this.xScale, this.yScale
@@ -428,9 +401,9 @@ export class HorizontalBarsRenderer implements Renderer {
             }
             else {
                 this.distributionLine.render<Datum>(
-                    this.constant as Distribution,
+                    this.constant as DistributionTrait,
                     this.data,
-                    (d: Datum, i: number) => {
+                    (d: Datum) => {
                         let range = d.keys.list[0].value();
                         if(range == null) return null;
                         return range;
@@ -510,7 +483,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
     }
 
-    fittingType: FT = FT.Gaussian;
+    fittingType: FT = FT.Normal;
     setFittingType(ft: FT) {
         this.fittingType = ft;
 
@@ -520,7 +493,7 @@ export class HorizontalBarsRenderer implements Renderer {
     updateHighlight() {
         this.eventBoxes
             .classed('highlighted', false)
-            .filter((d, i) =>
+            .filter((d) =>
                 this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
             )
@@ -528,7 +501,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.labels
             .classed('text-highlighted', false)
-            .filter((d, i) =>
+            .filter((d) =>
                 this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
             )
@@ -536,12 +509,12 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.eventBoxes
             .classed('variable2', false)
-            .filter((d, i) => this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash)
+            .filter((d) => this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash)
             .classed('variable2', true)
 
         this.labels
             .classed('variable2', false)
-            .filter((d, i) => this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash)
+            .filter((d) => this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash)
             .classed('variable2', true)
     }
 
@@ -572,26 +545,26 @@ export class HorizontalBarsRenderer implements Renderer {
         // ADD CODE FOR SGS
     }
 
-    getDatum(variable: SingleVariable): Datum {
+    getDatum(variable: Variable): Datum {
         return this.data.find(d => d.id === variable.fieldGroupedValue.hash);
     }
 
-    getRank(variable: SingleVariable): number {
+    getRank(variable: Variable): number {
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i].id == variable.fieldGroupedValue.hash) return i + 1;
         }
         return 1;
     }
 
-    datumSelected(d:Datum, i) {
+    datumSelected(d:Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        let variable = new SingleVariable(d.keys.list[0]);
+        let variable = new Variable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
         this.variable1 = variable;
 
         if(this.safeguardType === SGT.Range) {
-            this.flexBrush.center = this.xScale(d.ci3stdev.center);
+            this.flexBrush.center = this.xScale(d.ci3.center);
         }
         this.updateHighlight();
 
@@ -599,11 +572,11 @@ export class HorizontalBarsRenderer implements Renderer {
         if(!this.constant) this.setDefaultConstantFromVariable();
     }
 
-    datumSelected2(d:Datum, i) {
+    datumSelected2(d:Datum) {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 
-        let variable = new SingleVariable(d.keys.list[0]);
+        let variable = new Variable(d.keys.list[0]);
 
         if (this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
             return;
@@ -621,7 +594,7 @@ export class HorizontalBarsRenderer implements Renderer {
         if(this.constant) return;
         if(this.variable1) {
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3stdev.center);
+                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
@@ -632,7 +605,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.constantUserChanged(constant);
             }
             else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-                let range = this.getDatum(this.variable1).ci3stdev;
+                let range = this.getDatum(this.variable1).ci3;
                 let constant = new RangeValueConstant(range.low, range.high);
 
                 this.vis.constantSelected.emit(constant);
@@ -648,17 +621,17 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if(this.safeguardType === SGT.Distributive) {
             let constant;
-            if(this.fittingType == FT.Gaussian) {
+            if(this.fittingType == FT.Normal) {
                 let data = this.data.map(d => {
                     let range = d.keys.list[0].value();
                     if(range == null) return [0, 0] as [number, number];
-                    return [(range[0] + range[1]) / 2, d.ci3stdev.center] as [number, number];
+                    return [(range[0] + range[1]) / 2, d.ci3.center] as [number, number];
                 });
 
-                constant = GaussianConstant.Regression(data);
+                constant = NormalConstant.Fit(data);
             }
             else if(this.fittingType == FT.PowerLaw) {
-                constant = PowerLawConstant.Regression(this.data.map((d, i) => [i + 1, d.ci3stdev.center] as [number, number]));
+                constant = PowerLawConstant.Fit(this.data.map((d, i) => [i + 1, d.ci3.center] as [number, number]));
             }
 
             this.vis.constantSelected.emit(constant);

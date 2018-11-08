@@ -3,8 +3,8 @@ import { AccumulatedValue } from "./accum";
 const Z95 = 1.96;
 
 export class ApproximatedInterval {
-    constructor(public center: number, public stdem: number, public n: number,
-        public stdev: number) {
+    constructor(public center: number, public stdev: number, public n: number,
+        public stdev2: number) {
     }
 
     ci95() {
@@ -12,11 +12,11 @@ export class ApproximatedInterval {
     }
 
     range(factor: number) {
-        return new ConfidenceInterval(this.center, this.center - factor * this.stdem, this.center + factor * this.stdem);
+        return new ConfidenceInterval(this.center, this.center - factor * this.stdev, this.center + factor * this.stdev);
     }
 
     desc() {
-        return `${this.center} +- ${this.stdem}`;
+        return `${this.center} +- ${this.stdev}`;
     }
 }
 
@@ -58,10 +58,9 @@ export class CountApproximator implements ApproximatorTrait {
         let s_squared = n1 * (n - n1) / n / (n - 1);
         let s = Math.sqrt(s_squared);
 
-        return new ApproximatedInterval(Ny_bar, Math.sqrt(N * (N - n)) * s / Math.sqrt(n), value.count, 0);
+        return new ApproximatedInterval(Ny_bar, Math.sqrt(N * (N - n)) * s / Math.sqrt(n), n1, 0);
     }
 }
-
 
 export class MeanApproximator implements ApproximatorTrait {
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
@@ -71,7 +70,7 @@ export class MeanApproximator implements ApproximatorTrait {
         let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
         let s = Math.sqrt(s_squared);
 
-        return new ApproximatedInterval(X_bar, Math.sqrt(1 - n / N) * s / Math.sqrt(n1), value.count, 0);
+        return new ApproximatedInterval(X_bar, Math.sqrt(1 - n / N) * s / Math.sqrt(n1), n1, 0);
     }
 }
 
@@ -86,7 +85,7 @@ export class SumApproximator implements ApproximatorTrait {
         let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
         let s = Math.sqrt(s_squared);
 
-        return new ApproximatedInterval(X_bar * N1_hat, Math.sqrt(N * (N - n) * n1 / n) * s / Math.sqrt(n), value.count, 0);
+        return new ApproximatedInterval(X_bar * N1_hat, Math.sqrt(N * (N - n) * n1 / n) * s / Math.sqrt(n), n1, 0);
     }
 }
 

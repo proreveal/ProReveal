@@ -35,10 +35,6 @@ export class ExplorationNode {
     children: ExplorationNode[] = [];
     visual: Visual = new Visual();
 
-    ordering = NumericalOrdering;
-    orderingGetter = d => d;
-    orderingDirection = OrderingDirection.Descending;
-
     domainStart = Number.MAX_VALUE;
     domainEnd = -Number.MAX_VALUE;
     maxUncertainty = 0;

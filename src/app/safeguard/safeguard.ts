@@ -2,7 +2,7 @@ import { Query } from "../data/query";
 import { Operators } from "./operator";
 import { ConstantTrait } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
-import { VariableTrait, SingleVariable, DoubleVariable, DistributionVariable } from "./variable";
+import { VariableTrait, Variable, VariablePair, DistributionVariable } from "./variable";
 import { AggregateQuery } from "../data/query";
 import { NormalDistribution } from "./normal";
 
@@ -27,7 +27,7 @@ export class Safeguard {
 
     }
 
-    static EstimatePoint(query: AggregateQuery, variable: SingleVariable,
+    static EstimatePoint(query: AggregateQuery, variable: Variable,
         operator: Operators, constant: number) {
         let result = query.result[variable.fieldGroupedValue.hash].value;
         let ai = query.approximator.approximate(
@@ -35,7 +35,7 @@ export class Safeguard {
             query.progress.processedPercent(),
             query.progress.processedRows,
             query.progress.totalRows);
-        let z = (constant - ai.center) / ai.stdem;
+        let z = (constant - ai.center) / ai.stdev;
         let cp = Safeguard.normal.cdf(z);
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo) {
             return 1 - cp;
@@ -48,14 +48,14 @@ export class Safeguard {
         }
     }
     // http://195.134.76.37/applets/AppletTtest/Appl_Ttest2.html
-    static CompareMeans(query: AggregateQuery, variable: SingleVariable,
-        operator: Operators, variable2: SingleVariable) {
+    static CompareMeans(query: AggregateQuery, variable: Variable,
+        operator: Operators, variable2: Variable) {
         return 0.5
     }
 }
 
 export class PointSafeguard extends Safeguard {
-    constructor(public variable: SingleVariable,
+    constructor(public variable: Variable,
         public operator: Operators,
         public constant: ConstantTrait,
         public node: ExplorationNode) {
@@ -64,7 +64,7 @@ export class PointSafeguard extends Safeguard {
 }
 
 export class RangeSafeguard extends Safeguard {
-    constructor(public variable: SingleVariable,
+    constructor(public variable: Variable,
         public constant: ConstantTrait,
         public node: ExplorationNode) {
             super(SafeguardTypes.Range, variable, Operators.InRange, constant, node);
@@ -72,7 +72,7 @@ export class RangeSafeguard extends Safeguard {
 }
 
 export class ComparativeSafeguard extends Safeguard {
-    constructor(public variable: DoubleVariable,
+    constructor(public variable: VariablePair,
         public operator: Operators,
         public node: ExplorationNode) {
             super(SafeguardTypes.Comparative, variable, operator, null, node);

@@ -26,39 +26,6 @@ export interface FieldTrait {
     ungroupString(id: GroupIdType): string;
 }
 
-export function guess(values: any[]): [DataType, VlType, boolean] {
-    let dataType = guessDataType(values);
-    let unique = {};
-    let n = values.length;
-
-    values.forEach(value => unique[value] = true);
-
-    let cardinality = Object.keys(unique).length;
-    let vlType: VlType;
-
-    if (cardinality <= 20) vlType = VlType.Dozen;
-    else if (dataType === DataType.Integer || dataType === DataType.Real)
-        vlType = VlType.Quantitative;
-    else if (cardinality <= 100)
-        vlType = VlType.Nominal;
-    else
-        vlType = VlType.Key;
-
-    return [dataType, vlType, unique[null as any] > 0];
-}
-
-export function guessDataType(values: any[]) {
-    for (let i = 0; i < values.length; i++) {
-        let value = values[i];
-        let float = parseFloat(value);
-
-        if (isNaN(float)) return DataType.String;
-        if (!Number.isInteger(float)) return DataType.Real;
-    }
-
-    return DataType.Integer;
-}
-
 export class QuantitativeField implements FieldTrait {
     vlType: VlType = VlType.Quantitative;
     private grouper: NumericalGrouper;
@@ -183,4 +150,38 @@ export class FieldGroupedValueList {
     desc() {
         return this.list.map(item => `${item.field.name}: ${item.field.ungroup(item.groupId)}`).join(', ');
     }
+}
+
+
+export function guess(values: any[]): [DataType, VlType, boolean] {
+    let dataType = guessDataType(values);
+    let unique = {};
+    let n = values.length;
+
+    values.forEach(value => unique[value] = true);
+
+    let cardinality = Object.keys(unique).length;
+    let vlType: VlType;
+
+    if (cardinality <= 20) vlType = VlType.Dozen;
+    else if (dataType === DataType.Integer || dataType === DataType.Real)
+        vlType = VlType.Quantitative;
+    else if (cardinality <= 100)
+        vlType = VlType.Nominal;
+    else
+        vlType = VlType.Key;
+
+    return [dataType, vlType, unique[null as any] > 0];
+}
+
+export function guessDataType(values: any[]) {
+    for (let i = 0; i < values.length; i++) {
+        let value = values[i];
+        let float = parseFloat(value);
+
+        if (isNaN(float)) return DataType.String;
+        if (!Number.isInteger(float)) return DataType.Real;
+    }
+
+    return DataType.Integer;
 }

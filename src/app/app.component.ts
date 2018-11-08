@@ -15,8 +15,8 @@ import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, Compa
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { DoubleVariable, SingleVariable, VariableTypes } from './safeguard/variable';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, GaussianConstant, FittingTypes } from './safeguard/constant';
+import { VariablePair, Variable, VariableTypes } from './safeguard/variable';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
@@ -285,8 +285,8 @@ export class AppComponent implements OnInit {
     activeSafeguardPanel = SGT.Range;
     safeguards: Safeguard[] = [];
 
-    variable1: SingleVariable;
-    variable2: SingleVariable;
+    variable1: Variable;
+    variable2: Variable;
     useRank = false;
     useGaussian = true;
 
@@ -297,12 +297,12 @@ export class AppComponent implements OnInit {
     rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
-    gaussianConstant: GaussianConstant = new GaussianConstant(10);
+    gaussianConstant: NormalConstant = new NormalConstant(10);
 
     Operators = Operators;
     operator = Operators.LessThanOrEqualTo;
 
-    variableSelected($event:{variable: SingleVariable, secondary?: boolean}) {
+    variableSelected($event:{variable: Variable, secondary?: boolean}) {
         if($event.secondary)
             this.variable2 = $event.variable;
         else
@@ -312,7 +312,7 @@ export class AppComponent implements OnInit {
             let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
             let value2 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable2)
 
-            if(value1.ci3stdev.center < value2.ci3stdev.center)
+            if(value1.ci3.center < value2.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
             else this.operator = Operators.GreaterThanOrEqualTo;
         }
@@ -322,7 +322,7 @@ export class AppComponent implements OnInit {
         if(constant instanceof PointValueConstant) {
             let value = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
             this.pointValueConstant = constant;
-            if(constant.value >= value.ci3stdev.center)
+            if(constant.value >= value.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
             else
                 this.operator = Operators.GreaterThanOrEqualTo;
@@ -341,7 +341,7 @@ export class AppComponent implements OnInit {
             this.rangeRankConstant = constant;
         else if(constant instanceof PowerLawConstant)
             this.powerLawConstant = constant;
-        else if(constant instanceof GaussianConstant)
+        else if(constant instanceof NormalConstant)
             this.gaussianConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);
@@ -360,7 +360,7 @@ export class AppComponent implements OnInit {
     createPointSafeguard() {
         if(!this.variable1) return;
 
-        this.variable1.rank = this.useRank;
+        this.variable1.isRank = this.useRank;
         let sg;
         if(this.useRank) sg = new PointSafeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
         else sg = new PointSafeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
@@ -376,7 +376,7 @@ export class AppComponent implements OnInit {
     createRangeSafeguard() {
         if(!this.variable1) return;
 
-        this.variable1.rank = this.useRank;
+        this.variable1.isRank = this.useRank;
         let sg;
         if(this.useRank) sg = new RangeSafeguard(this.variable1, this.rangeRankConstant, this.activeNode);
         else sg = new RangeSafeguard(this.variable1, this.rangeValueConstant, this.activeNode);
@@ -394,8 +394,7 @@ export class AppComponent implements OnInit {
         if(!this.variable2) return;
 
         let sg = new ComparativeSafeguard(
-            new DoubleVariable(this.variable1 as SingleVariable,
-                this.variable2 as SingleVariable),
+            VariablePair.FromVariables(this.variable1, this.variable2),
             this.operator, this.activeNode);
         this.safeguards.push(sg);
 
@@ -441,7 +440,7 @@ export class AppComponent implements OnInit {
     }
 
     useGaussianToggled() {
-        this.vis.setFittingType(this.useGaussian ? FittingTypes.Gaussian : FittingTypes.PowerLaw);
+        this.vis.setFittingType(this.useGaussian ? FittingTypes.Normal : FittingTypes.PowerLaw);
     }
 
     checkOrder() {

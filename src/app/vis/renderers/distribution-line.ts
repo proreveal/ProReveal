@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { selectOrAppend } from '../../d3-utils/d3-utils';
-import { Distribution, ConstantTrait } from '../../safeguard/constant';
+import { DistributionTrait, ConstantTrait } from '../../safeguard/constant';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 
@@ -16,7 +16,7 @@ export class DistributionLine {
     }
 
     render<Datum>(
-        distribution: ConstantTrait & Distribution,
+        distribution: ConstantTrait & DistributionTrait,
         data: Datum[],
         yGetter: (Datum, number) => [number, number],
         x: d3.ScaleLinear<number, number>,

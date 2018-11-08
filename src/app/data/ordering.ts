@@ -5,6 +5,11 @@ export enum OrderingDirection {
 
 export type OrderingType<T> = (a: T, b: T) => number;
 
+/**
+ * order an array of strings
+ * @param getter
+ * @param direction
+ */
 export function AlphabeticalOrdering<T>(getter: (d: T) => string, direction = OrderingDirection.Descending): OrderingType<T> {
     if (direction === OrderingDirection.Ascending) {
         return (a: T, b: T) => {
@@ -25,6 +30,11 @@ export function AlphabeticalOrdering<T>(getter: (d: T) => string, direction = Or
     }
 }
 
+/**
+ * order an array of numbers
+ * @param getter
+ * @param direction
+ */
 export function NumericalOrdering<T>(getter: (d: T) => number, direction = OrderingDirection.Descending): OrderingType<T> {
     if (direction === OrderingDirection.Ascending) {
         return (a: T, b: T) => {

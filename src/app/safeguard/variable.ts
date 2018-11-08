@@ -9,8 +9,8 @@ export abstract class VariableTrait {
 
 }
 
-export class SingleVariable extends VariableTrait {
-    rank = false;
+export class Variable extends VariableTrait {
+    isRank = false;
 
     constructor(public fieldGroupedValue: FieldGroupedValue) {
         super();
@@ -23,34 +23,19 @@ export class SingleVariable extends VariableTrait {
     valueString() {
         return this.fieldGroupedValue.valueString();
     }
+
+    get hash() {
+        return this.fieldGroupedValue.hash;
+    }
 }
 
-export class DoubleVariable extends VariableTrait { // a < b
-    constructor(public first: SingleVariable,
-        public second: SingleVariable) {
-        super();
+export class VariablePair extends VariableTrait { // (a=1, b=2)
+    isRank = false;
+    isCombined = true;
+
+    static FromVariables(first: Variable, second: Variable) {
+        return new VariablePair(first.fieldGroupedValue, second.fieldGroupedValue);
     }
-
-    /*fieldString1() {
-        return this.first.fieldString();
-    }
-
-    valueString1() {
-        return this.first.valueString();
-    }
-
-    fieldString2() {
-        return this.second.fieldString();
-    }
-
-    valueString2() {
-        return this.second.valueString();
-    }*/
-}
-
-export class SingleCombinedVariable extends VariableTrait { // (a=1, b=2)
-    rank = false;
-    combined = true;
 
     constructor(public fieldGroupedValue1: FieldGroupedValue, public fieldGroupedValue2: FieldGroupedValue) {
         super();

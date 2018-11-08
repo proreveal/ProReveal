@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { VisConstants as VC } from '../vis-constants';
 import * as util from '../../util';
-import { AggregateQuery } from '../../data/query';
+import { AggregateQuery, Datum } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { FieldGroupedValueList, FieldGroupedValue } from '../../data/field';
@@ -13,14 +13,8 @@ import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
 import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { VariableTypes as VT, SingleCombinedVariable } from '../../safeguard/variable';
+import { VariableTypes as VT, VariablePair } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
-
-type Datum = {
-    id: string,
-    keys: FieldGroupedValueList,
-    ci3stdev: ConfidenceInterval
-};
 
 export class PunchcardRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent
@@ -28,8 +22,8 @@ export class PunchcardRenderer implements Renderer {
     }
 
     data: Datum[];
-    variable1: SingleCombinedVariable;
-    variable2: SingleCombinedVariable;
+    variable1: VariablePair;
+    variable2: VariablePair;
     node: ExplorationNode;
     nativeSvg: SVGSVGElement;
     swatchXScale: d3.ScaleLinear<number, number>;
@@ -66,21 +60,7 @@ export class PunchcardRenderer implements Renderer {
         let processedPercent = query.progress.processedPercent();
         let visG = d3.select(nativeSvg).select('g.vis');
 
-        let data = query.resultList().map(
-            value => {
-                const ai = query.approximator
-                    .approximate(value[1],
-                        processedPercent,
-                        query.progress.processedRows,
-                        query.progress.totalRows);
-
-                return {
-                    id: value[0].hash,
-                    keys: value[0],
-                    ci3stdev: ai.range(3)
-                };
-            });
-
+        let data = query.resultData();
         this.data = data;
 
         let yKeys = {}, xKeys = {};
@@ -90,11 +70,11 @@ export class PunchcardRenderer implements Renderer {
             xKeys[row.keys.list[1].hash] = row.keys.list[1];
         });
 
-        if (Object.values(xKeys).length > Object.values(yKeys).length)
+        if (d3.values(xKeys).length > d3.values(yKeys).length)
             [yKeyIndex, xKeyIndex] = [xKeyIndex, yKeyIndex];
 
-        let xValues: FieldGroupedValue[] = Object.values(xKeyIndex === 1 ? xKeys : yKeys);
-        let yValues: FieldGroupedValue[] = Object.values(yKeyIndex === 0 ? yKeys : xKeys);
+        let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 1 ? xKeys : yKeys);
+        let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 0 ? yKeys : xKeys);
 
         let weight = {}, count = {};
         data.forEach(row => {
@@ -103,8 +83,8 @@ export class PunchcardRenderer implements Renderer {
                 dict[key] += value;
             }
 
-            accumulate(weight, row.keys.list[0].hash, row.ci3stdev.center);
-            accumulate(weight, row.keys.list[1].hash, row.ci3stdev.center);
+            accumulate(weight, row.keys.list[0].hash, row.ci3.center);
+            accumulate(weight, row.keys.list[1].hash, row.ci3.center);
             accumulate(count, row.keys.list[0].hash, 1);
             accumulate(count, row.keys.list[1].hash, 1);
         })
@@ -199,8 +179,8 @@ export class PunchcardRenderer implements Renderer {
         enter = rects
             .enter().append('rect').attr('class', 'area')
 
-        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3stdev.low);
-        const xMax = d3.max(data, d => d.ci3stdev.high);
+        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
+        const xMax = d3.max(data, d => d.ci3.high);
 
         const niceTicks = d3.ticks(xMin, xMax, 8);
         const step = niceTicks[1] - niceTicks[0];
@@ -210,7 +190,7 @@ export class PunchcardRenderer implements Renderer {
         if (node.domainStart > domainStart) node.domainStart = domainStart;
         if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
 
-        let maxUncertainty = d3.max(data, d => d.ci3stdev.high - d.ci3stdev.center);
+        let maxUncertainty = d3.max(data, d => d.ci3.high - d.ci3.center);
 
         if (node.maxUncertainty < maxUncertainty) node.maxUncertainty = maxUncertainty;
 
@@ -231,7 +211,7 @@ export class PunchcardRenderer implements Renderer {
             .attr('transform', (d) => {
                 return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
             })
-            .attr('fill', d => zScale(d.ci3stdev.center, d.ci3stdev.high - d.ci3stdev.center));
+            .attr('fill', d => zScale(d.ci3.center, d.ci3.high - d.ci3.center));
 
         rects.exit().remove();
 
@@ -487,11 +467,11 @@ export class PunchcardRenderer implements Renderer {
         // ADD CODE FOR SGS
     }
 
-    getDatum(variable: SingleCombinedVariable): Datum {
+    getDatum(variable: VariablePair): Datum {
         return this.data.find(d => d.id === variable.hash);
     }
 
-    getRank(variable: SingleCombinedVariable): number {
+    getRank(variable: VariablePair): number {
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i].id == variable.hash) return i + 1;
         }
@@ -501,12 +481,12 @@ export class PunchcardRenderer implements Renderer {
     datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        let variable = new SingleCombinedVariable(d.keys.list[0], d.keys.list[1]);
+        let variable = new VariablePair(d.keys.list[0], d.keys.list[1]);
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
         if(this.safeguardType === SGT.Range) {
-            this.flexBrush.center = this.swatchXScale.invert(d.ci3stdev.center);
+            this.flexBrush.center = this.swatchXScale.invert(d.ci3.center);
         }
 
         this.updateHighlight();
@@ -519,7 +499,7 @@ export class PunchcardRenderer implements Renderer {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 
-        let variable = new SingleCombinedVariable(d.keys.list[0], d.keys.list[1]);
+        let variable = new VariablePair(d.keys.list[0], d.keys.list[1]);
 
         if (this.variable1 && variable.hash === this.variable1.hash)
             return;
@@ -537,7 +517,7 @@ export class PunchcardRenderer implements Renderer {
         if (this.constant) return;
         if (this.variable1) {
             if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
-                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3stdev.center);
+                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
@@ -548,7 +528,7 @@ export class PunchcardRenderer implements Renderer {
                 this.constantUserChanged(constant);
             }*/
             else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
-                let range = this.getDatum(this.variable1).ci3stdev;
+                let range = this.getDatum(this.variable1).ci3;
                 let constant = new RangeValueConstant(range.low, range.high);
 
                 this.vis.constantSelected.emit(constant);
