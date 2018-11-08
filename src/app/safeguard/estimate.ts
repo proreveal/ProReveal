@@ -3,7 +3,7 @@ import { AggregateQuery } from "../data/query";
 import { Variable, VariablePair } from "./variable";
 import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
-import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, DistributionTrait, PowerLawConstant, NormalConstant } from "./constant";
+import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, DistributionTrait, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { FieldGroupedValue } from "../data/field";
 import { NullGroupId } from "../data/grouper";
 import { isNull } from "util";
@@ -212,7 +212,7 @@ export class NormalEstimator implements EstimatorTrait {
             let range = datum.keys.list[0].value();
             if(isNull(range)) return; // means a count for an empty value
 
-            let [left, right] = range;
+            let [left, right] = range as [number, number];
 
             let p_estimate = constant.compute(left, right);
 
@@ -226,43 +226,30 @@ export class NormalEstimator implements EstimatorTrait {
 
 export class LinearRegressionEstimator {
     estimate(query: AggregateQuery, variable: VariablePair,
-        operator: Operators): Error {
+        constant: LinearRegressionConstant): Error {
 
+        let data = query.resultData();
+        let n = 0;
+        let error = 0;
 
-        const n = query.progress.processedRows;
-        const N = query.progress.totalRows;
+        data.forEach(datum => {
+            let range1 = datum.keys.list[0].value();
+            let range2 = datum.keys.list[1].value();
 
-        let result1 = query.result[variable.fieldGroupedValue1.hash].value;
-        let result2 = query.result[variable.fieldGroupedValue2.hash].value;
+            if(isNull(range1) || isNull(range2)) return;
 
-        let ai1 = query.approximator.approximate(
-            result1,
-            query.progress.processedPercent(),
-            n,
-            N);
+            range1 = range1 as [number, number];
+            range2 = range2 as [number, number];
 
-        let ai2 = query.approximator.approximate(
-            result2,
-            query.progress.processedPercent(),
-            n,
-            N);
+            let x = (range1[0] + range1[1]) / 2;
+            let y = (range2[0] + range2[1]) / 2;
 
-        const s_star_sqaured = ai1.stdev * ai1.stdev / ai1.n + ai2.stdev * ai2.stdev / ai2.n;
-        // TODO n == N
-        const s_star = Math.sqrt(1 - n / N) * Math.sqrt(s_star_sqaured);
+            let y_estimate = constant.compute(x);
 
+            n += datum.ci3.center;
+            error += (y - y_estimate) * (y - y_estimate) * datum.ci3.center;
+        })
 
-        const diff = ai1.center - ai2.center;
-
-        let z = diff / s_star;
-        let cp = normal.cdf(z);
-
-        if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
-            return 1 - cp;
-        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
-            return cp;
-        else
-            throw new Error(`Invalid operator ${operator}`);
+        return error / n;
     }
-
 }

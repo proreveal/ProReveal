@@ -22,7 +22,7 @@ export interface FieldTrait {
     nullable: boolean;
 
     group(value: any): number;
-    ungroup(id: GroupIdType): any;
+    ungroup(id: GroupIdType): null | string | [number, number];
     ungroupString(id: GroupIdType): string;
 }
 

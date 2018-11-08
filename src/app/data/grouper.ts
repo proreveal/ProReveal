@@ -13,7 +13,7 @@ export const NullString = '(empty)';
 export class CategoricalGrouper {
     size = 1;
     dict = {};
-    inverse = { NullGroupId: null };
+    inverse: { [id: string]: null | string } = { NullGroupId: null };
 
     constructor() {
 
@@ -36,12 +36,12 @@ export class CategoricalGrouper {
         return this.dict[value];
     }
 
-    ungroup(id: GroupIdType): any {
+    ungroup(id: GroupIdType): null | string {
         return this.inverse[id];
     }
 
     ungroupString(id: GroupIdType): string {
-        if(id === NullGroupId) return NullString;
+        if (id === NullGroupId) return NullString;
         return this.ungroup(id).toString();
     }
 }
@@ -76,14 +76,14 @@ export class NumericalGrouper {
         return Math.floor((value - this.base) / this.step);
     }
 
-    ungroup(id: GroupIdType) {
+    ungroup(id: GroupIdType): null | [number, number] {
         if (id === NullGroupId) return null;
 
         return [this.base + this.step * id, this.base + this.step * (id + 1)];
     }
 
     ungroupString(id: GroupIdType, format: string = '~s'): string {
-        if(id === NullGroupId) return NullString;
+        if (id === NullGroupId) return NullString;
         let ug = this.ungroup(id);
         return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
     }

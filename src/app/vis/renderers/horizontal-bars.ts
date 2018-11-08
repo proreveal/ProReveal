@@ -395,7 +395,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.distributionLine.render<Datum>(
                     this.constant as DistributionTrait,
                     this.data,
-                    (d: Datum, i: number) => {return [i, 0]; },
+                    (d: Datum, i: number) => {return [i + 1, 0]; },
                     this.xScale, this.yScale
                 )
             }
@@ -406,7 +406,7 @@ export class HorizontalBarsRenderer implements Renderer {
                     (d: Datum) => {
                         let range = d.keys.list[0].value();
                         if(range == null) return null;
-                        return range;
+                        return range as [number, number];
                     },
                     this.xScale, this.yScale
                 )
@@ -625,6 +625,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 let data = this.data.map(d => {
                     let range = d.keys.list[0].value();
                     if(range == null) return [0, 0] as [number, number];
+                    range = range as [number, number];
                     return [(range[0] + range[1]) / 2, d.ci3.center] as [number, number];
                 });
 
