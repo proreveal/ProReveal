@@ -146,7 +146,6 @@ export class ComparativeEstimator implements EstimatorTrait {
         // TODO n == N
         const s_star = Math.sqrt(1 - n / N) * Math.sqrt(s_star_sqaured);
 
-
         const diff = ai1.center - ai2.center;
 
         let z = diff / s_star;
@@ -169,7 +168,7 @@ export class PowerLawEstimator implements EstimatorTrait {
      * (MEAN(Y) by X) ~ N(mu, sigma))
      * @param constant
      */
-    estimate(query: AggregateQuery, variable: Variable, constant: PowerLawConstant): Quality {
+    estimate(query: AggregateQuery, constant: PowerLawConstant): Quality {
         let data = query.resultData();
         let n = 0;
 
@@ -198,7 +197,7 @@ export class NormalEstimator implements EstimatorTrait {
      * (MEAN(Y) by X) ~ N(mu, sigma))
      * @param constant
      */
-    estimate(query: AggregateQuery, variable: Variable, constant: NormalConstant): Quality {
+    estimate(query: AggregateQuery, constant: NormalConstant): Quality {
         let data = query.resultData();
         let n = 0;
 
@@ -225,8 +224,7 @@ export class NormalEstimator implements EstimatorTrait {
 }
 
 export class LinearRegressionEstimator {
-    estimate(query: AggregateQuery, variable: VariablePair,
-        constant: LinearRegressionConstant): Error {
+    estimate(query: AggregateQuery, constant: LinearRegressionConstant): Error {
 
         let data = query.resultData();
         let n = 0;

@@ -1,9 +1,7 @@
-import { Query } from "../data/query";
 import { Operators } from "./operator";
 import { ConstantTrait } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
-import { VariableTrait, Variable, VariablePair, DistributionVariable } from "./variable";
-import { AggregateQuery } from "../data/query";
+import { VariableTrait, Variable, VariablePair, DistributiveVariable } from "./variable";
 import { NormalDistribution } from "./normal";
 
  export enum SafeguardTypes {
@@ -25,32 +23,6 @@ export class Safeguard {
         public node: ExplorationNode
     ) {
 
-    }
-
-    static EstimatePoint(query: AggregateQuery, variable: Variable,
-        operator: Operators, constant: number) {
-        let result = query.result[variable.fieldGroupedValue.hash].value;
-        let ai = query.approximator.approximate(
-            result,
-            query.progress.processedPercent(),
-            query.progress.processedRows,
-            query.progress.totalRows);
-        let z = (constant - ai.center) / ai.stdev;
-        let cp = Safeguard.normal.cdf(z);
-        if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo) {
-            return 1 - cp;
-        }
-        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo) {
-            return cp;
-        }
-        else {
-            throw new Error(`Invalid operator ${operator}`);
-        }
-    }
-    // http://195.134.76.37/applets/AppletTtest/Appl_Ttest2.html
-    static CompareMeans(query: AggregateQuery, variable: Variable,
-        operator: Operators, variable2: Variable) {
-        return 0.5
     }
 }
 
@@ -83,7 +55,7 @@ export class DistributiveSafeguard extends Safeguard {
     constructor(public constant: ConstantTrait,
         public node: ExplorationNode) {
             super(SafeguardTypes.Distributive,
-                new DistributionVariable(),
+                new DistributiveVariable(),
                 Operators.Follow,
                 constant, node);
     }

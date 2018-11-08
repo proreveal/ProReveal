@@ -62,18 +62,15 @@ export class VariablePair extends VariableTrait { // (a=1, b=2)
     }
 }
 
-export class DistributionVariable extends VariableTrait {
+export class DistributiveVariable extends VariableTrait {
 
 }
 
-export class GroupValueVariable { // g(*) > 3%
+export class LinearRegressionVariable extends VariableTrait {
 
 }
 
-export class GroupRankVariable {
+export class GroupValueVariable extends VariableTrait { // g(*) > 3%
 
 }
 
-export class LinearFittingVariable {
-
-}

@@ -176,7 +176,7 @@
             </div>
             <div class="p-1 guide">
                 <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && pointConstant">
-                    <p-indicator [p]="EstimatePoint(activeNode.query, variable1, operator, pointConstant)"></p-indicator>
+                    <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, pointConstant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -246,7 +246,7 @@
             </div>
             <div class="p-1 guide">
                 <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && constant">
-                    <p-indicator [p]="EstimatePoint(activeNode.query, variable1, operator, constant)"></p-indicator>
+                    <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, constant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -294,7 +294,7 @@
             </div>
             <div class="p-1 guide">
                 <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && variable2">
-                    <p-indicator [p]="CompareMeans(activeNode.query, variable1, operator, variable2)"></p-indicator>
+                    <p-indicator [p]="ComparativeEstimate(activeNode.query, variable1, operator, variable2)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">

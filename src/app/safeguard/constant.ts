@@ -97,7 +97,7 @@ export class PowerLawConstant extends ConstantTrait implements DistributionTrait
 
     /**
      * returns a pdf value (0 to 1)
-     * @param x
+     * @param x an index (starts from 1)
      */
     compute(x: number) {
         return this.a * Math.pow(x, this.b);
