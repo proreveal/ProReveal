@@ -82,9 +82,11 @@ export class EmptyQuery extends Query {
  */
 export class AggregateQuery extends Query {
     name = "AggregateQuery";
+    recentResult: AccumulatedKeyValues = {};
     result: AccumulatedKeyValues = {};
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
+    updateAutomatically = true;
 
     /**
      *
@@ -121,23 +123,23 @@ export class AggregateQuery extends Query {
                 sample));
     }
 
-    accumulate(job: AggregateJob, partialResponses: PartialKeyValue[]) {
+    accumulate(job: AggregateJob, partialKeyValues: PartialKeyValue[]) {
         this.lastUpdated = +new Date();
 
         this.progress.processedRows += job.sample.length;
         this.progress.processedBlocks++;
 
-        partialResponses.forEach(pres => {
+        partialKeyValues.forEach(pres => {
             const hash = pres.key.hash;
 
-            if (!this.result[hash])
-                this.result[hash] = {
+            if (!this.recentResult[hash])
+                this.recentResult[hash] = {
                     key: pres.key,
                     value: this.accumulator.initAccumulatedValue
                 };
 
-            this.result[hash].value =
-                this.accumulator.accumulate(this.result[hash].value, pres.value);
+            this.recentResult[hash].value =
+                this.accumulator.accumulate(this.recentResult[hash].value, pres.value);
         });
     }
 
@@ -198,6 +200,13 @@ export class AggregateQuery extends Query {
         data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
 
         return data;
+    }
+
+    sync() {
+        this.result = this.recentResult;
+        // Object.keys(this.result).forEach(key => {
+        //     this.result[key].value = this.result[key].value.clone();
+        // })
     }
 }
 

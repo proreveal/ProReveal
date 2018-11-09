@@ -26,6 +26,10 @@ export class AccumulatedValue {
         public max: number,
         public nullCount: number) {
     }
+
+    clone() {
+        return new AccumulatedValue(this.sum, this.ssum, this.count, this.min, this.max, this.nullCount);
+    }
 }
 
 export interface AccumulatorTrait {

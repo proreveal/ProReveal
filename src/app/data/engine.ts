@@ -1,7 +1,7 @@
 import * as util from '../util';
 import { Dataset } from './dataset';
 import { FieldTrait, VlType } from './field';
-import { Query } from './query';
+import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
 
@@ -74,7 +74,11 @@ export class Engine {
 
         job.query.accumulate(job, partialKeyValues);
 
-        if(job.query.progress.done()) {
+        if(job.query instanceof AggregateQuery && job.query.updateAutomatically) {
+            job.query.sync();
+        }
+
+        if (job.query.progress.done()) {
             this.ongoingQueries.splice(0, 1);
             this.completedQueries.push(job.query);
         }

@@ -39,7 +39,6 @@ export class ExplorationNode {
     domainEnd = -Number.MAX_VALUE;
     maxUncertainty = 0;
 
-    updateAutomatically = true;
     state:NodeState = NodeState.Running;
 
     constructor(public parent: ExplorationNode, public fields: FieldTrait[], public query: Query | null) {

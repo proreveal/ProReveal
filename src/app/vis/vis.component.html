@@ -45,20 +45,20 @@
                 ({{ node.query.progress.processedPercent() | percent }})
             </div>
             <button type="button" class="btn btn-light btn-sm ml-1"
-                (click)="node.updateAutomatically=!node.updateAutomatically">
-                <fa-icon icon="check-square" [hidden]="!node.updateAutomatically"></fa-icon>
-                <fa-icon [icon]="['far', 'square']" [hidden]="node.updateAutomatically"></fa-icon>
+                (click)="node.query.updateAutomatically=!node.query.updateAutomatically">
+                <fa-icon icon="check-square" [hidden]="!node.query.updateAutomatically"></fa-icon>
+                <fa-icon [icon]="['far', 'square']" [hidden]="node.query.updateAutomatically"></fa-icon>
                 Update automatically
             </button>
 
-            <button type="button" class="btn btn-light btn-sm ml-1">
+            <button type="button" class="btn btn-light btn-sm ml-1" [disabled]="node.query.updateAutomatically">
                 <fa-icon icon="sync-alt"></fa-icon>
                 Sync
             </button>
         </div>
     </div>
 
-    <svg #svg></svg>
+    <svg class="mt-2" #svg></svg>
 
     <tooltip #tooltip></tooltip>
 
