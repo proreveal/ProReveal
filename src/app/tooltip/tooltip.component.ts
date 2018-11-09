@@ -17,6 +17,7 @@ export class TooltipComponent implements OnInit {
     visible = false;
     hideRequested = false;
     id = 0;
+    data: any;
 
     @ViewChild(TooltipHostDirective) tooltipHost: TooltipHostDirective;
     @ViewChild('inner') inner: ElementRef<HTMLDivElement>;
@@ -37,7 +38,7 @@ export class TooltipComponent implements OnInit {
 
         let componentRef = viewContainerRef.createComponent(componentFactory);
         this.hideRequested = false;
-
+        this.data = data;
 
         (<TooltipRendererTrait>componentRef.instance).data = data;
         (<TooltipRendererTrait>componentRef.instance).afterViewChecked = () => {

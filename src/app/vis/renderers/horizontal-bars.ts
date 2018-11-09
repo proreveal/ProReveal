@@ -80,7 +80,7 @@ export class HorizontalBarsRenderer implements Renderer {
         svg.attr('width', width).attr('height', height)
             .on('contextmenu', () => d3.event.preventDefault());
 
-        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length );
+        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0;
 
         const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
@@ -106,159 +106,161 @@ export class HorizontalBarsRenderer implements Renderer {
 
         const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height));
 
-        selectOrAppend(visG, 'g', '.sub.axis')
-            .style('opacity', .2)
-            .attr('transform', translate(0, VC.horizontalBars.axis.height))
-            .transition()
-            .call(majorTickLines as any)
-            .selectAll('text')
-            .style('display', 'none')
+        // render major ticks
+        {
+            selectOrAppend(visG, 'g', '.sub.axis')
+                .style('opacity', .2)
+                .attr('transform', translate(0, VC.horizontalBars.axis.height))
+                .transition()
+                .call(majorTickLines as any)
+                .selectAll('text')
+                .style('display', 'none')
+        }
 
-        const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
+        // render the top axis
+        {
+            const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
 
-        selectOrAppend(visG, 'g', '.x.axis.top')
-            .attr('transform', translate(0, VC.horizontalBars.axis.height))
-            .transition()
-            .call(topAxis as any)
+            selectOrAppend(visG, 'g', '.x.axis.top')
+                .attr('transform', translate(0, VC.horizontalBars.axis.height))
+                .transition()
+                .call(topAxis as any)
+        }
 
-        const eventBoxes = visG.selectAll('rect.event-box')
-            .data(data, (d: any) => d.id);
+        // render event boxes (for highlight)
+        {
+            const eventBoxes = visG.selectAll('rect.event-box')
+                .data(data, (d: any) => d.id);
 
-        let enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable1');
+            let enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable1');
 
-        this.eventBoxes = eventBoxes.merge(enter)
-            .attr('height', yScale.bandwidth())
-            .attr('width', width)
-            .attr('class', 'event-box variable1')
-            .attr('transform', (d, i) => translate(0, yScale(i + '')))
-            .style('pointer-events', 'none')
+            this.eventBoxes = eventBoxes.merge(enter)
+                .attr('height', yScale.bandwidth())
+                .attr('width', width)
+                .attr('class', 'event-box variable1')
+                .attr('transform', (d, i) => translate(0, yScale(i + '')))
+                .style('pointer-events', 'none')
 
-        eventBoxes.exit().remove();
+            eventBoxes.exit().remove();
+        }
 
-        let labels = visG
-            .selectAll('text.label')
-            .data(data, (d: any) => d.id);
+        // render labels
+        {
+            let labels = visG
+                .selectAll('text.label')
+                .data(data, (d: any) => d.id);
 
-        enter = labels.enter().append('text').attr('class', 'label variable1')
-            .style('text-anchor', 'end')
-            .attr('font-size', '.8rem')
-            .attr('dy', '.8rem')
-            .style('user-select', 'none')
+            enter = labels.enter().append('text').attr('class', 'label variable1')
+                .style('text-anchor', 'end')
+                .attr('font-size', '.8rem')
+                .attr('dy', '.8rem')
+                .style('user-select', 'none')
 
-        this.labels = labels.merge(enter)
-            .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
-            .text((d) => `${d.keys.list[0].valueString()}`)
-            .on('mouseenter', (d, i) => {
-                const clientRect = nativeSvg.getBoundingClientRect();
-                const parentRect = nativeSvg.parentElement.getBoundingClientRect();
+            this.labels = labels.merge(enter)
+                .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
+                .text((d) => `${d.keys.list[0].valueString()}`)
+                .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
+                .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
+                .on('click', (d, i) => this.datumSelected(d))
+                .on('contextmenu', (d, i) => this.datumSelected2(d))
 
-                this.tooltip.show(
-                    clientRect.left - parentRect.left + xScale(d.ci3.center),
-                    clientRect.top - parentRect.top + yScale(i + ''),
-                    HorizontalBarsTooltipComponent,
-                    d
-                );
+            labels.exit().remove();
+        }
 
-                if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-                    let ele = d3.select(this.eventBoxes.nodes()[i]);
-                    ele.classed('highlighted', true)
-                }
-            })
-            .on('mouseleave', (d, i) => {
-                this.tooltip.hide();
-                if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-                    if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
-                        !== d.keys.list[0].hash) &&
-                        (!this.variable2 || this.variable2.fieldGroupedValue.hash
-                            !== d.keys.list[0].hash)) {
-                        let ele = d3.select(this.eventBoxes.nodes()[i]);
-                        ele.classed('highlighted', false)
-                    }
-                }
-            })
-            .on('click', (d, i) => this.datumSelected(d))
-            .on('contextmenu', (d, i) => this.datumSelected2(d))
+        // render ranks
+        {
+            let ranks = visG
+                .selectAll('text.rank')
+                .data(data, (d: any) => d.id);
 
-        labels.exit().remove();
+            enter = ranks.enter().append('text').attr('class', 'rank variable1')
+                .attr('font-size', '.8rem')
+                .attr('dy', '.8rem')
+                .style('opacity', 0.5)
+                .style('user-select', 'none')
 
-        let ranks = visG
-            .selectAll('text.rank')
-            .data(data, (d: any) => d.id);
+            this.ranks = ranks.merge(enter)
+                .attr('transform', (d, i) => translate(0, yScale(i + '')))
+                .text((d, i) => `${i + 1}`)
 
-        enter = ranks.enter().append('text').attr('class', 'rank variable1')
-            .attr('font-size', '.8rem')
-            .attr('dy', '.8rem')
-            .style('opacity', 0.5)
-            .style('user-select', 'none')
+            ranks.exit().remove();
+        }
 
-        this.ranks = ranks.merge(enter)
-            .attr('transform', (d, i) => translate(0, yScale(i + '')))
-            .text((d, i) => `${i + 1}`)
+        // render label lines
+        {
+            const labelLines = visG.selectAll('line.label').data(data, (d: any) => d.id);
 
-        ranks.exit().remove();
+            enter = labelLines.enter().append('line').attr('class', 'label')
+                .style('stroke', 'black')
+                .style('opacity', 0.2);
 
-        const labelLines = visG.selectAll('line.label').data(data, (d: any) => d.id);
+            labelLines.merge(enter)
+                .attr('x1', xScale.range()[0])
+                .attr('x2', xScale.range()[1])
+                .attr('y1', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
+                .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
 
-        enter = labelLines.enter().append('line').attr('class', 'label')
-            .style('stroke', 'black')
-            .style('opacity', 0.2);
+            labelLines.exit().remove();
+        }
 
-        labelLines.merge(enter)
-            .attr('x1', xScale.range()[0])
-            .attr('x2', xScale.range()[1])
-            .attr('y1', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
-            .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
+        // render left gradient bars
+        {
+            const leftBars = visG
+                .selectAll('rect.left.bar')
+                .data(data, (d: any) => d.id);
 
-        labelLines.exit().remove();
+            enter = leftBars
+                .enter().append('rect').attr('class', 'left bar')
 
-        const leftBars = visG
-            .selectAll('rect.left.bar')
-            .data(data, (d: any) => d.id);
+            leftBars.merge(enter)
+                .attr('height', yScale.bandwidth())
+                .attr('width', d => xScale(d.ci3.center) - xScale(d.ci3.low))
+                .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
+                .attr('fill', this.gradient.leftUrl())
 
-        enter = leftBars
-            .enter().append('rect').attr('class', 'left bar')
+            leftBars.exit().remove();
+        }
 
-        leftBars.merge(enter)
-            .attr('height', yScale.bandwidth())
-            .attr('width', d => xScale(d.ci3.center) - xScale(d.ci3.low))
-            .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
-            .attr('fill', this.gradient.leftUrl())
+        // render right gradient bars
+        {
+            const rightBars = visG
+                .selectAll('rect.right.bar')
+                .data(data, (d: any) => d.id);
 
-        leftBars.exit().remove();
+            enter = rightBars
+                .enter().append('rect').attr('class', 'right bar')
 
-        const rightBars = visG
-            .selectAll('rect.right.bar')
-            .data(data, (d: any) => d.id);
+            rightBars.merge(enter)
+                .attr('height', yScale.bandwidth())
+                .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.center))
+                .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
+                .attr('fill', this.gradient.rightUrl())
 
-        enter = rightBars
-            .enter().append('rect').attr('class', 'right bar')
+            rightBars.exit().remove();
+        }
 
-        rightBars.merge(enter)
-            .attr('height', yScale.bandwidth())
-            .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.center))
-            .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
-            .attr('fill', this.gradient.rightUrl())
+        // render center lines
+        {
+            const centerLines = visG
+                .selectAll('line.center')
+                .data(data, (d: any) => d.id);
 
-        rightBars.exit().remove();
+            enter = centerLines
+                .enter().append('line').attr('class', 'center')
 
-        const centerLines = visG
-            .selectAll('line.center')
-            .data(data, (d: any) => d.id);
+            centerLines.merge(enter)
+                .attr('x1', (d) => xScale(d.ci3.center))
+                .attr('y1', (d, i) => yScale(i + ''))
+                .attr('x2', (d) => xScale(d.ci3.center))
+                .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth())
+                .style('stroke-width', done ? 2 : 1)
+                .style('stroke', 'black')
+                .style('shape-rendering', 'crispEdges')
 
-        enter = centerLines
-            .enter().append('line').attr('class', 'center')
+            centerLines.exit().remove();
+        }
 
-        centerLines.merge(enter)
-            .attr('x1', (d) => xScale(d.ci3.center))
-            .attr('y1', (d, i) => yScale(i + ''))
-            .attr('x2', (d) => xScale(d.ci3.center))
-            .attr('y2', (d, i) => yScale(i + '') + yScale.bandwidth())
-            .style('stroke-width', done ? 2 : 1)
-            .style('stroke', 'black')
-            .style('shape-rendering', 'crispEdges')
-
-        centerLines.exit().remove();
-
+        // render circles when done
         if (done) {
             const circles = visG.selectAll('circle')
                 .data(data, (d: any) => d.id);
@@ -266,6 +268,7 @@ export class HorizontalBarsRenderer implements Renderer {
             enter = circles.enter().append('circle')
                 .attr('r', VC.horizontalBars.circleRadius)
                 .attr('fill', 'steelblue')
+                .style('pointer-events', 'none')
 
             circles.merge(enter)
                 .attr('cx', d => xScale(d.ci3.center))
@@ -278,33 +281,57 @@ export class HorizontalBarsRenderer implements Renderer {
                 .remove();
         }
 
-        const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
+        // render bar event boxes (tooltip when hovered)
+        {
+            const barEventBoxes = visG.selectAll('rect.bar-event-box')
+                .data(data, (d: any) => d.id);
 
-        selectOrAppend(visG, 'g', '.x.axis.bottom')
-            .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
-            .transition()
-            .call(bottomAxis as any)
+            enter = barEventBoxes
+                .enter().append('rect').attr('class', 'bar-event-box');
 
-        this.variableHighlight =
-            selectOrAppend(visG, 'rect', '.variable1.highlighted')
-                .attr('width', labelWidth)
-                .attr('height', height - VC.horizontalBars.axis.height * 2)
-                .attr('transform', translate(0, VC.horizontalBars.height))
-                .attr('display', 'none')
-                .style('pointer-events', 'none')
+            barEventBoxes.merge(enter)
+                .attr('height', yScale.bandwidth())
+                .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.low))
+                .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
+                .style('fill', 'transparent')
+                .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
+                .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
 
-        this.variableHighlight2 =
-            selectOrAppend(visG, 'rect', '.variable2.highlighted')
-                .attr('width', labelWidth)
-                .attr('height', height - VC.horizontalBars.axis.height * 2)
-                .attr('transform', translate(0, VC.horizontalBars.height))
-                .attr('display', 'none')
-                .style('pointer-events', 'none')
+            barEventBoxes.exit().remove();
+        }
 
-        this.constantHighlight = selectOrAppend(visG, 'g', 'constant-highlight-wrapper')
-            .attr('class', 'constant-highlight-wrapper')
-            .style('opacity', 0)
+        // render the bottom axis
+        {
+            const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
+            selectOrAppend(visG, 'g', '.x.axis.bottom')
+                .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
+                .transition()
+                .call(bottomAxis as any)
+        }
+
+        // highlights
+        {
+            this.variableHighlight =
+                selectOrAppend(visG, 'rect', '.variable1.highlighted')
+                    .attr('width', labelWidth)
+                    .attr('height', height - VC.horizontalBars.axis.height * 2)
+                    .attr('transform', translate(0, VC.horizontalBars.height))
+                    .attr('display', 'none')
+                    .style('pointer-events', 'none')
+
+            this.variableHighlight2 =
+                selectOrAppend(visG, 'rect', '.variable2.highlighted')
+                    .attr('width', labelWidth)
+                    .attr('height', height - VC.horizontalBars.axis.height * 2)
+                    .attr('transform', translate(0, VC.horizontalBars.height))
+                    .attr('display', 'none')
+                    .style('pointer-events', 'none')
+
+            this.constantHighlight = selectOrAppend(visG, 'g', 'constant-highlight-wrapper')
+                .attr('class', 'constant-highlight-wrapper')
+                .style('opacity', 0)
+        }
 
         this.flexBrush.on('brush', () => {
 
@@ -315,7 +342,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
-            else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
                 let index = Math.round((center - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
@@ -329,7 +356,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
-            else if(this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
+            else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
                 let sel = d3.event.selection;
                 let index1 = Math.round((sel[0] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
                 let index2 = Math.round((sel[1] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
@@ -361,41 +388,41 @@ export class HorizontalBarsRenderer implements Renderer {
             [width, height - VC.horizontalBars.axis.height]]);
         }
 
-        if(!this.constant) this.setDefaultConstantFromVariable();
+        if (!this.constant) this.setDefaultConstantFromVariable();
 
-        if([SGT.Point, SGT.Range].includes(this.safeguardType) && this.constant)
+        if ([SGT.Point, SGT.Range].includes(this.safeguardType) && this.constant)
             this.flexBrush.show();
         else
             this.flexBrush.hide();
 
-        if(this.safeguardType === SGT.Distributive) this.distributionLine.show();
+        if (this.safeguardType === SGT.Distributive) this.distributionLine.show();
         else this.distributionLine.hide();
 
-        if(this.constant) {
+        if (this.constant) {
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-                    let center = xScale((this.constant as PointValueConstant).value);
-                    this.flexBrush.move(center);
+                let center = xScale((this.constant as PointValueConstant).value);
+                this.flexBrush.move(center);
             }
             else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                    let center = yScale((this.constant as PointRankConstant).rank.toString());
-                    this.flexBrush.move(center);
+                let center = yScale((this.constant as PointRankConstant).rank.toString());
+                this.flexBrush.move(center);
             }
             else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-                    let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
-                    this.flexBrush.move(range);
+                let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
+                this.flexBrush.move(range);
             }
             else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-                    let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
-                    this.flexBrush.move(range);
+                let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
+                this.flexBrush.move(range);
             }
         }
 
-        if(this.safeguardType === SGT.Distributive) {
-            if(this.fittingType == FT.PowerLaw) {
+        if (this.safeguardType === SGT.Distributive) {
+            if (this.fittingType == FT.PowerLaw) {
                 this.distributionLine.render<Datum>(
                     this.constant as DistributionTrait,
                     this.data,
-                    (d: Datum, i: number) => {return [i + 1, 0]; },
+                    (d: Datum, i: number) => { return [i + 1, 0]; },
                     this.xScale, this.yScale
                 )
             }
@@ -405,7 +432,7 @@ export class HorizontalBarsRenderer implements Renderer {
                     this.data,
                     (d: Datum) => {
                         let range = d.keys.list[0].value();
-                        if(range == null) return null;
+                        if (range == null) return null;
                         return range as [number, number];
                     },
                     this.xScale, this.yScale
@@ -419,7 +446,6 @@ export class HorizontalBarsRenderer implements Renderer {
         this.labelWidth = labelWidth;
         this.width = width;
         this.xScale = xScale;
-
 
         this.updateHighlight();
     }
@@ -556,23 +582,23 @@ export class HorizontalBarsRenderer implements Renderer {
         return 1;
     }
 
-    datumSelected(d:Datum) {
+    datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
         let variable = new Variable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
         this.variable1 = variable;
 
-        if(this.safeguardType === SGT.Range) {
+        if (this.safeguardType === SGT.Range) {
             this.flexBrush.center = this.xScale(d.ci3.center);
         }
         this.updateHighlight();
 
         this.vis.variableSelected.emit({ variable: variable });
-        if(!this.constant) this.setDefaultConstantFromVariable();
+        if (!this.constant) this.setDefaultConstantFromVariable();
     }
 
-    datumSelected2(d:Datum) {
+    datumSelected2(d: Datum) {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 
@@ -590,15 +616,15 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     setDefaultConstantFromVariable(removeCurrentConstant = false) {
-        if(removeCurrentConstant) this.constant = null;
-        if(this.constant) return;
-        if(this.variable1) {
+        if (removeCurrentConstant) this.constant = null;
+        if (this.constant) return;
+        if (this.variable1) {
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
-            else if(this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
                 let constant = new PointRankConstant(this.getRank(this.variable1));
 
                 this.vis.constantSelected.emit(constant);
@@ -619,19 +645,19 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.constantUserChanged(constant);
             }
         }
-        else if(this.safeguardType === SGT.Distributive) {
+        else if (this.safeguardType === SGT.Distributive) {
             let constant;
-            if(this.fittingType == FT.Normal) {
+            if (this.fittingType == FT.Normal) {
                 let data = this.data.map(d => {
                     let range = d.keys.list[0].value();
-                    if(range == null) return [0, 0] as [number, number];
+                    if (range == null) return [0, 0] as [number, number];
                     range = range as [number, number];
                     return [(range[0] + range[1]) / 2, d.ci3.center] as [number, number];
                 });
 
                 constant = NormalConstant.Fit(data);
             }
-            else if(this.fittingType == FT.PowerLaw) {
+            else if (this.fittingType == FT.PowerLaw) {
                 constant = PowerLawConstant.Fit(this.data.map((d, i) => [i + 1, d.ci3.center] as [number, number]));
             }
 
@@ -651,4 +677,34 @@ export class HorizontalBarsRenderer implements Renderer {
         No vis.component handler propagates
 
     */
+
+    showTooltip(d: Datum, i: number) {
+        const clientRect = this.nativeSvg.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
+        this.tooltip.show(
+            clientRect.left - parentRect.left + this.xScale(d.ci3.center),
+            clientRect.top - parentRect.top + this.yScale(i + ''),
+            HorizontalBarsTooltipComponent,
+            d
+        );
+
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+            let ele = d3.select(this.eventBoxes.nodes()[i]);
+            ele.classed('highlighted', true)
+        }
+    }
+
+    hideTooltip(d: Datum, i: number) {
+        this.tooltip.hide();
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+            if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
+                !== d.keys.list[0].hash) &&
+                (!this.variable2 || this.variable2.fieldGroupedValue.hash
+                    !== d.keys.list[0].hash)) {
+                let ele = d3.select(this.eventBoxes.nodes()[i]);
+                ele.classed('highlighted', false)
+            }
+        }
+    }
 }

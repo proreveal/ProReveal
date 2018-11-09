@@ -127,10 +127,13 @@ export class AppComponent implements OnInit {
                 }
             });
 
-            // create sum(x) by y
+            // Just run 10 jobs.
+            this.run(10);
 
-            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-            this.run(5);
+
+            // create sum(x) by y
+            // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+            // this.run(5);
 
             // normal (categorical)
             // this.nodeSelected(this.ongoingNodes[0]);
@@ -152,8 +155,10 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.vis.setSafeguardType(this.activeSafeguardPanel);
-                this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
+                // Select the first ongoing node
+                this.nodeSelected(this.ongoingNodes[0]);
+                // this.vis.setSafeguardType(this.activeSafeguardPanel);
+                // this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
             })
         })
     }

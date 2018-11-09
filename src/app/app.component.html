@@ -3,7 +3,7 @@
         <button (click)="toggleMetadataEditor()" class="btn btn-dark" id="open-metadata-editor">
             <fa-icon icon="folder-open"></fa-icon>
         </button>
-        <a href="#" class="navbar-brand">TouchExplorer
+        <a href="#" class="navbar-brand">SPVA
             <small> (movies.json)</small>
         </a>
         <button class="btn btn-primary" (click)="run(1)">Run a job</button>
@@ -175,8 +175,11 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && pointConstant">
-                    <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, pointConstant)"></p-indicator>
+                11 {{  activeNode }}
+                22 {{ variable1 }}
+                33 {{ pointValueConstant}}
+                <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && pointValueConstant">
+                    <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, pointValueConstant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
@@ -245,7 +248,7 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && constant">
+                <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && constant">
                     <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, constant)"></p-indicator>
                 </div>
             </div>
@@ -293,7 +296,7 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processed > 0 && variable1 && variable2">
+                <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && variable2">
                     <p-indicator [p]="ComparativeEstimate(activeNode.query, variable1, operator, variable2)"></p-indicator>
                 </div>
             </div>

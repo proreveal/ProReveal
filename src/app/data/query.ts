@@ -208,7 +208,7 @@ export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
-    orderingAttributeGetter = d => (d.keys as FieldGroupedValueList).list[0].groupId;
+    orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
@@ -239,7 +239,7 @@ export class Histogram1DQuery extends AggregateQuery {
 export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
     ordering = NumericalOrdering;
-    orderingAttributeGetter = d => (d.ci3stdev as ConfidenceInterval).center;
+    orderingAttributeGetter = (d:Datum) => d.ci3.center;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
