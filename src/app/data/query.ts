@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType, FieldGroupedValueList } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatorTrait, SumAccumulator, CountAccumulator, AccumulatedValue, MeanAccumulator } from './accum';
+import { AccumulatorTrait, SumAccumulator, CountAccumulator, AccumulatedValue, MeanAccumulator, AllAccumulator } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -146,7 +146,7 @@ export class AggregateQuery extends Query {
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative && this.target === null) {
             return new AggregateQuery(
-                new MeanAccumulator(),
+                new AllAccumulator(),
                 new MeanApproximator(),
                 field,
                 this.dataset,
@@ -233,7 +233,7 @@ export class Histogram1DQuery extends AggregateQuery {
 
     combine(field: FieldTrait) {
         return new AggregateQuery(
-            new MeanAccumulator(),
+            new AllAccumulator(),
             new MeanApproximator(),
             this.grouping,
             this.dataset,
@@ -265,7 +265,7 @@ export class Frequency1DQuery extends AggregateQuery {
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
             return new AggregateQuery(
-                new MeanAccumulator(),
+                new AllAccumulator(),
                 new MeanApproximator(),
                 field,
                 this.dataset,

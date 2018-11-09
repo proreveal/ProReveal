@@ -196,7 +196,7 @@ export class AllAccumulator implements AccumulatorTrait {
         Object.freeze(new PartialValue(0, 0, 0, Number.MAX_VALUE, -Number.MAX_VALUE, 0));
 
     readonly initAccumulatedValue =
-        Object.freeze(new PartialValue(0, 0, 0, Number.MAX_VALUE, -Number.MAX_VALUE, 0));
+        Object.freeze(new AccumulatedValue(0, 0, 0, Number.MAX_VALUE, -Number.MAX_VALUE, 0));
 
     readonly name = "all";
     readonly alwaysNonNegative = false;
