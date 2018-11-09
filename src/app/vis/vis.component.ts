@@ -6,12 +6,11 @@ import { AggregateQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
-import { AccumulatorTrait, SumAccumulator, MinAccumulator, MaxAccumulator, MeanAccumulator } from '../data/accum';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { ToastrService } from 'ngx-toastr';
-import { FieldGroupedValueList } from '../data/field';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
+import { ApproximatorTrait, MinApproximator, MaxApproximator, MeanApproximator, SumApproximator } from '../data/approx';
 
 @Component({
     selector: 'vis',
@@ -37,11 +36,11 @@ export class VisComponent implements OnInit, DoCheck {
     queryLastUpdated: number;
     lastNode: ExplorationNode;
     renderer: Renderer;
-    accumulators: AccumulatorTrait[] = [
-        new SumAccumulator(),
-        new MeanAccumulator(),
-        new MaxAccumulator(),
-        new MinAccumulator()
+    approximators: ApproximatorTrait[] = [
+        new SumApproximator(),
+        new MeanApproximator(),
+        new MaxApproximator(),
+        new MinApproximator()
     ];
 
     constructor(private toastr: ToastrService
@@ -105,5 +104,20 @@ export class VisComponent implements OnInit, DoCheck {
 
     constantUserChanged(constant: ConstantTrait) {
         this.renderer.constantUserChanged(constant);
+    }
+
+    setApproximator(name) {
+        let query = this.node.query as AggregateQuery;
+
+        if(name === query.approximator.name) return;
+
+        if(name === 'sum') query.approximator = new SumApproximator();
+        if(name === 'mean') query.approximator = new MeanApproximator();
+        if(name === 'min') query.approximator = new MinApproximator();
+        if(name === 'max') query.approximator = new MaxApproximator();
+
+        this.node.domainStart = Number.MAX_VALUE;
+        this.node.domainEnd = -Number.MAX_VALUE;
+        this.renderer.render(this.node, this.svg.nativeElement);
     }
 }

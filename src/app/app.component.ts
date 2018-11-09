@@ -128,12 +128,18 @@ export class AppComponent implements OnInit {
             });
 
             // Just run 10 jobs.
-            this.run(10);
+
+            // this.run(10);
+            // of(0).pipe(
+            //     delay(1000)
+            // ).subscribe(() => {
+            //     this.nodeSelected(this.ongoingNodes[0]);
+            // });
 
 
-            // create sum(x) by y
-            // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-            // this.run(5);
+            // Create sum(x) by y (no need for selecting one)
+            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+            this.run(5);
 
             // normal (categorical)
             // this.nodeSelected(this.ongoingNodes[0]);
@@ -155,8 +161,6 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                // Select the first ongoing node
-                this.nodeSelected(this.ongoingNodes[0]);
                 // this.vis.setSafeguardType(this.activeSafeguardPanel);
                 // this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
             })
@@ -210,7 +214,7 @@ export class AppComponent implements OnInit {
     nodeSelected(node: ExplorationNode) {
         if (this.activeNode === node)
             this.activeNode = null;
-        else if(this.activeNode) {
+        else if (this.activeNode) {
             this.activeNode = node;
             this.cancelSafeguard();
         }
@@ -218,7 +222,7 @@ export class AppComponent implements OnInit {
             this.activeNode = node;
         }
 
-        if(!this.rankAllowed()) this.useRank = false;
+        if (!this.rankAllowed()) this.useRank = false;
     }
 
     // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
@@ -283,10 +287,10 @@ export class AppComponent implements OnInit {
         this.modalService
             .open(modal, { ariaLabelledBy: 'modal-basic-title' }).result
             .then(() => {
-                    this.engine.remove(node.query);
-                    this.updateNodeLists();
-                }, () => {
-                });
+                this.engine.remove(node.query);
+                this.updateNodeLists();
+            }, () => {
+            });
     }
 
     activeSafeguardPanel = SGT.Range;
@@ -309,46 +313,46 @@ export class AppComponent implements OnInit {
     Operators = Operators;
     operator = Operators.LessThanOrEqualTo;
 
-    variableSelected($event:{variable: Variable, secondary?: boolean}) {
-        if($event.secondary)
+    variableSelected($event: { variable: Variable, secondary?: boolean }) {
+        if ($event.secondary)
             this.variable2 = $event.variable;
         else
             this.variable1 = $event.variable;
 
-        if(this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
+        if (this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
             let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
             let value2 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable2)
 
-            if(value1.ci3.center < value2.ci3.center)
+            if (value1.ci3.center < value2.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
             else this.operator = Operators.GreaterThanOrEqualTo;
         }
     }
 
     constantSelected(constant: ConstantTrait) {
-        if(constant instanceof PointValueConstant) {
+        if (constant instanceof PointValueConstant) {
             let value = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
             this.pointValueConstant = constant;
-            if(constant.value >= value.ci3.center)
+            if (constant.value >= value.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
             else
                 this.operator = Operators.GreaterThanOrEqualTo;
         }
-        else if(constant instanceof PointRankConstant) {
+        else if (constant instanceof PointRankConstant) {
             let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1)
             this.pointRankConstant = constant;
-            if(constant.rank >= value)
+            if (constant.rank >= value)
                 this.operator = Operators.LessThanOrEqualTo;
             else
                 this.operator = Operators.GreaterThanOrEqualTo;
         }
-        else if(constant instanceof RangeValueConstant)
+        else if (constant instanceof RangeValueConstant)
             this.rangeValueConstant = constant;
-        else if(constant instanceof RangeRankConstant)
+        else if (constant instanceof RangeRankConstant)
             this.rangeRankConstant = constant;
-        else if(constant instanceof PowerLawConstant)
+        else if (constant instanceof PowerLawConstant)
             this.powerLawConstant = constant;
-        else if(constant instanceof NormalConstant)
+        else if (constant instanceof NormalConstant)
             this.gaussianConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);
@@ -365,11 +369,11 @@ export class AppComponent implements OnInit {
     }
 
     createPointSafeguard() {
-        if(!this.variable1) return;
+        if (!this.variable1) return;
 
         this.variable1.isRank = this.useRank;
         let sg;
-        if(this.useRank) sg = new PointSafeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
+        if (this.useRank) sg = new PointSafeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
         else sg = new PointSafeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
@@ -381,11 +385,11 @@ export class AppComponent implements OnInit {
     }
 
     createRangeSafeguard() {
-        if(!this.variable1) return;
+        if (!this.variable1) return;
 
         this.variable1.isRank = this.useRank;
         let sg;
-        if(this.useRank) sg = new RangeSafeguard(this.variable1, this.rangeRankConstant, this.activeNode);
+        if (this.useRank) sg = new RangeSafeguard(this.variable1, this.rangeRankConstant, this.activeNode);
         else sg = new RangeSafeguard(this.variable1, this.rangeValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
@@ -397,8 +401,8 @@ export class AppComponent implements OnInit {
     }
 
     createComparativeSafeguard() {
-        if(!this.variable1) return;
-        if(!this.variable2) return;
+        if (!this.variable1) return;
+        if (!this.variable2) return;
 
         let sg = new ComparativeSafeguard(
             VariablePair.FromVariables(this.variable1, this.variable2),
@@ -422,11 +426,11 @@ export class AppComponent implements OnInit {
         this.vis.setSafeguardType(SGT.None);
     }
 
-    toggle(sgt:SGT) {
+    toggle(sgt: SGT) {
         this.variable1 = null;
         this.variable2 = null;
 
-        if(this.activeSafeguardPanel === sgt) {
+        if (this.activeSafeguardPanel === sgt) {
             this.cancelSafeguard();
         }
         else {
@@ -459,9 +463,9 @@ export class AppComponent implements OnInit {
         (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
     }
 
-    toNumber(s:string) {
+    toNumber(s: string) {
         let num = +s.replace(/,/g, '');
-        if(isNaN(num)) num = 0;
+        if (isNaN(num)) num = 0;
         return num;
     }
 }

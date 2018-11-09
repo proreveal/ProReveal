@@ -83,12 +83,12 @@ export class HorizontalBarsRenderer implements Renderer {
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0;
 
-        const xMin = (query as AggregateQuery).accumulator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
+        const xMin = (query as AggregateQuery).approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
         const xMax = d3.max(data, d => d.ci3.high);
 
         const niceTicks = d3.ticks(xMin, xMax, 10);
         const step = niceTicks[1] - niceTicks[0];
-        const domainStart = (query as AggregateQuery).accumulator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
+        const domainStart = (query as AggregateQuery).approximator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
         if (node.domainStart > domainStart) node.domainStart = domainStart;

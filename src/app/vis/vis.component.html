@@ -5,9 +5,13 @@
 <span *ngIf="node.query.target === null">COUNT(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>)</span>
 <span *ngIf="node.query.target !== null">
     <form class="form-inline aggregate-form">
-    <select class="form-control form-control-md">
-        <option *ngFor="let accumulator of accumulators">
-            {{ accumulator }}
+    <select class="form-control form-control-md"
+        (change)="setApproximator($event.target.value)"
+        [ngModel]="node.query.approximator.name"
+        name="approximator"
+        >
+        <option *ngFor="let approx of approximators" [value]="approx.name">
+            {{ approx.name.toUpperCase() }}
         </option>
     </select>
     </form>
