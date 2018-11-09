@@ -682,11 +682,16 @@ export class HorizontalBarsRenderer implements Renderer {
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
+        let data = {
+            query: this.node.query,
+            datum: d
+        };
+
         this.tooltip.show(
             clientRect.left - parentRect.left + this.xScale(d.ci3.center),
             clientRect.top - parentRect.top + this.yScale(i + ''),
             HorizontalBarsTooltipComponent,
-            d
+            data
         );
 
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {

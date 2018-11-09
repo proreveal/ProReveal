@@ -16,7 +16,8 @@ import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 export type Datum = {
     id: string,
     keys: FieldGroupedValueList,
-    ci3: ConfidenceInterval
+    ci3: ConfidenceInterval,
+    accumulatedValue: AccumulatedValue
 };
 
 export abstract class Query {
@@ -193,7 +194,8 @@ export class AggregateQuery extends Query {
             return {
                 id: key.hash,
                 keys: key,
-                ci3: ai.range(3)
+                ci3: ai.range(3),
+                accumulatedValue: value
             }
         })
 
