@@ -383,7 +383,8 @@ export class HorizontalBarsRenderer implements Renderer {
 
             this.flexBrush.setDirection(FlexBrushDirection.Y);
             this.flexBrush.snap = d => {
-                return Math.round((d - start) / step) * step + start;
+                let index = Math.round((d - start) / step);
+                return Math.max(1, index) * step + start;
             };
 
             this.flexBrush.render([[0, VC.horizontalBars.axis.height],
