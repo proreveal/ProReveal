@@ -300,7 +300,7 @@ export class AppComponent implements OnInit {
 
     variable1: Variable;
     variable2: Variable;
-    useRank = false;
+    useRank = true;
     useGaussian = true;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);

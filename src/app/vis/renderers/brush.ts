@@ -105,12 +105,10 @@ export class FlexBrush<Datum> {
         handles = handles.enter().append('path')
             .style('fill', '#eee')
             .style('stroke', '#666')
-            //.attr('pointer-events', 'none')
             .attr('class', 'fb-handle')
             .merge(handles)
             .attr('d', this.getHandle)
             .attr('transform', scale(1, this.options.yResize || 1))
-        // ...
 
         let brushLine = selectOrAppend(this.g as any, 'line', '.brush-line')
 
@@ -191,6 +189,19 @@ export class FlexBrush<Datum> {
                             })
                             .attr(this.direction == FlexBrushDirection.X ? 'x2' : 'y2', () => {
                                 return center;
+                            })
+
+                        handles
+                            .transition()
+                            .attr('transform', (d, i) => {
+                                let x = 0, y = 0;
+                                let sel = d3.event.selection;
+                                if (d == 'w') x = center - VC.pointBrushSize;
+                                else if (d == 'e') x = center + VC.pointBrushSize;
+                                else if (d == 'n') y = center - VC.pointBrushSize;
+                                else if (d == 's') y = center + VC.pointBrushSize;
+
+                                return translate(x, y) + scale(1, this.options.yResize || 1);
                             })
                     }
                     else {
