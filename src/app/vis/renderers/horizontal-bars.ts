@@ -28,6 +28,7 @@ export class HorizontalBarsRenderer implements Renderer {
     variable2: Variable;
     labelWidth: number;
     width: number;
+    height: number;
     flexBrush = new FlexBrush<Datum>();
     distributionLine = new DistributionLine();
 
@@ -83,6 +84,10 @@ export class HorizontalBarsRenderer implements Renderer {
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0;
 
+        this.labelWidth = labelWidth;
+        this.width = width;
+        this.height = height;
+
         const xMin = (query as AggregateQuery).approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
         const xMax = d3.max(data, d => d.ci3.high);
 
@@ -127,7 +132,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .call(topAxis as any)
         }
 
-        let enter:any;
+        let enter: any;
 
         // render event boxes (for highlight)
         {
@@ -370,26 +375,8 @@ export class HorizontalBarsRenderer implements Renderer {
             // ADD CODE FOR SGS
         })
 
-        if (this.variableType == VT.Value) {
-            this.flexBrush.snap = null;
-
-            this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
-            [width - VC.padding, height - VC.horizontalBars.axis.height]]);
-        }
-        else {
-            let start = VC.horizontalBars.axis.height;
-            let step = VC.horizontalBars.height;
-
-            this.flexBrush.setDirection(FlexBrushDirection.Y);
-            this.flexBrush.snap = d => {
-                let index = Math.round((d - start) / step);
-                return Math.max(1, index) * step + start;
-            };
-
-            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
-            [width, height - VC.horizontalBars.axis.height]]);
-        }
+        // update this.variableType = VT.Value or VT.Rank
+        this.updateBrushWithVariableType();
 
         if (!this.constant) this.setDefaultConstantFromVariable();
 
@@ -446,8 +433,6 @@ export class HorizontalBarsRenderer implements Renderer {
 
         // ADD CODE FOR SGS
 
-        this.labelWidth = labelWidth;
-        this.width = width;
         this.xScale = xScale;
 
         this.updateHighlight();
@@ -501,14 +486,34 @@ export class HorizontalBarsRenderer implements Renderer {
     variableType: VT;
     setVariableType(vt: VT) {
         this.variableType = vt;
-
         this.constant = null;
 
-        if (vt == VT.Value) {
+        this.updateBrushWithVariableType();
+    }
+
+    updateBrushWithVariableType() {
+        const labelWidth = this.labelWidth;
+        const width = this.width, height = this.height;
+
+        if (this.variableType == VT.Value) {
+            this.flexBrush.snap = null;
+
             this.flexBrush.setDirection(FlexBrushDirection.X);
+            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
+            [width - VC.padding, height - VC.horizontalBars.axis.height]]);
         }
-        else if (vt === VT.Rank) {
+        else {
+            let start = VC.horizontalBars.axis.height;
+            let step = VC.horizontalBars.height;
+
             this.flexBrush.setDirection(FlexBrushDirection.Y);
+            this.flexBrush.snap = d => {
+                let index = Math.round((d - start) / step);
+                return Math.max(1, index) * step + start;
+            };
+
+            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
+            [width, height - VC.horizontalBars.axis.height]]);
         }
     }
 
