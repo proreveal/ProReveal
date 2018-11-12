@@ -127,12 +127,14 @@ export class HorizontalBarsRenderer implements Renderer {
                 .call(topAxis as any)
         }
 
+        let enter:any;
+
         // render event boxes (for highlight)
         {
             const eventBoxes = visG.selectAll('rect.event-box')
                 .data(data, (d: any) => d.id);
 
-            let enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable1');
+            enter = eventBoxes.enter().append('rect').attr('class', 'event-box variable1');
 
             this.eventBoxes = eventBoxes.merge(enter)
                 .attr('height', yScale.bandwidth())

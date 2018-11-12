@@ -21,7 +21,7 @@ import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
-import { PointValueEstimator, ComparativeEstimator } from './safeguard/estimate';
+import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator } from './safeguard/estimate';
 
 @Component({
     selector: 'app-root',
@@ -52,8 +52,10 @@ export class AppComponent implements OnInit {
     NodeState = NodeState;
     VC = VisConstants;
     VT = VariableTypes;
+    Operators = Operators;
 
     PointValueEstimate = new PointValueEstimator().estimate;
+    RangeValueEstimate = new RangeValueEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
 
     constructor(private cd: ChangeDetectorRef,
@@ -161,8 +163,8 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                // this.vis.setSafeguardType(this.activeSafeguardPanel);
-                // this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
+                this.vis.setSafeguardType(this.activeSafeguardPanel);
+                this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
             })
         })
     }
@@ -293,7 +295,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Range;
+    activeSafeguardPanel = SGT.Point;
     safeguards: Safeguard[] = [];
 
     variable1: Variable;
@@ -310,7 +312,6 @@ export class AppComponent implements OnInit {
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     gaussianConstant: NormalConstant = new NormalConstant(10);
 
-    Operators = Operators;
     operator = Operators.LessThanOrEqualTo;
 
     variableSelected($event: { variable: Variable, secondary?: boolean }) {

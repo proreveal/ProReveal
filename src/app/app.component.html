@@ -175,9 +175,6 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                11 {{  activeNode }}
-                22 {{ variable1 }}
-                33 {{ pointValueConstant}}
                 <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && pointValueConstant">
                     <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, pointValueConstant)"></p-indicator>
                 </div>
@@ -248,8 +245,8 @@
                 </div>
             </div>
             <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && constant">
-                    <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, constant)"></p-indicator>
+                <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && rangeValueConstant">
+                    <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1, Operators.InRange, rangeValueConstant)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">
