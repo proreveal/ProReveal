@@ -22,6 +22,7 @@ export interface FlexBrushOptions {
 export class FlexBrush<Datum> {
     brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     brushLine2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    root: G;
     g: G;
     g1: G; // left
     g2: G; // right
@@ -45,9 +46,11 @@ export class FlexBrush<Datum> {
     }
 
     setup(g: G) {
-        this.g = selectOrAppend(g as any, 'g', '.brush-wrapper') as G;
-        this.g1 = selectOrAppend(g as any, 'g', '.brush-wrapper1') as G;
-        this.g2 = selectOrAppend(g as any, 'g', '.brush-wrapper2') as G;
+        this.root = selectOrAppend(g as any, 'g', '.brush-root') as G;
+        let root = this.root;
+        this.g = selectOrAppend(root as any, 'g', '.brush-wrapper') as G;
+        this.g1 = selectOrAppend(root as any, 'g', '.brush-wrapper1') as G;
+        this.g2 = selectOrAppend(root as any, 'g', '.brush-wrapper2') as G;
 
         this.handleG = selectOrAppend(this.g as any, 'g', '.brush-handle') as G;
         this.handleG1 = selectOrAppend(this.g1 as any, 'g', '.brush-handle') as G;
@@ -57,7 +60,7 @@ export class FlexBrush<Datum> {
         this.handleG1.style('display', 'none')
         this.handleG2.style('display', 'none')
 
-        let brushLine = selectOrAppend(g as any, 'line', '.brush-line')
+        let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
         this.brushLine = brushLine;
 
         brushLine
@@ -322,11 +325,11 @@ export class FlexBrush<Datum> {
     }
 
     show() {
-        this.g.attr('display', 'inline');
+        this.root.attr('display', 'inline');
     }
 
     hide() {
-        this.g.attr('display', 'none');
+        this.root.attr('display', 'none');
     }
 
     getHandleTranslation(start: number, end: number) {

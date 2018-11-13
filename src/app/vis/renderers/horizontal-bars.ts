@@ -468,6 +468,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         if (st == SGT.None) {
             this.labels.style('cursor', 'auto');
+            this.flexBrush.hide();
         }
         else if (st == SGT.Point) {
             this.labels.style('cursor', 'pointer');
