@@ -21,6 +21,7 @@ export interface FlexBrushOptions {
 
 export class FlexBrush<Datum> {
     brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    brushLine2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     g: G;
     g1: G; // left
     g2: G; // right
@@ -55,6 +56,13 @@ export class FlexBrush<Datum> {
         this.handleG.style('display', 'none')
         this.handleG1.style('display', 'none')
         this.handleG2.style('display', 'none')
+
+        let brushLine = selectOrAppend(g as any, 'line', '.brush-line')
+        this.brushLine = brushLine;
+
+        brushLine
+            .style('stroke', 'black')
+            .attr('pointer-events', 'none')
     }
 
     setDirection(direction: FlexBrushDirection) {
@@ -78,22 +86,27 @@ export class FlexBrush<Datum> {
 
     setMode(mode: FlexBrushMode) {
         this.mode = mode;
-        if (this.brushLine) {
-            if (this.mode === FlexBrushMode.Point) {
-                this.brushLine.style('display', 'inline');
-
-                this.g.style('display', 'inline');
-                this.g1.style('display', 'none');
-                this.g2.style('display', 'none');
-            }
-            else if (this.mode == FlexBrushMode.SymmetricRange) {
-                this.brushLine.attr('display', 'none');
-
-                this.g.style('display', 'none');
-                this.g1.style('display', 'inline');
-                this.g2.style('display', 'inline');
-            }
+        if(!this.g) return
+        if (this.mode === FlexBrushMode.Point) {
+            this.g.style('display', 'inline');
+            this.g1.style('display', 'none');
+            this.g2.style('display', 'none');
         }
+        else if (this.mode == FlexBrushMode.SymmetricRange) {
+            this.g.style('display', 'none');
+            this.g1.style('display', 'inline');
+            this.g2.style('display', 'inline');
+        }
+        this.brushLine.style('display', 'none')
+    }
+
+    setCenter(center: number) {
+        this.center = center;
+
+        let extent = this.extent;
+
+        this.brush1.extent([extent[0], [this.center, extent[1][1]]]);
+        this.brush2.extent([[this.center, extent[0][1]], extent[1]]);
     }
 
     getHandle(dir: string, size = 10) {
@@ -157,13 +170,6 @@ export class FlexBrush<Datum> {
             .attr('class', 'fb-handle')
             .attr('d', this.getHandle)
 
-        let brushLine = selectOrAppend(this.g as any, 'line', '.brush-line')
-        this.brushLine = brushLine;
-
-        brushLine
-            .style('stroke', 'black')
-            .attr('pointer-events', 'none')
-
         this.brush
             .on('brush', () => {
                 if (!d3.event.sourceEvent) return;
@@ -196,14 +202,16 @@ export class FlexBrush<Datum> {
                         || this.lastSelection[1] == sel[1] && i == 1)
                 ) return;
 
-                let other = this.brush1 == brush ? this.brush2 : brush;
+                let other = this.brush1 == brush ? 2 : 1;
 
                 let center = this.center;
                 let start = i == 0 ? sel[0] : center - (sel[1] - center);
                 let end = i == 0 ? center + (center - sel[0]) : sel[1];
 
                 this.lastSelection = [start, end];
-                this.move([start, end], false, false);
+                this.moveBrush(start, end, false, other);
+                this.moveBrushLine(this.center, false);
+                this.moveHandles(start, end, false);
 
                 if (this.handlers.brush) this.handlers.brush();
             })
@@ -236,11 +244,12 @@ export class FlexBrush<Datum> {
         }
         else {
             this.moveBrush(range[0], range[1], transition);
+            this.moveBrushLine(this.center, transition);
             this.moveHandles(range[0], range[1], transition);
         }
     }
 
-    moveBrush(start: number, end: number, transition = false) {
+    moveBrush(start: number, end: number, transition = false, other = 0) {
         if (this.mode === FlexBrushMode.Point) {
             let g: any = transition ? this.g.transition() : this.g;
 
@@ -250,16 +259,13 @@ export class FlexBrush<Datum> {
             this.handleG1.style('display', 'none');
             this.handleG2.style('display', 'none');
         }
-        else if(this.mode === FlexBrushMode.SymmetricRange) {
+        else if (this.mode === FlexBrushMode.SymmetricRange) {
             let g1: any = transition ? this.g1.transition() : this.g1;
             let g2: any = transition ? this.g2.transition() : this.g2;
-            let extent = this.extent;
 
-            this.brush1.extent([extent[0], [this.center, extent[1][1]]]);
-            this.brush2.extent([[this.center, extent[0][1]], extent[1]]);
 
-            g1.call(this.brush1).call(this.brush1.move as any, [start, this.center]);
-            g2.call(this.brush2).call(this.brush2.move as any, [this.center, end]);
+            if (!other || other == 1) g1.call(this.brush1).call(this.brush1.move as any, [start, this.center]);
+            if (!other || other == 2) g2.call(this.brush2).call(this.brush2.move as any, [this.center, end]);
 
             this.handleG.style('display', 'none');
             this.handleG1.style('display', 'inline');
@@ -272,6 +278,7 @@ export class FlexBrush<Datum> {
         let extent = this.extent;
 
         line
+            .style('display', 'inline')
             .attr(this.direction == FlexBrushDirection.X ? 'x1' : 'y1', () => {
                 return at;
             })

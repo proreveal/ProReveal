@@ -574,7 +574,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
             let range = (constant as RangeValueConstant).range.map(this.xScale) as [number, number];
-            this.flexBrush.center = (range[0] + range[1]) / 2;
+            this.flexBrush.setCenter((range[0] + range[1]) / 2);
             this.flexBrush.show();
             this.flexBrush.move(range);
         }
@@ -606,7 +606,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.variable1 = variable;
 
         if (this.safeguardType === SGT.Range) {
-            this.flexBrush.center = this.xScale(d.ci3.center);
+            this.flexBrush.setCenter(this.xScale(d.ci3.center));
         }
         this.updateHighlight();
 
