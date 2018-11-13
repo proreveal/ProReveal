@@ -13,12 +13,25 @@
         <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>
     </section>
     <section id="node-view">
-        <h6 id="completed-node-view-header" class="section-header">Completed Queries</h6>
+        <section id="search">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <fa-icon [icon]="['fas', 'search']"></fa-icon>
+                    </span>
+                </div>
+                <input type="text" name="keyword" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)"
+                    [ngModel]="searchKeyword">
+                <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
+                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                </button>
+            </div>
+        </section>
+
+        <h3 id="completed-node-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
         <section id="completed-node-view" class="styled-scroll">
-            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)"
-                (mouseenter)="hoveredNode = node"
-                (mouseleave)="hoveredNode = null"
-            >
+            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)" (mouseenter)="hoveredNode = node"
+                (mouseleave)="hoveredNode = null">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -38,13 +51,10 @@
                 </div>
             </div>
         </section>
-        <h6 id="ongoing-node-view-header" class="section-header">Ongoing Queries</h6>
+        <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">Ongoing Queries</h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
-            <div *ngFor="let node of ongoingNodes"
-                [class.highlighted]="highlightedNodes.includes(node)"
-                (mouseenter)="hoveredNode = node"
-                (mouseleave)="hoveredNode = null"
-            >
+            <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)" (mouseenter)="hoveredNode = node"
+                (mouseleave)="hoveredNode = null">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.progress.processedPercent()" [ongoing]="node.query.progress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -72,27 +82,15 @@
                 </div>
             </div>
         </section>
-        <section id="search">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <fa-icon [icon]="['fas', 'search']"></fa-icon>
-                    </span>
-                </div>
-                <input type="text" name="keyword" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)" [ngModel]="searchKeyword">
-                <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
-                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                </button>
-            </div>
-        </section>
-        <section id="graph" class="styled-scroll">
+
+        <!--<section id="graph" class="styled-scroll">
             <exploration-view #explorationView
                 [root]="explorationRoot"
                 [hoveredNode]="hoveredNode"
                 [activeNode]="activeNode"
                 >
             </exploration-view>
-        </section>
+        </section>-->
     </section>
     <section id="main" class="styled-scroll">
         <div *ngIf="!activeNode">
@@ -101,17 +99,16 @@
             </p>
         </div>
         <div [hidden]="!activeNode">
-            <vis #vis [node]="activeNode"
-                (variableSelected)="variableSelected($event)"
-                (constantSelected)="constantSelected($event)"
+            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)" (constantSelected)="constantSelected($event)"
                 (safeguardAdded)="safeguardAdded($event)"></vis>
+
         </div>
     </section>
 
     <section id="safeguard-view" class="active">
-        <h4 class="section-header p-1 border-right-0 border-top border-bottom">
+        <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             Safeguard List
-        </h4>
+        </h3>
         <section id="safeguard-list" class="styled-scroll">
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
                 The list is empty! Click on buttons below to create a safegaurd.
@@ -122,18 +119,15 @@
         </section>
 
         <!-- Point -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom"
-            (click)="toggle(SGT.Point)">
+        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Point)">
             <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
             <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Point"></fa-icon>
             Point <small>V(A) &lt; 5</small>
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
-                <sg-point *ngIf="activeNode"
-                    [highlighted]="highlighted" [query]="activeNode.query"
-                    [variable]="variable1" [useRank]="useRank"
-                    [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
+                <sg-point *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1"
+                    [useRank]="useRank" [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
                     (highlight)="highlight($event)"></sg-point>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
@@ -142,11 +136,12 @@
                     Variable
                 </h5>
                 <p class="p-1 guide m-0">
-                    Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on the chart.
+                    Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on
+                    the chart.
                 </p>
                 <div class="form-group-sm form-check m-0 mx-1" [hidden]="!rankAllowed()">
                     <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
-                         [(ngModel)]="useRank">
+                        [(ngModel)]="useRank">
                     <label class="form-check-label guide" for="use-rank1">Use Rank</label>
                 </div>
             </div>
@@ -197,10 +192,8 @@
         </h4>
         <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <sg-range *ngIf="activeNode"
-                    [highlighted]="highlighted" [query]="activeNode.query"
-                    [variable]="variable1" [constant]="useRank ? rangeRankConstant : rangeValueConstant"
-                    (highlight)="highlight($event)"></sg-range>
+                <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1"
+                    [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"></sg-range>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -208,7 +201,8 @@
                     Variable
                 </h5>
                 <p class="p-1 guide m-0">
-                    Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on the chart.
+                    Please pick a <span class="variable1 font-weight-bold">variable</span> by clicking on a category on
+                    the chart.
                 </p>
                 <!--<div class="form-group-sm form-check m-0 mx-1" [hidden]="!rankAllowed()">
                     <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
@@ -267,10 +261,8 @@
         </h4>
         <div class="m-0" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <sg-comparative *ngIf="activeNode"
-                    [highlighted]="highlighted" [query]="activeNode.query"
-                    [variable1]="variable1" [variable2]="variable2"
-                    [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
+                <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable1]="variable1"
+                    [variable2]="variable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                 <h5 class="section-subheader p-1 border border-right-0">
@@ -278,7 +270,8 @@
                     1st Variable
                 </h5>
                 <p class="p-1 guide m-0">
-                    Please pick the <span class="variable1 font-weight-bold">first variable</span> by clicking on a category on the chart.
+                    Please pick the <span class="variable1 font-weight-bold">first variable</span> by clicking on a
+                    category on the chart.
                 </p>
             </div>
             <div (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
@@ -288,7 +281,8 @@
                 </h5>
                 <div class="p-1 guide m-0">
                     <p class="m-0">
-                        Please pick the <span class="variable2 font-weight-bold">second variable</span> by <em>right-</em>clicking on a category on the chart.
+                        Please pick the <span class="variable2 font-weight-bold">second variable</span> by <em>right-</em>clicking
+                        on a category on the chart.
                     </p>
                 </div>
             </div>
@@ -325,9 +319,7 @@
                 <label class="form-check-label" for="inlineRadio2" (click)="useGaussian=true;useGaussianToggled()">Normal</label>
             </div>
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeNode"
-                    [highlighted]="highlighted" [query]="query"
-                    [constant]="useGaussian ? gaussianConstant : powerLawConstant"
+                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="query" [constant]="useGaussian ? gaussianConstant : powerLawConstant"
                     (highlight)="highlight($event)"></sg-distributive>
             </div>
             <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
@@ -363,9 +355,7 @@
         </p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-danger"
-        (click)="c()">Delete</button>
-        <button type="button" class="btn btn-outline-secondary"
-        (click)="d()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="c()">Delete</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="d()">Cancel</button>
     </div>
 </ng-template>
