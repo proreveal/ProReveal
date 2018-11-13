@@ -340,30 +340,26 @@ export class HorizontalBarsRenderer implements Renderer {
                 .style('opacity', 0)
         }
 
-        this.flexBrush.on('brush', () => {
+        this.flexBrush.on('brush', (center) => {
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
-                let sel = d3.event.selection;
-                let center = (sel[0] + sel[1]) / 2;
                 let constant = new PointValueConstant(this.xScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                let sel = d3.event.selection;
-                let center = (sel[0] + sel[1]) / 2;
                 let index = Math.round((center - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
                 let constant = new PointRankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
-                let sel = d3.event.selection;
+                let sel = center as [number, number];
                 let constant = new RangeValueConstant(this.xScale.invert(sel[0]), this.xScale.invert(sel[1]));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-                let sel = d3.event.selection;
+                let sel = center as [number, number];
                 let index1 = Math.round((sel[0] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
                 let index2 = Math.round((sel[1] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
                 let constant = new RangeRankConstant(index1, index2);

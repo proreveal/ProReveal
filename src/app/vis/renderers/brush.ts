@@ -34,7 +34,7 @@ export class FlexBrush<Datum> {
     brush1: d3.BrushBehavior<Datum>;
     brush2: d3.BrushBehavior<Datum>;
     handles: string[];
-    handlers: { brush?: () => void } = {};
+    handlers: { brush?: (range: number | [number, number]) => void } = {};
     snap: (number) => number;
     center: number = 600;
     lastSelection: [number, number];
@@ -186,7 +186,7 @@ export class FlexBrush<Datum> {
                 this.moveBrushLine(center, false);
                 this.moveHandles(sel[0], sel[1], false);
 
-                if (this.handlers.brush) this.handlers.brush();
+                if (this.handlers.brush) this.handlers.brush(center);
             })
             .on('end', () => {
                 if (!d3.event.sourceEvent) return;
@@ -222,7 +222,7 @@ export class FlexBrush<Datum> {
                 this.moveBrushLine(this.center, false);
                 this.moveHandles(start, end, false);
 
-                if (this.handlers.brush) this.handlers.brush();
+                if (this.handlers.brush) this.handlers.brush([start, end]);
             })
         })
 
