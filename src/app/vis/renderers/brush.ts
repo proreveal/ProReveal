@@ -86,7 +86,7 @@ export class FlexBrush<Datum> {
 
     setMode(mode: FlexBrushMode) {
         this.mode = mode;
-        if(!this.g) return
+        if (!this.g) return
         if (this.mode === FlexBrushMode.Point) {
             this.g.style('display', 'inline');
             this.g1.style('display', 'none');
@@ -105,8 +105,11 @@ export class FlexBrush<Datum> {
 
         let extent = this.extent;
 
-        this.brush1.extent([extent[0], [this.center, extent[1][1]]]);
-        this.brush2.extent([[this.center, extent[0][1]], extent[1]]);
+        let x1 = extent[0][0], x2 = extent[1][0];
+
+        let width = Math.min(center - x1, x2 - center);
+        this.brush1.extent([[this.center - width, extent[0][1]], [this.center, extent[1][1]]]);
+        this.brush2.extent([[this.center, extent[0][1]], [this.center + width, extent[1][1]]]);
     }
 
     getHandle(dir: string, size = 10) {
@@ -131,6 +134,7 @@ export class FlexBrush<Datum> {
     render(extent) {
         this.extent = extent;
         this.brush.extent(extent);
+
         this.brush1.extent(extent);
         this.brush2.extent(extent);
 
@@ -209,6 +213,8 @@ export class FlexBrush<Datum> {
                 let end = i == 0 ? center + (center - sel[0]) : sel[1];
 
                 this.lastSelection = [start, end];
+                start = Math.max(start, this.extent[0][0]);
+                end = Math.min(end, this.extent[1][0]);
                 this.moveBrush(start, end, false, other);
                 this.moveBrushLine(this.center, false);
                 this.moveHandles(start, end, false);
@@ -299,15 +305,7 @@ export class FlexBrush<Datum> {
             handles = transition ? handles.transition() : handles;
 
             handles
-                .attr('transform', (d, i) => {
-                    let x = 0, y = 0;
-                    if (d == 'w') x = start;
-                    else if (d == 'e') x = end;
-                    else if (d == 'n') y = start;
-                    else if (d == 's') y = end;
-
-                    return translate(x, y);
-                })
+                .attr('transform', this.getHandleTranslation(start, end));
         }
         else if (this.mode == FlexBrushMode.SymmetricRange) {
             let handles1: any = this.handleG1.selectAll('.fb-handle');
@@ -317,26 +315,9 @@ export class FlexBrush<Datum> {
             handles2 = transition ? handles2.transition() : handles2;
 
             handles1
-                .attr('transform', (d, i) => {
-                    let x = 0, y = 0;
-                    if (d == 'w') x = start;
-                    else if (d == 'e') x = end;
-                    else if (d == 'n') y = start;
-                    else if (d == 's') y = end;
-
-                    return translate(x, y);
-                })
-
+                .attr('transform', this.getHandleTranslation(start, end));
             handles2
-                .attr('transform', (d, i) => {
-                    let x = 0, y = 0;
-                    if (d == 'w') x = start;
-                    else if (d == 'e') x = end;
-                    else if (d == 'n') y = start;
-                    else if (d == 's') y = end;
-
-                    return translate(x, y);
-                })
+                .attr('transform', this.getHandleTranslation(start, end));
         }
     }
 
@@ -346,6 +327,18 @@ export class FlexBrush<Datum> {
 
     hide() {
         this.g.attr('display', 'none');
+    }
+
+    getHandleTranslation(start: number, end: number) {
+        return (d, i) => {
+            let x = 0, y = 0;
+            if (d == 'w') x = start;
+            else if (d == 'e') x = end;
+            else if (d == 'n') y = start;
+            else if (d == 's') y = end;
+
+            return translate(x, y);
+        }
     }
 
     on(event, handler) {

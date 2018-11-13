@@ -611,6 +611,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.updateHighlight();
 
         this.vis.variableSelected.emit({ variable: variable });
+        this.constant = null;
         if (!this.constant) this.setDefaultConstantFromVariable();
     }
 
