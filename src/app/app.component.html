@@ -294,7 +294,7 @@
             </div>
             <div class="p-1 guide">
                 <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && variable2">
-                    <p-indicator [p]="ComparativeEstimate(activeNode.query, variable1, operator, variable2)"></p-indicator>
+                    <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair, operator)"></p-indicator>
                 </div>
             </div>
             <div class="p-1">

@@ -295,11 +295,12 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Range;
+    activeSafeguardPanel = SGT.Comparative;
     safeguards: Safeguard[] = [];
 
     variable1: Variable;
     variable2: Variable;
+    variablePair: VariablePair;
     useRank = false;
     useGaussian = true;
 
@@ -327,6 +328,8 @@ export class AppComponent implements OnInit {
             if (value1.ci3.center < value2.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
             else this.operator = Operators.GreaterThanOrEqualTo;
+
+            this.variablePair = VariablePair.FromVariables(this.variable1, this.variable2);
         }
     }
 

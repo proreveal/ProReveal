@@ -152,9 +152,9 @@ export class ComparativeEstimator implements EstimatorTrait {
         let cp = normal.cdf(z);
 
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
-            return 1 - cp;
-        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
             return cp;
+        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
+            return 1 - cp;
         else
             throw new Error(`Invalid operator ${operator}`);
     }
