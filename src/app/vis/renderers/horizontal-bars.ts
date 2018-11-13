@@ -341,7 +341,6 @@ export class HorizontalBarsRenderer implements Renderer {
         }
 
         this.flexBrush.on('brush', () => {
-
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
@@ -476,7 +475,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if (st === SGT.Range) {
             this.labels.style('cursor', 'pointer');
-            this.flexBrush.setMode(FlexBrushMode.Range);
+            this.flexBrush.setMode(FlexBrushMode.SymmetricRange);
         }
         else if (st === SGT.Comparative) {
             this.labels.style('cursor', 'pointer');
@@ -495,13 +494,21 @@ export class HorizontalBarsRenderer implements Renderer {
         const labelWidth = this.labelWidth;
         const width = this.width, height = this.height;
 
-        if (this.variableType == VT.Value) {
+        if (this.variableType == VT.Value || this.safeguardType == SGT.Range) {
             this.flexBrush.snap = null;
 
             this.flexBrush.setDirection(FlexBrushDirection.X);
             this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
             [width - VC.padding, height - VC.horizontalBars.axis.height]]);
         }
+        /*else if (this.safeguardType == SGT.Range) {
+            this.flexBrush.snap = null;
+
+            this.flexBrush.setDirection(FlexBrushDirection.X);
+            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
+            [width - VC.padding, height - VC.horizontalBars.axis.height]],
+            (this.constant as RangeValueConstant).center);
+        }*/
         else {
             let start = VC.horizontalBars.axis.height;
             let step = VC.horizontalBars.height;
@@ -567,6 +574,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
         else if (this.safeguardType === SGT.Range && this.variableType === VT.Value) {
             let range = (constant as RangeValueConstant).range.map(this.xScale) as [number, number];
+            this.flexBrush.center = (range[0] + range[1]) / 2;
             this.flexBrush.show();
             this.flexBrush.move(range);
         }
