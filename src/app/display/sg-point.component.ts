@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Constants } from '../constants';
+import { ConstantTrait } from '../safeguard/constant';
+import { toNumber } from '../util';
 
 @Component({
   selector: 'sg-point',
@@ -15,9 +17,13 @@ export class PointComponent implements OnInit {
     @Input('operator') operator;
     @Input('constant') constant;
 
-    CT = Constants;
-
     @Output('highlight') highlight = new EventEmitter<number>();
+    @Output('constantUserChanged') constantUserChanged = new EventEmitter<ConstantTrait>();
+
+    CT = Constants;
+    toNumber = toNumber;
+
+    editing = false;
 
     constructor() { }
 

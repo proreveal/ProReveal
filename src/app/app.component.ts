@@ -369,6 +369,7 @@ export class AppComponent implements OnInit {
     }
 
     constantUserChanged(constant: ConstantTrait) {
+        this.constantSelected(constant); // set the operator automatically
         this.vis.constantUserChanged(constant);
     }
 

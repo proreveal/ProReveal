@@ -32,3 +32,20 @@
 .constant.highlighted {
     background: lighten($constant-highlight-color, 50%);
 }
+
+.inplace-editor {
+    display:inline-block;
+    font-family: 'Roboto';
+
+    .inline .form-control {
+        display: inline-flex;
+        width: auto;
+        flex:none;
+        padding: .175rem .5rem;
+        font-size: 1em;
+    }
+
+    .inline .input-group-append {
+        display:inline-flex;
+    }
+}

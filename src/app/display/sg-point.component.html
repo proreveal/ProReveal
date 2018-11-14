@@ -8,9 +8,25 @@
 >{{ operator }}</span>
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
-    *ngIf="!useRank"
+    (click)="editing=true"
+    *ngIf="!useRank && !editing"
 >{{ constant.value | number:CT.numberFormat }}</span>
+<form class="inplace-editor" *ngIf="!useRank && editing">
+    <div class="input-group inline ml-1">
+        <input type="text" class="form-control form-control-sm" [ngModel]="constant.value | number: numberFormat"
+        [size]="(constant.value.toString() | number: numberFormat).length" name="valueConstant"
+        autofocus #valueConstant>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-success form-control-sm"
+            (click)="editing=false; constant.value=toNumber(valueConstant.value); constantUserChanged.emit(constant); $event.preventDefault() ">Save</button>
+            <button class="btn btn-danger form-control-sm" (click)="editing=false">Cancel</button>
+        </div>
+    </div>
+</form>
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
-    *ngIf="useRank"
+    *ngIf="useRank && !editing"
 >{{ constant.rank | number:CT.rankFormat }}</span>
+<input type="number" *ngIf="useRank && editing" class="form-control inline ml-1" [ngModel]="constant.rank | number: rankFormat"
+    (change)="constant.value=toNumber($event.target.value); constantUserChanged(pointValueConstant, $event)"
+    [size]="(constant.rank.toString() | number: rankFormat).length">

@@ -148,3 +148,9 @@ export function aremove(array: any[], item: any) {
     if(index >= 0)
         array.splice(index, 1);
 }
+
+export function toNumber(s: string) {
+    let num = +s.replace(/,/g, '');
+    if (isNaN(num)) num = 0;
+    return num;
+}
