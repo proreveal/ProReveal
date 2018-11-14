@@ -1,5 +1,5 @@
 <sg-point *ngIf="sg.type === SGT.Point" [query]="sg.node.query"
-[variable]="sg.variable" [useRank]="sg.variable.rank"
+[variable]="sg.variable" [isRank]="sg.variable.isRank"
 [operator]="sg.operator" [constant]="sg.constant"></sg-point>
 <sg-range *ngIf="sg.type === SGT.Range" [query]="sg.node.query"
 [variable]="sg.variable" [constant]="sg.constant"></sg-range>

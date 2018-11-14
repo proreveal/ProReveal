@@ -1,5 +1,5 @@
 <variable-indicator [variable]="variable1" [className]="'variable1'"
-    [useRank]="useRank" [highlighted]="highlighted == 1"
+    [isRank]="false" [highlighted]="highlighted == 1"
     [query]="query"
     (mouseenter)="highlight.emit(1)" (mouseleave)="highlight.emit(0)"
 ></variable-indicator><!-- [class.highlighted]="highlighted == 2"-->
@@ -7,7 +7,7 @@
     (mouseenter)="highlight.emit(2)" (mouseleave)="highlight.emit(0)"
 >{{ operator }}</span>
 <variable-indicator [variable]="variable2" [className]="'variable2'"
-    [useRank]="useRank" [highlighted]="highlighted == 4"
+    [isRank]="false" [highlighted]="highlighted == 4"
     [query]="query"
     (mouseenter)="highlight.emit(4)" (mouseleave)="highlight.emit(0)"
 ></variable-indicator>

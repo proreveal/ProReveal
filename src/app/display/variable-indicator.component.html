@@ -1,11 +1,11 @@
 <span class="{{ className }} pr-1" [class.highlighted]="highlighted"
-    *ngIf="!variable"><span *ngIf="useRank">Rank(</span>V(<span class="placeholder {{ className }}"></span>)<span *ngIf="useRank">)</span></span>
+    *ngIf="!variable"><span *ngIf="isRank">Rank(</span>V(<span class="placeholder {{ className }}"></span>)<span *ngIf="isRank">)</span></span>
 <span *ngIf="variable" class="{{ className }} pr-1" [class.highlighted]="highlighted">
-    <span *ngIf="useRank">Rank(</span>{{ query.approximator.name.toUpperCase() }}<!--
+    <span *ngIf="isRank">Rank(</span>{{ query.approximator.name.toUpperCase() }}<!--
     --><sub *ngIf="!variable.combined">{{ variable.fieldString() }} = {{ variable.valueString() }}</sub><!--
     --><sub *ngIf="variable.combined">{{ variable.fieldString1() }} = {{ variable.valueString1() }},<!--
     -->{{ variable.fieldString2() }} = {{ variable.valueString2() }}</sub>(<!--
 --><span *ngIf="query.accumulator.requireTargetField">{{ query.target.name }}</span><!--
 --><span *ngIf="!query.accumulator.requireTargetField">*</span>)<!--
---><span *ngIf="useRank">)</span></span>
+--><span *ngIf="isRank">)</span></span>
 

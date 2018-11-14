@@ -9,7 +9,7 @@ import { AggregateQuery } from '../data/query';
 export class VariableIndicatorComponent implements OnInit {
     @Input('variable') variable;
     @Input('className') className;
-    @Input('useRank') useRank: boolean;
+    @Input('isRank') isRank: boolean;
     @Input('highlighted') highlighted:boolean;
     @Input('query') query: AggregateQuery;
 

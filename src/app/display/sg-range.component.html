@@ -1,5 +1,5 @@
 <variable-indicator [variable]="variable" [className]="'variable1'"
-    [useRank]="useRank" [highlighted]="highlighted == 1"
+    [isRank]="isRank" [highlighted]="highlighted == 1"
     [query]="query"
     (mouseenter)="highlight.emit(1)" (mouseleave)="highlight.emit(0)"
 ></variable-indicator>
@@ -8,12 +8,12 @@
     (mouseenter)="highlight.emit(2)" (mouseleave)="highlight.emit(0)"
 >∈</span>
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-    (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="!useRank"
+    (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="!isRank"
 >
     [{{ constant.from | number: CT.numberFormat }}, {{ constant.to | number: CT.numberFormat}}]
 </span>
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
-    (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="useRank"
+    (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="isRank"
 >
     [{{ constant.from | number: CT.rankFormat }}, {{ constant.to | number: CT.rankFormat}}]
 </span>

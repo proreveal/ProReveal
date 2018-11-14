@@ -8,7 +8,7 @@ import { Constants } from '../constants';
 })
 export class RangeComponent implements OnInit {
     @Input('variable') variable;
-    @Input('useRank') useRank;
+    @Input('isRank') isRank;
     @Input('highlighted') highlighted;
     @Input('query') query;
     @Input('operator') operator;

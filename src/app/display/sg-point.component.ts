@@ -11,7 +11,7 @@ import { toNumber } from '../util';
 export class PointComponent implements OnInit {
 
     @Input('variable') variable;
-    @Input('useRank') useRank;
+    @Input('isRank') isRank;
     @Input('highlighted') highlighted;
     @Input('query') query;
     @Input('operator') operator;
