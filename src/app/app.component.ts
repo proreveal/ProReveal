@@ -21,7 +21,7 @@ import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
-import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator } from './safeguard/estimate';
+import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator } from './safeguard/estimate';
 
 @Component({
     selector: 'app-root',
@@ -55,6 +55,7 @@ export class AppComponent implements OnInit {
     Operators = Operators;
 
     PointValueEstimate = new PointValueEstimator().estimate;
+    PointRankEstimate = new PointRankEstimator().estimate;
     RangeValueEstimate = new RangeValueEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
 
@@ -301,7 +302,7 @@ export class AppComponent implements OnInit {
     variable1: Variable;
     variable2: Variable;
     variablePair: VariablePair;
-    useRank = false;
+    useRank = true;
     useGaussian = true;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
@@ -345,10 +346,10 @@ export class AppComponent implements OnInit {
         else if (constant instanceof PointRankConstant) {
             let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1)
             this.pointRankConstant = constant;
-            if (constant.rank >= value)
+            // if (constant.rank >= value)
                 this.operator = Operators.LessThanOrEqualTo;
-            else
-                this.operator = Operators.GreaterThanOrEqualTo;
+            // else
+            //     this.operator = Operators.GreaterThanOrEqualTo;
         }
         else if (constant instanceof RangeValueConstant)
             this.rangeValueConstant = constant;

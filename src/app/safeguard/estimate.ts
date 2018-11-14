@@ -57,7 +57,7 @@ export class PointRankEstimator implements EstimatorTrait {
             return [hash, ai] as [string, ApproximatedInterval];
         })
 
-        results.sort((a, b) => a[1].center - b[1].center);
+        results.sort((a, b) => b[1].center - a[1].center);
         let rank = results.findIndex(d => d[0] === variable.hash);
 
         rank += 1; // 1 ~ N

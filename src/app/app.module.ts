@@ -35,6 +35,7 @@ import { ComparativeComponent } from './display/sg-comparative.component';
 import { DistributiveComponent } from './display/sg-distributive.component';
 import { RangeComponent } from './display/sg-range.component';
 import { SgDisplayComponent } from './display/sg-display.component';
+import { TruthnessIndicatorComponent } from './display/truthness-indicator.component';
 
 library.add(fas, far);
 
@@ -59,7 +60,8 @@ library.add(fas, far);
         ComparativeComponent,
         DistributiveComponent,
         RangeComponent,
-        SgDisplayComponent
+        SgDisplayComponent,
+        TruthnessIndicatorComponent
     ],
     imports: [
         NgbModule.forRoot(),
