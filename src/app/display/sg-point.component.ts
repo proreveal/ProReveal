@@ -16,6 +16,7 @@ export class PointComponent implements OnInit {
     @Input('query') query;
     @Input('operator') operator;
     @Input('constant') constant;
+    @Input('editable') editable = false;
 
     @Output('highlight') highlight = new EventEmitter<number>();
     @Output('constantUserChanged') constantUserChanged = new EventEmitter<ConstantTrait>();

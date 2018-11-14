@@ -169,6 +169,11 @@ progress-ring {
     overflow-y: scroll;
 }
 
+.safeguard .display {
+    font-size: .8rem;
+    word-break: break-all;
+}
+
 h4 small {
     @include serif-italic();
     font-size: 0.75rem;
@@ -183,9 +188,6 @@ h4 fa-icon {
 #safeguard-config-view {
     grid-row: 3;
     grid-column: 2;
-
-    /*display: grid;
-    grid-template-rows: auto 1fr;*/
 }
 
 #safeguard-config-view h4 {

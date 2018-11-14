@@ -101,7 +101,6 @@
         <div [hidden]="!activeNode">
             <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)" (constantSelected)="constantSelected($event)"
                 (safeguardAdded)="safeguardAdded($event)"></vis>
-
         </div>
     </section>
 
@@ -114,7 +113,9 @@
                 The list is empty! Click on buttons below to create a safegaurd.
             </p>
             <div *ngFor="let sg of safeguards" class="safeguard">
-                <sg-display [safeguard]="sg"></sg-display>
+                <div class="display">
+                    <sg-display [safeguard]="sg"></sg-display>
+                </div>
             </div>
         </section>
     </section>
@@ -156,7 +157,9 @@
             <div class="display text-center p-2">
                 <sg-point *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1"
                     [isRank]="useRank" [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
-                    (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)"></sg-point>
+                    (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)"
+                    [editable]="true"
+                    ></sg-point>
             </div>
             <div class="form-group-sm form-check m-0 mx-1" [hidden]="!rankAllowed()">
                 <input type="checkbox" name="use_rank1" class="form-check-input" id="use-rank1" (change)="useRankToggled()"
