@@ -2,8 +2,8 @@
 
 #wrapper {
     display: grid;
-    grid-template-rows: 56px 1fr 300px;
-    grid-template-columns: 480px 1fr;
+    grid-template-rows: 56px 1fr auto;
+    grid-template-columns: 480px 1fr 240px;
     width: 100vw;
     height: 100vh;
 }
@@ -98,7 +98,7 @@
     box-shadow: none;
 }
 
-#graph {
+/*#graph {
     grid-row: 4;
     grid-column: 1 / 3;
     overflow-y: scroll;
@@ -106,7 +106,7 @@
     padding: 5px;
     padding-left: 20px;
 }
-
+*/
 .query {
     border-bottom: 1px solid $ui-border-color;
     padding: 3px;
@@ -119,16 +119,7 @@
     cursor: pointer;
     background: lighten($ui-background-color, 2%);
 }
-/*
-.highlighted {
-    box-shadow: 0 0 0 0.2rem inset rgba(0,123,255,.25);
-    z-index:3;
-}
 
-.highlighted .field-names{
-    font-weight: bold;
-}
-*/
 progress-ring {
     height: 56px;
     display: block;
@@ -170,30 +161,12 @@ progress-ring {
 }
 
 #safeguard-view {
-    grid-row: 3;
-    grid-column: 2;
-
-    /*display: grid;
-    grid-template-rows: auto 1fr;*/
-}
-
-#safeguard-view-header {
-    grid-row: 1;
+    grid-row: 2 / 4;
+    grid-column: 3;
 }
 
 #safeguard-list {
     overflow-y: scroll;
-    grid-row: 2;
-}
-
-#safeguard-view h4 {
-    font-size: 1rem;
-    cursor: pointer;
-    padding-left: 0.3rem;
-}
-
-#safeguard-view h4:hover {
-    background: darken($ui-background-color, 5%);
 }
 
 h4 small {
@@ -206,9 +179,38 @@ h4 fa-icon {
     display:inline-block;
     width: 16px;
 }
+
+#safeguard-config-view {
+    grid-row: 3;
+    grid-column: 2;
+
+    /*display: grid;
+    grid-template-rows: auto 1fr;*/
+}
+
+#safeguard-config-view h4 {
+    font-size: 1rem;
+    cursor: pointer;
+    padding-left: 0.3rem;
+}
+
+#safeguard-config-view h4:hover {
+    background: darken($ui-background-color, 5%);
+}
+
+.tab-list {
+    margin: 0;
+    padding: 0;
+}
+
+.tab-list li {
+    display:inline-block;
+    width:200px;
+}
+
 .display {
     @include serif-italic();
-    font-size: .8rem;
+    font-size: 1.2rem;
 }
 
 .guide {

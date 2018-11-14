@@ -3,7 +3,8 @@
     [query]="query"
     (mouseenter)="highlight.emit(1)" (mouseleave)="highlight.emit(0)"
 ></variable-indicator>
-<span class="operator pr-1" [class.highlighted]="highlighted == 2"
+<!-- [class.highlighted]="highlighted == 2"-->
+<span class="operator pr-1"
     (mouseenter)="highlight.emit(2)" (mouseleave)="highlight.emit(0)"
 >∈</span>
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"

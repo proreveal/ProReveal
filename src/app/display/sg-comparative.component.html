@@ -2,8 +2,8 @@
     [useRank]="useRank" [highlighted]="highlighted == 1"
     [query]="query"
     (mouseenter)="highlight.emit(1)" (mouseleave)="highlight.emit(0)"
-></variable-indicator>
-<span class="operator pr-1" [class.highlighted]="highlighted == 2"
+></variable-indicator><!-- [class.highlighted]="highlighted == 2"-->
+<span class="operator pr-1"
     (mouseenter)="highlight.emit(2)" (mouseleave)="highlight.emit(0)"
 >{{ operator }}</span>
 <variable-indicator [variable]="variable2" [className]="'variable2'"

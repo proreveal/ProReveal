@@ -105,7 +105,7 @@
         </div>
     </section>
 
-    <section id="safeguard-view" class="active">
+    <section id="safeguard-view" class="border-left">
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             Safeguard List
         </h3>
@@ -117,14 +117,42 @@
                 <sg-display [safeguard]="sg"></sg-display>
             </div>
         </section>
+    </section>
+
+    <section id="safeguard-config-view">
+        <ul class="tab-list">
+            <li>
+                <h4 class="section-header p-2 border" (click)="toggle(SGT.Point)">
+                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
+                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Point"></fa-icon>
+                    Point <small>V(A) &lt; 5</small>
+                </h4>
+            </li>
+            <li>
+                <h4 class="section-header p-2 border" (click)="toggle(SGT.Range)">
+                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Range"></fa-icon>
+                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Range"></fa-icon>
+                    Range <small>V(A) ∈ [5, 10]</small>
+                </h4>
+            </li>
+            <li>
+                <h4 class="section-header p-2 border" (click)="toggle(SGT.Comparative)">
+                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Comparative"></fa-icon>
+                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Comparative"></fa-icon>
+                    Comparative <small>V(A) &lt; V(B)</small>
+                </h4>
+            </li>
+            <li>
+                <h4 class="section-header p-2 border" (click)="toggle(SGT.Distributive)">
+                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
+                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
+                    Distributive <small>V(·) ~ N(5, 2)</small>
+                </h4>
+            </li>
+        </ul>
 
         <!-- Point -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Point)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Point"></fa-icon>
-            Point <small>V(A) &lt; 5</small>
-        </h4>
-        <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Point">
+        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
                 <sg-point *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1"
                     [useRank]="useRank" [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
@@ -185,12 +213,7 @@
         </div>
 
         <!-- Range -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Range)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Range"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Range"></fa-icon>
-            Range <small>V(A) ∈ [5, 10]</small>
-        </h4>
-        <div class="mb-0" [hidden]="activeSafeguardPanel != SGT.Range">
+        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
                 <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1"
                     [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"></sg-range>
@@ -254,12 +277,7 @@
         </div>
 
         <!-- Comparative -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Comparative)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Comparative"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Comparative"></fa-icon>
-            Comparative <small>V(A) &lt; V(B)</small>
-        </h4>
-        <div class="m-0" [hidden]="activeSafeguardPanel != SGT.Comparative">
+        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
                 <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable1]="variable1"
                     [variable2]="variable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
@@ -302,12 +320,7 @@
         </div>
 
         <!-- Distributive -->
-        <h4 class="section-header p-2 border-right-0 border-top border-bottom" (click)="toggle(SGT.Distributive)">
-            <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
-            <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
-            Distributive <small>V(·) ~ N(5, 2)</small>
-        </h4>
-        <div class="m-0 p-2" [hidden]="activeSafeguardPanel != SGT.Distributive">
+        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Distributive">
             <div class="form-check form-check-inline guide">
                 <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1"
                     [checked]="!useGaussian">

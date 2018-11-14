@@ -37,7 +37,8 @@ export class HorizontalBarsRenderer implements Renderer {
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
     variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
-    constantHighlight: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    constantHighlight1: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    constantHighlight2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     xScale: ScaleLinear<number, number>;
 
     visG;
@@ -324,7 +325,7 @@ export class HorizontalBarsRenderer implements Renderer {
                     .attr('width', labelWidth)
                     .attr('height', height - VC.horizontalBars.axis.height * 2)
                     .attr('transform', translate(0, VC.horizontalBars.height))
-                    .attr('display', 'none')
+                    .style('display', 'none')
                     .style('pointer-events', 'none')
 
             this.variableHighlight2 =
@@ -332,12 +333,22 @@ export class HorizontalBarsRenderer implements Renderer {
                     .attr('width', labelWidth)
                     .attr('height', height - VC.horizontalBars.axis.height * 2)
                     .attr('transform', translate(0, VC.horizontalBars.height))
-                    .attr('display', 'none')
+                    .style('display', 'none')
                     .style('pointer-events', 'none')
 
-            this.constantHighlight = selectOrAppend(visG, 'g', 'constant-highlight-wrapper')
-                .attr('class', 'constant-highlight-wrapper')
-                .style('opacity', 0)
+            this.constantHighlight1 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-top')
+                .attr('width', width - VC.padding - labelWidth)
+                .attr('height', VC.horizontalBars.axis.height)
+                .attr('transform', translate(labelWidth, 0))
+                .style('display', 'none')
+                .style('pointer-events', 'none')
+
+            this.constantHighlight2 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-bottom')
+                .attr('width', width - VC.padding - labelWidth)
+                .attr('height', VC.horizontalBars.axis.height)
+                .attr('transform', translate(labelWidth, height - VC.horizontalBars.axis.height))
+                .style('display', 'none')
+                .style('pointer-events', 'none')
         }
 
         this.flexBrush.on('brush', (center) => {
@@ -434,20 +445,23 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     highlight(highlighted: number) {
-        this.variableHighlight.attr('display', 'none')
-        this.variableHighlight2.attr('display', 'none')
-        this.constantHighlight.style('opacity', 0)
+        this.variableHighlight.style('display', 'none')
+        this.variableHighlight2.style('display', 'none')
+        this.constantHighlight1.style('display', 'none')
+        this.constantHighlight2.style('display', 'none')
 
         if (highlighted == 1) {
-            this.variableHighlight.attr('display', 'inline')
+            this.variableHighlight.style('display', 'inline')
         }
         else if (highlighted == 2) {
 
         }
         else if (highlighted == 3) {
+            this.constantHighlight1.style('display', 'inline')
+            this.constantHighlight2.style('display', 'inline')
         }
         else if (highlighted == 4) {
-            this.variableHighlight2.attr('display', 'inline')
+            this.variableHighlight2.style('display', 'inline')
         }
     }
 
