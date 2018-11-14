@@ -201,11 +201,11 @@ h4 fa-icon {
 .tab-list {
     margin: 0;
     padding: 0;
-}
 
-.tab-list li {
-    display:inline-block;
-    width:200px;
+    li {
+        display:inline-block;
+        width:200px;
+    }
 }
 
 .display {
@@ -214,7 +214,13 @@ h4 fa-icon {
 }
 
 .guide {
-    font-size: .8rem;
+    font-size:.9rem;
+
+    .tip {
+        font-family: #aaa;
+        font-family: 'Roboto Condensed';
+        font-weight: bold;
+    }
 }
 
 .w-25-fixed {
