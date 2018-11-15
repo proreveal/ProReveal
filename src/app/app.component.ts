@@ -21,7 +21,7 @@ import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
-import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator } from './safeguard/estimate';
+import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator } from './safeguard/estimate';
 
 @Component({
     selector: 'app-root',
@@ -58,6 +58,8 @@ export class AppComponent implements OnInit {
     PointRankEstimate = new PointRankEstimator().estimate;
     RangeValueEstimate = new RangeValueEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
+    PowerLawEstimate = new PowerLawEstimator().estimate;
+    NormalEstimate = new NormalEstimator().estimate;
 
     constructor(private cd: ChangeDetectorRef,
         private modalService: NgbModal) {

@@ -28,17 +28,19 @@ import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.comp
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-import { PIndicatorComponent } from './display/p-indicator.component';
+import { PIndicatorComponent } from './display/p-indicator/p-indicator.component';
 import { VariableIndicatorComponent } from './display/variable-indicator.component';
 import { SgPointComponent } from './display/sg-point.component';
 import { SgComparativeComponent } from './display/sg-comparative.component';
 import { SgDistributiveComponent } from './display/sg-distributive.component';
 import { SgRangeComponent } from './display/sg-range.component';
 import { SgDisplayComponent } from './display/sg-display.component';
-import { TruthnessIndicatorComponent } from './display/truthness-indicator.component';
+import { TruthnessIndicatorComponent } from './display/truthness-indicator/truthness-indicator.component';
 
 import { MomentModule } from 'ngx-moment';
 import { SgListItemComponent } from './display/sg-list-item/sg-list-item.component';
+import { QualityIndicatorComponent } from './display/quality-indicator/quality-indicator.component';
+import { ErrorIndicatorComponent } from './display/error-indicator/error-indicator.component';
 
 library.add(fas, far);
 
@@ -65,7 +67,9 @@ library.add(fas, far);
         SgRangeComponent,
         SgDisplayComponent,
         TruthnessIndicatorComponent,
-        SgListItemComponent
+        SgListItemComponent,
+        QualityIndicatorComponent,
+        ErrorIndicatorComponent
     ],
     imports: [
         NgbModule.forRoot(),

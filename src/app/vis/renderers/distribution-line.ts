@@ -28,7 +28,7 @@ export class DistributionLine {
 
         let line = d3.line<[Datum, number]>()
             .x(d => {
-                return x(distribution.compute.apply(distribution, yGetter(d[0], d[1]));
+                return x(distribution.compute.apply(distribution, yGetter(d[0], d[1])));
             })
             .y(d => y(d[1].toString()) + y.bandwidth() / 2)
             //.curve(d3.curveBasis);

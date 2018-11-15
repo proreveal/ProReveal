@@ -4,8 +4,6 @@ import { Variable, VariablePair } from "./variable";
 import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
 import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, DistributionTrait, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
-import { FieldGroupedValue } from "../data/field";
-import { NullGroupId } from "../data/grouper";
 import { isNull } from "util";
 
 export type PValue = number; // 0 <= p <= 1
@@ -179,7 +177,7 @@ export class PowerLawEstimator implements EstimatorTrait {
         let diff = 0;
         data.forEach((datum, i) => {
             let p_true = datum.ci3.center / n;
-            let p_estimate = constant.compute(i + 1);
+            let p_estimate = constant.compute(i + 1) / n;
 
             if(diff < Math.abs(p_true - p_estimate))
                 diff = Math.abs(p_true - p_estimate);
