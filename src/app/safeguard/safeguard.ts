@@ -11,11 +11,11 @@ const PointRankEstimate = new PointRankEstimator().estimate;
 const RangeValueEstimate = new RangeValueEstimator().estimate;
 
 export enum SafeguardTypes {
-    None = 0,
-    Point = 1,
-    Range = 2,
-    Comparative = 3,
-    Distributive = 4
+    None = "None",
+    Point = "Point",
+    Range = "Range",
+    Comparative = "Comparative",
+    Distributive = "Distributive"
 }
 
 export class Safeguard {
