@@ -1,15 +1,18 @@
 import { Operators } from "./operator";
-import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant } from "./constant";
+import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
 import { VariableTrait, Variable, VariablePair, DistributiveVariable } from "./variable";
 import { NormalDistribution } from "./normal";
-import { PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator } from "./estimate";
+import { PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
+NormalEstimator, PowerLawEstimator } from "./estimate";
 import { AggregateQuery } from "../data/query";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
 const PointRankEstimate = new PointRankEstimator().estimate;
 const RangeValueEstimate = new RangeValueEstimator().estimate;
 const ComparativeEstimate = new ComparativeEstimator().estimate;
+const PowerLawEstimate = new PowerLawEstimator().estimate;
+const NormalEstimate = new NormalEstimator().estimate;
 
 export enum SafeguardTypes {
     None = "None",
@@ -109,5 +112,18 @@ export class DistributiveSafeguard extends Safeguard {
             new DistributiveVariable(),
             Operators.Follow,
             constant, node);
+    }
+
+    q() {
+        if(this.constant instanceof NormalConstant) {
+            return NormalEstimate(
+                this.node.query as AggregateQuery,
+                this.constant as NormalConstant);
+        }
+
+        return PowerLawEstimate(
+            this.node.query as AggregateQuery,
+            this.constant as PowerLawConstant
+        );
     }
 }
