@@ -6,7 +6,7 @@ import { Constants } from '../constants';
   templateUrl: './sg-comparative.component.html',
   styleUrls: ['./sg-style.scss']
 })
-export class ComparativeComponent implements OnInit {
+export class SgComparativeComponent implements OnInit {
 
     @Input('variable1') variable1;
     @Input('variable2') variable2;

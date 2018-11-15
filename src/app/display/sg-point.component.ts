@@ -8,7 +8,7 @@ import { toNumber } from '../util';
   templateUrl: './sg-point.component.html',
   styleUrls: ['./sg-style.scss']
 })
-export class PointComponent implements OnInit {
+export class SgPointComponent implements OnInit {
 
     @Input('variable') variable;
     @Input('isRank') isRank;

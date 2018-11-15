@@ -30,12 +30,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { PIndicatorComponent } from './display/p-indicator.component';
 import { VariableIndicatorComponent } from './display/variable-indicator.component';
-import { PointComponent } from './display/sg-point.component';
-import { ComparativeComponent } from './display/sg-comparative.component';
-import { DistributiveComponent } from './display/sg-distributive.component';
-import { RangeComponent } from './display/sg-range.component';
+import { SgPointComponent } from './display/sg-point.component';
+import { SgComparativeComponent } from './display/sg-comparative.component';
+import { SgDistributiveComponent } from './display/sg-distributive.component';
+import { SgRangeComponent } from './display/sg-range.component';
 import { SgDisplayComponent } from './display/sg-display.component';
 import { TruthnessIndicatorComponent } from './display/truthness-indicator.component';
+
+import { MomentModule } from 'ngx-moment';
+import { SgListItemComponent } from './display/sg-list-item/sg-list-item.component';
 
 library.add(fas, far);
 
@@ -56,12 +59,13 @@ library.add(fas, far);
         ProgressMiniRingComponent,
         PIndicatorComponent,
         VariableIndicatorComponent,
-        PointComponent,
-        ComparativeComponent,
-        DistributiveComponent,
-        RangeComponent,
+        SgPointComponent,
+        SgComparativeComponent,
+        SgDistributiveComponent,
+        SgRangeComponent,
         SgDisplayComponent,
-        TruthnessIndicatorComponent
+        TruthnessIndicatorComponent,
+        SgListItemComponent
     ],
     imports: [
         NgbModule.forRoot(),
@@ -71,7 +75,8 @@ library.add(fas, far);
         FontAwesomeModule,
         FormsModule,
         BrowserAnimationsModule,
-        ToastrModule.forRoot()
+        ToastrModule.forRoot(),
+        MomentModule
     ],
     providers: [],
     bootstrap: [AppComponent],

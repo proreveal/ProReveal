@@ -167,11 +167,7 @@ progress-ring {
 
 #safeguard-list {
     overflow-y: scroll;
-}
-
-.safeguard .display {
-    font-size: .8rem;
-    word-break: break-all;
+    height: 100%;
 }
 
 h4 small {
@@ -225,16 +221,6 @@ h4 fa-icon {
     }
 }
 
-.w-25-fixed {
-    display: inline-block;
-    width: calc(25% + 1px);
-}
-
-.w-20-fixed {
-    display: inline-block;
-    width: calc(20% + 1px);
-}
-
 #safeguard-view .btn-secondary {
     background-color: lighten($operator-highlight-color, 15%);
     border-color: lighten($operator-highlight-color, 10%);
@@ -283,31 +269,3 @@ h4 fa-icon {
     background: lighten($constant-highlight-color, 50%);
 }
 
-.safeguard {
-    border-bottom: 1px solid $ui-border-color;
-    padding: 3px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 0;
-    font-size: 0.9rem;
-}
-
-/* queue-view {
-    grid-row: 3;
-    grid-column: 2;
-    overflow-y: scroll;
-} */
-
-.styled-scroll::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-}
-
-.styled-scroll::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
-}
-
-.styled-scroll::-webkit-scrollbar-thumb {
-    background-color: #999;
-    outline: #333 solid 1px;
-}

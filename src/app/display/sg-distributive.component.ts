@@ -6,7 +6,7 @@ import { Constants } from '../constants';
   templateUrl: './sg-distributive.component.html',
   styleUrls: ['./sg-style.scss']
 })
-export class DistributiveComponent implements OnInit {
+export class SgDistributiveComponent implements OnInit {
     @Input('highlighted') highlighted;
     @Input('query') query;
     @Input('constant') constant;

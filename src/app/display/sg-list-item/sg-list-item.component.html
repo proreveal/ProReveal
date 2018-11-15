@@ -1,0 +1,14 @@
+<div class="wrapper border-bottom p-1">
+    <div class="display">
+        <sg-display [safeguard]="sg"></sg-display>
+    </div>
+
+    <div *ngIf="sg.type == SGT.Point && !sg.variable.isRank">
+        <p-indicator [p]="sg.p()"></p-indicator>
+    </div>
+    <div *ngIf="sg.type == SGT.Point && sg.variable.isRank">
+        <truthness-indicator [t]="sg.t()"></truthness-indicator>
+    </div>
+
+    Created {{ sg.createdAt | amTimeAgo }}
+</div>

@@ -296,13 +296,13 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Point;
+    activeSafeguardPanel = SGT.Range;
     safeguards: Safeguard[] = [];
 
     variable1: Variable;
     variable2: Variable;
     variablePair: VariablePair;
-    useRank = true;
+    useRank = false;
     useGaussian = true;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
@@ -445,6 +445,7 @@ export class AppComponent implements OnInit {
             this.rangeValueConstant = new RangeValueConstant(0, 1);
             this.rangeRankConstant = new RangeRankConstant(1, 2);
             this.powerLawConstant = new PowerLawConstant();
+            this.useRank = false;
 
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
