@@ -3,12 +3,13 @@ import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstan
 import { ExplorationNode } from "../exploration/exploration-node";
 import { VariableTrait, Variable, VariablePair, DistributiveVariable } from "./variable";
 import { NormalDistribution } from "./normal";
-import { PointValueEstimator, PointRankEstimator, RangeValueEstimator } from "./estimate";
+import { PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator } from "./estimate";
 import { AggregateQuery } from "../data/query";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
 const PointRankEstimate = new PointRankEstimator().estimate;
 const RangeValueEstimate = new RangeValueEstimator().estimate;
+const ComparativeEstimate = new ComparativeEstimator().estimate;
 
 export enum SafeguardTypes {
     None = "None",
@@ -45,7 +46,8 @@ export class PointSafeguard extends Safeguard {
         if (this.variable.isRank)
             throw new Error('Cannot estimate the p value for rank');
 
-        return PointValueEstimate(this.node.query as AggregateQuery,
+        return PointValueEstimate(
+            this.node.query as AggregateQuery,
             this.variable,
             this.operator,
             this.constant as PointValueConstant);
@@ -55,7 +57,8 @@ export class PointSafeguard extends Safeguard {
         if (!this.variable.isRank)
             throw new Error('Variable is not a rank. Use p() instead');
 
-        return PointRankEstimate(this.node.query as AggregateQuery,
+        return PointRankEstimate(
+            this.node.query as AggregateQuery,
             this.variable,
             this.operator,
             this.constant as PointRankConstant);
@@ -73,7 +76,8 @@ export class RangeSafeguard extends Safeguard {
         if (this.variable.isRank)
             throw new Error('Cannot estimate the p value for rank');
 
-        return RangeValueEstimate(this.node.query as AggregateQuery,
+        return RangeValueEstimate(
+            this.node.query as AggregateQuery,
             this.variable,
             this.operator,
             this.constant as RangeValueConstant);
@@ -85,6 +89,16 @@ export class ComparativeSafeguard extends Safeguard {
         public operator: Operators,
         public node: ExplorationNode) {
         super(SafeguardTypes.Comparative, variable, operator, null, node);
+    }
+
+    p() {
+        if (this.variable.isRank)
+            throw new Error('Cannot estimate the p value for rank');
+
+        return ComparativeEstimate(
+            this.node.query as AggregateQuery,
+            this.variable,
+            this.operator);
     }
 }
 

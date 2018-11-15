@@ -60,6 +60,14 @@ export class VariablePair extends VariableTrait { // (a=1, b=2)
     get hash() {
         return `${this.fieldGroupedValue1.hash}${HashSeparator}${this.fieldGroupedValue2.hash}`;
     }
+
+    get first() {
+        return new Variable(this.fieldGroupedValue1);
+    }
+
+    get second() {
+        return new Variable(this.fieldGroupedValue2);
+    }
 }
 
 export class DistributiveVariable extends VariableTrait {

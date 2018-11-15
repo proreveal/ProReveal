@@ -1,7 +1,7 @@
 <div class="wrapper border-bottom p-1">
     <span class="badge badge-primary">{{ sg.type }}</span>
     <span class="badge badge-secondary ml-1" *ngIf="sg.variable.isRank">Rank</span>
-    <div class="display">
+    <div class="display mb-1">
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
@@ -12,6 +12,9 @@
         <truthness-indicator [t]="sg.t()"></truthness-indicator>
     </div>
     <div *ngIf="sg.type == SGT.Range && !sg.variable.isRank">
+        <p-indicator [p]="sg.p()"></p-indicator>
+    </div>
+    <div *ngIf="sg.type == SGT.Comparative && !sg.variable.isRank">
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>
 
