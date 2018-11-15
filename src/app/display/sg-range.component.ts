@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Constants } from '../constants';
 import { toNumber } from '../util';
+import { ConstantTrait } from '../safeguard/constant';
 
 @Component({
   selector: 'sg-range',

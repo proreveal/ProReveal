@@ -9,6 +9,9 @@
     <div *ngIf="sg.type == SGT.Point && sg.variable.isRank">
         <truthness-indicator [t]="sg.t()"></truthness-indicator>
     </div>
+    <div *ngIf="sg.type == SGT.Range && !sg.variable.isRank">
+        <p-indicator [p]="sg.p()"></p-indicator>
+    </div>
 
     Created {{ sg.createdAt | amTimeAgo }}
 </div>

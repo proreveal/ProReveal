@@ -1,13 +1,14 @@
 import { Operators } from "./operator";
-import { ConstantTrait, PointValueConstant, PointRankConstant } from "./constant";
+import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
 import { VariableTrait, Variable, VariablePair, DistributiveVariable } from "./variable";
 import { NormalDistribution } from "./normal";
-import { PointValueEstimator, PointRankEstimator } from "./estimate";
+import { PointValueEstimator, PointRankEstimator, RangeValueEstimator } from "./estimate";
 import { AggregateQuery } from "../data/query";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
 const PointRankEstimate = new PointRankEstimator().estimate;
+const RangeValueEstimate = new RangeValueEstimator().estimate;
 
 export enum SafeguardTypes {
     None = 0,
@@ -41,7 +42,7 @@ export class PointSafeguard extends Safeguard {
     }
 
     p() {
-        if(this.variable.isRank)
+        if (this.variable.isRank)
             throw new Error('Cannot estimate the p value for rank');
 
         return PointValueEstimate(this.node.query as AggregateQuery,
@@ -51,7 +52,7 @@ export class PointSafeguard extends Safeguard {
     }
 
     t() {
-        if(!this.variable.isRank)
+        if (!this.variable.isRank)
             throw new Error('Variable is not a rank. Use p() instead');
 
         return PointRankEstimate(this.node.query as AggregateQuery,
@@ -66,6 +67,16 @@ export class RangeSafeguard extends Safeguard {
         public constant: ConstantTrait,
         public node: ExplorationNode) {
         super(SafeguardTypes.Range, variable, Operators.InRange, constant, node);
+    }
+
+    p() {
+        if (this.variable.isRank)
+            throw new Error('Cannot estimate the p value for rank');
+
+        return RangeValueEstimate(this.node.query as AggregateQuery,
+            this.variable,
+            this.operator,
+            this.constant as RangeValueConstant);
     }
 }
 

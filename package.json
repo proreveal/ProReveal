@@ -32,6 +32,8 @@
     "core-js": "^2.5.7",
     "crypto-js": "^3.1.9-1",
     "d3": "^5.5.0",
+    "moment": "^2.22.2",
+    "ngx-moment": "^3.2.0",
     "ngx-toastr": "^9.0.2",
     "regression": "^2.0.1",
     "roboto-fontface": "^0.9.0",
