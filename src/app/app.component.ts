@@ -296,7 +296,7 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Range;
+    activeSafeguardPanel = SGT.Comparative;
     safeguards: Safeguard[] = [];
 
     variable1: Variable;

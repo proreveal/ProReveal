@@ -233,40 +233,31 @@
                 <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable1]="variable1"
                     [variable2]="variable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
-            <div (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable1"></fa-icon>
-                    1st Variable
-                </h5>
-                <p class="p-1 guide m-0">
-                    Please pick the <span class="variable1 font-weight-bold">first variable</span> by clicking on a
-                    category on the chart.
-                </p>
+            <div class="alert guide p-2 m-1">
+                <span class="tip">TIP</span>
+                <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                    Please pick the
+                    <span class="variable1 font-weight-bold">first variable</span>
+                    by clicking on a category on the vertial axis of the chart.
+                </span>
+                <span (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
+                    Then, pick the
+                    <span class="variable2 font-weight-bold">second variable</span>
+                    by <strong>right-clicking</strong> on a category.
+                </span>
             </div>
-            <div (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
-                <h5 class="section-subheader p-1 border border-right-0">
-                    <fa-icon [icon]="['fas', 'circle']" transform="shrink-9" class="variable2"></fa-icon>
-                    2nd Variable
-                </h5>
-                <div class="p-1 guide m-0">
-                    <p class="m-0">
-                        Please pick the <span class="variable2 font-weight-bold">second variable</span> by <em>right-</em>clicking
-                        on a category on the chart.
-                    </p>
-                </div>
-            </div>
-            <div class="p-1 guide">
-                <div *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && variable2">
-                    <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair, operator)"></p-indicator>
-                </div>
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && variable2">
+                <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair, operator)"></p-indicator>
             </div>
             <div class="p-1">
-                <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createComparativeSafeguard()">
-                    Create a Safeguard
-                </button>
-                <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="d-flex">
+                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0" (click)="createComparativeSafeguard()">
+                        Create a Safeguard
+                    </button>
+                    <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelSafeguard()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             </div>
         </div>
 
