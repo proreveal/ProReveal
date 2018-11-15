@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { selectOrAppend } from '../../d3-utils/d3-utils';
 import { DistributionTrait, ConstantTrait } from '../../safeguard/constant';
+import { Datum } from '../../data/query';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 
@@ -15,7 +16,7 @@ export class DistributionLine {
         this.g = selectOrAppend(g as any, 'g', '.distribution-line-wrapper') as G;
     }
 
-    render<Datum>(
+    render(
         distribution: ConstantTrait & DistributionTrait,
         data: Datum[],
         yGetter: (Datum, number) => [number, number],
@@ -27,11 +28,10 @@ export class DistributionLine {
 
         let line = d3.line<[Datum, number]>()
             .x(d => {
-                return x(distribution.compute.apply(distribution, yGetter(d[0], d[1])));
+                return x(distribution.compute.apply(distribution, yGetter(d[0], d[1]));
             })
-            .y(d => y(d[1].toString()))
+            .y(d => y(d[1].toString()) + y.bandwidth() / 2)
             //.curve(d3.curveBasis);
-
 
         let path = this.g.selectAll('path')
             .data([filtered]);

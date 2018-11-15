@@ -5,7 +5,7 @@
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
 >{{ constant.a | number }}x<sup>{{ constant.b | number }}</sup> </span>
-<span class="constant pr-1" *ngIf="constant.name == 'gaussian'"
+<span class="constant pr-1" *ngIf="constant.name == 'normal'"
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
 >N({{ constant.mean | number }}, {{ constant.stdev | number }})</span>

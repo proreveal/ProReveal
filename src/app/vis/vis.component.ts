@@ -88,6 +88,7 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     setSafeguardType(set: SafeguardTypes) {
+        if(!this.renderer) return;
         this.renderer.setSafeguardType(set);
         this.renderer.render(this.node, this.svg.nativeElement);
     }

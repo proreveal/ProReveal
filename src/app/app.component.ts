@@ -3,7 +3,7 @@ import { Dataset } from './data/dataset';
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
-import { Query, EmptyQuery, AggregateQuery } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode, NodeState } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
@@ -11,7 +11,7 @@ import { ExplorationViewComponent } from './exploration/exploration-view.compone
 import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard } from './safeguard/safeguard';
+import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
@@ -89,7 +89,7 @@ export class AppComponent implements OnInit {
         this.engine.request(query, priority);
 
         this.layout();
-        this.activeNode = node;
+        this.nodeSelected(node);
 
         this.updateNodeLists();
 
@@ -164,8 +164,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.vis.setSafeguardType(this.activeSafeguardPanel);
-                this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
+                this.toggle(SGT.Distributive);
             })
         })
     }
@@ -226,6 +225,7 @@ export class AppComponent implements OnInit {
         }
 
         if (!this.rankAllowed()) this.useRank = false;
+        this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
     }
 
     // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
@@ -275,17 +275,6 @@ export class AppComponent implements OnInit {
                     );
     }
 
-    voiceKeywordRecognized(event) {
-        if (event.results.length && event.results[0].length) {
-            let candidate: string = event.results[0][0].transcript;
-
-            this.searchKeyword = candidate;
-            this.keywordSearched(candidate);
-
-            this.cd.detectChanges();
-        }
-    }
-
     deleteClicked(modal, node: ExplorationNode) {
         this.modalService
             .open(modal, { ariaLabelledBy: 'modal-basic-title' }).result
@@ -296,14 +285,14 @@ export class AppComponent implements OnInit {
             });
     }
 
-    activeSafeguardPanel = SGT.Comparative;
+    activeSafeguardPanel = SGT.None;
     safeguards: Safeguard[] = [];
 
     variable1: Variable;
     variable2: Variable;
     variablePair: VariablePair;
     useRank = false;
-    useGaussian = true;
+    useNormal = true;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
     pointRankConstant: PointRankConstant = new PointRankConstant(1);
@@ -312,7 +301,7 @@ export class AppComponent implements OnInit {
     rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
-    gaussianConstant: NormalConstant = new NormalConstant(10);
+    normalConstant: NormalConstant = new NormalConstant();
 
     operator = Operators.LessThanOrEqualTo;
 
@@ -347,7 +336,7 @@ export class AppComponent implements OnInit {
             let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1)
             this.pointRankConstant = constant;
             // if (constant.rank >= value)
-                this.operator = Operators.LessThanOrEqualTo;
+            this.operator = Operators.LessThanOrEqualTo;
             // else
             //     this.operator = Operators.GreaterThanOrEqualTo;
         }
@@ -358,7 +347,7 @@ export class AppComponent implements OnInit {
         else if (constant instanceof PowerLawConstant)
             this.powerLawConstant = constant;
         else if (constant instanceof NormalConstant)
-            this.gaussianConstant = constant;
+            this.normalConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);
     }
@@ -445,7 +434,14 @@ export class AppComponent implements OnInit {
             this.rangeValueConstant = new RangeValueConstant(0, 1);
             this.rangeRankConstant = new RangeRankConstant(1, 2);
             this.powerLawConstant = new PowerLawConstant();
+            this.normalConstant = new NormalConstant();
+
             this.useRank = false;
+
+            if (sgt === SafeguardTypes.Distributive) {
+                this.vis.setFittingType(this.useNormal ? FittingTypes.Normal : FittingTypes.PowerLaw);
+                this.fit();
+            }
 
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
@@ -455,10 +451,6 @@ export class AppComponent implements OnInit {
 
     useRankToggled() {
         this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
-    }
-
-    useGaussianToggled() {
-        this.vis.setFittingType(this.useGaussian ? FittingTypes.Normal : FittingTypes.PowerLaw);
     }
 
     checkOrder() {

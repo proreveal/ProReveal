@@ -415,7 +415,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         if (this.safeguardType === SGT.Distributive) {
             if (this.fittingType == FT.PowerLaw) {
-                this.distributionLine.render<Datum>(
+                this.distributionLine.render(
                     this.constant as DistributionTrait,
                     this.data,
                     (d: Datum, i: number) => { return [i + 1, 0]; },
@@ -423,7 +423,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 )
             }
             else {
-                this.distributionLine.render<Datum>(
+                this.distributionLine.render(
                     this.constant as DistributionTrait,
                     this.data,
                     (d: Datum) => {

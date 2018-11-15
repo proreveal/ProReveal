@@ -263,36 +263,29 @@
 
         <!-- Distributive -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Distributive">
-            <div class="form-check form-check-inline guide">
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1"
-                    [checked]="!useGaussian">
-                <label class="form-check-label" for="inlineRadio1" (click)="useGaussian=false;useGaussianToggled()">Power-Law</label>
-            </div>
-            <div class="form-check form-check-inline guide">
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2"
-                    [checked]="!useGaussian">
-                <label class="form-check-label" for="inlineRadio2" (click)="useGaussian=true;useGaussianToggled()">Normal</label>
-            </div>
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="query" [constant]="useGaussian ? gaussianConstant : powerLawConstant"
+                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="query" [constant]="useNormal ? normalConstant : powerLawConstant"
                     (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
-            <button class="btn btn-success w-75 rounded-0 border-right-0" (click)="createDistributiveSafeguard()">
-                Create a Safeguard
-            </button>
-            <button class="btn btn-danger w-25 rounded-0 border-right-0" (click)="cancelSafeguard()">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="p-1">
+                <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
+            </div>
+
+            <div class="p-1">
+                <div class="d-flex">
+                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0"
+                    (click)="createDistributiveSafeguard()">
+                        Create a Safeguard
+                    </button>
+                    <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelSafeguard()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </section>
     <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
-
-    <!-- <section style="padding:5px; grid-row:2; grid-column:2;">
-
-    </section>
-    <queue-view [queue]="engine.queue" *ngIf="engine"></queue-view> -->
 </div>
 
 <field-selector #fieldSelector (fieldSelected)="fieldSelected($event.node, $event.field)"></field-selector>
