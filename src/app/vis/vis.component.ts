@@ -83,6 +83,10 @@ export class VisComponent implements OnInit, DoCheck {
         if(!this.node) this.lastNode = this.node;
     }
 
+    forceUpdate() {
+        this.renderer.render(this.node, this.svg.nativeElement);
+    }
+
     highlight(highlighted: number) {
         if(this.renderer) this.renderer.highlight(highlighted);
     }

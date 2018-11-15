@@ -460,6 +460,7 @@ export class AppComponent implements OnInit {
 
     fit() {
         (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+        this.vis.forceUpdate();
     }
 
     toNumber(s: string) {

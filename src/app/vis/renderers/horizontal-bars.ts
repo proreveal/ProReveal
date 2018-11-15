@@ -692,8 +692,6 @@ export class HorizontalBarsRenderer implements Renderer {
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }
-
-        // add codes for SGS
     }
 
     /*
