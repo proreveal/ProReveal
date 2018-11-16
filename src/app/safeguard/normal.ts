@@ -7,7 +7,7 @@ function cumulativeDistribution(z) {
         tmp = z;
 
     // 15 iterations are enough for 4-digit precision
-    for (let i = 1; i < 30; i++) {
+    for (let i = 1; i < 100; i++) {
         tmp *= (z * z) / (2 * i + 1);
         sum += tmp;
     }
