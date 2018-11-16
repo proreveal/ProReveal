@@ -24,11 +24,15 @@ export class DistributionLine {
         y: d3.ScaleBand<string>,
         ) {
 
-        let filtered = data.map((d, i) => [d, i]).filter(d => yGetter(d[0], d[1]) != null)
+        let filtered: [Datum, number][] = data.map((d, i) => [d, i] as [Datum, number])
+            .filter(d => yGetter(d[0], d[1]) != null)
+        let sum = filtered ? filtered.reduce((c, d) => c + d[0].ci3.center, 0) : 0;
 
         let line = d3.line<[Datum, number]>()
             .x(d => {
-                return x(distribution.compute.apply(distribution, yGetter(d[0], d[1])));
+                let v = distribution.compute.apply(distribution, yGetter(d[0], d[1]));
+                if(distribution.normalized) v *= sum;
+                return x(v);
             })
             .y(d => y(d[1].toString()) + y.bandwidth() / 2)
             //.curve(d3.curveBasis);

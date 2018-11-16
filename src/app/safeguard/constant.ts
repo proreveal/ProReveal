@@ -71,12 +71,16 @@ export class RangeRankConstant extends ConstantTrait {
  * Something that returns a pdf value
  */
 export interface DistributionTrait {
-    name: string;
+    readonly name: string;
+    readonly normalized: boolean;
+
     compute(left: number, right: number): number;
 }
 
 export class PowerLawConstant extends ConstantTrait implements DistributionTrait {
     name = 'power';
+    normalized = false;
+
     // a*x^b
     constructor(public a = 1, public b = 1) {
         super();
@@ -107,6 +111,7 @@ export class PowerLawConstant extends ConstantTrait implements DistributionTrait
 export class NormalConstant extends ConstantTrait implements DistributionTrait {
     name = 'normal';
     normal: NormalDistribution;
+    normalized = true;
 
     constructor(public mean = 0, public stdev = 1) {
         super();
@@ -145,6 +150,7 @@ export class NormalConstant extends ConstantTrait implements DistributionTrait {
      */
     compute(left: number, right: number) {
         let between = (this.normal.cdf(right) - this.normal.cdf(left));
+        // console.info(between);
         return between;
     }
 }

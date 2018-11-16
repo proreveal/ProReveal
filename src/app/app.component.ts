@@ -133,39 +133,27 @@ export class AppComponent implements OnInit {
             });
 
             // Just run 10 jobs.
-
             // this.run(10);
-            // of(0).pipe(
-            //     delay(1000)
-            // ).subscribe(() => {
-            //     this.nodeSelected(this.ongoingNodes[0]);
-            // });
 
+            // C (Frequency histogram, Creative_Type)
+            // this.nodeSelected(this.ongoingNodes[0])
+            // this.run(5);
 
-            // Create sum(x) by y (no need for selecting one) CN
-            const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-            this.run(5);
+            // N (1D histogram, IMDB_Rating)
+            this.nodeSelected(this.ongoingNodes[3]);
+            this.run(105);
 
-            // normal (categorical)
-            // this.nodeSelected(this.ongoingNodes[0]);
+            // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
+            // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+            // this.run(5);
 
-            // normal (numerical)
-            // this.run(110);
-            // this.nodeSelected(this.ongoingNodes[0]);
-
-            // create two categorical
-
-            // this.run(2);
-
-            // Create mean(IMDB_Rating) grouped by Production_Budget (number vs number)
-            // this should be a 2D histogram
+            // NN (2D Histogram, IMDB_Rating vs Production_Budget)
             // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
             // this.run(10);
 
-            // Create Count(*) grouped by Creative_Type and Major_Genre (category vs category)
+            // CC (Creative_Type vs Major_Genre)
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
-
 
             of(0).pipe(
                 delay(1000)
