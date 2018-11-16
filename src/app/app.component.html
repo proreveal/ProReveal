@@ -264,17 +264,19 @@
         <!-- Distributive -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Distributive">
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="query" [constant]="useNormal ? normalConstant : powerLawConstant"
+                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [constant]="useNormal ? normalConstant : powerLawConstant"
                     (highlight)="highlight($event)"></sg-distributive>
             </div>
             <div class="p-1">
-                <button class="btn btn-warning w-100 rounded-0 mb-2" (click)="fit()">Fit</button>
-            </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && !useNormal">
-                <quality-indicator [q]="PowerLawEstimate(activeNode.query, powerLawConstant)"></quality-indicator>
-            </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && useNormal">
-                <quality-indicator [q]="NormalEstimate(activeNode.query, normalConstant)"></quality-indicator>
+                <div class="d-flex">
+                    <div class="guide flex-grow-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && !useNormal">
+                        <quality-indicator [q]="PowerLawEstimate(activeNode.query, powerLawConstant)"></quality-indicator>
+                    </div>
+                    <div class="guide flex-grow-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && useNormal">
+                        <quality-indicator [q]="NormalEstimate(activeNode.query, normalConstant)"></quality-indicator>
+                    </div>
+                    <button class="btn btn-warning rounded-0" (click)="fit()">Fit</button>
+                </div>
             </div>
             <div class="p-1">
                 <div class="d-flex">

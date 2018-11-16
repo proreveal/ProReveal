@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Query } from '@angular/core';
 import { Constants } from '../constants';
 
 @Component({
@@ -8,7 +8,7 @@ import { Constants } from '../constants';
 })
 export class SgDistributiveComponent implements OnInit {
     @Input('highlighted') highlighted;
-    @Input('query') query;
+    @Input('query') query: Query;
     @Input('constant') constant;
 
     CT = Constants;

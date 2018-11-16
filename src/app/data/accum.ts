@@ -36,7 +36,6 @@ export interface AccumulatorTrait {
     readonly initPartialValue: PartialValue;
     readonly initAccumulatedValue: AccumulatedValue;
     readonly name: string;
-    readonly requireTargetField: boolean;
 
     reduce(a: PartialValue, b: number | null): PartialValue;
     accumulate(a: AccumulatedValue, b: PartialValue): AccumulatedValue;
@@ -54,7 +53,6 @@ export class MinAccumulator implements AccumulatorTrait {
 
     readonly name = "min";
     readonly alwaysNonNegative = false;
-    readonly requireTargetField = false;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, a.min, 0, a.nullCount + 1);
@@ -82,7 +80,6 @@ export class MaxAccumulator implements AccumulatorTrait {
         Object.freeze(new AccumulatedValue(0, 0, 0, 0, -Number.MAX_VALUE, 0));
 
     readonly name = "max";
-    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, a.max, 0, a.nullCount + 1);
@@ -110,7 +107,6 @@ export class CountAccumulator implements AccumulatorTrait {
         Object.freeze(new AccumulatedValue(0, 0, 0, 0, 0, 0));
 
     readonly name = "count";
-    readonly requireTargetField = false;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(0, 0, a.count + 1, 0, 0, a.nullCount + 1);
@@ -138,7 +134,6 @@ export class SumAccumulator implements AccumulatorTrait {
         Object.freeze(new AccumulatedValue(0, 0, 0, 0, 0, 0));
 
     readonly name = "sum";
-    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(a.sum, a.ssum, a.count + 1, 0, 0, a.nullCount + 1);
@@ -166,7 +161,6 @@ export class MeanAccumulator implements AccumulatorTrait {
         Object.freeze(new AccumulatedValue(0, 0, 0, 0, 0, 0));
 
     readonly name = "mean";
-    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(a.sum, a.ssum, a.count + 1, 0, 0, a.nullCount + 1);
@@ -194,7 +188,6 @@ export class AllAccumulator implements AccumulatorTrait {
         Object.freeze(new AccumulatedValue(0, 0, 0, Number.MAX_VALUE, -Number.MAX_VALUE, 0));
 
     readonly name = "all";
-    readonly requireTargetField = true;
 
     reduce(a: PartialValue, b: number | null) {
         if (isNull(b)) return new PartialValue(a.sum, a.ssum, a.count + 1, a.min, a.max, a.nullCount + 1);

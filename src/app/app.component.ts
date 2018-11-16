@@ -142,7 +142,7 @@ export class AppComponent implements OnInit {
             // });
 
 
-            // Create sum(x) by y (no need for selecting one)
+            // Create sum(x) by y (no need for selecting one) CN
             const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
             this.run(5);
 
@@ -156,11 +156,15 @@ export class AppComponent implements OnInit {
             // create two categorical
 
             // this.run(2);
+
+            // Create mean(IMDB_Rating) grouped by Production_Budget (number vs number)
+            // this should be a 2D histogram
             // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
             // this.run(10);
+
+            // Create Count(*) grouped by Creative_Type and Major_Genre (category vs category)
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
-            //this.nodeSelected(this.ongoingNodes[0]);
 
 
             of(0).pipe(

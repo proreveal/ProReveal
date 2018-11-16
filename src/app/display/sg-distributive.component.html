@@ -1,5 +1,11 @@
-
-<span class="variable1 pr-1">V(·)</span>
+<span class="variable1 pr-1">
+    Distribution({{ query.approximator.name.toUpperCase() }}<!--
+    --><sub *ngIf="true">{{ query.groupBy.fields[0].name }}</sub><!--
+    --><sub *ngIf="false">{{ variable.fieldString1() }} = {{ variable.valueString1() }},<!--
+    -->{{ variable.fieldString2() }} = {{ variable.valueString2() }}</sub>(<!--
+--><span *ngIf="query.approximator.requireTargetField">{{ query.target.name }}</span><!--
+--><span *ngIf="!query.approximator.requireTargetField">*</span>)<!--
+-->)</span>
 <span class="operator pr-1">~</span>
 <span class="constant pr-1" *ngIf="constant.name == 'power'"
     [class.highlighted]="highlighted == 3"

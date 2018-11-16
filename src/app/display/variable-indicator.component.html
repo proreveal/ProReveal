@@ -5,7 +5,7 @@
     --><sub *ngIf="!variable.combined">{{ variable.fieldString() }} = {{ variable.valueString() }}</sub><!--
     --><sub *ngIf="variable.combined">{{ variable.fieldString1() }} = {{ variable.valueString1() }},<!--
     -->{{ variable.fieldString2() }} = {{ variable.valueString2() }}</sub>(<!--
---><span *ngIf="query.accumulator.requireTargetField">{{ query.target.name }}</span><!--
---><span *ngIf="!query.accumulator.requireTargetField">*</span>)<!--
+--><span *ngIf="query.approximator.requireTargetField">{{ query.target.name }}</span><!--
+--><span *ngIf="!query.approximator.requireTargetField">*</span>)<!--
 --><span *ngIf="isRank">)</span></span>
 
