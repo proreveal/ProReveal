@@ -15,6 +15,24 @@ export type EstimationResult = PValue | Quality | Error | Truthness;
 
 const normal = new NormalDistribution();
 
+/**
+ * checks if ai1 > ai2
+ * @param ai1
+ * @param ai2
+ */
+export function estimateTwoConfidenceIntervals(ai1: ApproximatedInterval, ai2: ApproximatedInterval, n: number, N: number): PValue {
+    const s_star_sqaured = ai1.stdev * ai1.stdev / ai1.n + ai2.stdev * ai2.stdev / ai2.n;
+    // TODO n == N
+    const s_star = Math.sqrt(1 - n / N) * Math.sqrt(s_star_sqaured);
+
+    const diff = ai1.center - ai2.center;
+
+    let z = diff / s_star;
+    let cp = normal.cdf(z);
+
+    return cp;
+}
+
 export interface EstimatorTrait {
     estimate(...args: any[]): EstimationResult;
 }
@@ -41,7 +59,9 @@ export class PointValueEstimator implements EstimatorTrait {
 
 export class PointRankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: Variable,
-        operator: Operators, constant: PointRankConstant): Truthness {
+        operator: Operators, constant: PointRankConstant): PValue {
+        const n = query.progress.processedRows;
+        const N = query.progress.totalRows;
 
         let results: [string, ApproximatedInterval][] = Object.keys(query.result).map((hash) => {
             let result = query.result[hash];
@@ -55,17 +75,37 @@ export class PointRankEstimator implements EstimatorTrait {
             return [hash, ai] as [string, ApproximatedInterval];
         })
 
-        results.sort((a, b) => b[1].center - a[1].center);
-        let rank = results.findIndex(d => d[0] === variable.hash);
+        let categoryN = results.length;
 
-        rank += 1; // 1 ~ N
 
-        if (rank <= 0) return false;
+        let probs = new Array(categoryN - 1); // the probability of V_i > V_target
+        let targetInterval = results.filter(res => res[0] == variable.hash)[0][1];
 
-        if (operator == Operators.GreaterThan) return rank > constant.rank;
-        else if (operator == Operators.GreaterThanOrEqualTo) return rank >= constant.rank;
-        else if (operator == Operators.LessThan) return rank < constant.rank;
-        else if (operator == Operators.LessThanOrEqualTo) return rank <= constant.rank;
+        results.filter(res => res[0] != variable.hash).forEach((res, i) => {
+            let ai = res[1];
+            probs[i] = estimateTwoConfidenceIntervals(ai, targetInterval, n, N);
+        })
+
+        let T = [];
+        for (let i = 0; i < categoryN; i++) T.push(new Array(categoryN + 1).fill(0));
+
+        // T[i][j] = probability of having j categories among i categories that are larger than targetInterval
+        T[0][0] = 1;
+        T[0][1] = 0;
+
+        for (let i = 1; i < categoryN; i++) {
+            for (let j = 0; j <= i; j++) {
+                T[i][j] = T[i - 1][j] * (1 - probs[i - 1]) +
+                    (j >= 1 ? T[i - 1][j - 1] * probs[i - 1] : 0);
+            }
+        }
+
+        function sum(arr: number[]) { return arr.reduce((p, c) => p + c, 0); }
+
+        if (operator == Operators.GreaterThan) return sum(T[categoryN - 1].slice(constant.rank));
+        else if (operator == Operators.GreaterThanOrEqualTo) return sum(T[categoryN - 1].slice(constant.rank - 1));
+        else if (operator == Operators.LessThan) return sum(T[categoryN - 1].slice(0, constant.rank + 1));
+        else if (operator == Operators.LessThanOrEqualTo) return sum(T[categoryN - 1].slice(0, constant.rank));
         else throw new Error(`Invalid operator ${operator}`);
     }
 }
@@ -140,14 +180,7 @@ export class ComparativeEstimator implements EstimatorTrait {
             n,
             N);
 
-        const s_star_sqaured = ai1.stdev * ai1.stdev / ai1.n + ai2.stdev * ai2.stdev / ai2.n;
-        // TODO n == N
-        const s_star = Math.sqrt(1 - n / N) * Math.sqrt(s_star_sqaured);
-
-        const diff = ai1.center - ai2.center;
-
-        let z = diff / s_star;
-        let cp = normal.cdf(z);
+        let cp = estimateTwoConfidenceIntervals(ai1, ai2, n, N);
 
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
             return cp;
@@ -179,7 +212,7 @@ export class PowerLawEstimator implements EstimatorTrait {
             let p_true = datum.ci3.center / n;
             let p_estimate = constant.compute(i + 1) / n;
 
-            if(diff < Math.abs(p_true - p_estimate))
+            if (diff < Math.abs(p_true - p_estimate))
                 diff = Math.abs(p_true - p_estimate);
         })
 
@@ -207,13 +240,13 @@ export class NormalEstimator implements EstimatorTrait {
         data.forEach((datum, i) => {
             let p_true = datum.ci3.center / n;
             let range = datum.keys.list[0].value();
-            if(isNull(range)) return; // means a count for an empty value
+            if (isNull(range)) return; // means a count for an empty value
 
             let [left, right] = range as [number, number];
 
             let p_estimate = constant.compute(left, right);
 
-            if(diff < Math.abs(p_true - p_estimate))
+            if (diff < Math.abs(p_true - p_estimate))
                 diff = Math.abs(p_true - p_estimate);
         })
 
@@ -232,7 +265,7 @@ export class LinearRegressionEstimator {
             let range1 = datum.keys.list[0].value();
             let range2 = datum.keys.list[1].value();
 
-            if(isNull(range1) || isNull(range2)) return;
+            if (isNull(range1) || isNull(range2)) return;
 
             range1 = range1 as [number, number];
             range2 = range2 as [number, number];

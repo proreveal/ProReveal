@@ -136,12 +136,12 @@ export class AppComponent implements OnInit {
             // this.run(10);
 
             // C (Frequency histogram, Creative_Type)
-            // this.nodeSelected(this.ongoingNodes[0])
-            // this.run(5);
+            this.nodeSelected(this.ongoingNodes[0])
+            this.run(5);
 
             // N (1D histogram, IMDB_Rating)
-            this.nodeSelected(this.ongoingNodes[3]);
-            this.run(105);
+            // this.nodeSelected(this.ongoingNodes[3]);
+            // this.run(105);
 
             // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
             // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
@@ -158,7 +158,9 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Distributive);
+                this.toggle(SGT.Point);
+                this.useRank = true;
+                this.useRankToggled();
             })
         })
     }

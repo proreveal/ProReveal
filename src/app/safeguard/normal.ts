@@ -6,7 +6,7 @@ function cumulativeDistribution(z) {
     let sum = z,
         tmp = z;
 
-    // 15 iterations are enough for 4-digit precision
+    // 100 iterations are enough for 5-digit precision
     for (let i = 1; i < 100; i++) {
         tmp *= (z * z) / (2 * i + 1);
         sum += tmp;
@@ -30,8 +30,6 @@ for (let first = 0; first <= 360; first++) {
         zTable[zRow].push(cumulativeDistribution(z));
     }
 }
-
-console.log(zTable);
 
 export class NormalDistribution {
     /**

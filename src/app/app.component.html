@@ -178,7 +178,7 @@
                 <p-indicator [p]="PointValueEstimate(activeNode.query, variable1, operator, pointValueConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && pointRankConstant && useRank">
-                <truthness-indicator [t]="PointRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></truthness-indicator>
+                <p-indicator [p]="PointRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></p-indicator>
             </div>
             <div class="p-1">
                 <div class="d-flex">
