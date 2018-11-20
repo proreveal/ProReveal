@@ -158,11 +158,36 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Point);
-                this.useRank = true;
-                this.useRankToggled();
+                this.toggle(SGT.Distributive);
+                // this.useRank = true;
+                // this.useRankToggled();
             })
         })
+    }
+
+    testC() {
+        this.nodeSelected(this.ongoingNodes[0])
+        this.run(5);
+    }
+
+    testN() {
+        this.nodeSelected(this.ongoingNodes[3]);
+        this.run(105);
+    }
+
+    testCN() {
+        const [node, query] = this.fieldSelected(this.ongoingNodes[0], this.dataset.getFieldByName('Production_Budget'));
+        this.run(5);
+    }
+
+    testNN() {
+        this.fieldSelected(this.ongoingNodes[3], this.dataset.getFieldByName('Production_Budget'));
+        this.run(10);
+    }
+
+    testCC() {
+        const [] = this.fieldSelected(this.ongoingNodes[0], this.dataset.getFieldByName('Major_Genre'));
+        this.run(10);
     }
 
     toggleMetadataEditor() {
