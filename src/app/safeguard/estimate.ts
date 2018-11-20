@@ -3,7 +3,7 @@ import { AggregateQuery } from "../data/query";
 import { Variable, VariablePair } from "./variable";
 import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
-import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, DistributionTrait, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
+import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { isNull } from "util";
 
 export type PValue = number; // 0 <= p <= 1
@@ -231,6 +231,7 @@ export class NormalEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, constant: NormalConstant): Quality {
         let data = query.resultData();
         let n = 0;
+        let observed = [], expected = [];
 
         data.forEach(datum => {
             n += datum.ci3.center;

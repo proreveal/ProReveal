@@ -3,8 +3,10 @@ import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstan
 import { ExplorationNode } from "../exploration/exploration-node";
 import { VariableTrait, Variable, VariablePair, DistributiveVariable } from "./variable";
 import { NormalDistribution } from "./normal";
-import { PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
-NormalEstimator, PowerLawEstimator } from "./estimate";
+import {
+    PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
+    NormalEstimator, PowerLawEstimator
+} from "./estimate";
 import { AggregateQuery } from "../data/query";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
@@ -47,7 +49,12 @@ export class PointSafeguard extends Safeguard {
 
     p() {
         if (this.variable.isRank)
-            throw new Error('Cannot estimate the p value for rank');
+            return PointRankEstimate(
+                this.node.query as AggregateQuery,
+                this.variable,
+                this.operator,
+                this.constant as PointRankConstant);
+
 
         return PointValueEstimate(
             this.node.query as AggregateQuery,
@@ -56,15 +63,8 @@ export class PointSafeguard extends Safeguard {
             this.constant as PointValueConstant);
     }
 
-    t() {
-        if (!this.variable.isRank)
-            throw new Error('Variable is not a rank. Use p() instead');
+    t() { // min or max TODO
 
-        return PointRankEstimate(
-            this.node.query as AggregateQuery,
-            this.variable,
-            this.operator,
-            this.constant as PointRankConstant);
     }
 }
 
@@ -115,7 +115,7 @@ export class DistributiveSafeguard extends Safeguard {
     }
 
     q() {
-        if(this.constant instanceof NormalConstant) {
+        if (this.constant instanceof NormalConstant) {
             return NormalEstimate(
                 this.node.query as AggregateQuery,
                 this.constant as NormalConstant);

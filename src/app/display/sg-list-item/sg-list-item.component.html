@@ -5,12 +5,10 @@
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
-    <div *ngIf="sg.type == SGT.Point && !sg.variable.isRank">
+    <div *ngIf="sg.type == SGT.Point">
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>
-    <div *ngIf="sg.type == SGT.Point && sg.variable.isRank">
-        <truthness-indicator [t]="sg.t()"></truthness-indicator>
-    </div>
+    <!-- min or max-->
     <div *ngIf="sg.type == SGT.Range && !sg.variable.isRank">
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>
@@ -18,7 +16,7 @@
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>
     <div *ngIf="sg.type == SGT.Distributive">
-        <quality-indicator [q]="sg.q()"></quality-indicator>
+        <p-indicator [p]="sg.p()"></p-indicator>
     </div>
 
     Created {{ sg.createdAt | amTimeAgo }}
