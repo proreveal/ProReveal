@@ -5,6 +5,7 @@ import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
 import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { isNull } from "util";
+// import * as jerzy from 'jerzy';
 
 export type PValue = number; // 0 <= p <= 1
 export type Quality = number;  // 0 <= quality <= 1
@@ -220,6 +221,17 @@ export class PowerLawEstimator implements EstimatorTrait {
     }
 }
 
+// export function KSSignificance(lambda: number): number {
+//     let res = 0;
+//     let sign = 1;
+//     for(let j = 1; j <= 100;++j) {
+//         res += 2 * sign * Math.exp(-2 * j * j * lambda * lambda);
+//         sign *= -1;
+//     }
+
+//     return res;
+// }
+
 export class NormalEstimator implements EstimatorTrait {
     /**
      *
@@ -234,22 +246,44 @@ export class NormalEstimator implements EstimatorTrait {
         let observed = [], expected = [];
 
         data.forEach(datum => {
+            let range = datum.keys.list[0].value();
+            if (isNull(range)) return; // means a count for an empty value
             n += datum.ci3.center;
         });
 
         let diff = 0;
+        let cd = 0; // cumulative density
+        let prevCd = 0;
         data.forEach((datum, i) => {
-            let p_true = datum.ci3.center / n;
+            let observedP = datum.ci3.center / n;
             let range = datum.keys.list[0].value();
             if (isNull(range)) return; // means a count for an empty value
 
             let [left, right] = range as [number, number];
 
-            let p_estimate = constant.compute(left, right);
+            cd += observedP;
+            let expectedCD = constant.compute(-100, right);
 
-            if (diff < Math.abs(p_true - p_estimate))
-                diff = Math.abs(p_true - p_estimate);
+            if (diff < Math.abs(cd - expectedCD))
+                diff = Math.abs(cd - expectedCD);
+
+            if(diff < Math.abs(prevCd - expectedCD))
+                diff = Math.abs(prevCd - expectedCD);
+            prevCd = cd;
         })
+        // let sqrtN = Math.sqrt(n);
+        // let ks = (sqrtN + 0.12 + 0.11 / sqrtN) * diff;
+
+        // console.log(0, KSSignificance(0));
+        // console.log(0.1, KSSignificance(0.1));
+        // console.log(0.2, KSSignificance(0.2));
+        // console.log(0.3, KSSignificance(0.3));
+        // console.log(0.4, KSSignificance(0.4));
+        // console.log(0.5, KSSignificance(0.5));
+        // console.log(ks, KSSignificance(ks));
+        // var k = new jerzy.Kolmogorov();
+
+// console.log(k, k.distr(ks));
 
         return diff;
     }

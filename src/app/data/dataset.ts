@@ -26,7 +26,7 @@ export class Dataset {
 
             if (vlType === VlType.Quantitative) {
                 field = new QuantitativeField(name, dataType,
-                    d3.min(values), d3.max(values), 40, nullable);
+                    d3.min(values), d3.max(values), 20, nullable);
             }
             else if (vlType === VlType.Nominal) {
                 field = new NominalField(name, dataType, nullable);
