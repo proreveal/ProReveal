@@ -9,9 +9,9 @@ import { isNull } from "util";
 export type PValue = number; // 0 <= p <= 1
 export type Quality = number;  // 0 <= quality <= 1
 export type Error = number; // 0 <= error
-export type Truthness = boolean;
+export type Truthiness = boolean;
 
-export type EstimationResult = PValue | Quality | Error | Truthness;
+export type EstimationResult = PValue | Quality | Error | Truthiness;
 
 const normal = new NormalDistribution();
 
@@ -49,9 +49,9 @@ export class PointValueEstimator implements EstimatorTrait {
         let z = (constant.value - ai.center) / ai.stdev;
         let cp = normal.cdf(z);
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
-            return 1 - cp;
-        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
             return cp;
+        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
+            return 1 - cp;
         else
             throw new Error(`Invalid operator ${operator}`);
     }
@@ -125,15 +125,15 @@ export class RangeValueEstimator implements EstimatorTrait {
 
         let cp = normal.cdf(zRight) - normal.cdf(zLeft);
 
-        if (operator == Operators.InRange) return cp;
-        else if (operator == Operators.NotInRange) return 1 - cp;
+        if (operator == Operators.InRange) return 1 - cp;
+        else if (operator == Operators.NotInRange) return cp;
         else throw new Error(`Invalid operator ${operator}`);
     }
 }
 
 export class RangeRankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: Variable,
-        operator: Operators, constant: RangeRankConstant): Truthness {
+        operator: Operators, constant: RangeRankConstant): Truthiness {
 
         let results: [string, ApproximatedInterval][] = Object.keys(query.result).map((hash) => {
             let result = query.result[hash];
@@ -183,9 +183,9 @@ export class ComparativeEstimator implements EstimatorTrait {
         let cp = estimateTwoConfidenceIntervals(ai1, ai2, n, N);
 
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
-            return cp;
-        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
             return 1 - cp;
+        else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
+            return cp;
         else
             throw new Error(`Invalid operator ${operator}`);
     }

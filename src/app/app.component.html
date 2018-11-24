@@ -120,39 +120,40 @@
 
             <sg-list-item *ngFor="let sg of safeguards" [safeguard]="sg"></sg-list-item>
         </section>
-    </section>
-
-    <section id="safeguard-config-view">
         <ul class="tab-list">
             <li>
                 <h4 class="section-header p-2 border" (click)="toggle(SGT.Point)">
-                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
+                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
                     <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Point"></fa-icon>
                     Point <small>V(A) &lt; 5</small>
                 </h4>
             </li>
             <li>
                 <h4 class="section-header p-2 border" (click)="toggle(SGT.Range)">
-                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Range"></fa-icon>
+                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Range"></fa-icon>
                     <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Range"></fa-icon>
                     Range <small>V(A) ∈ [5, 10]</small>
                 </h4>
             </li>
             <li>
                 <h4 class="section-header p-2 border" (click)="toggle(SGT.Comparative)">
-                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Comparative"></fa-icon>
+                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Comparative"></fa-icon>
                     <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Comparative"></fa-icon>
                     Comparative <small>V(A) &lt; V(B)</small>
                 </h4>
             </li>
             <li>
                 <h4 class="section-header p-2 border" (click)="toggle(SGT.Distributive)">
-                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
+                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
                     <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
                     Distributive <small>V(·) ~ N(5, 2)</small>
                 </h4>
             </li>
         </ul>
+    </section>
+
+    <section id="safeguard-config-view">
+
 
         <!-- Point -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Point">

@@ -167,7 +167,6 @@ progress-ring {
 
 #safeguard-list {
     overflow-y: scroll;
-    height: 100%;
 }
 
 h4 small {
@@ -186,24 +185,19 @@ h4 fa-icon {
     grid-column: 2;
 }
 
-#safeguard-config-view h4 {
+.tab-list  h4 {
     font-size: 1rem;
     cursor: pointer;
     padding-left: 0.3rem;
 }
 
-#safeguard-config-view h4:hover {
+.tab-list h4:hover {
     background: darken($ui-background-color, 5%);
 }
 
 .tab-list {
     margin: 0;
     padding: 0;
-
-    li {
-        display:inline-block;
-        width:200px;
-    }
 }
 
 .display {

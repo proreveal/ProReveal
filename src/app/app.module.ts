@@ -35,7 +35,7 @@ import { SgComparativeComponent } from './display/sg-comparative.component';
 import { SgDistributiveComponent } from './display/sg-distributive.component';
 import { SgRangeComponent } from './display/sg-range.component';
 import { SgDisplayComponent } from './display/sg-display.component';
-import { TruthnessIndicatorComponent } from './display/truthness-indicator/truthness-indicator.component';
+import { TruthinessIndicatorComponent } from './display/truthiness-indicator/truthiness-indicator.component';
 
 import { MomentModule } from 'ngx-moment';
 import { SgListItemComponent } from './display/sg-list-item/sg-list-item.component';
@@ -66,7 +66,7 @@ library.add(fas, far);
         SgDistributiveComponent,
         SgRangeComponent,
         SgDisplayComponent,
-        TruthnessIndicatorComponent,
+        TruthinessIndicatorComponent,
         SgListItemComponent,
         QualityIndicatorComponent,
         ErrorIndicatorComponent
