@@ -5,15 +5,14 @@ import * as util from '../../util';
 import { AggregateQuery, Datum, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
-import { FieldGroupedValueList, FieldGroupedValue, QuantitativeField } from '../../data/field';
-import { ConfidenceInterval } from '../../data/approx';
+import { FieldGroupedValue, QuantitativeField } from '../../data/field';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
 import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { VariableTypes as VT, VariablePair } from '../../safeguard/variable';
+import { VariableTypes as VT, VariablePair, CombinedVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 
 export class PunchcardRenderer implements Renderer {
@@ -243,8 +242,8 @@ export class PunchcardRenderer implements Renderer {
             })
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
-            .on('click', (d, i) => this.datumSelected(d))
-            .on('contextmenu', (d, i) => this.datumSelected2(d))
+            .on('click', (d) => this.datumSelected(d))
+            .on('contextmenu', (d) => this.datumSelected2(d))
 
         eventRects.exit().remove();
 
@@ -494,7 +493,7 @@ export class PunchcardRenderer implements Renderer {
     datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        let variable = new VariablePair(d.keys.list[0], d.keys.list[1]);
+        let variable = new CombinedVariable(d.keys.list[0], d.keys.list[1]);
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
@@ -512,7 +511,7 @@ export class PunchcardRenderer implements Renderer {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 
-        let variable = new VariablePair(d.keys.list[0], d.keys.list[1]);
+        let variable = new CombinedVariable(d.keys.list[0], d.keys.list[1]);
 
         if (this.variable1 && variable.hash === this.variable1.hash)
             return;

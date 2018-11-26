@@ -29,12 +29,45 @@ export class Variable extends VariableTrait {
     }
 }
 
-export class VariablePair extends VariableTrait { // (a=1, b=2)
+export class VariablePair extends VariableTrait { // (a = 1) < (a = 2)
+    isRank = false;
+    isCombined = false;
+
+    static FromVariables(first: Variable, second: Variable) {
+        return new VariablePair(first, second);
+    }
+
+    constructor(public first: Variable, public second: Variable) {
+        super();
+    }
+
+    fieldString1() {
+        return this.first.fieldGroupedValue.field.name;
+    }
+
+    valueString1() {
+        return this.first.fieldGroupedValue.field.name;
+    }
+
+    fieldString2() {
+        return this.first.fieldGroupedValue.valueString();
+    }
+
+    valueString2() {
+        return this.first.fieldGroupedValue.valueString();
+    }
+
+    get hash() {
+        return `${this.first.fieldGroupedValue.hash}${HashSeparator}${this.second.fieldGroupedValue.hash}`;
+    }
+}
+
+export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
     isRank = false;
     isCombined = true;
 
     static FromVariables(first: Variable, second: Variable) {
-        return new VariablePair(first.fieldGroupedValue, second.fieldGroupedValue);
+        return new CombinedVariable(first.fieldGroupedValue, second.fieldGroupedValue);
     }
 
     constructor(public fieldGroupedValue1: FieldGroupedValue, public fieldGroupedValue2: FieldGroupedValue) {

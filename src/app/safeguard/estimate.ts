@@ -159,8 +159,8 @@ export class ComparativeEstimator implements EstimatorTrait {
         const n = query.progress.processedRows;
         const N = query.progress.totalRows;
 
-        let result1 = query.result[variable.fieldGroupedValue1.hash].value;
-        let result2 = query.result[variable.fieldGroupedValue2.hash].value;
+        let result1 = query.result[variable.first.fieldGroupedValue.hash].value;
+        let result2 = query.result[variable.second.fieldGroupedValue.hash].value;
 
         let ai1 = query.approximator.approximate(
             result1,
