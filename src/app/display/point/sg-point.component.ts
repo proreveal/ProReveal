@@ -1,14 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Constants } from '../constants';
-import { toNumber } from '../util';
-import { ConstantTrait } from '../safeguard/constant';
+import { Constants } from '../../constants';
+import { ConstantTrait } from '../../safeguard/constant';
+import { toNumber } from '../../util';
 
 @Component({
-  selector: 'sg-range',
-  templateUrl: './sg-range.component.html',
-  styleUrls: ['./sg-style.scss']
+    selector: 'sg-point',
+    templateUrl: './sg-point.component.html',
+    styleUrls: ['../sg-style.scss']
 })
-export class SgRangeComponent implements OnInit {
+export class SgPointComponent implements OnInit {
+
     @Input('variable') variable;
     @Input('isRank') isRank;
     @Input('highlighted') highlighted;
@@ -20,12 +21,10 @@ export class SgRangeComponent implements OnInit {
     @Output('highlight') highlight = new EventEmitter<number>();
     @Output('constantUserChanged') constantUserChanged = new EventEmitter<ConstantTrait>();
 
-
     CT = Constants;
     toNumber = toNumber;
 
-    editing1 = false;
-    editing2 = false;
+    editing = false;
 
     constructor() { }
 

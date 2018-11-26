@@ -76,6 +76,7 @@ export class VisComponent implements OnInit, DoCheck {
                 this.renderer.setup(this.node, this.svg.nativeElement);
             }
 
+            console.info('render() called for ', this.renderer);
             this.lastNode = this.node;
             this.renderer.render(this.node, this.svg.nativeElement);
         }

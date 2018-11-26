@@ -155,11 +155,11 @@ export class AppComponent implements OnInit {
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
 
-            this.testN();
+            this.testC();
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Distributive);
+                this.toggle(SGT.Point);
                 // this.useRank = true;
                 // this.useRankToggled();
             })

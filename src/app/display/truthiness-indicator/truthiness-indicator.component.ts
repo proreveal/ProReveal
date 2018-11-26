@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Truthiness } from '../../safeguard/estimate';
+import { Truthiness } from '../../safeguard/validity';
 
 @Component({
     selector: 'truthiness-indicator',

@@ -30,10 +30,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { PIndicatorComponent } from './display/p-indicator/p-indicator.component';
 import { VariableIndicatorComponent } from './display/variable-indicator.component';
-import { SgPointComponent } from './display/sg-point.component';
-import { SgComparativeComponent } from './display/sg-comparative.component';
-import { SgDistributiveComponent } from './display/sg-distributive.component';
-import { SgRangeComponent } from './display/sg-range.component';
+import { SgPointComponent } from './display/point/sg-point.component';
+import { SgComparativeComponent } from './display/comparative/sg-comparative.component';
+import { SgDistributiveComponent } from './display/distributive/sg-distributive.component';
+import { SgRangeComponent } from './display/range/sg-range.component';
 import { SgDisplayComponent } from './display/sg-display.component';
 import { TruthinessIndicatorComponent } from './display/truthiness-indicator/truthiness-indicator.component';
 
@@ -41,6 +41,7 @@ import { MomentModule } from 'ngx-moment';
 import { SgListItemComponent } from './display/sg-list-item/sg-list-item.component';
 import { QualityIndicatorComponent } from './display/quality-indicator/quality-indicator.component';
 import { ErrorIndicatorComponent } from './display/error-indicator/error-indicator.component';
+import { SgHistoryComponent } from './display/history/sg-history.component';
 
 library.add(fas, far);
 
@@ -69,7 +70,8 @@ library.add(fas, far);
         TruthinessIndicatorComponent,
         SgListItemComponent,
         QualityIndicatorComponent,
-        ErrorIndicatorComponent
+        ErrorIndicatorComponent,
+        SgHistoryComponent
     ],
     imports: [
         NgbModule.forRoot(),

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Quality } from '../../safeguard/estimate';
+import { Quality } from '../../safeguard/validity';
 
 @Component({
     selector: 'quality-indicator',

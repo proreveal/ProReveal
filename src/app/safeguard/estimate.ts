@@ -5,14 +5,7 @@ import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
 import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { isNull } from "util";
-// import * as jerzy from 'jerzy';
-
-export type PValue = number; // 0 <= p <= 1
-export type Quality = number;  // 0 <= quality <= 1
-export type Error = number; // 0 <= error
-export type Truthiness = boolean;
-
-export type EstimationResult = PValue | Quality | Error | Truthiness;
+import { Validity, PValue, Truthiness, Quality, Error } from "./validity";
 
 const normal = new NormalDistribution();
 
@@ -35,7 +28,7 @@ export function estimateTwoConfidenceIntervals(ai1: ApproximatedInterval, ai2: A
 }
 
 export interface EstimatorTrait {
-    estimate(...args: any[]): EstimationResult;
+    estimate(...args: any[]): Validity;
 }
 
 export class PointValueEstimator implements EstimatorTrait {

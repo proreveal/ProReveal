@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { PValue } from '../../safeguard/estimate';
+import { PValue } from '../../safeguard/validity';
 
 @Component({
   selector: 'p-indicator',

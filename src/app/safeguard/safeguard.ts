@@ -37,9 +37,14 @@ export class Safeguard {
     ) {
         this.createdAt = new Date();
     }
+
+    validity() {
+        throw new Error('validity() must be implemented');
+    }
 }
 
 export class PointSafeguard extends Safeguard {
+    ret
     constructor(public variable: Variable,
         public operator: Operators,
         public constant: ConstantTrait,
@@ -47,7 +52,7 @@ export class PointSafeguard extends Safeguard {
         super(SafeguardTypes.Point, variable, operator, constant, node);
     }
 
-    p() {
+    p() { // min or max TODO
         if (this.variable.isRank)
             return PointRankEstimate(
                 this.node.query as AggregateQuery,
@@ -63,8 +68,8 @@ export class PointSafeguard extends Safeguard {
             this.constant as PointValueConstant);
     }
 
-    t() { // min or max TODO
-
+    validity() {
+        return this.p();
     }
 }
 
@@ -85,6 +90,10 @@ export class RangeSafeguard extends Safeguard {
             this.operator,
             this.constant as RangeValueConstant);
     }
+
+    validity(){
+        return this.p;
+    }
 }
 
 export class ComparativeSafeguard extends Safeguard {
@@ -102,6 +111,10 @@ export class ComparativeSafeguard extends Safeguard {
             this.node.query as AggregateQuery,
             this.variable,
             this.operator);
+    }
+
+    validity() {
+        return this.p();
     }
 }
 
@@ -125,5 +138,9 @@ export class DistributiveSafeguard extends Safeguard {
             this.node.query as AggregateQuery,
             this.constant as PowerLawConstant
         );
+    }
+
+    validity() {
+        return this.q();
     }
 }

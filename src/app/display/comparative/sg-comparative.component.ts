@@ -1,10 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Constants } from '../constants';
+import { Constants } from '../../constants';
 
 @Component({
-  selector: 'sg-comparative',
-  templateUrl: './sg-comparative.component.html',
-  styleUrls: ['./sg-style.scss']
+    selector: 'sg-comparative',
+    templateUrl: './sg-comparative.component.html',
+    styleUrls: ['../sg-style.scss']
 })
 export class SgComparativeComponent implements OnInit {
 
