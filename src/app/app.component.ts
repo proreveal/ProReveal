@@ -15,13 +15,14 @@ import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, Compa
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariablePair, Variable, VariableTypes } from './safeguard/variable';
+import { VariablePair, Variable, VariableTypes, CombinedVariable, VariableTrait } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
 import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator } from './safeguard/estimate';
+import { PunchcardRenderer } from './vis/renderers/punchcard';
 
 @Component({
     selector: 'app-root',
@@ -158,6 +159,7 @@ export class AppComponent implements OnInit {
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
 
+            // this.testC();
             this.testNN();
 
             of(0).pipe(
@@ -326,6 +328,7 @@ export class AppComponent implements OnInit {
     variable1: Variable;
     variable2: Variable;
     variablePair: VariablePair;
+    combinedVariable: CombinedVariable;
     useRank = false;
     useNormal = true;
 
@@ -340,11 +343,19 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
-    variableSelected($event: { variable: Variable, secondary?: boolean }) {
-        if ($event.secondary)
-            this.variable2 = $event.variable;
-        else
-            this.variable1 = $event.variable;
+    variableSelected($event: { variable: VariableTrait, secondary?: boolean }) {
+        let variable = $event.variable;
+
+        if (variable instanceof Variable) {
+            if ($event.secondary)
+                this.variable2 = variable;
+            else
+                this.variable1 = variable;
+        }
+        else if (variable instanceof CombinedVariable) {
+            if ($event.secondary) { }
+            else this.combinedVariable = variable;
+        }
 
         if (this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
             let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
@@ -360,8 +371,14 @@ export class AppComponent implements OnInit {
 
     constantSelected(constant: ConstantTrait) {
         if (constant instanceof PointValueConstant) {
-            let value = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
+            let value;
             this.pointValueConstant = constant;
+
+            if (this.vis.renderer instanceof HorizontalBarsRenderer)
+                value = this.vis.renderer.getDatum(this.variable1)
+            else if(this.vis.renderer instanceof PunchcardRenderer)
+                value = this.vis.renderer.getDatum(this.combinedVariable);
+
             if (constant.value >= value.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
             else

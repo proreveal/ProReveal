@@ -78,11 +78,11 @@ export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
         return this.fieldGroupedValue1.field.name;
     }
 
-    valueString1() {
+    fieldString2() {
         return this.fieldGroupedValue2.field.name;
     }
 
-    fieldString2() {
+    valueString1() {
         return this.fieldGroupedValue1.valueString();
     }
 

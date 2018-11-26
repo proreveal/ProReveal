@@ -12,7 +12,7 @@ import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
 import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { VariableTypes as VT, VariablePair, CombinedVariable } from '../../safeguard/variable';
+import { VariableTypes as VT, CombinedVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 
 export class PunchcardRenderer implements Renderer {
@@ -21,8 +21,8 @@ export class PunchcardRenderer implements Renderer {
     }
 
     data: Datum[];
-    variable1: VariablePair;
-    variable2: VariablePair;
+    variable1: CombinedVariable;
+    variable2: CombinedVariable;
     node: ExplorationNode;
     nativeSvg: SVGSVGElement;
     swatchXScale: d3.ScaleLinear<number, number>;
@@ -479,11 +479,11 @@ export class PunchcardRenderer implements Renderer {
         // ADD CODE FOR SGS
     }
 
-    getDatum(variable: VariablePair): Datum {
+    getDatum(variable: CombinedVariable): Datum {
         return this.data.find(d => d.id === variable.hash);
     }
 
-    getRank(variable: VariablePair): number {
+    getRank(variable: CombinedVariable): number {
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i].id == variable.hash) return i + 1;
         }
@@ -494,6 +494,7 @@ export class PunchcardRenderer implements Renderer {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
         let variable = new CombinedVariable(d.keys.list[0], d.keys.list[1]);
+
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
