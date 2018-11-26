@@ -3,6 +3,7 @@ import { Safeguard } from '../../safeguard/safeguard';
 import * as d3 from 'd3';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { VisConstants as VC } from '../../vis/vis-constants';
+import { ValidityTypes } from '../../safeguard/validity';
 
 @Component({
     selector: 'sg-history',
@@ -47,15 +48,22 @@ export class SgHistoryComponent implements OnInit, DoCheck {
         let n = data.length;
 
         let xScale = d3.scalePoint()
-            .domain(d3.range(n).map(d => d+''))
+            .domain(d3.range(n).map(d => d + ''))
             .rangeRound([0, width])
 
-        let yScale = d3.scaleLinear().domain([0, 1]).range([height, 0]);
+        let yLabel = this.sg.validityType.toString();
+        let yScale = d3.scaleLinear().range([height, 0]);
+
+        if(this.sg.validityType == ValidityTypes.Error)
+            yScale.domain([0, d3.max(data, d => d[0])])
+        else
+            yScale.domain([0, 1])
 
         let line = d3.line()
-            .x(d => xScale(d[1]+''))
+            .x(d => xScale(d[1] + ''))
             .y(d => yScale(d[0]))
         //.curve(d3.curveMonotoneX) // apply smoothing to the line
+
 
         selectOrAppend(g, 'g', '.x.axis')
             .attr('transform', translate(0, height))
@@ -75,5 +83,20 @@ export class SgHistoryComponent implements OnInit, DoCheck {
             .style('stroke', 'steelblue')
             .style('stroke-width', 2)
 
+        selectOrAppend(g, 'text', '.x.label')
+            .text('Iteration')
+            .attr('text-anchor', 'end')
+            .attr('transform', translate(width, height - 3))
+            .style('opacity', .5)
+            .style('font-size', '.7rem')
+            .style('font-style', 'italic')
+
+        selectOrAppend(g, 'text', '.y.label')
+            .text(yLabel)
+            .attr('text-anchor', 'start')
+            .attr('transform', translate(3, 10))
+            .style('opacity', .5)
+            .style('font-size', '.7rem')
+            .style('font-style', 'italic')
     }
 }

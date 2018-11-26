@@ -6,8 +6,8 @@ export type Truthiness = boolean;
 export type Validity = PValue | Quality | Error | Truthiness;
 
 export enum ValidityTypes {
-    PValue,
-    Quality,
-    Error,
-    Truthiness
+    PValue = 'p Value',
+    Quality = 'Quality',
+    Error = 'Error',
+    Truthiness = 'Truthiness'
 };
