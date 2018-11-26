@@ -2,10 +2,10 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { VisConstants as VC } from '../vis-constants';
 import * as util from '../../util';
-import { AggregateQuery, Datum } from '../../data/query';
+import { AggregateQuery, Datum, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
-import { FieldGroupedValueList, FieldGroupedValue } from '../../data/field';
+import { FieldGroupedValueList, FieldGroupedValue, QuantitativeField } from '../../data/field';
 import { ConfidenceInterval } from '../../data/approx';
 import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
@@ -57,7 +57,6 @@ export class PunchcardRenderer implements Renderer {
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         let query = node.query as AggregateQuery;
-        let processedPercent = query.progress.processedPercent();
         let visG = d3.select(nativeSvg).select('g.vis');
 
         let data = query.resultData();
@@ -65,6 +64,7 @@ export class PunchcardRenderer implements Renderer {
 
         let yKeys = {}, xKeys = {};
         let yKeyIndex = 0, xKeyIndex = 1;
+
         data.forEach(row => {
             yKeys[row.keys.list[0].hash] = row.keys.list[0];
             xKeys[row.keys.list[1].hash] = row.keys.list[1];
@@ -76,29 +76,43 @@ export class PunchcardRenderer implements Renderer {
         let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 1 ? xKeys : yKeys);
         let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 0 ? yKeys : xKeys);
 
-        let weight = {}, count = {};
-        data.forEach(row => {
-            function accumulate(dict, key, value) {
-                if (!dict[key]) dict[key] = 0;
-                dict[key] += value;
+        if (this.node.query instanceof Histogram2DQuery) {
+            let sortFunc = (a: FieldGroupedValue, b: FieldGroupedValue) => {
+                let av = a.value(), bv = b.value();
+                let ap = av ? av[0] as number : (a.field as QuantitativeField).max;
+                let bp = bv ? bv[0] as number: (b.field as QuantitativeField).max;
+
+                return ap - bp;
             }
+            xValues.sort(sortFunc)
+            yValues.sort(sortFunc);
+        }
+        else {
+            let weight = {}, count = {};
+            data.forEach(row => {
+                function accumulate(dict, key, value) {
+                    if (!dict[key]) dict[key] = 0;
+                    dict[key] += value;
+                }
 
-            accumulate(weight, row.keys.list[0].hash, row.ci3.center);
-            accumulate(weight, row.keys.list[1].hash, row.ci3.center);
-            accumulate(count, row.keys.list[0].hash, 1);
-            accumulate(count, row.keys.list[1].hash, 1);
-        })
+                accumulate(weight, row.keys.list[0].hash, row.ci3.center);
+                accumulate(weight, row.keys.list[1].hash, row.ci3.center);
+                accumulate(count, row.keys.list[0].hash, 1);
+                accumulate(count, row.keys.list[1].hash, 1);
+            })
 
-        for (let key in weight) { weight[key] /= count[key]; }
+            for (let key in weight) { weight[key] /= count[key]; }
 
-        xValues.sort((a, b) => weight[b.hash] - weight[a.hash]);
-        yValues.sort((a, b) => weight[b.hash] - weight[a.hash]);
+            xValues.sort((a, b) => weight[b.hash] - weight[a.hash]);
+            yValues.sort((a, b) => weight[b.hash] - weight[a.hash]);
+        }
 
         let [, yLongest,] = util.amax(yValues, d => d.valueString().length);
         const yLabelWidth = yLongest ? measure(yLongest.valueString()).width : 0;
 
         let [, xLongest,] = util.amax(xValues, d => d.valueString().length);
         const xLabelWidth = xLongest ? measure(xLongest.valueString()).width : 0;
+
         const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth)
         const height = VC.punchcard.rowHeight * yValues.length + header;
 
@@ -195,7 +209,6 @@ export class PunchcardRenderer implements Renderer {
         if (node.maxUncertainty < maxUncertainty) node.maxUncertainty = maxUncertainty;
 
         maxUncertainty = node.maxUncertainty;
-
 
         let quant = vsup.quantization().branching(2).layers(4)
             .valueDomain([domainStart, domainEnd])
@@ -328,7 +341,7 @@ export class PunchcardRenderer implements Renderer {
             this.flexBrush.render([[matrixWidth, VC.punchcard.legendSize * 1.5],
             [matrixWidth + VC.punchcard.legendSize, VC.punchcard.legendSize * 1.5 + VC.punchcard.swatchHeight]]);
         }
-        else if(false) {
+        else if (false) {
             // we can't do about ranking
             // let start = VC.horizontalBars.axis.height;
             // let step = VC.horizontalBars.height;
@@ -485,7 +498,7 @@ export class PunchcardRenderer implements Renderer {
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
-        if(this.safeguardType === SGT.Range) {
+        if (this.safeguardType === SGT.Range) {
             this.flexBrush.center = this.swatchXScale.invert(d.ci3.center);
         }
 

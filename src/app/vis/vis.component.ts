@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChang
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
-import { AggregateQuery } from '../data/query';
+import { AggregateQuery, Histogram2DQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
@@ -45,13 +45,13 @@ export class VisComponent implements OnInit, DoCheck {
     constructor() { }
 
     recommend(query: AggregateQuery): Renderer {
-        if (query.groupBy.fields.length === 1)
+        if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
             return new HorizontalBarsRenderer(
                 this,
                 this.tooltip
             );
 
-        if (query.groupBy.fields.length === 2)
+        if (query.groupBy.fields.length === 2 || query instanceof Histogram2DQuery)
             return new PunchcardRenderer(
                 this,
                 this.tooltip

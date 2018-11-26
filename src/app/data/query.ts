@@ -234,6 +234,13 @@ export class Histogram1DQuery extends AggregateQuery {
     }
 
     combine(field: FieldTrait) {
+        if (field.vlType === VlType.Quantitative)
+            return new Histogram2DQuery(
+                this.grouping,
+                field,
+                this.dataset,
+                this.sampler);
+
         return new AggregateQuery(
             new AllAccumulator(),
             new MeanApproximator(),
@@ -241,6 +248,37 @@ export class Histogram1DQuery extends AggregateQuery {
             this.dataset,
             new GroupBy([field]),
             this.sampler);
+    }
+}
+
+/**
+ * one quantitative
+ */
+export class Histogram2DQuery extends AggregateQuery {
+    name = "Histogram2DQuery";
+    ordering = NumericalOrdering;
+    orderingDirection = OrderingDirection.Ascending;
+    orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
+
+    constructor(
+        public grouping1: FieldTrait,
+        public grouping2: FieldTrait,
+        public dataset: Dataset,
+        public sampler: Sampler = new UniformRandomSampler(100)) {
+        super(
+            new CountAccumulator(),
+            new CountApproximator(),
+            null,
+            dataset,
+            new GroupBy([grouping1, grouping2]),
+            sampler);
+
+        assert(grouping1.vlType, VlType.Quantitative);
+        assert(grouping2.vlType, VlType.Quantitative);
+    }
+
+    combine(field: FieldTrait): AggregateQuery {
+        throw new Error(`${this.name} cannot be combined`);
     }
 }
 

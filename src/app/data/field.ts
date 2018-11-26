@@ -31,10 +31,10 @@ export class QuantitativeField implements FieldTrait {
     private grouper: NumericalGrouper;
 
     constructor(public name: string, public dataType: DataType,
-        public min: number, public max: number, public numBins: number = 40,
+        public initialMin: number, public initialMax: number, public numBins: number = 40,
         public nullable: boolean = false) {
 
-        this.grouper = new NumericalGrouper(min, max, numBins);
+        this.grouper = new NumericalGrouper(initialMin, initialMax, numBins);
     }
 
     group(value: any) {
@@ -48,6 +48,9 @@ export class QuantitativeField implements FieldTrait {
     ungroupString(id: GroupIdType, format?: string) {
         return this.grouper.ungroupString(id, format);
     }
+
+    get max() { return this.grouper.max; }
+    get min() { return this.grouper.min; }
 }
 
 export class CategoricalField implements FieldTrait {

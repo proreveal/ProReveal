@@ -68,7 +68,6 @@ export class HorizontalBarsRenderer implements Renderer {
     render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         let svg = d3.select(nativeSvg);
         let query = node.query as AggregateQuery;
-        let processedPercent = query.progress.processedPercent();
         let done = query.progress.done();
         let visG = svg.select('g.vis');
         let data = query.resultData();
