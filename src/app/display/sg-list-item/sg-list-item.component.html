@@ -5,6 +5,7 @@
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
+    <sg-history [sg]="sg"></sg-history>
     <div *ngIf="sg.type == SGT.Point">
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>

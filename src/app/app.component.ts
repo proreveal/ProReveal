@@ -48,6 +48,9 @@ export class AppComponent implements OnInit {
     highlightedNodes: ExplorationNode[] = [];
     searchKeyword: string;
 
+    activeSafeguardPanel = SGT.None;
+    private safeguards: Safeguard[] = [];
+
     SGT = SGT;
     NodeState = NodeState;
     VC = VisConstants;
@@ -164,6 +167,8 @@ export class AppComponent implements OnInit {
                 // this.useRankToggled();
             })
         })
+
+        this.engine.queryDone = this.queryDone.bind(this);
     }
 
     testC() {
@@ -211,6 +216,16 @@ export class AppComponent implements OnInit {
             this.engine.run();
 
         this.updateNodeLists();
+    }
+
+    queryDone() {
+        this.safeguards.forEach(sg => {
+            if (sg.lastUpdated < sg.node.query.lastUpdated) {
+                sg.lastUpdated = sg.node.query.lastUpdated;
+
+                sg.history.push(sg.validity());
+            }
+        })
     }
 
     // previousNodeView: ExplorationNodeViewComponent;
@@ -306,9 +321,6 @@ export class AppComponent implements OnInit {
             }, () => {
             });
     }
-
-    activeSafeguardPanel = SGT.None;
-    safeguards: Safeguard[] = [];
 
     variable1: Variable;
     variable2: Variable;

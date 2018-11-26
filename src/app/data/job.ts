@@ -4,6 +4,7 @@ import { AccumulatorTrait } from './accum';
 import { Dataset } from './dataset';
 import { GroupBy } from './groupby';
 import { PartialKeyValue } from './keyvalue';
+import * as d3 from 'd3';
 
 export abstract class Job {
     static Id = 1;
@@ -49,7 +50,7 @@ export class AggregateJob extends Job {
                     (this.target ? row[this.target.name] : 0));
         })
 
-        return Object.values(result);
+        return d3.values(result);
     }
 
     name() {

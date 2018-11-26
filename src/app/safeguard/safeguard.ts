@@ -8,6 +8,7 @@ import {
     NormalEstimator, PowerLawEstimator
 } from "./estimate";
 import { AggregateQuery } from "../data/query";
+import { ValidityTypes, Validity } from "./validity";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
 const PointRankEstimate = new PointRankEstimator().estimate;
@@ -27,6 +28,9 @@ export enum SafeguardTypes {
 export class Safeguard {
     static normal = new NormalDistribution();
     createdAt: Date;
+    validityType: ValidityTypes;
+    history: Validity[] = [];
+    lastUpdated: number;
 
     constructor(
         public type: SafeguardTypes,
@@ -36,15 +40,17 @@ export class Safeguard {
         public node: ExplorationNode
     ) {
         this.createdAt = new Date();
+        this.lastUpdated = +new Date();
     }
 
-    validity() {
+    validity(): Validity {
         throw new Error('validity() must be implemented');
     }
 }
 
 export class PointSafeguard extends Safeguard {
-    ret
+    readonly validityType = ValidityTypes.PValue;
+
     constructor(public variable: Variable,
         public operator: Operators,
         public constant: ConstantTrait,
@@ -74,6 +80,8 @@ export class PointSafeguard extends Safeguard {
 }
 
 export class RangeSafeguard extends Safeguard {
+    readonly validityType = ValidityTypes.PValue;
+
     constructor(public variable: Variable,
         public constant: ConstantTrait,
         public node: ExplorationNode) {
@@ -91,12 +99,14 @@ export class RangeSafeguard extends Safeguard {
             this.constant as RangeValueConstant);
     }
 
-    validity(){
-        return this.p;
+    validity() {
+        return this.p();
     }
 }
 
 export class ComparativeSafeguard extends Safeguard {
+    readonly validityType = ValidityTypes.PValue;
+
     constructor(public variable: VariablePair,
         public operator: Operators,
         public node: ExplorationNode) {
@@ -119,6 +129,8 @@ export class ComparativeSafeguard extends Safeguard {
 }
 
 export class DistributiveSafeguard extends Safeguard {
+    readonly validityType = ValidityTypes.Quality;
+
     constructor(public constant: ConstantTrait,
         public node: ExplorationNode) {
         super(SafeguardTypes.Distributive,

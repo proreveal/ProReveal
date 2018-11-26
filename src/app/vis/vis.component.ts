@@ -7,7 +7,6 @@ import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
-import { ToastrService } from 'ngx-toastr';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
 import { ApproximatorTrait, MinApproximator, MaxApproximator, MeanApproximator, SumApproximator } from '../data/approx';
@@ -33,7 +32,7 @@ export class VisComponent implements OnInit, DoCheck {
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
-    queryLastUpdated: number;
+    lastUpdated: number = 0;
     lastNode: ExplorationNode;
     renderer: Renderer;
     approximators: ApproximatorTrait[] = [
@@ -43,8 +42,7 @@ export class VisComponent implements OnInit, DoCheck {
         new MinApproximator()
     ];
 
-    constructor(private toastr: ToastrService
-    ) { }
+    constructor() { }
 
     recommend(query: AggregateQuery): Renderer {
         if (query.groupBy.fields.length === 1)
@@ -67,8 +65,8 @@ export class VisComponent implements OnInit, DoCheck {
 
     ngDoCheck() {
         if (this.node && this.svg &&
-            (this.queryLastUpdated < this.node.query.lastUpdated || this.lastNode != this.node)) {
-            this.queryLastUpdated = this.node.query.lastUpdated;
+            (this.lastUpdated < this.node.query.lastUpdated || this.lastNode != this.node)) {
+            this.lastUpdated = this.node.query.lastUpdated;
 
             if (this.lastNode !== this.node) {
                 this.renderer = this.recommend(this.node.query as AggregateQuery);

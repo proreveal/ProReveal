@@ -18,6 +18,7 @@ export class Engine {
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
+    queryDone: () => void;
 
     constructor(private uri: string) {
 
@@ -74,7 +75,7 @@ export class Engine {
 
         job.query.accumulate(job, partialKeyValues);
 
-        if(job.query instanceof AggregateQuery && job.query.updateAutomatically) {
+        if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
             job.query.sync();
         }
 
@@ -82,6 +83,9 @@ export class Engine {
             this.ongoingQueries.splice(0, 1);
             this.completedQueries.push(job.query);
         }
+
+        if(this.queryDone)
+            this.queryDone();
     }
 
     empty() {
