@@ -165,7 +165,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Point);
+                this.toggle(SGT.Range);
                 // this.useRank = true;
                 // this.useRankToggled();
             })

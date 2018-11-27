@@ -492,16 +492,15 @@ export class PunchcardRenderer implements Renderer {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
         let variable = new CombinedVariable(d.keys.list[0], d.keys.list[1]);
-
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
-        if (this.safeguardType === SGT.Range) {
-            this.flexBrush.center = this.swatchXScale(d.ci3.center);
-        }
-
-        this.updateHighlight();
         this.updateSwatch();
+
+        if (this.safeguardType === SGT.Range) {
+            this.flexBrush.setCenter(this.swatchXScale(d.ci3.center));
+        }
+        this.updateHighlight();
 
         this.vis.variableSelected.emit({ variable: variable });
         this.setDefaultConstantFromVariable(true);
@@ -528,31 +527,19 @@ export class PunchcardRenderer implements Renderer {
         if (removeCurrentConstant) this.constant = null;
         if (this.constant) return;
         if (this.variable1) {
-            if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
+            if (this.safeguardType === SGT.Point) {
                 let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
-            /*else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                let constant = new PointRankConstant(this.getRank(this.variable1));
-
-                this.vis.constantSelected.emit(constant);
-                this.constantUserChanged(constant);
-            }*/
-            else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
+            else if (this.safeguardType === SGT.Range) {
                 let range = this.getDatum(this.variable1).ci3;
                 let constant = new RangeValueConstant(range.low, range.high);
 
+                if(range.low < 0) constant = new RangeValueConstant(0, range.high + range.low);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
-            /*else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-                let rank = this.getRank(this.variable1);
-                let constant = new RangeRankConstant(rank - 1, rank);
-
-                this.vis.constantSelected.emit(constant);
-                this.constantUserChanged(constant);
-            }*/
         }
         else if (this.safeguardType === SGT.Distributive) {
             let constant;
@@ -618,7 +605,7 @@ export class PunchcardRenderer implements Renderer {
 
         swatch.style('display', 'none');
         if (!this.variable1) return;
-        if (this.safeguardType !== SGT.Point && this.safeguardType === SGT.Range) return;
+        if (this.safeguardType !== SGT.Point && this.safeguardType !== SGT.Range) return;
         swatch.style('display', 'inline');
 
         let swatchXScale = d3.scaleLinear<number>().domain([

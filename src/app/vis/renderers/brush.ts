@@ -149,15 +149,12 @@ export class FlexBrush<Datum> {
         this.g1.select('rect.selection').style('stroke-width', 0);
         this.g2.select('rect.selection').style('stroke-width', 0);
 
-        this.handleG
-            .attr('transform', (d, i) => {
-                if(this.direction === FlexBrushDirection.X) {
-                    return translate(0, this.extent[0][1] - 40);
-                }
-                else if(this.direction === FlexBrushDirection.Y) {
-                    return translate(this.extent[0][0] - 20, 0);
-                }
-            })
+        let translation = this.direction === FlexBrushDirection.X ?
+            translate(0, this.extent[0][1] - 40) : translate(this.extent[0][0] - 20, 0);
+
+        this.handleG.attr('transform', translation);
+        this.handleG1.attr('transform', translation);
+        this.handleG2.attr('transform', translation);
 
         let handles = this.handleG.selectAll('.fb-handle')
             .data(this.handles);
