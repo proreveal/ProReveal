@@ -18,6 +18,11 @@ import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 
 export class PunchcardRenderer implements Renderer {
     data: Datum[];
+    xScale: d3.ScaleBand<string>;
+    yScale: d3.ScaleBand<string>;
+    xKeyIndex: number;
+    yKeyIndex: number;
+
     variable1: CombinedVariable;
     variable2: CombinedVariable;
     node: ExplorationNode;
@@ -72,6 +77,9 @@ export class PunchcardRenderer implements Renderer {
         if (d3.values(xKeys).length > d3.values(yKeys).length)
             [yKeyIndex, xKeyIndex] = [xKeyIndex, yKeyIndex];
 
+        this.xKeyIndex = xKeyIndex;
+        this.yKeyIndex = yKeyIndex;
+
         let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 1 ? xKeys : yKeys);
         let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 0 ? yKeys : xKeys);
 
@@ -125,6 +133,9 @@ export class PunchcardRenderer implements Renderer {
 
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
             .range([header, height]);
+
+        this.xScale = xScale;
+        this.yScale = yScale;
 
         const yLabels = visG
             .selectAll('text.label.y')
@@ -589,8 +600,9 @@ export class PunchcardRenderer implements Renderer {
         };
 
         this.tooltip.show(
-            200, //clientRect.left - parentRect.left + this.xScale(d.ci3.center),
-            400, //clientRect.top - parentRect.top + this.yScale(i + ''),
+            clientRect.left - parentRect.left + this.xScale(d.keys.list[this.xKeyIndex].hash) +
+            this.xScale.bandwidth() / 2,
+            clientRect.top - parentRect.top + this.yScale(d.keys.list[this.yKeyIndex].hash),
             PunchcardTooltipComponent,
             data
         );
@@ -613,6 +625,4 @@ export class PunchcardRenderer implements Renderer {
             }
         }*/
     }
-
-
 }

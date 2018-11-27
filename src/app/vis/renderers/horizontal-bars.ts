@@ -20,6 +20,7 @@ import { DistributionLine } from './distribution-line';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
+    xScale: ScaleLinear<number, number>;
     yScale: d3.ScaleBand<string>;
     data: Datum[];
     node: ExplorationNode;
@@ -39,7 +40,7 @@ export class HorizontalBarsRenderer implements Renderer {
     variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
     constantHighlight1: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     constantHighlight2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    xScale: ScaleLinear<number, number>;
+
 
     visG;
     interactionG;

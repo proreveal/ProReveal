@@ -2,8 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { TooltipRendererTrait } from '../../tooltip/tooltip-renderer-trait';
 
 @Component({
-    selector: 'app-horizontal-bars-tooltip',
-    templateUrl: './horizontal-bars-tooltip.component.html',
+    selector: 'app-punchcard-tooltip',
+    templateUrl: './punchcard-tooltip.component.html',
     //   styleUrls: ['./horizontal-bars-tooltip.component.css']
 })
 export class PunchcardTooltipComponent extends TooltipRendererTrait {
