@@ -155,8 +155,6 @@
     </section>
 
     <section id="safeguard-config-view">
-
-
         <!-- Point -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
@@ -182,7 +180,7 @@
                     by dragging the constant bar.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && pointValueConstant && !useRank">
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variable1 || combinedVariable) && pointValueConstant && !useRank">
                 <p-indicator [p]="PointValueEstimate(activeNode.query, variable1 || combinedVariable, operator, pointValueConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && pointRankConstant && useRank">
@@ -203,7 +201,7 @@
         <!-- Range -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1"
+                <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable"
                     [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
@@ -220,8 +218,8 @@
                     by dragging the edge of the range brush.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && rangeValueConstant">
-                <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1, Operators.InRange, rangeValueConstant)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variable1 || combinedVariable) && rangeValueConstant">
+                <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
             <div class="p-1">
                 <div class="d-flex">

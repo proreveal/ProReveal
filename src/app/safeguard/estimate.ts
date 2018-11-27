@@ -34,7 +34,8 @@ export interface EstimatorTrait {
 export class PointValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: Variable,
         operator: Operators, constant: PointValueConstant): PValue {
-        let result = query.result[variable.fieldGroupedValue.hash].value;
+
+        let result = query.result[variable.hash].value;
         let ai = query.approximator.approximate(
             result,
             query.progress.processedPercent(),
@@ -107,7 +108,7 @@ export class PointRankEstimator implements EstimatorTrait {
 export class RangeValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: Variable,
         operator: Operators, constant: RangeValueConstant): PValue {
-        let result = query.result[variable.fieldGroupedValue.hash].value;
+        let result = query.result[variable.hash].value;
         let ai = query.approximator.approximate(
             result,
             query.progress.processedPercent(),
@@ -159,8 +160,8 @@ export class ComparativeEstimator implements EstimatorTrait {
         const n = query.progress.processedRows;
         const N = query.progress.totalRows;
 
-        let result1 = query.result[variable.first.fieldGroupedValue.hash].value;
-        let result2 = query.result[variable.second.fieldGroupedValue.hash].value;
+        let result1 = query.result[variable.first.hash].value;
+        let result2 = query.result[variable.second.hash].value;
 
         let ai1 = query.approximator.approximate(
             result1,

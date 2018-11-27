@@ -296,39 +296,19 @@ export class PunchcardRenderer implements Renderer {
                 .attr('display', 'none')
                 .style('pointer-events', 'none')
 
-        this.flexBrush.on('brush', () => {
-            if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
-                let sel = d3.event.selection;
-                let center = (sel[0] + sel[1]) / 2;
+        this.flexBrush.on('brush', (center) => {
+            if (this.safeguardType === SGT.Point) {
                 let constant = new PointValueConstant(this.swatchXScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
-            /*else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                let sel = d3.event.selection;
-                let center = (sel[0] + sel[1]) / 2;
-                let index = Math.round((center - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
-                let constant = new PointRankConstant(index);
-                this.constant = constant;
-                this.vis.constantSelected.emit(constant);
-            }*/
-            else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
-                let sel = d3.event.selection;
+            else if (this.safeguardType === SGT.Range) {
+                let sel = center as [number, number];
                 let constant = new RangeValueConstant(this.swatchXScale.invert(sel[0]),
                     this.swatchXScale.invert(sel[1]));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
-            /*else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-                let sel = d3.event.selection;
-                let index1 = Math.round((sel[0] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
-                let index2 = Math.round((sel[1] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
-                let constant = new RangeRankConstant(index1, index2);
-                this.constant = constant;
-                this.vis.constantSelected.emit(constant);
-            }*/
-
-            // ADD CODE FOR SGS
         })
 
         if (this.variableType == VT.Value) {
@@ -337,19 +317,6 @@ export class PunchcardRenderer implements Renderer {
             this.flexBrush.setDirection(FlexBrushDirection.X);
             this.flexBrush.render([[matrixWidth, VC.punchcard.legendSize * 1.5],
             [matrixWidth + VC.punchcard.legendSize, VC.punchcard.legendSize * 1.5 + VC.punchcard.swatchHeight]]);
-        }
-        else if (false) {
-            // we can't do about ranking
-            // let start = VC.horizontalBars.axis.height;
-            // let step = VC.horizontalBars.height;
-
-            // this.flexBrush.setDirection(FlexBrushDirection.Y);
-            // this.flexBrush.snap = d => {
-            //     return Math.round((d - start) / step) * step + start;
-            // };
-
-            // this.flexBrush.render([[0, VC.horizontalBars.axis.height],
-            // [width, height - VC.horizontalBars.axis.height]]);
         }
 
         if (!this.constant) this.setDefaultConstantFromVariable();
@@ -360,22 +327,14 @@ export class PunchcardRenderer implements Renderer {
             this.flexBrush.hide();
 
         if (this.constant) {
-            if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
+            if (this.safeguardType === SGT.Point) {
                 let center = this.swatchXScale((this.constant as PointValueConstant).value);
                 this.flexBrush.move(center);
             }
-            /*else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                let center = yScale((this.constant as PointRankConstant).rank.toString());
-                this.flexBrush.move(center);
-            }*/
-            else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
+            else if (this.safeguardType === SGT.Range) {
                 let range = (this.constant as RangeValueConstant).range.map(this.swatchXScale) as [number, number];
                 this.flexBrush.move(range);
             }
-            /*else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-                let range = (this.constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number];
-                this.flexBrush.move(range);
-            }*/
         }
     }
 
