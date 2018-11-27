@@ -174,36 +174,6 @@ export class PunchcardRenderer implements Renderer {
 
         xLabels.exit().remove();
 
-        const xLabelLines = visG.selectAll('line.label.x')
-            .data(xValues, (d: FieldGroupedValue) => d.hash);
-
-        enter = xLabelLines.enter().append('line').attr('class', 'label x')
-            .style('stroke', 'black')
-            .style('opacity', 0.2);
-
-        xLabelLines.merge(enter)
-            .attr('x1', (d) => xScale(d.hash) + xScale.bandwidth() / 2)
-            .attr('x2', (d) => xScale(d.hash) + xScale.bandwidth() / 2)
-            .attr('y1', yScale.range()[0])
-            .attr('y2', yScale.range()[1])
-
-        xLabelLines.exit().remove();
-
-        const yLabelLines = visG.selectAll('line.label.y')
-            .data(yValues, (d: FieldGroupedValue) => d.hash);
-
-        enter = yLabelLines.enter().append('line').attr('class', 'label y')
-            .style('stroke', 'black')
-            .style('opacity', 0.2);
-
-        yLabelLines.merge(enter)
-            .attr('x1', xScale.range()[0])
-            .attr('x2', xScale.range()[1])
-            .attr('y1', (d) => yScale(d.hash) + yScale.bandwidth() / 2)
-            .attr('y2', (d) => yScale(d.hash) + yScale.bandwidth() / 2)
-
-        yLabelLines.exit().remove();
-
         const rects = visG
             .selectAll('rect.area')
             .data(data, (d: any) => d.id);
@@ -270,6 +240,38 @@ export class PunchcardRenderer implements Renderer {
 
         this.eventRects = eventRects;
 
+        // grid
+        {
+            const xLabelLines = visG.selectAll('line.label.x')
+                .data(d3.range(xValues.length + 1));
+
+            enter = xLabelLines.enter().append('line').attr('class', 'label x')
+                .style('stroke', 'black')
+                .style('opacity', 0.2);
+
+            xLabelLines.merge(enter)
+                .attr('x1', (d) => xScale.range()[0] + xScale.bandwidth() * d)
+                .attr('x2', (d) => xScale.range()[0] + xScale.bandwidth() * d)
+                .attr('y1', yScale.range()[0])
+                .attr('y2', yScale.range()[1])
+
+            xLabelLines.exit().remove();
+
+            const yLabelLines = visG.selectAll('line.label.y')
+                .data(d3.range(yValues.length + 1));
+
+            enter = yLabelLines.enter().append('line').attr('class', 'label y')
+                .style('stroke', 'black')
+                .style('opacity', 0.2);
+
+            yLabelLines.merge(enter)
+                .attr('x1', xScale.range()[0])
+                .attr('x2', xScale.range()[1])
+                .attr('y1', (d) => yScale.range()[0] + yScale.bandwidth() * d)
+                .attr('y2', (d) => yScale.range()[0] + yScale.bandwidth() * d)
+
+            yLabelLines.exit().remove();
+        }
         let legend = vsup.legend.arcmapLegend().scale(zScale).size(VC.punchcard.legendSize);
 
         selectOrAppend(visG, 'g', '.z.legend').selectAll('*').remove();
@@ -500,7 +502,7 @@ export class PunchcardRenderer implements Renderer {
                 let range = this.getDatum(this.variable1).ci3;
                 let constant = new RangeValueConstant(range.low, range.high);
 
-                if(range.low < 0) constant = new RangeValueConstant(0, range.high + range.low);
+                if (range.low < 0) constant = new RangeValueConstant(0, range.high + range.low);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
@@ -627,7 +629,7 @@ export class PunchcardRenderer implements Renderer {
 
         centerLines.merge(
             centerLines.enter().append('line').attr('class', 'center')
-            )
+        )
             .attr('x1', (d) => swatchXScale(d.ci3.center))
             .attr('y1', 0)
             .attr('x2', (d) => swatchXScale(d.ci3.center))
