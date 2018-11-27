@@ -416,12 +416,13 @@ export class AppComponent implements OnInit {
     }
 
     createPointSafeguard() {
-        if (!this.variable1) return;
+        let variable = this.variable1 || this.combinedVariable;
+        if(!variable) return;
 
-        this.variable1.isRank = this.useRank;
+        if(this.variable1) this.variable1.isRank = this.useRank;
         let sg;
-        if (this.useRank) sg = new PointSafeguard(this.variable1, this.operator, this.pointRankConstant, this.activeNode);
-        else sg = new PointSafeguard(this.variable1, this.operator, this.pointValueConstant, this.activeNode);
+        if (this.useRank) sg = new PointSafeguard(variable, this.operator, this.pointRankConstant, this.activeNode);
+        else sg = new PointSafeguard(variable, this.operator, this.pointValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
 
@@ -432,12 +433,13 @@ export class AppComponent implements OnInit {
     }
 
     createRangeSafeguard() {
-        if (!this.variable1) return;
+        let variable = this.variable1 || this.combinedVariable;
+        if(!variable) return;
 
-        this.variable1.isRank = this.useRank;
+        if(this.variable1) this.variable1.isRank = this.useRank;
         let sg;
-        if (this.useRank) sg = new RangeSafeguard(this.variable1, this.rangeRankConstant, this.activeNode);
-        else sg = new RangeSafeguard(this.variable1, this.rangeValueConstant, this.activeNode);
+        if (this.useRank) sg = new RangeSafeguard(variable, this.rangeRankConstant, this.activeNode);
+        else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
 

@@ -6,7 +6,11 @@ export enum VariableTypes {
 }
 
 export abstract class VariableTrait {
+    isRank;
 
+    get hash(): string {
+        throw new Error('Hash must be implemented for a variable');
+    }
 }
 
 export class Variable extends VariableTrait {

@@ -1,6 +1,6 @@
 import { NormalDistribution } from "./normal";
 import { AggregateQuery } from "../data/query";
-import { Variable, VariablePair } from "./variable";
+import { Variable, VariablePair, VariableTrait } from "./variable";
 import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
 import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
@@ -32,7 +32,7 @@ export interface EstimatorTrait {
 }
 
 export class PointValueEstimator implements EstimatorTrait {
-    estimate(query: AggregateQuery, variable: Variable,
+    estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointValueConstant): PValue {
 
         let result = query.result[variable.hash].value;
@@ -53,7 +53,7 @@ export class PointValueEstimator implements EstimatorTrait {
 }
 
 export class PointRankEstimator implements EstimatorTrait {
-    estimate(query: AggregateQuery, variable: Variable,
+    estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointRankConstant): PValue {
         const n = query.progress.processedRows;
         const N = query.progress.totalRows;
@@ -106,7 +106,7 @@ export class PointRankEstimator implements EstimatorTrait {
 }
 
 export class RangeValueEstimator implements EstimatorTrait {
-    estimate(query: AggregateQuery, variable: Variable,
+    estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeValueConstant): PValue {
         let result = query.result[variable.hash].value;
         let ai = query.approximator.approximate(
@@ -127,7 +127,7 @@ export class RangeValueEstimator implements EstimatorTrait {
 }
 
 export class RangeRankEstimator implements EstimatorTrait {
-    estimate(query: AggregateQuery, variable: Variable,
+    estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeRankConstant): Truthiness {
 
         let results: [string, ApproximatedInterval][] = Object.keys(query.result).map((hash) => {

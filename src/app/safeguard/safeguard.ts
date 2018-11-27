@@ -51,7 +51,7 @@ export class Safeguard {
 export class PointSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
 
-    constructor(public variable: Variable,
+    constructor(public variable: VariableTrait,
         public operator: Operators,
         public constant: ConstantTrait,
         public node: ExplorationNode) {
@@ -82,7 +82,7 @@ export class PointSafeguard extends Safeguard {
 export class RangeSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
 
-    constructor(public variable: Variable,
+    constructor(public variable: VariableTrait,
         public constant: ConstantTrait,
         public node: ExplorationNode) {
         super(SafeguardTypes.Range, variable, Operators.InRange, constant, node);
