@@ -3,7 +3,7 @@ import { Dataset } from './data/dataset';
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
-import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode, NodeState } from './exploration/exploration-node';
 import { ExplorationLayout } from './exploration/exploration-layout';
@@ -16,12 +16,12 @@ import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes } from './safeguard/constant';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes, LinearRegressionConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
-import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator } from './safeguard/estimate';
+import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 
 @Component({
@@ -64,6 +64,7 @@ export class AppComponent implements OnInit {
     ComparativeEstimate = new ComparativeEstimator().estimate;
     PowerLawEstimate = new PowerLawEstimator().estimate;
     NormalEstimate = new NormalEstimator().estimate;
+    LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 
     constructor(private cd: ChangeDetectorRef,
         private modalService: NgbModal) {
@@ -165,7 +166,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Point);
+                this.toggle(SGT.Distributive);
                 // this.useRank = true;
                 // this.useRankToggled();
             })
@@ -190,7 +191,7 @@ export class AppComponent implements OnInit {
     }
 
     testNN() {
-        this.fieldSelected(this.ongoingNodes[3], this.dataset.getFieldByName('Production_Budget'));
+        this.fieldSelected(this.ongoingNodes[6], this.dataset.getFieldByName('IMDB_Rating'));
         this.run(10);
     }
 
@@ -332,6 +333,7 @@ export class AppComponent implements OnInit {
     combinedVariable2: CombinedVariable;
     combinedVariablePair: CombinedVariablePair;
     useRank = false;
+    useLinear = false;
     useNormal = true;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
@@ -342,6 +344,7 @@ export class AppComponent implements OnInit {
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     normalConstant: NormalConstant = new NormalConstant();
+    linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
 
     operator = Operators.LessThanOrEqualTo;
 
@@ -415,6 +418,8 @@ export class AppComponent implements OnInit {
             this.powerLawConstant = constant;
         else if (constant instanceof NormalConstant)
             this.normalConstant = constant;
+        else if (constant instanceof LinearRegressionConstant)
+            this.linearRegressionConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);
     }
@@ -505,8 +510,12 @@ export class AppComponent implements OnInit {
             this.normalConstant = new NormalConstant();
 
             this.useRank = false;
+            this.useLinear = false;
 
-            if (sgt === SafeguardTypes.Distributive) {
+            if(this.activeNode.query instanceof Histogram2DQuery && sgt === SafeguardTypes.Distributive) {
+                this.useLinear = true;
+            }
+            else if (sgt === SafeguardTypes.Distributive) {
                 this.vis.setFittingType(this.useNormal ? FittingTypes.Normal : FittingTypes.PowerLaw);
                 this.fit();
             }

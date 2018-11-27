@@ -308,6 +308,6 @@ export class LinearRegressionEstimator {
             error += (y - y_estimate) * (y - y_estimate) * datum.ci3.center;
         })
 
-        return error / n;
+        return Math.sqrt(error / n);
     }
 }

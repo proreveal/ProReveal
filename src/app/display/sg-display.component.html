@@ -7,4 +7,4 @@
 [variable1]="sg.variable.first" [variable2]="sg.variable.second"
 [operator]="sg.operator"></sg-comparative>
 <sg-distributive *ngIf="sg.type === SGT.Distributive" [query]="sg.node.query"
-[constant]="sg.constant"></sg-distributive>
+[constant]="sg.constant" [groupBy]="sg.node.query.groupBy"></sg-distributive>

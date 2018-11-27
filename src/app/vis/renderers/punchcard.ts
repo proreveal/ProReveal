@@ -10,12 +10,13 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
-import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } from '../../safeguard/constant';
+import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant, LinearRegressionConstant, NumberTriplet, NumberPair } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, CombinedVariable, SingleVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
+import { isNull } from 'util';
 
 export class PunchcardRenderer implements Renderer {
     gradient = new Gradient();
@@ -80,8 +81,8 @@ export class PunchcardRenderer implements Renderer {
             xKeys[row.keys.list[1].hash] = row.keys.list[1];
         });
 
-        if (d3.values(xKeys).length > d3.values(yKeys).length)
-            [yKeyIndex, xKeyIndex] = [xKeyIndex, yKeyIndex];
+        //if (d3.values(xKeys).length > d3.values(yKeys).length)
+            //[yKeyIndex, xKeyIndex] = [xKeyIndex, yKeyIndex];
 
         this.xKeyIndex = xKeyIndex;
         this.yKeyIndex = yKeyIndex;
@@ -99,6 +100,7 @@ export class PunchcardRenderer implements Renderer {
             }
             xValues.sort(sortFunc)
             yValues.sort(sortFunc);
+            //yValues = yValues.reverse();
         }
         else {
             let weight = {}, count = {};
@@ -127,7 +129,7 @@ export class PunchcardRenderer implements Renderer {
         const xLabelWidth = xLongest ? measure(xLongest.valueString()).width : 0;
 
         const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth)
-        const height = VC.punchcard.rowHeight * yValues.length + header;
+        const height = VC.punchcard.rowHeight * yValues.length + header * 2;
 
         const matrixWidth = xValues.length > 0 ? (yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
         const width = matrixWidth + VC.punchcard.legendSize * 1.2;
@@ -140,7 +142,7 @@ export class PunchcardRenderer implements Renderer {
             .range([yLabelWidth, matrixWidth - header]);
 
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
-            .range([header, height]);
+            .range([header, height - header]);
 
         this.xScale = xScale;
         this.yScale = yScale;
@@ -160,19 +162,34 @@ export class PunchcardRenderer implements Renderer {
 
         yLabels.exit().remove();
 
-        const xLabels = visG
-            .selectAll('text.label.x')
+        const xTopLabels = visG
+            .selectAll('text.label.top.x')
             .data(xValues, (d: FieldGroupedValue) => d.hash);
 
-        enter = xLabels.enter().append('text').attr('class', 'label x')
+        enter = xTopLabels.enter().append('text').attr('class', 'label x top')
             .style('text-anchor', 'start')
             .attr('font-size', '.8rem')
 
-        xLabels.merge(enter)
+        xTopLabels.merge(enter)
             .attr('transform', (d) => translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
             .text(d => d.valueString())
 
-        xLabels.exit().remove();
+        xTopLabels.exit().remove();
+
+        const xBottomLabels = visG
+            .selectAll('text.label.x.bottom')
+            .data(xValues, (d: FieldGroupedValue) => d.hash);
+
+        enter = xBottomLabels.enter().append('text').attr('class', 'label x bottom')
+            .style('text-anchor', 'start')
+            .attr('font-size', '.8rem')
+
+        xBottomLabels.merge(enter)
+            .attr('transform', (d) =>
+            translate(xScale(d.hash) + xScale.bandwidth() / 2, height - header + yScale.bandwidth() / 2) + 'rotate(45)')
+            .text(d => d.valueString())
+
+        xBottomLabels.exit().remove();
 
         const rects = visG
             .selectAll('rect.area')
@@ -415,28 +432,16 @@ export class PunchcardRenderer implements Renderer {
     /* invoked when a constant is selected indirectly (by clicking on a category) */
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
-        if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
+        if (this.safeguardType === SGT.Point) {
             let center = this.swatchXScale((constant as PointValueConstant).value);
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
-        // else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-        //     let center = this.yScale((constant as PointRankConstant).rank.toString());
-        //     this.flexBrush.show();
-        //     this.flexBrush.move(center);
-        // }
-        else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
+        else if (this.safeguardType === SGT.Range) {
             let range = (constant as RangeValueConstant).range.map(this.swatchXScale) as [number, number];
             this.flexBrush.show();
             this.flexBrush.move(range);
         }
-        // else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
-        //     let range = (constant as RangeRankConstant).range.map(d => this.yScale(d.toString())) as [number, number]
-        //     this.flexBrush.show();
-        //     this.flexBrush.move(range);
-        // }
-
-        // ADD CODE FOR SGS
     }
 
     getDatum(variable: CombinedVariable): Datum {
@@ -508,7 +513,28 @@ export class PunchcardRenderer implements Renderer {
             }
         }
         else if (this.safeguardType === SGT.Distributive) {
-            let constant;
+            let constant = new LinearRegressionConstant();
+
+            if(this.node.query instanceof Histogram2DQuery) {
+                let data = this.data
+                    .filter(d => d.keys.list[0].value() && d.keys.list[1].value())
+                    .map(d => {
+                    let x = (d.keys.list[this.xKeyIndex].value() as NumberPair)
+                    let y = (d.keys.list[this.yKeyIndex].value() as NumberPair);
+
+                    if(isNull(x) || isNull(y)) return;
+
+                    let cx = (x[0] + x[1]) / 2;
+                    let cy = (y[0] + y[1]) / 2;
+                    let count = d.ci3.center;
+
+                    return [cy, cx, count] as NumberTriplet;
+                })
+
+                constant = LinearRegressionConstant.Fit(data);
+            }
+
+
             // if(this.fittingType == FT.Gaussian) {
             //     let data = this.data.map(d => {
             //         let range = d.keys.list[0].value();

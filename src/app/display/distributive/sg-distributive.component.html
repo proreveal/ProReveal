@@ -1,3 +1,9 @@
+<span *ngIf="constant.name === 'linear_regression'">
+<span class="variable1">{{ groupBy.fields[1].name }}</span> = {{ constant.a | number }} *
+<span class="variable1">{{ groupBy.fields[0].name }}</span>
+<span *ngIf="constant.b > 0"> + </span>{{ constant.b | number }}
+</span>
+<span *ngIf="constant.name !== 'linear_regression'">
 <span class="variable1 pr-1">
     Distribution({{ query.approximator.name.toUpperCase() }}<!--
     --><sub *ngIf="true">{{ query.groupBy.fields[0].name }}</sub><!--
@@ -15,3 +21,4 @@
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
 >N({{ constant.mean | number }}, {{ constant.stdev | number }})</span>
+</span>
