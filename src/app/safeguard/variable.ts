@@ -13,7 +13,7 @@ export abstract class VariableTrait {
     }
 }
 
-export class Variable extends VariableTrait {
+export class SingleVariable extends VariableTrait {
     isRank = false;
 
     constructor(public fieldGroupedValue: FieldGroupedValue) {
@@ -37,11 +37,11 @@ export class VariablePair extends VariableTrait { // (a = 1) < (a = 2)
     isRank = false;
     isCombined = false;
 
-    static FromVariables(first: Variable, second: Variable) {
+    static FromVariables(first: SingleVariable, second: SingleVariable) {
         return new VariablePair(first, second);
     }
 
-    constructor(public first: Variable, public second: Variable) {
+    constructor(public first: SingleVariable, public second: SingleVariable) {
         super();
     }
 
@@ -70,40 +70,49 @@ export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
     isRank = false;
     isCombined = true;
 
-    static FromVariables(first: Variable, second: Variable) {
-        return new CombinedVariable(first.fieldGroupedValue, second.fieldGroupedValue);
+    static FromVariables(first: SingleVariable, second: SingleVariable) {
+        return new CombinedVariable(first, second);
     }
 
-    constructor(public fieldGroupedValue1: FieldGroupedValue, public fieldGroupedValue2: FieldGroupedValue) {
+    constructor(public first:SingleVariable, public second: SingleVariable) {
         super();
     }
 
     fieldString1() {
-        return this.fieldGroupedValue1.field.name;
+        return this.first.fieldGroupedValue.field.name;
     }
 
     fieldString2() {
-        return this.fieldGroupedValue2.field.name;
+        return this.second.fieldGroupedValue.field.name;
     }
 
     valueString1() {
-        return this.fieldGroupedValue1.valueString();
+        return this.first.fieldGroupedValue.valueString();
     }
 
     valueString2() {
-        return this.fieldGroupedValue2.valueString();
+        return this.second.fieldGroupedValue.valueString();
     }
 
     get hash() {
-        return `${this.fieldGroupedValue1.hash}${HashSeparator}${this.fieldGroupedValue2.hash}`;
+        return `${this.first.fieldGroupedValue.hash}${HashSeparator}${this.second.fieldGroupedValue.hash}`;
+    }
+}
+
+export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a = 2, b = 3)
+    isRank = false;
+    isCombined = true;
+
+    static FromVariables(first: CombinedVariable, second: CombinedVariable) {
+        return new CombinedVariablePair(first, second);
     }
 
-    get first() {
-        return new Variable(this.fieldGroupedValue1);
+    constructor(public first:CombinedVariable, public second: CombinedVariable) {
+        super();
     }
 
-    get second() {
-        return new Variable(this.fieldGroupedValue2);
+    get hash() {
+        return `${this.first.hash}${HashSeparator}${this.second.hash}`;
     }
 }
 

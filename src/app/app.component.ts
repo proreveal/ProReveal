@@ -15,7 +15,7 @@ import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, Compa
 import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariablePair, Variable, VariableTypes, CombinedVariable, VariableTrait } from './safeguard/variable';
+import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -165,7 +165,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Range);
+                this.toggle(SGT.Comparative);
                 // this.useRank = true;
                 // this.useRankToggled();
             })
@@ -325,10 +325,12 @@ export class AppComponent implements OnInit {
             });
     }
 
-    variable1: Variable;
-    variable2: Variable;
+    variable1: SingleVariable;
+    variable2: SingleVariable;
     variablePair: VariablePair;
-    combinedVariable: CombinedVariable;
+    combinedVariable1: CombinedVariable;
+    combinedVariable2: CombinedVariable;
+    combinedVariablePair: CombinedVariablePair;
     useRank = false;
     useNormal = true;
 
@@ -346,15 +348,16 @@ export class AppComponent implements OnInit {
     variableSelected($event: { variable: VariableTrait, secondary?: boolean }) {
         let variable = $event.variable;
 
-        if (variable instanceof Variable) {
+        if (variable instanceof SingleVariable) {
             if ($event.secondary)
                 this.variable2 = variable;
             else
                 this.variable1 = variable;
         }
         else if (variable instanceof CombinedVariable) {
-            if ($event.secondary) { }
-            else this.combinedVariable = variable;
+            if ($event.secondary)
+                this.combinedVariable2 = variable;
+            else this.combinedVariable1 = variable;
         }
 
         if (this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
@@ -367,6 +370,18 @@ export class AppComponent implements OnInit {
 
             this.variablePair = VariablePair.FromVariables(this.variable1, this.variable2);
         }
+
+        if (this.activeSafeguardPanel === SGT.Comparative && this.combinedVariable1 && this.combinedVariable2) {
+            let value1 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable1)
+            let value2 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable2)
+
+            if (value1.ci3.center < value2.ci3.center)
+                this.operator = Operators.LessThanOrEqualTo;
+            else this.operator = Operators.GreaterThanOrEqualTo;
+
+            this.combinedVariablePair = CombinedVariablePair.FromVariables(this.combinedVariable1, this.combinedVariable2);
+        }
+
     }
 
     constantSelected(constant: ConstantTrait) {
@@ -377,7 +392,7 @@ export class AppComponent implements OnInit {
             if (this.vis.renderer instanceof HorizontalBarsRenderer)
                 value = this.vis.renderer.getDatum(this.variable1)
             else if(this.vis.renderer instanceof PunchcardRenderer)
-                value = this.vis.renderer.getDatum(this.combinedVariable);
+                value = this.vis.renderer.getDatum(this.combinedVariable1);
 
             if (constant.value >= value.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
@@ -416,7 +431,7 @@ export class AppComponent implements OnInit {
     }
 
     createPointSafeguard() {
-        let variable = this.variable1 || this.combinedVariable;
+        let variable = this.variable1 || this.combinedVariable1;
         if(!variable) return;
 
         if(this.variable1) this.variable1.isRank = this.useRank;
@@ -433,7 +448,7 @@ export class AppComponent implements OnInit {
     }
 
     createRangeSafeguard() {
-        let variable = this.variable1 || this.combinedVariable;
+        let variable = this.variable1 || this.combinedVariable1;
         if(!variable) return;
 
         if(this.variable1) this.variable1.isRank = this.useRank;
@@ -450,12 +465,11 @@ export class AppComponent implements OnInit {
     }
 
     createComparativeSafeguard() {
-        if (!this.variable1) return;
-        if (!this.variable2) return;
+        let variable = this.variablePair || this.combinedVariablePair;
+        if(!variable) return;
 
         let sg = new ComparativeSafeguard(
-            VariablePair.FromVariables(this.variable1, this.variable2),
-            this.operator, this.activeNode);
+            variable, this.operator, this.activeNode);
         this.safeguards.push(sg);
 
         this.variable1 = null;

@@ -1,7 +1,7 @@
 import { Operators } from "./operator";
 import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
-import { VariableTrait, Variable, VariablePair, DistributiveVariable } from "./variable";
+import { VariableTrait, SingleVariable, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
 import {
     PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
@@ -107,7 +107,7 @@ export class RangeSafeguard extends Safeguard {
 export class ComparativeSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
 
-    constructor(public variable: VariablePair,
+    constructor(public variable: VariablePair | CombinedVariablePair,
         public operator: Operators,
         public node: ExplorationNode) {
         super(SafeguardTypes.Comparative, variable, operator, null, node);

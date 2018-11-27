@@ -1,6 +1,6 @@
 import { NormalDistribution } from "./normal";
 import { AggregateQuery } from "../data/query";
-import { Variable, VariablePair, VariableTrait } from "./variable";
+import { SingleVariable, VariablePair, VariableTrait, CombinedVariablePair } from "./variable";
 import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
 import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
@@ -155,7 +155,7 @@ export class RangeRankEstimator implements EstimatorTrait {
 }
 
 export class ComparativeEstimator implements EstimatorTrait {
-    estimate(query: AggregateQuery, variable: VariablePair,
+    estimate(query: AggregateQuery, variable: VariablePair | CombinedVariablePair,
         operator: Operators): PValue {
         const n = query.progress.processedRows;
         const N = query.progress.totalRows;

@@ -158,7 +158,7 @@
         <!-- Point -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
-                <sg-point *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable"
+                <sg-point *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable1"
                     [isRank]="useRank" [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
                     (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
@@ -180,8 +180,8 @@
                     by dragging the constant bar.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variable1 || combinedVariable) && pointValueConstant && !useRank">
-                <p-indicator [p]="PointValueEstimate(activeNode.query, variable1 || combinedVariable, operator, pointValueConstant)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variable1 || combinedVariable1) && pointValueConstant && !useRank">
+                <p-indicator [p]="PointValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && pointRankConstant && useRank">
                 <p-indicator [p]="PointRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></p-indicator>
@@ -201,7 +201,7 @@
         <!-- Range -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable"
+                <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable1"
                     [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
@@ -218,8 +218,8 @@
                     by dragging the edge of the range brush.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variable1 || combinedVariable) && rangeValueConstant">
-                <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable, Operators.InRange, rangeValueConstant)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variable1 || combinedVariable1) && rangeValueConstant">
+                <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
             <div class="p-1">
                 <div class="d-flex">
@@ -236,8 +236,9 @@
         <!-- Comparative -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable1]="variable1"
-                    [variable2]="variable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
+                <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query"
+                    [variable1]="variable1 || combinedVariable1"
+                    [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">TIP</span>
@@ -252,8 +253,8 @@
                     by <strong>right-clicking</strong> on a category.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && variable1 && variable2">
-                <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair, operator)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.progress.processedRows > 0 && (variablePair || combinedVariablePair)">
+                <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
             <div class="p-1">
                 <div class="d-flex">

@@ -11,7 +11,7 @@ import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { FittingTypes as FT } from '../../safeguard/constant';
-import { Variable, VariableTypes as VT } from '../../safeguard/variable';
+import { SingleVariable, VariableTypes as VT } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
@@ -25,8 +25,8 @@ export class HorizontalBarsRenderer implements Renderer {
     data: Datum[];
     node: ExplorationNode;
     nativeSvg: SVGSVGElement;
-    variable1: Variable;
-    variable2: Variable;
+    variable1: SingleVariable;
+    variable2: SingleVariable;
     labelWidth: number;
     width: number;
     height: number;
@@ -598,11 +598,11 @@ export class HorizontalBarsRenderer implements Renderer {
         // ADD CODE FOR SGS
     }
 
-    getDatum(variable: Variable): Datum {
+    getDatum(variable: SingleVariable): Datum {
         return this.data.find(d => d.id === variable.fieldGroupedValue.hash);
     }
 
-    getRank(variable: Variable): number {
+    getRank(variable: SingleVariable): number {
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i].id == variable.fieldGroupedValue.hash) return i + 1;
         }
@@ -612,7 +612,7 @@ export class HorizontalBarsRenderer implements Renderer {
     datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        let variable = new Variable(d.keys.list[0]);
+        let variable = new SingleVariable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
         this.variable1 = variable;
 
@@ -629,7 +629,7 @@ export class HorizontalBarsRenderer implements Renderer {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 
-        let variable = new Variable(d.keys.list[0]);
+        let variable = new SingleVariable(d.keys.list[0]);
 
         if (this.variable1 && variable.fieldGroupedValue.hash === this.variable1.fieldGroupedValue.hash)
             return;

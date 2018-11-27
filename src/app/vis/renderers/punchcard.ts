@@ -12,7 +12,7 @@ import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
 import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { VariableTypes as VT, CombinedVariable } from '../../safeguard/variable';
+import { VariableTypes as VT, CombinedVariable, SingleVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
@@ -395,6 +395,7 @@ export class PunchcardRenderer implements Renderer {
     }
 
     updateHighlight() {
+
         this.eventRects
             .classed('stroke-highlighted', false)
             .filter((d) =>
@@ -450,7 +451,9 @@ export class PunchcardRenderer implements Renderer {
     datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        let variable = new CombinedVariable(d.keys.list[0], d.keys.list[1]);
+        let variable = new CombinedVariable(
+            new SingleVariable(d.keys.list[0]),
+            new SingleVariable(d.keys.list[1]));
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
@@ -469,7 +472,9 @@ export class PunchcardRenderer implements Renderer {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
 
-        let variable = new CombinedVariable(d.keys.list[0], d.keys.list[1]);
+        let variable = new CombinedVariable(
+            new SingleVariable(d.keys.list[0]),
+            new SingleVariable(d.keys.list[1]));
 
         if (this.variable1 && variable.hash === this.variable1.hash)
             return;
