@@ -15,13 +15,16 @@ import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, CombinedVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
+import { Gradient } from '../errorbars/gradient';
 
 export class PunchcardRenderer implements Renderer {
+    gradient = new Gradient();
     data: Datum[];
     xScale: d3.ScaleBand<string>;
     yScale: d3.ScaleBand<string>;
     xKeyIndex: number;
     yKeyIndex: number;
+    matrixWidth: number;
 
     variable1: CombinedVariable;
     variable2: CombinedVariable;
@@ -38,6 +41,7 @@ export class PunchcardRenderer implements Renderer {
     swatch: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     visG;
     interactionG;
+    brushG;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
@@ -49,13 +53,15 @@ export class PunchcardRenderer implements Renderer {
 
         let svg = d3.select(nativeSvg);
 
+        this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
         this.node = node;
         this.nativeSvg = nativeSvg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
-        this.flexBrush.setup(this.interactionG);
+        this.brushG = selectOrAppend(svg, 'g', 'brush-layer');
+        this.flexBrush.setup(this.brushG);
         //this.distributionLine.setup(this.interactionG);
     }
 
@@ -87,7 +93,7 @@ export class PunchcardRenderer implements Renderer {
             let sortFunc = (a: FieldGroupedValue, b: FieldGroupedValue) => {
                 let av = a.value(), bv = b.value();
                 let ap = av ? av[0] as number : (a.field as QuantitativeField).max;
-                let bp = bv ? bv[0] as number: (b.field as QuantitativeField).max;
+                let bp = bv ? bv[0] as number : (b.field as QuantitativeField).max;
 
                 return ap - bp;
             }
@@ -125,6 +131,8 @@ export class PunchcardRenderer implements Renderer {
 
         const matrixWidth = xValues.length > 0 ? (yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
         const width = matrixWidth + VC.punchcard.legendSize * 1.2;
+
+        this.matrixWidth = matrixWidth;
 
         d3.select(nativeSvg).attr('width', width).attr('height', height);
 
@@ -270,31 +278,7 @@ export class PunchcardRenderer implements Renderer {
             .append('g')
             .call(legend);
 
-        let swatch = selectOrAppend(visG, 'g', '.swatch')
-            .attr('transform', translate(0, VC.punchcard.legendSize * 1.5))
-        let numSamples = 128;
-        let swatchData = d3.range(numSamples).map(d => matrixWidth + d * VC.punchcard.legendSize / numSamples)
-
-        this.swatchXScale = d3.scaleLinear<number>()
-            .domain([matrixWidth, matrixWidth + VC.punchcard.legendSize])
-            .range([domainStart, domainEnd])
-
-        let samples = swatch.selectAll('rect').data(swatchData);
-
-        samples.enter().append('rect').merge(samples)
-            .attr('x', (d) => d)
-            .attr('width', VC.punchcard.legendSize / numSamples)
-            .attr('height', VC.punchcard.swatchHeight)
-            .attr('fill', (d) => zScale(this.swatchXScale(d), 0))
-            .style('shape-rendering', 'crispEdges')
-
-        let swatchAxis = d3.axisBottom(d3.scaleLinear<number>()
-            .domain(this.swatchXScale.range())
-            .range(this.swatchXScale.domain()));
-
-        selectOrAppend(swatch, 'g', '.axis')
-            .attr('transform', translate(0, VC.punchcard.swatchHeight))
-            .call(swatchAxis)
+        this.updateSwatch();
 
         this.variableHighlight =
             selectOrAppend(visG, 'rect', '.variable1.highlighted')
@@ -316,7 +300,7 @@ export class PunchcardRenderer implements Renderer {
             if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
-                let constant = new PointValueConstant(this.swatchXScale(center));
+                let constant = new PointValueConstant(this.swatchXScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
@@ -330,7 +314,8 @@ export class PunchcardRenderer implements Renderer {
             }*/
             else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
                 let sel = d3.event.selection;
-                let constant = new RangeValueConstant(this.swatchXScale(sel[0]), this.swatchXScale(sel[1]));
+                let constant = new RangeValueConstant(this.swatchXScale.invert(sel[0]),
+                    this.swatchXScale.invert(sel[1]));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
@@ -376,7 +361,7 @@ export class PunchcardRenderer implements Renderer {
 
         if (this.constant) {
             if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
-                let center = this.swatchXScale.invert((this.constant as PointValueConstant).value);
+                let center = this.swatchXScale((this.constant as PointValueConstant).value);
                 this.flexBrush.move(center);
             }
             /*else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
@@ -384,7 +369,7 @@ export class PunchcardRenderer implements Renderer {
                 this.flexBrush.move(center);
             }*/
             else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
-                let range = (this.constant as RangeValueConstant).range.map(this.swatchXScale.invert) as [number, number];
+                let range = (this.constant as RangeValueConstant).range.map(this.swatchXScale) as [number, number];
                 this.flexBrush.move(range);
             }
             /*else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
@@ -469,7 +454,7 @@ export class PunchcardRenderer implements Renderer {
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
         if (this.safeguardType === SGT.Point/* && this.variableType === VT.Value*/) {
-            let center = this.swatchXScale.invert((constant as PointValueConstant).value);
+            let center = this.swatchXScale((constant as PointValueConstant).value);
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
@@ -479,7 +464,7 @@ export class PunchcardRenderer implements Renderer {
         //     this.flexBrush.move(center);
         // }
         else if (this.safeguardType === SGT.Range/* && this.variableType === VT.Value*/) {
-            let range = (constant as RangeValueConstant).range.map(this.swatchXScale.invert) as [number, number];
+            let range = (constant as RangeValueConstant).range.map(this.swatchXScale) as [number, number];
             this.flexBrush.show();
             this.flexBrush.move(range);
         }
@@ -512,13 +497,14 @@ export class PunchcardRenderer implements Renderer {
         this.variable1 = variable;
 
         if (this.safeguardType === SGT.Range) {
-            this.flexBrush.center = this.swatchXScale.invert(d.ci3.center);
+            this.flexBrush.center = this.swatchXScale(d.ci3.center);
         }
 
         this.updateHighlight();
+        this.updateSwatch();
 
         this.vis.variableSelected.emit({ variable: variable });
-        if (!this.constant) this.setDefaultConstantFromVariable();
+        this.setDefaultConstantFromVariable(true);
     }
 
     datumSelected2(d: Datum) {
@@ -608,8 +594,8 @@ export class PunchcardRenderer implements Renderer {
         );
 
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-        //    let ele = d3.select(this.eventBoxes.nodes()[i]);
-//            ele.classed('highlighted', true)
+            //    let ele = d3.select(this.eventBoxes.nodes()[i]);
+            //            ele.classed('highlighted', true)
         }
     }
 
@@ -624,5 +610,90 @@ export class PunchcardRenderer implements Renderer {
                 ele.classed('highlighted', false)
             }
         }*/
+    }
+
+    updateSwatch() {
+        let swatch = selectOrAppend(this.visG, 'g', '.swatch')
+            .attr('transform', translate(0, VC.punchcard.legendSize * 1.5))
+
+        swatch.style('display', 'none');
+        if (!this.variable1) return;
+        if (this.safeguardType !== SGT.Point && this.safeguardType === SGT.Range) return;
+        swatch.style('display', 'inline');
+
+        let swatchXScale = d3.scaleLinear<number>().domain([
+            this.node.domainStart,
+            this.node.domainEnd]).range([
+                this.matrixWidth,
+                this.matrixWidth + VC.punchcard.legendSize
+            ])
+        this.swatchXScale = swatchXScale;
+
+        let datum = this.getDatum(this.variable1);
+
+        selectOrAppend(swatch, 'g', '.top.main.axis')
+            .call(d3.axisTop(swatchXScale))
+
+        selectOrAppend(swatch, 'g', '.bottom.main.axis')
+            .attr('transform', translate(0, VC.punchcard.swatchHeight))
+            .call(d3.axisBottom(swatchXScale))
+
+        const leftBars = swatch
+            .selectAll('rect.left.bar')
+            .data([datum], (d: any) => d.id);
+
+        leftBars.merge(
+            leftBars.enter()
+                .append('rect')
+                .attr('class', 'left bar')
+        )
+            .attr('height', VC.punchcard.swatchHeight)
+            .attr('width', d => swatchXScale(d.ci3.center) - swatchXScale(d.ci3.low))
+            .attr('transform', (d, i) => translate(swatchXScale(d.ci3.low), 0))
+            .attr('fill', this.gradient.leftUrl())
+
+        leftBars.exit().remove();
+
+        const rightBars = swatch
+            .selectAll('rect.right.bar')
+            .data([datum], (d: any) => d.id);
+
+        rightBars.merge(
+            rightBars.enter()
+                .append('rect')
+                .attr('class', 'right bar')
+        )
+            .attr('height', VC.punchcard.swatchHeight)
+            .attr('width', d => swatchXScale(d.ci3.high) - swatchXScale(d.ci3.center))
+            .attr('transform', (d, i) => translate(swatchXScale(d.ci3.center), 0))
+            .attr('fill', this.gradient.rightUrl())
+
+        rightBars.exit().remove();
+
+        const centerLines = swatch
+            .selectAll('line.center')
+            .data([datum], (d: any) => d.id);
+
+        centerLines.merge(
+            centerLines.enter().append('line').attr('class', 'center')
+            )
+            .attr('x1', (d) => swatchXScale(d.ci3.center))
+            .attr('y1', 0)
+            .attr('x2', (d) => swatchXScale(d.ci3.center))
+            .attr('y2', VC.punchcard.swatchHeight)
+            .style('stroke-width', 1)
+            .style('stroke', 'black')
+            .style('shape-rendering', 'crispEdges')
+
+        centerLines.exit().remove();
+
+        const majorTickLines = d3.axisTop(swatchXScale).tickSize(-VC.punchcard.swatchHeight);
+
+        selectOrAppend(swatch, 'g', '.sub.axis')
+            .style('opacity', .2)
+            .call(majorTickLines)
+            .selectAll('text')
+            .style('display', 'none')
+
     }
 }
