@@ -14,12 +14,9 @@ import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant } f
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, CombinedVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
+import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 
 export class PunchcardRenderer implements Renderer {
-    constructor(public vis: VisComponent, public tooltip: TooltipComponent
-    ) {
-    }
-
     data: Datum[];
     variable1: CombinedVariable;
     variable2: CombinedVariable;
@@ -36,6 +33,9 @@ export class PunchcardRenderer implements Renderer {
     swatch: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     visG;
     interactionG;
+
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
+    }
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         if ((node.query as AggregateQuery).groupBy.fields.length !== 2) {
@@ -242,6 +242,8 @@ export class PunchcardRenderer implements Renderer {
             })
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
+            .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
+            .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
             .on('click', (d) => this.datumSelected(d))
             .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -575,6 +577,41 @@ export class PunchcardRenderer implements Renderer {
         }
 
         // add codes for SGS
+    }
+
+    showTooltip(d: Datum, i: number) {
+        const clientRect = this.nativeSvg.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
+        let data = {
+            query: this.node.query,
+            datum: d
+        };
+
+        this.tooltip.show(
+            200, //clientRect.left - parentRect.left + this.xScale(d.ci3.center),
+            400, //clientRect.top - parentRect.top + this.yScale(i + ''),
+            PunchcardTooltipComponent,
+            data
+        );
+
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+        //    let ele = d3.select(this.eventBoxes.nodes()[i]);
+//            ele.classed('highlighted', true)
+        }
+    }
+
+    hideTooltip(d: Datum, i: number) {
+        this.tooltip.hide();
+        /*if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+            if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
+                !== d.keys.list[0].hash) &&
+                (!this.variable2 || this.variable2.fieldGroupedValue.hash
+                    !== d.keys.list[0].hash)) {
+                let ele = d3.select(this.eventBoxes.nodes()[i]);
+                ele.classed('highlighted', false)
+            }
+        }*/
     }
 
 
