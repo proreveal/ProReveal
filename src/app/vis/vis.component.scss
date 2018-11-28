@@ -4,11 +4,11 @@
 
 .query-desc {
     font-size: 1.5rem;
-}
 
-.query-desc field-badge {
-    font-size: 1.2rem;
-    font-weight: normal;
+    field-badge {
+        font-size: 1.2rem;
+        font-weight: normal;
+    }
 }
 
 .aggregate-form {
@@ -35,6 +35,16 @@
 
 .progress-bar-striped {
     opacity: .8;
+}
+
+#visible-progress-indicator {
+    position: absolute;
+    top: -.72rem;
+    line-height: 1rem;
+    display: block;
+    width: 20px;
+    margin-left: -10px;
+    transition: left 0.5s;
 }
 
 @import '../theme.scss';
