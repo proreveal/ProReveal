@@ -1,5 +1,4 @@
 import { ExplorationNode } from "../../exploration/exploration-node";
-import { TooltipComponent } from "../../tooltip/tooltip.component";
 import { SafeguardTypes } from '../../safeguard/safeguard';
 import { ConstantTrait, FittingTypes } from '../../safeguard/constant';
 import { VariableTypes } from '../../safeguard/variable';

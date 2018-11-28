@@ -33,6 +33,7 @@ export class AppComponent implements OnInit {
     VC = VisConstants;
     VT = VariableTypes;
     Operators = Operators;
+    Priority = Priority;
     PointValueEstimate = new PointValueEstimator().estimate;
     PointRankEstimate = new PointRankEstimator().estimate;
     RangeValueEstimate = new RangeValueEstimator().estimate;
@@ -43,7 +44,6 @@ export class AppComponent implements OnInit {
 
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
-    //@ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
     @ViewChild('vis') vis: VisComponent;
 
     dataset: Dataset;
@@ -265,52 +265,6 @@ export class AppComponent implements OnInit {
 
         if (!this.rankAllowed()) this.useRank = false;
         if (this.activeNode) this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
-    }
-
-    // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
-    //     // this is definitely a child
-    //     this.fieldSelector.hide();
-    //     this.previousNodeView = null;
-    // }
-
-    wrapperClicked() {
-        //this.fieldSelector.hide();
-        // if (this.previousNodeView) {
-        //     this.previousNodeView.selectorClosed();
-        //     this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
-        // }
-    }
-
-    plusClicked($event: MouseEvent, node: ExplorationNode) {
-        let target = util.getCurrentTarget($event) as HTMLButtonElement;
-        let fields = node.query.dataset.fields!;
-        fields = node.query.compatible(fields)
-            .filter(field => !node.fields.includes(field));
-        // compatible and no duplicates
-
-        //this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
-            //fields, node);
-        $event.stopPropagation();
-    }
-
-    keywordSearched(keyword: string) {
-        if (keyword.length === 0) {
-            this.highlightedNodes = [];
-            return;
-        }
-
-        keyword = keyword.toLowerCase();
-
-        this.highlightedNodes =
-            this.completedNodes
-                .filter(node => node.fields
-                    .filter(field => field.name.toLowerCase().includes(keyword)
-                    ).length > 0).concat(
-                        this.ongoingNodes
-                            .filter(node => node.fields
-                                .filter(field => field.name.toLowerCase().includes(keyword))
-                                .length > 0)
-                    );
     }
 
     deleteClicked(modal, node: ExplorationNode) {

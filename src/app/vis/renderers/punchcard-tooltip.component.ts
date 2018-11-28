@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { TooltipRendererTrait } from '../../tooltip/tooltip-renderer-trait';
 
 @Component({

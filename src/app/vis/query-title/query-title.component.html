@@ -3,7 +3,7 @@
 <span *ngIf="query.target !== null">
     <form class="form-inline aggregate-form">
     <select class="form-control form-control-md"
-        (change)="approximatorChanged.emit($event.target.value)"
+        (change)="thisApproximatorChanged($event.target.value)"
         [ngModel]="query.approximator.name"
         name="approximator"
         >

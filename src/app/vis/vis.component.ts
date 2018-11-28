@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChange, SimpleChanges, DoCheck, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter } from '@angular/core';
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
@@ -9,7 +9,7 @@ import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
-import { ApproximatorTrait, MinApproximator, MaxApproximator, MeanApproximator, SumApproximator } from '../data/approx';
+import { MinApproximator, MaxApproximator, MeanApproximator, SumApproximator, Approximator } from '../data/approx';
 
 @Component({
     selector: 'vis',
@@ -104,18 +104,9 @@ export class VisComponent implements OnInit, DoCheck {
         this.renderer.constantUserChanged(constant);
     }
 
-    approximatorChanged(name) {
-        let query = this.node.query as AggregateQuery;
-
-        if(name === query.approximator.name) return;
-
-        if(name === 'sum') query.approximator = new SumApproximator();
-        if(name === 'mean') query.approximator = new MeanApproximator();
-        if(name === 'min') query.approximator = new MinApproximator();
-        if(name === 'max') query.approximator = new MaxApproximator();
-
+    approximatorChanged() {
         this.node.domainStart = Number.MAX_VALUE;
         this.node.domainEnd = -Number.MAX_VALUE;
-        this.renderer.render(this.node, this.svg.nativeElement);
+        this.forceUpdate();
     }
 }

@@ -67,7 +67,7 @@
 
                 <div class="d-flex mt-2">
                     <button class="btn btn-success flex-grow-1 rounded-0 border-right-0"
-                        (click)="create()" [disabled]="selectedFields.length === 0">
+                        (click)="create(selectedFields, newQuery, Priority.Highest)" [disabled]="selectedFields.length === 0">
                         Create a Visualization
                     </button>
                     <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelCreation()">

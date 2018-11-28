@@ -43,6 +43,17 @@ export interface ApproximatorTrait {
     toString();
 }
 
+export abstract class Approximator {
+    static FromName(name: string) {
+        if(name === 'sum') return new SumApproximator();
+        if(name === 'mean') return new MeanApproximator();
+        if(name === 'min') return new MinApproximator();
+        if(name === 'max') return new MaxApproximator();
+
+        throw new Error(`Unknown approximator name ${name}`);
+    }
+}
+
 export class MinApproximator implements ApproximatorTrait {
     name = 'min';
     alwaysNonNegative = false;
