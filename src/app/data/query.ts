@@ -188,7 +188,6 @@ export class AggregateQuery extends Query {
             let key = this.visibleResult[k].key;
             let value = this.visibleResult[k].value;
 
-            console.log(value, this.visibleProgress);
             const ai = this.approximator
                 .approximate(value,
                     this.visibleProgress.processedPercent(),

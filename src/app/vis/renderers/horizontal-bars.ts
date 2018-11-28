@@ -73,7 +73,6 @@ export class HorizontalBarsRenderer implements Renderer {
         let visG = svg.select('g.vis');
         let data = query.resultData();
 
-        console.log(query.recentProgress, query.visibleProgress);
         this.data = data;
 
         const height = VC.horizontalBars.axis.height * 2 +
