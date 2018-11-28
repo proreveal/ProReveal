@@ -30,8 +30,8 @@
         <button class="btn btn-secondary" (click)="testNN()">NN</button>&nbsp;
         <button class="btn btn-secondary" (click)="testCC()">CC</button>&nbsp;
     </section>
-    <section id="node-view">
-        <section id="search">
+    <section id="node-view" class="border-right">
+        <!--<section id="search">
             <div class="input-group">
                 <div class="input-group-prepend">
                     <span class="input-group-text">
@@ -44,8 +44,32 @@
                     <fa-icon [icon]="['fas', 'times']"></fa-icon>
                 </button>
             </div>
-        </section>
+        </section>-->
 
+        <section id="new-node" class="border-bottom">
+            <button class="btn btn-success w-100 rounded-0">Create a Visualization</button>
+
+            <div id="new-node-creator" class="border-bottom rounded-bottom p-2 shadow-sm">
+                Choose fields that should be included in the visualization.
+
+                <div class="container" *ngIf="dataset && dataset.fields">
+                    <div class="row no-gutters">
+                        <div *ngFor="let field of candidateFields" class="col-6 mt-1">
+                            <button (click)="newNodeFieldSelected(field)"
+                                class="btn btn-sm"
+                                [class.btn-primary]="selectedFields.includes(field)"
+                                [class.btn-light]="!selectedFields.includes(field)"
+                                [attr.title]="field.name"
+                                [disabled]="!selectableFields.includes(field) && !selectedFields.includes(field)"
+                                >
+                                <field-badge [field]="field"></field-badge>
+                                {{ field.name }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <h3 id="completed-node-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
         <section id="completed-node-view" class="styled-scroll">
             <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)" (mouseenter)="hoveredNode = node"
@@ -94,9 +118,9 @@
                     <button class="btn btn-light" (click)="deleteClicked(confirmDelete, node)">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
-                    <button class="btn btn-light" (click)="plusClicked($event, node)">
+                    <!--<button class="btn btn-light" (click)="plusClicked($event, node)">
                         <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
-                    </button>
+                    </button>-->
                 </div>
             </div>
         </section>
@@ -117,9 +141,7 @@
             </p>
         </div>
         <div [hidden]="!activeNode">
-            <vis #vis [node]="activeNode"
-                (variableSelected)="variableSelected($event)"
-                (constantSelected)="constantSelected($event)"
+            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)" (constantSelected)="constantSelected($event)"
                 (safeguardAdded)="safeguardAdded($event)"></vis>
         </div>
     </section>
@@ -249,8 +271,7 @@
         <!-- Comparative -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query"
-                    [variable1]="variable1 || combinedVariable1"
+                <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable1]="variable1 || combinedVariable1"
                     [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div class="alert guide p-2 m-1">
@@ -284,10 +305,8 @@
         <!-- Distributive -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Distributive">
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query"
-                    [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
-                    [groupBy]="activeNode.query.groupBy"
-                    (highlight)="highlight($event)"></sg-distributive>
+                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
+                    [groupBy]="activeNode.query.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
             <div class="p-1" *ngIf="activeNode && activeNode.query && activeNode.query.visibleProgress.processedRows > 0">
                 <div class="d-flex">

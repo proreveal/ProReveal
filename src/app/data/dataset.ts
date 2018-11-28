@@ -1,5 +1,4 @@
 import * as util from '../util';
-import { isNumber, isString, isNull } from 'util';
 import { FieldTrait, guess, VlType, QuantitativeField, NominalField, DozenField, KeyField } from './field';
 import * as d3 from 'd3-array';
 

@@ -23,6 +23,7 @@ import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
 import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
+import { isNull } from 'util';
 
 @Component({
     selector: 'app-root',
@@ -66,6 +67,10 @@ export class AppComponent implements OnInit {
     safeguards: Safeguard[] = [];
     isPlaying = false;
 
+    candidateFields: FieldTrait[] = [];
+    selectableFields: FieldTrait[] = [];
+    selectedFields: FieldTrait[] = [];
+
     constructor(private cd: ChangeDetectorRef,
         private modalService: NgbModal) {
         this.sortablejsOptions = {
@@ -77,6 +82,22 @@ export class AppComponent implements OnInit {
         // reflect the order of this.ongoingNodes to the engine
         let queries = this.ongoingNodes.map(node => node.query);
         this.engine.reorderOngoingQueries(queries);
+    }
+
+    newNodeFieldSelected(field: FieldTrait) {
+        if (this.selectedFields.includes(field)) {
+            util.aremove(this.selectedFields, field);
+        }
+        else {
+            this.selectedFields.push(field);
+        }
+
+        let newQuery: Query = new EmptyQuery(this.dataset);
+        this.selectedFields.forEach(field => {
+            newQuery = newQuery.combine(field);
+        })
+
+        this.selectableFields = newQuery.compatible(this.candidateFields);
     }
 
     fieldSelected(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {
@@ -126,6 +147,17 @@ export class AppComponent implements OnInit {
 
         this.engine.load().then(dataset => {
             this.dataset = dataset;
+
+            this.candidateFields = this.dataset.fields!
+                .filter(field => field.vlType != VlType.Key)
+                .sort((a, b) => {
+                    if (a.vlType > b.vlType) return 1;
+                    if (a.vlType < b.vlType) return -1;
+                    if (a.name > b.name) return 1;
+                    if (a.name < b.name) return -1;
+                    return 0;
+                })
+            this.selectableFields = this.candidateFields;
 
             this.explorationRoot = new ExplorationNode(null, [], new EmptyQuery(dataset));
             this.layout();
@@ -269,7 +301,7 @@ export class AppComponent implements OnInit {
         }
 
         if (!this.rankAllowed()) this.useRank = false;
-        this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
+        if (this.activeNode) this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
     }
 
     // nodeUnselected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, child: boolean) {
@@ -397,7 +429,7 @@ export class AppComponent implements OnInit {
 
             if (this.vis.renderer instanceof HorizontalBarsRenderer)
                 value = this.vis.renderer.getDatum(this.variable1)
-            else if(this.vis.renderer instanceof PunchcardRenderer)
+            else if (this.vis.renderer instanceof PunchcardRenderer)
                 value = this.vis.renderer.getDatum(this.combinedVariable1);
 
             if (constant.value >= value.ci3.center)
@@ -440,9 +472,9 @@ export class AppComponent implements OnInit {
 
     createPointSafeguard() {
         let variable = this.variable1 || this.combinedVariable1;
-        if(!variable) return;
+        if (!variable) return;
 
-        if(this.variable1) this.variable1.isRank = this.useRank;
+        if (this.variable1) this.variable1.isRank = this.useRank;
         let sg;
         if (this.useRank) sg = new PointSafeguard(variable, this.operator, this.pointRankConstant, this.activeNode);
         else sg = new PointSafeguard(variable, this.operator, this.pointValueConstant, this.activeNode);
@@ -457,9 +489,9 @@ export class AppComponent implements OnInit {
 
     createRangeSafeguard() {
         let variable = this.variable1 || this.combinedVariable1;
-        if(!variable) return;
+        if (!variable) return;
 
-        if(this.variable1) this.variable1.isRank = this.useRank;
+        if (this.variable1) this.variable1.isRank = this.useRank;
         let sg;
         if (this.useRank) sg = new RangeSafeguard(variable, this.rangeRankConstant, this.activeNode);
         else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeNode);
@@ -474,7 +506,7 @@ export class AppComponent implements OnInit {
 
     createComparativeSafeguard() {
         let variable = this.variablePair || this.combinedVariablePair;
-        if(!variable) return;
+        if (!variable) return;
 
         let sg = new ComparativeSafeguard(
             variable, this.operator, this.activeNode);
@@ -500,6 +532,17 @@ export class AppComponent implements OnInit {
     toggle(sgt: SGT) {
         this.variable1 = null;
         this.variable2 = null;
+        this.variablePair = null;
+        this.combinedVariable1 = null;
+        this.combinedVariable2 = null;
+        this.combinedVariablePair = null;
+
+        if (this.activeSafeguardPanel === SGT.None && sgt != SGT.None) {
+            if (isNull(this.activeNode)) return;
+            // when opened, stop updating
+
+            // this.activeNode.query.updateAutomatically = false;
+        }
 
         if (this.activeSafeguardPanel === sgt) {
             this.cancelSafeguard();
@@ -515,7 +558,7 @@ export class AppComponent implements OnInit {
             this.useRank = false;
             this.useLinear = false;
 
-            if(this.activeNode.query instanceof Histogram2DQuery && sgt === SafeguardTypes.Distributive) {
+            if (this.activeNode.query instanceof Histogram2DQuery && sgt === SafeguardTypes.Distributive) {
                 this.useLinear = true;
             }
             else if (sgt === SafeguardTypes.Distributive) {

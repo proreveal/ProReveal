@@ -2,9 +2,9 @@ import { isNull, isNumber, isString } from "util";
 import { NumericalGrouper, CategoricalGrouper, GroupIdType } from './grouper';
 
 export enum DataType {
-    String,
-    Integer,
-    Real
+    String = "String",
+    Integer = "Integer",
+    Real = "Real"
 }
 
 export enum VlType {
@@ -182,8 +182,8 @@ export function guessDataType(values: any[]) {
         let value = values[i];
         let float = parseFloat(value);
 
-        if (isNaN(float)) return DataType.String;
-        if (!Number.isInteger(float)) return DataType.Real;
+        if (!isNull(value) && isNaN(float)) return DataType.String;
+        if (!isNull(value) && !Number.isInteger(float)) return DataType.Real;
     }
 
     return DataType.Integer;

@@ -172,7 +172,10 @@ export class AggregateQuery extends Query {
     }
 
     compatible(fields: FieldTrait[]) {
-        return fields.filter(field => field.vlType !== VlType.Key);
+        let compatibleTypes: VlType[] = [];
+        if(this.target == null && this.groupBy.fields.length == 1) compatibleTypes.push(VlType.Quantitative, VlType.Dozen, VlType.Nominal, VlType.Ordinal);
+
+        return fields.filter(field => compatibleTypes.includes(field.vlType))
     }
 
     desc() {
@@ -292,6 +295,10 @@ export class Histogram2DQuery extends AggregateQuery {
     combine(field: FieldTrait): AggregateQuery {
         throw new Error(`${this.name} cannot be combined`);
     }
+
+    compatible(fields: FieldTrait[]) {
+        return [];
+    }
 }
 
 /**
@@ -324,6 +331,7 @@ export class Frequency1DQuery extends AggregateQuery {
                 new GroupBy([this.grouping]),
                 this.sampler);
         }
+
         return new AggregateQuery(
             new CountAccumulator(),
             new CountApproximator(),
