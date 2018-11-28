@@ -1,4 +1,4 @@
-<div id="wrapper" (click)="wrapperClicked()">
+<div id="wrapper">
     <section class="navbar navbar-dark bg-dark box-shadow d-flex justify-content-start" id="navbar">
         <button (click)="toggleMetadataEditor()" class="btn btn-dark" id="open-metadata-editor">
             <fa-icon icon="folder-open"></fa-icon>
@@ -31,21 +31,6 @@
         <button class="btn btn-secondary" (click)="testCC()">CC</button>&nbsp;
     </section>
     <section id="node-view" class="border-right">
-        <!--<section id="search">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <fa-icon [icon]="['fas', 'search']"></fa-icon>
-                    </span>
-                </div>
-                <input type="text" name="keyword" class="form-control" placeholder="Search" (input)="keywordSearched($event.target.value)"
-                    [ngModel]="searchKeyword">
-                <button class="btn btn-light" type="button" (click)="searchKeyword='';highlightedNodes=[]">
-                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                </button>
-            </div>
-        </section>-->
-
         <section id="new-node" class="border-bottom">
             <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
                     <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
@@ -108,9 +93,6 @@
                     <button class="btn btn-light">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
-                    <button class="btn btn-light" (click)="plusClicked($event, node)">
-                        <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
-                    </button>
                 </div>
             </div>
         </section>
@@ -139,21 +121,9 @@
                     <button class="btn btn-light" (click)="deleteClicked(confirmDelete, node)">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
-                    <!--<button class="btn btn-light" (click)="plusClicked($event, node)">
-                        <fa-icon style="pointer-events: none" [icon]="['fas', 'plus']"></fa-icon>
-                    </button>-->
                 </div>
             </div>
         </section>
-
-        <!--<section id="graph" class="styled-scroll">
-            <exploration-view #explorationView
-                [root]="explorationRoot"
-                [hoveredNode]="hoveredNode"
-                [activeNode]="activeNode"
-                >
-            </exploration-view>
-        </section>-->
     </section>
     <section id="main" class="styled-scroll">
         <div *ngIf="!activeNode">
@@ -358,8 +328,6 @@
     <metadata-editor [dataset]="dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
 </div>
-
-<!--<field-selector #fieldSelector (fieldSelected)="fieldSelected($event.node, $event.field)"></field-selector>-->
 
 <ng-template #confirmDelete let-c="close" let-d="dismiss">
     <div class="modal-header">
