@@ -104,6 +104,19 @@ export class AppComponent implements OnInit {
         else this.newQuery = newQuery;
     }
 
+    create() {
+        let query = this.newQuery;
+        let node = new ExplorationNode(null, this.selectedFields, query);
+
+        this.engine.request(query, Priority.Highest);
+
+        this.layout();
+        this.nodeSelected(node);
+
+        this.updateNodeLists();
+        this.cancelCreation();
+    }
+
     cancelCreation() {
         this.selectedFields = [];
         this.selectableFields = this.candidateFields;
