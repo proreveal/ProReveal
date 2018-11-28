@@ -6,7 +6,6 @@ import { Engine, Priority } from './data/engine';
 import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode, NodeState } from './exploration/exploration-node';
-import { ExplorationViewComponent } from './exploration/exploration-view.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
@@ -43,7 +42,6 @@ export class AppComponent implements OnInit {
     LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
-    @ViewChild('explorationView') explorationView: ExplorationViewComponent;
     @ViewChild('vis') vis: VisComponent;
 
     dataset: Dataset;

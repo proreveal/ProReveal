@@ -35,7 +35,7 @@
             <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
                     <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
                     <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
-                Open the Visualization Panel
+                Open the New Visualization Panel
             </button>
 
             <div id="new-node-creator" class="border-bottom rounded-bottom p-2 shadow-sm"
@@ -132,8 +132,8 @@
             </p>
         </div>
         <div [hidden]="!activeNode">
-            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)" (constantSelected)="constantSelected($event)"
-                (safeguardAdded)="safeguardAdded($event)"></vis>
+            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)"
+            (constantSelected)="constantSelected($event)"></vis>
         </div>
     </section>
 
