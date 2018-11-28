@@ -67,6 +67,7 @@ export class AppComponent implements OnInit {
     safeguards: Safeguard[] = [];
     isPlaying = false;
 
+    creating = true;
     candidateFields: FieldTrait[] = [];
     selectableFields: FieldTrait[] = [];
     selectedFields: FieldTrait[] = [];
@@ -85,7 +86,7 @@ export class AppComponent implements OnInit {
         this.engine.reorderOngoingQueries(queries);
     }
 
-    newNodeFieldSelected(field: FieldTrait) {
+    fieldSelected(field: FieldTrait) {
         if (this.selectedFields.includes(field)) {
             util.aremove(this.selectedFields, field);
         }
@@ -99,7 +100,14 @@ export class AppComponent implements OnInit {
         })
 
         this.selectableFields = newQuery.compatible(this.candidateFields);
-        this.newQuery = newQuery;
+        if(this.selectedFields.length === 0) this.newQuery = null;
+        else this.newQuery = newQuery;
+    }
+
+    cancelCreation() {
+        this.selectedFields = [];
+        this.selectableFields = this.candidateFields;
+        this.creating = false;
     }
 
     fieldAdded(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {

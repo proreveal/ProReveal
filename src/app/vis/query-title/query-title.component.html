@@ -1,3 +1,4 @@
+<span *ngIf="query">
 <span *ngIf="query.target === null">COUNT(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>)</span>
 <span *ngIf="query.target !== null">
     <form class="form-inline aggregate-form">
@@ -17,5 +18,5 @@
     <ng-container *ngFor="let field of query.groupBy.fields; index as i">
         <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="query.groupBy.fields.length > 1 && i < query.groupBy.fields.length - 1" class="keyword">,</span>
     </ng-container>
-
+</span>
 
