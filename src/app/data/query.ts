@@ -220,7 +220,6 @@ export class AggregateQuery extends Query {
 
         this.visibleResult = clone;
         this.visibleProgress = this.recentProgress.clone();
-
     }
 }
 

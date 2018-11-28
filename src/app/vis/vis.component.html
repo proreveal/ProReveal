@@ -55,7 +55,9 @@
                 Update automatically
             </button>
 
-            <button type="button" class="btn btn-light btn-sm ml-1" [disabled]="node.query.updateAutomatically">
+            <button type="button" class="btn btn-light btn-sm ml-1"
+                [disabled]="node.query.updateAutomatically"
+                (click)="node.query.sync();forceUpdate()">
                 <fa-icon icon="sync-alt"></fa-icon>
                 Sync
             </button>
