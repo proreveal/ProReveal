@@ -1,16 +1,15 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType, FieldGroupedValueList } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatorTrait, SumAccumulator, CountAccumulator, AccumulatedValue, MeanAccumulator, AllAccumulator } from './accum';
+import { AccumulatorTrait, CountAccumulator, AccumulatedValue, AllAccumulator } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
-import { Queue } from './queue';
 import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
-import { OrderingType, NumericalOrdering, OrderingDirection } from './ordering';
-import { ConfidenceInterval, ApproximatorTrait, SumApproximator, CountApproximator, MeanApproximator } from './approx';
+import { NumericalOrdering, OrderingDirection } from './ordering';
+import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 
 export type Datum = {
@@ -23,14 +22,20 @@ export type Datum = {
 export abstract class Query {
     id: number;
     static Id = 1;
-    progress: Progress = new Progress();
+    visibleProgress: Progress = new Progress();
+    recentProgress: Progress = new Progress();
+
     name: string;
-    result: AccumulatedKeyValues;
+
+    recentResult: AccumulatedKeyValues = {};
+    visibleResult: AccumulatedKeyValues = {};
+
     lastUpdated: number = +new Date(); // epoch
     ordering = NumericalOrdering;
     orderingAttributeGetter = d => d;
     orderingDirection = OrderingDirection.Descending;
     jobs: Job[];
+    updateAutomatically;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -83,8 +88,6 @@ export class EmptyQuery extends Query {
  */
 export class AggregateQuery extends Query {
     name = "AggregateQuery";
-    recentResult: AccumulatedKeyValues = {};
-    result: AccumulatedKeyValues = {};
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
@@ -110,8 +113,8 @@ export class AggregateQuery extends Query {
         // create samples
         let samples = this.sampler.sample(this.dataset.rows.length);
 
-        this.progress.totalBlocks = samples.length;
-        this.progress.totalRows = dataset.length;
+        this.visibleProgress.totalBlocks = samples.length;
+        this.visibleProgress.totalRows = dataset.length;
 
         this.jobs = samples.map((sample, i) =>
             new AggregateJob(
@@ -127,8 +130,8 @@ export class AggregateQuery extends Query {
     accumulate(job: AggregateJob, partialKeyValues: PartialKeyValue[]) {
         this.lastUpdated = +new Date();
 
-        this.progress.processedRows += job.sample.length;
-        this.progress.processedBlocks++;
+        this.visibleProgress.processedRows += job.sample.length;
+        this.visibleProgress.processedBlocks++;
 
         partialKeyValues.forEach(pres => {
             const hash = pres.key.hash;
@@ -181,15 +184,15 @@ export class AggregateQuery extends Query {
     }
 
     resultData(): Datum[] {
-        let data = Object.keys(this.result).map(k => {
-            let key = this.result[k].key;
-            let value = this.result[k].value;
+        let data = Object.keys(this.visibleResult).map(k => {
+            let key = this.visibleResult[k].key;
+            let value = this.visibleResult[k].value;
 
             const ai = this.approximator
                 .approximate(value,
-                    this.progress.processedPercent(),
-                    this.progress.processedRows,
-                    this.progress.totalRows);
+                    this.visibleProgress.processedPercent(),
+                    this.visibleProgress.processedRows,
+                    this.visibleProgress.totalRows);
 
             return {
                 id: key.hash,
@@ -205,10 +208,16 @@ export class AggregateQuery extends Query {
     }
 
     sync() {
-        this.result = this.recentResult;
-        // Object.keys(this.result).forEach(key => {
-        //     this.result[key].value = this.result[key].value.clone();
-        // })
+        let cloned: AccumulatedKeyValues = {};
+
+        Object.keys(this.recentResult).forEach(key => {
+            cloned[key] = {
+                key: this.recentResult[key].key,
+                value: this.recentResult[key].value
+            }
+        })
+
+        this.visibleResult = cloned;
     }
 }
 

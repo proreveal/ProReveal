@@ -35,12 +35,12 @@ export class PointValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointValueConstant): PValue {
 
-        let result = query.result[variable.hash].value;
+        let result = query.visibleResult[variable.hash].value;
         let ai = query.approximator.approximate(
             result,
-            query.progress.processedPercent(),
-            query.progress.processedRows,
-            query.progress.totalRows);
+            query.visibleProgress.processedPercent(),
+            query.visibleProgress.processedRows,
+            query.visibleProgress.totalRows);
         let z = (constant.value - ai.center) / ai.stdev;
         let cp = normal.cdf(z);
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
@@ -55,16 +55,16 @@ export class PointValueEstimator implements EstimatorTrait {
 export class PointRankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointRankConstant): PValue {
-        const n = query.progress.processedRows;
-        const N = query.progress.totalRows;
+        const n = query.visibleProgress.processedRows;
+        const N = query.visibleProgress.totalRows;
 
-        let results: [string, ApproximatedInterval][] = Object.keys(query.result).map((hash) => {
-            let result = query.result[hash];
+        let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult).map((hash) => {
+            let result = query.visibleResult[hash];
             let ai = query.approximator.approximate(
                 result.value,
-                query.progress.processedPercent(),
-                query.progress.processedRows,
-                query.progress.totalRows
+                query.visibleProgress.processedPercent(),
+                query.visibleProgress.processedRows,
+                query.visibleProgress.totalRows
             );
 
             return [hash, ai] as [string, ApproximatedInterval];
@@ -108,12 +108,12 @@ export class PointRankEstimator implements EstimatorTrait {
 export class RangeValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeValueConstant): PValue {
-        let result = query.result[variable.hash].value;
+        let result = query.visibleResult[variable.hash].value;
         let ai = query.approximator.approximate(
             result,
-            query.progress.processedPercent(),
-            query.progress.processedRows,
-            query.progress.totalRows);
+            query.visibleProgress.processedPercent(),
+            query.visibleProgress.processedRows,
+            query.visibleProgress.totalRows);
 
         let zLeft = (constant.from - ai.center) / ai.stdev;
         let zRight = (constant.to - ai.center) / ai.stdev;
@@ -130,13 +130,13 @@ export class RangeRankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeRankConstant): Truthiness {
 
-        let results: [string, ApproximatedInterval][] = Object.keys(query.result).map((hash) => {
-            let result = query.result[hash];
+        let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult).map((hash) => {
+            let result = query.visibleResult[hash];
             let ai = query.approximator.approximate(
                 result.value,
-                query.progress.processedPercent(),
-                query.progress.processedRows,
-                query.progress.totalRows
+                query.visibleProgress.processedPercent(),
+                query.visibleProgress.processedRows,
+                query.visibleProgress.totalRows
             );
 
             return [hash, ai] as [string, ApproximatedInterval];
@@ -157,21 +157,21 @@ export class RangeRankEstimator implements EstimatorTrait {
 export class ComparativeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariablePair | CombinedVariablePair,
         operator: Operators): PValue {
-        const n = query.progress.processedRows;
-        const N = query.progress.totalRows;
+        const n = query.visibleProgress.processedRows;
+        const N = query.visibleProgress.totalRows;
 
-        let result1 = query.result[variable.first.hash].value;
-        let result2 = query.result[variable.second.hash].value;
+        let result1 = query.visibleResult[variable.first.hash].value;
+        let result2 = query.visibleResult[variable.second.hash].value;
 
         let ai1 = query.approximator.approximate(
             result1,
-            query.progress.processedPercent(),
+            query.visibleProgress.processedPercent(),
             n,
             N);
 
         let ai2 = query.approximator.approximate(
             result2,
-            query.progress.processedPercent(),
+            query.visibleProgress.processedPercent(),
             n,
             N);
 

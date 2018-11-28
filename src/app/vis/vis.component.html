@@ -25,28 +25,28 @@
 
 <hr>
 
-<p [hidden]="node.query.progress.processedBlocks > 0" class="alert alert-primary" role="alert">
-    This query has not been start yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
+<p [hidden]="node.query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert">
+    This query has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
 </p>
 
-<div [hidden]="node.query.progress.processedBlocks === 0" class="vis-content">
+<div [hidden]="node.query.recentProgress.processedBlocks === 0" class="vis-content">
     <div class="progress-control">
         <div class="progress mb-1">
             <div class="progress-bar" role="progressbar"
-                [style.width.%]="node.query.progress.processedPercent() * 100"
-                [attr.aria-valuenow]="node.query.progress.processedPercent() * 100"
+                [style.width.%]="node.query.recentProgress.processedPercent() * 100"
+                [attr.aria-valuenow]="node.query.recentProgress.processedPercent() * 100"
                 aria-valuemin="0" aria-valuemax="100">
             </div>
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                [style.width.%]="node.query.progress.ongoingPercent() * 100"
-                [attr.aria-valuenow]="node.query.progress.ongoingPercent() * 100"
+                [style.width.%]="node.query.recentProgress.ongoingPercent() * 100"
+                [attr.aria-valuenow]="node.query.recentProgress.ongoingPercent() * 100"
                 aria-valuemin="0" aria-valuemax="100">
             </div>
         </div>
         <div class="d-flex flex-row justify-content-between mb-1">
             <div class="p-2 flex-grow-1">
-                {{ node.query.progress.processedBlocks }} / {{ node.query.progress.totalBlocks}}
-                ({{ node.query.progress.processedPercent() | percent }})
+                {{ node.query.recentProgress.processedBlocks }} / {{ node.query.recentProgress.totalBlocks}}
+                ({{ node.query.recentProgress.processedPercent() | percent }})
             </div>
             <button type="button" class="btn btn-light btn-sm ml-1"
                 (click)="node.query.updateAutomatically=!node.query.updateAutomatically">

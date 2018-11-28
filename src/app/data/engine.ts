@@ -44,7 +44,7 @@ export class Engine {
         if (priority === Priority.AfterCompletedQueries) {
             let lastIndex = 0;
             this.ongoingQueries.forEach((query, i) => {
-                if (query.progress.done()) lastIndex = i + 1;
+                if (query.visibleProgress.done()) lastIndex = i + 1;
             })
 
             this.ongoingQueries.splice(lastIndex, 0, query);
@@ -69,17 +69,18 @@ export class Engine {
 
         const job = this.queue.pop();
 
-        job.query.progress.ongoingBlocks = 1;
+        job.query.visibleProgress.ongoingBlocks = 1;
         const partialKeyValues = job.run();
-        job.query.progress.ongoingBlocks = 0;
+        job.query.visibleProgress.ongoingBlocks = 0;
 
         job.query.accumulate(job, partialKeyValues);
 
+        console.log(job.query.updateAutomatically);
         if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
             job.query.sync();
         }
 
-        if (job.query.progress.done()) {
+        if (job.query.visibleProgress.done()) {
             this.ongoingQueries.splice(0, 1);
             this.completedQueries.push(job.query);
         }
