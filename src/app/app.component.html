@@ -6,11 +6,24 @@
         <a href="#" class="navbar-brand">SPVA
             <small> (movies.json)</small>
         </a>
-        <button class="btn btn-primary" (click)="run(1)">Run a job</button>
+        <span class="text-light">
+            Dev menu
+        </span>
         &nbsp;
-        <button class="btn btn-primary" (click)="run(10)">Run 10 jobs</button>
+        <button class="btn btn-primary" (click)="play()" [hidden]="isPlaying">
+            <fa-icon [icon]="['fas', 'play']"></fa-icon>
+            Run a job every 3 seconds
+        </button>
+        <button class="btn btn-danger" (click)="pause()" [hidden]="!isPlaying">
+            <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+            Pause
+        </button>
         &nbsp;
-        <button class="btn btn-primary" (click)="run(100)">Run 100 jobs</button>&nbsp;
+        <button class="btn btn-secondary" (click)="run(1)">Run a job</button>
+        &nbsp;
+        <button class="btn btn-secondary" (click)="run(10)">Run 10 jobs</button>
+        &nbsp;
+        <button class="btn btn-secondary" (click)="run(100)">Run 100 jobs</button>&nbsp;
         <button class="btn btn-secondary" (click)="testC()">C</button>&nbsp;
         <button class="btn btn-secondary" (click)="testN()">N</button>&nbsp;
         <button class="btn btn-secondary" (click)="testCN()">CN</button>&nbsp;

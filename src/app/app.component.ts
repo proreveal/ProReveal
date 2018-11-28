@@ -17,7 +17,7 @@ import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes, LinearRegressionConstant } from './safeguard/constant';
-import { of } from 'rxjs';
+import { of, interval, Observable, Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { AccumulatedKeyValues } from './data/keyvalue';
@@ -30,6 +30,19 @@ import { PunchcardRenderer } from './vis/renderers/punchcard';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+    SGT = SGT;
+    NodeState = NodeState;
+    VC = VisConstants;
+    VT = VariableTypes;
+    Operators = Operators;
+    PointValueEstimate = new PointValueEstimator().estimate;
+    PointRankEstimate = new PointRankEstimator().estimate;
+    RangeValueEstimate = new RangeValueEstimator().estimate;
+    ComparativeEstimate = new ComparativeEstimator().estimate;
+    PowerLawEstimate = new PowerLawEstimator().estimate;
+    NormalEstimate = new NormalEstimator().estimate;
+    LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
+
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
     @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
@@ -50,21 +63,8 @@ export class AppComponent implements OnInit {
     searchKeyword: string;
 
     activeSafeguardPanel = SGT.None;
-    private safeguards: Safeguard[] = [];
-
-    SGT = SGT;
-    NodeState = NodeState;
-    VC = VisConstants;
-    VT = VariableTypes;
-    Operators = Operators;
-
-    PointValueEstimate = new PointValueEstimator().estimate;
-    PointRankEstimate = new PointRankEstimator().estimate;
-    RangeValueEstimate = new RangeValueEstimator().estimate;
-    ComparativeEstimate = new ComparativeEstimator().estimate;
-    PowerLawEstimate = new PowerLawEstimator().estimate;
-    NormalEstimate = new NormalEstimator().estimate;
-    LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
+    safeguards: Safeguard[] = [];
+    isPlaying = false;
 
     constructor(private cd: ChangeDetectorRef,
         private modalService: NgbModal) {
@@ -137,6 +137,8 @@ export class AppComponent implements OnInit {
                 }
             });
 
+            this.nodeSelected(this.ongoingNodes[0]);
+
             // Just run 10 jobs.
             // this.run(10);
 
@@ -161,12 +163,12 @@ export class AppComponent implements OnInit {
             // this.run(10);
 
             // this.testC();
-            this.testNN();
+            // this.testNN();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Distributive);
+                // this.toggle(SGT.Distributive);
                 // this.useRank = true;
                 // this.useRankToggled();
             })
@@ -544,5 +546,19 @@ export class AppComponent implements OnInit {
         let num = +s.replace(/,/g, '');
         if (isNaN(num)) num = 0;
         return num;
+    }
+
+    subs: Subscription;
+    play() {
+        this.isPlaying = true;
+        let counter = interval(3000);
+        this.subs = counter.subscribe(n => {
+            this.run(1);
+        })
+    }
+
+    pause() {
+        this.isPlaying = false;
+        this.subs.unsubscribe();
     }
 }
