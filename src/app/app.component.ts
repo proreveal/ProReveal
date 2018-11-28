@@ -218,9 +218,9 @@ export class AppComponent implements OnInit {
         this.completedNodes = this.engine.completedQueries.map(q => nodes.find(node => node.query === q));
     }
 
-    run(times: number) {
+    run(times: number, simulatedDelay = 0) {
         for (let i = 0; i < times; i++)
-            this.engine.run();
+            this.engine.run(simulatedDelay);
 
         this.updateNodeLists();
     }
@@ -553,8 +553,9 @@ export class AppComponent implements OnInit {
     play() {
         this.isPlaying = true;
         let counter = interval(3000);
+        this.run(1, 2500);
         this.subs = counter.subscribe(n => {
-            this.run(1);
+            this.run(1, 2500);
         })
     }
 

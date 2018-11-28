@@ -55,23 +55,18 @@
     <div class="d-flex flex-row justify-content-between mb-1">
         <div class="pt-1 flex-grow-1">
             Processed
-            <span class="font-weight-bold text-primary">
-                {{ node.query.recentProgress.processedBlocks | number }}
-            </span>
+            <span class="font-weight-bold text-primary">{{ node.query.recentProgress.processedRows | number }}</span>
             of
-            <span [ngPlural]="node.query.recentProgress.totalBlocks">
-                <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> block</ng-template>
-                <ng-template ngPluralCase="other">
-                    <span class="font-weight-bold">{{ node.query.recentProgress.totalBlocks | number }}</span> blocks
-                </ng-template>
-            </span>
-
-            (<span class="font-weight-bold text-primary">{{ node.query.recentProgress.processedRows | number }}</span>
-            of
-
             <span [ngPlural]="node.query.recentProgress.totalRows">
                 <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> row</ng-template>
                 <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ node.query.recentProgress.totalRows | number }}</span> rows</ng-template>
+            </span>
+
+            (<span class="font-weight-bold text-primary">{{ node.query.recentProgress.processedBlocks | number }}</span>
+            of
+            <span [ngPlural]="node.query.recentProgress.totalBlocks">
+                <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> block</ng-template>
+                <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ node.query.recentProgress.totalBlocks | number }}</span> blocks</ng-template>
             </span>,
             {{ node.query.recentProgress.processedPercent() | percent }})
         </div>

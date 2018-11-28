@@ -4,6 +4,8 @@ import { FieldTrait, VlType } from './field';
 import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
+import { timeout } from 'rxjs/operators';
+import { timer } from 'rxjs';
 
 export enum Priority {
     Highest,
@@ -64,28 +66,32 @@ export class Engine {
         this.queue.remove(query);
     }
 
-    run() {
+    run(simulatedDelay = 2500) {
         if (this.queue.empty()) return;
 
         const job = this.queue.pop();
 
         job.query.recentProgress.ongoingBlocks = 1;
-        const partialKeyValues = job.run();
-        job.query.recentProgress.ongoingBlocks = 0;
 
-        job.query.accumulate(job, partialKeyValues);
+        let latency = timer(simulatedDelay);
+        latency.subscribe(() => {
+            const partialKeyValues = job.run();
+            job.query.recentProgress.ongoingBlocks = 0;
 
-        if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
-            job.query.sync();
-        }
+            job.query.accumulate(job, partialKeyValues);
 
-        if (job.query.recentProgress.done()) {
-            this.ongoingQueries.splice(0, 1);
-            this.completedQueries.push(job.query);
-        }
+            if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
+                job.query.sync();
+            }
 
-        if(this.queryDone)
-            this.queryDone();
+            if (job.query.recentProgress.done()) {
+                this.ongoingQueries.splice(0, 1);
+                this.completedQueries.push(job.query);
+            }
+
+            if (this.queryDone)
+                this.queryDone();
+        })
     }
 
     empty() {
