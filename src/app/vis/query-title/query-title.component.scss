@@ -1,7 +1,6 @@
 
 field-badge {
-    font-size: 1.2rem;
-    font-weight: normal;
+    font-size: .8em;
 }
 
 .aggregate-form {
@@ -20,4 +19,16 @@ field-badge {
 .query-desc field-badge {
     position: relative;
     top: -.15rem;
+}
+
+select {
+    font-family: 'Roboto Condensed';
+    border: none;
+    font-size: 1em;
+    padding: 0;
+    background: none;
+}
+
+select:active {
+    background: none;
 }
