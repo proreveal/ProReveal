@@ -36,10 +36,12 @@ export abstract class Query {
     orderingDirection = OrderingDirection.Descending;
     jobs: Job[];
     updateAutomatically;
+    createdAt: Date;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
         this.jobs = [];
+        this.createdAt = new Date();
     }
 
     abstract accumulate(job: Job, partialKeyValues: PartialKeyValue[]);

@@ -1,5 +1,5 @@
 <div *ngIf="node && node.query">
-<header class="query-desc mt-2 ml-2">
+<header class="query-desc mt-2">
     <!-- <strong>Q{{ node.query.id }}: </strong> -->
 
 <span *ngIf="node.query.target === null">COUNT(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>)</span>
@@ -21,6 +21,8 @@
     <ng-container *ngFor="let field of node.query.groupBy.fields; index as i">
         <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="node.query.groupBy.fields.length > 1 && i < node.query.groupBy.fields.length - 1" class="keyword">,</span>
     </ng-container>
+
+    <small class="pl-1">created {{ node.query.createdAt | amTimeAgo }}</small>
 </header>
 
 <hr>

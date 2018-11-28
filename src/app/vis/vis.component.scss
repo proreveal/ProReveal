@@ -29,6 +29,11 @@
     top: -.15rem;
 }
 
+header small {
+    font-size: 1rem;
+    opacity: .5;
+}
+
 .progress {
     height: 6px;
 }
@@ -40,11 +45,12 @@
 #visible-progress-indicator {
     position: absolute;
     top: -.72rem;
-    line-height: 1rem;
+    line-height: 1.1rem;
     display: block;
     width: 20px;
     margin-left: -10px;
     transition: left 0.5s;
+    font-size: .8rem;
 }
 
 @import '../theme.scss';
