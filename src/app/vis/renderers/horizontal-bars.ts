@@ -73,6 +73,7 @@ export class HorizontalBarsRenderer implements Renderer {
         let visG = svg.select('g.vis');
         let data = query.resultData();
 
+        console.log(query.recentProgress, query.visibleProgress);
         this.data = data;
 
         const height = VC.horizontalBars.axis.height * 2 +
@@ -103,6 +104,7 @@ export class HorizontalBarsRenderer implements Renderer {
         const xScale = d3.scaleLinear().domain([node.domainStart, node.domainEnd])
             .range([labelWidth, width - VC.padding])
             .clamp(true)
+
         const yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([VC.horizontalBars.axis.height,
             height - VC.horizontalBars.axis.height])

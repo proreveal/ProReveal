@@ -1,11 +1,14 @@
 export class Progress {
-    processedBlocks: number = 0; // # of processed blocks
-    ongoingBlocks: number = 0; // # of ongoing blocks
-    totalBlocks: number = 0; // # of total blocks
+    constructor(
+        public processedBlocks = 0,
+        public ongoingBlocks = 0,
+        public totalBlocks = 0,
+        public processedRows = 0,
+        public ongoingRows = 0,
+        public totalRows = 0
+    ) {
 
-    processedRows: number = 0;
-    ongoingRows: number = 0;
-    totalRows: number = 0;
+    }
 
     processedPercent() {
         if (this.totalBlocks === 0) return 0;
@@ -19,5 +22,16 @@ export class Progress {
 
     done() {
         return this.totalBlocks === this.processedBlocks;
+    }
+
+    clone() {
+        return new Progress(
+            this.processedBlocks,
+            this.ongoingBlocks,
+            this.totalBlocks,
+            this.processedRows,
+            this.ongoingRows,
+            this.totalRows
+        )
     }
 }

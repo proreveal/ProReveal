@@ -20,7 +20,7 @@ export class Engine {
     queue: Queue = new Queue(this.scheduler);
     queryDone: () => void;
 
-    constructor(private uri: string) {
+    constructor(private url: string) {
 
     }
 
@@ -32,7 +32,7 @@ export class Engine {
             return Promise.resolve(this.dataset);
         }
 
-        return util.get(this.uri, "json").then(rows => {
+        return util.get(this.url, "json").then(rows => {
             this.rows = rows;
             this.dataset = new Dataset(this.rows);
 
@@ -69,18 +69,17 @@ export class Engine {
 
         const job = this.queue.pop();
 
-        job.query.visibleProgress.ongoingBlocks = 1;
+        job.query.recentProgress.ongoingBlocks = 1;
         const partialKeyValues = job.run();
-        job.query.visibleProgress.ongoingBlocks = 0;
+        job.query.recentProgress.ongoingBlocks = 0;
 
         job.query.accumulate(job, partialKeyValues);
 
-        console.log(job.query.updateAutomatically);
         if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
             job.query.sync();
         }
 
-        if (job.query.visibleProgress.done()) {
+        if (job.query.recentProgress.done()) {
             this.ongoingQueries.splice(0, 1);
             this.completedQueries.push(job.query);
         }

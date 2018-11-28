@@ -113,8 +113,8 @@ export class AggregateQuery extends Query {
         // create samples
         let samples = this.sampler.sample(this.dataset.rows.length);
 
-        this.visibleProgress.totalBlocks = samples.length;
-        this.visibleProgress.totalRows = dataset.length;
+        this.recentProgress.totalBlocks = samples.length;
+        this.recentProgress.totalRows = dataset.length;
 
         this.jobs = samples.map((sample, i) =>
             new AggregateJob(
@@ -130,8 +130,8 @@ export class AggregateQuery extends Query {
     accumulate(job: AggregateJob, partialKeyValues: PartialKeyValue[]) {
         this.lastUpdated = +new Date();
 
-        this.visibleProgress.processedRows += job.sample.length;
-        this.visibleProgress.processedBlocks++;
+        this.recentProgress.processedRows += job.sample.length;
+        this.recentProgress.processedBlocks++;
 
         partialKeyValues.forEach(pres => {
             const hash = pres.key.hash;
@@ -188,6 +188,7 @@ export class AggregateQuery extends Query {
             let key = this.visibleResult[k].key;
             let value = this.visibleResult[k].value;
 
+            console.log(value, this.visibleProgress);
             const ai = this.approximator
                 .approximate(value,
                     this.visibleProgress.processedPercent(),
@@ -208,16 +209,18 @@ export class AggregateQuery extends Query {
     }
 
     sync() {
-        let cloned: AccumulatedKeyValues = {};
+        let clone: AccumulatedKeyValues = {};
 
         Object.keys(this.recentResult).forEach(key => {
-            cloned[key] = {
+            clone[key] = {
                 key: this.recentResult[key].key,
                 value: this.recentResult[key].value
             }
         })
 
-        this.visibleResult = cloned;
+        this.visibleResult = clone;
+        this.visibleProgress = this.recentProgress.clone();
+
     }
 }
 
@@ -275,7 +278,7 @@ export class Histogram2DQuery extends AggregateQuery {
         public dataset: Dataset,
         public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
-            new CountAccumulator(),
+            new AllAccumulator(),
             new CountApproximator(),
             null,
             dataset,
