@@ -68,6 +68,9 @@
                         </div>
                     </div>
                 </div>
+
+
+                {{ newQuery }}
             </div>
         </section>
         <h3 id="completed-node-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
@@ -338,7 +341,7 @@
     </metadata-editor>
 </div>
 
-<field-selector #fieldSelector (fieldSelected)="fieldSelected($event.node, $event.field)"></field-selector>
+<!--<field-selector #fieldSelector (fieldSelected)="fieldSelected($event.node, $event.field)"></field-selector>-->
 
 <ng-template #confirmDelete let-c="close" let-d="dismiss">
     <div class="modal-header">

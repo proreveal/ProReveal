@@ -1,27 +1,8 @@
 <div *ngIf="node && node.query">
-<header class="query-desc mt-2">
-    <!-- <strong>Q{{ node.query.id }}: </strong> -->
-
-<span *ngIf="node.query.target === null">COUNT(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>)</span>
-<span *ngIf="node.query.target !== null">
-    <form class="form-inline aggregate-form">
-    <select class="form-control form-control-md"
-        (change)="setApproximator($event.target.value)"
-        [ngModel]="node.query.approximator.name"
-        name="approximator"
-        >
-        <option *ngFor="let approx of approximators" [value]="approx.name">
-            {{ approx.name.toUpperCase() }}
-        </option>
-    </select>
-    </form>
-    (<field-badge [field]="node.query.target" class="mr-1"></field-badge>{{ node.query.target.name }})
-
-    </span><span class="keyword ml-1">GROUPED BY</span>
-    <ng-container *ngFor="let field of node.query.groupBy.fields; index as i">
-        <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="node.query.groupBy.fields.length > 1 && i < node.query.groupBy.fields.length - 1" class="keyword">,</span>
-    </ng-container>
-
+<header class="query-desc">
+    <query-title [query]="node.query"
+        (approximatorChanged)="approximatorChanged($event)"
+    ></query-title>
     <small class="pl-1">created {{ node.query.createdAt | amTimeAgo }}</small>
 </header>
 

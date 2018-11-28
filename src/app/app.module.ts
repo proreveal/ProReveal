@@ -43,6 +43,7 @@ import { SgListItemComponent } from './display/sg-list-item/sg-list-item.compone
 import { QualityIndicatorComponent } from './display/quality-indicator/quality-indicator.component';
 import { ErrorIndicatorComponent } from './display/error-indicator/error-indicator.component';
 import { SgHistoryComponent } from './display/history/sg-history.component';
+import { QueryTitleComponent } from './vis/query-title/query-title.component';
 
 library.add(fas, far);
 
@@ -73,7 +74,8 @@ library.add(fas, far);
         QualityIndicatorComponent,
         ErrorIndicatorComponent,
         SgHistoryComponent,
-        PunchcardTooltipComponent
+        PunchcardTooltipComponent,
+        QueryTitleComponent
     ],
     imports: [
         NgbModule.forRoot(),

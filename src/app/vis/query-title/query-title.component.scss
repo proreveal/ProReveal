@@ -1,0 +1,23 @@
+
+field-badge {
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
+.aggregate-form {
+    display: inline;
+}
+
+.aggregate-name {
+    font-family: 'Roboto Condensed';
+}
+
+.keyword {
+    font-family: 'Roboto Condensed';
+    opacity: .5;
+}
+
+.query-desc field-badge {
+    position: relative;
+    top: -.15rem;
+}

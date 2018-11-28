@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
 
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('explorationView') explorationView: ExplorationViewComponent;
-    @ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
+    //@ViewChild('fieldSelector') fieldSelector: FieldSelectorComponent;
     @ViewChild('vis') vis: VisComponent;
 
     dataset: Dataset;
@@ -70,6 +70,7 @@ export class AppComponent implements OnInit {
     candidateFields: FieldTrait[] = [];
     selectableFields: FieldTrait[] = [];
     selectedFields: FieldTrait[] = [];
+    newQuery: Query;
 
     constructor(private cd: ChangeDetectorRef,
         private modalService: NgbModal) {
@@ -98,11 +99,12 @@ export class AppComponent implements OnInit {
         })
 
         this.selectableFields = newQuery.compatible(this.candidateFields);
+        this.newQuery = newQuery;
     }
 
-    fieldSelected(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {
+    fieldAdded(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {
         // close the selector
-        this.fieldSelector.hide();
+        //this.fieldSelector.hide();
 
         // if (this.previousNodeView) {
         //     this.previousNodeView.selectorClosed(); // important
@@ -134,14 +136,6 @@ export class AppComponent implements OnInit {
         this.explorationLayout.layout(this.explorationRoot, false); //this.explorationView.editable);
     }
 
-    print(result: AccumulatedKeyValues) {
-        for (const key in result) {
-            const res = result[key];
-
-            console.log(res.key, res.value);
-        }
-    }
-
     ngOnInit() {
         this.engine = new Engine('./assets/movies.json');
 
@@ -164,7 +158,7 @@ export class AppComponent implements OnInit {
 
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
-                    const [] = this.fieldSelected(this.explorationRoot, field,
+                    const [] = this.fieldAdded(this.explorationRoot, field,
                         Priority.Lowest);
                 }
             });
@@ -221,17 +215,17 @@ export class AppComponent implements OnInit {
     }
 
     testCN() {
-        const [node, query] = this.fieldSelected(this.ongoingNodes[0], this.dataset.getFieldByName('Production_Budget'));
+        const [node, query] = this.fieldAdded(this.ongoingNodes[0], this.dataset.getFieldByName('Production_Budget'));
         this.run(5);
     }
 
     testNN() {
-        this.fieldSelected(this.ongoingNodes[6], this.dataset.getFieldByName('IMDB_Rating'));
+        this.fieldAdded(this.ongoingNodes[6], this.dataset.getFieldByName('IMDB_Rating'));
         this.run(10);
     }
 
     testCC() {
-        const [] = this.fieldSelected(this.ongoingNodes[0], this.dataset.getFieldByName('Major_Genre'));
+        const [] = this.fieldAdded(this.ongoingNodes[0], this.dataset.getFieldByName('Major_Genre'));
         this.run(10);
     }
 
@@ -311,7 +305,7 @@ export class AppComponent implements OnInit {
     // }
 
     wrapperClicked() {
-        this.fieldSelector.hide();
+        //this.fieldSelector.hide();
         // if (this.previousNodeView) {
         //     this.previousNodeView.selectorClosed();
         //     this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
@@ -326,8 +320,8 @@ export class AppComponent implements OnInit {
             .filter(field => !node.fields.includes(field));
         // compatible and no duplicates
 
-        this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
-            fields, node);
+        //this.fieldSelector.show(rect.left + rect.width, rect.top + rect.height,
+            //fields, node);
         $event.stopPropagation();
     }
 

@@ -35,12 +35,6 @@ export class VisComponent implements OnInit, DoCheck {
     lastUpdated: number = 0;
     lastNode: ExplorationNode;
     renderer: Renderer;
-    approximators: ApproximatorTrait[] = [
-        new SumApproximator(),
-        new MeanApproximator(),
-        new MaxApproximator(),
-        new MinApproximator()
-    ];
 
     constructor() { }
 
@@ -110,7 +104,7 @@ export class VisComponent implements OnInit, DoCheck {
         this.renderer.constantUserChanged(constant);
     }
 
-    setApproximator(name) {
+    approximatorChanged(name) {
         let query = this.node.query as AggregateQuery;
 
         if(name === query.approximator.name) return;
