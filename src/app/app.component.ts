@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Dataset } from './data/dataset';
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
@@ -6,9 +6,7 @@ import { Engine, Priority } from './data/engine';
 import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import { ExplorationNode, NodeState } from './exploration/exploration-node';
-import { ExplorationLayout } from './exploration/exploration-layout';
 import { ExplorationViewComponent } from './exploration/exploration-view.component';
-import { FieldSelectorComponent } from './field-selector/field-selector.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
@@ -17,10 +15,9 @@ import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes, LinearRegressionConstant } from './safeguard/constant';
-import { of, interval, Observable, Subscription } from 'rxjs';
+import { of, interval, Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
-import { AccumulatedKeyValues } from './data/keyvalue';
 import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
@@ -50,8 +47,6 @@ export class AppComponent implements OnInit {
     @ViewChild('vis') vis: VisComponent;
 
     dataset: Dataset;
-    explorationRoot: ExplorationNode;
-    explorationLayout: ExplorationLayout = new ExplorationLayout();
     engine: Engine;
 
     activeNode: ExplorationNode = null;
@@ -72,9 +67,9 @@ export class AppComponent implements OnInit {
     selectableFields: FieldTrait[] = [];
     selectedFields: FieldTrait[] = [];
     newQuery: Query;
+    nodes: ExplorationNode[] = [];
 
-    constructor(private cd: ChangeDetectorRef,
-        private modalService: NgbModal) {
+    constructor(private modalService: NgbModal) {
         this.sortablejsOptions = {
             onUpdate: this.ongoingQueriesReordered.bind(this)
         };
@@ -104,13 +99,12 @@ export class AppComponent implements OnInit {
         else this.newQuery = newQuery;
     }
 
-    create() {
-        let query = this.newQuery;
-        let node = new ExplorationNode(null, this.selectedFields, query);
+    create(fields: FieldTrait[], query: Query, priority = Priority.Lowest) {
+        let node = new ExplorationNode(fields, query);
+        this.nodes.push(node);
 
-        this.engine.request(query, Priority.Highest);
+        this.engine.request(query, priority);
 
-        this.layout();
         this.nodeSelected(node);
 
         this.updateNodeLists();
@@ -121,40 +115,6 @@ export class AppComponent implements OnInit {
         this.selectedFields = [];
         this.selectableFields = this.candidateFields;
         this.creating = false;
-    }
-
-    fieldAdded(parent: ExplorationNode, field: FieldTrait, priority = Priority.AfterCompletedQueries): [ExplorationNode, Query] {
-        // close the selector
-        //this.fieldSelector.hide();
-
-        // if (this.previousNodeView) {
-        //     this.previousNodeView.selectorClosed(); // important
-        //     this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
-        // }
-
-        let query = parent.query.combine(field);
-        let node = new ExplorationNode(parent, parent.fields.concat(field), query);
-
-        parent.addChild(node);
-
-        this.engine.request(query, priority);
-
-        this.layout();
-        this.nodeSelected(node);
-
-        this.updateNodeLists();
-
-        return [node, query];
-    }
-
-    collectNodes(node: ExplorationNode): ExplorationNode[] {
-        if (node.hasChildren())
-            return node.children.reduce((a, b) => a.concat(this.collectNodes(b)), node.isRoot() ? [] : [node]);
-        return [node];
-    }
-
-    layout() {
-        this.explorationLayout.layout(this.explorationRoot, false); //this.explorationView.editable);
     }
 
     ngOnInit() {
@@ -174,15 +134,13 @@ export class AppComponent implements OnInit {
                 })
             this.selectableFields = this.candidateFields;
 
-            this.explorationRoot = new ExplorationNode(null, [], new EmptyQuery(dataset));
-            this.layout();
-
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
-                    const [] = this.fieldAdded(this.explorationRoot, field,
-                        Priority.Lowest);
+                    this.create([field], (new EmptyQuery(dataset)).combine(field));
                 }
             });
+
+            this.updateNodeLists();
 
             this.nodeSelected(this.ongoingNodes[0]);
 
@@ -226,7 +184,6 @@ export class AppComponent implements OnInit {
     }
 
     testC() {
-        this.nodeSelected(this.ongoingNodes[0])
         this.run(5);
     }
 
@@ -236,17 +193,32 @@ export class AppComponent implements OnInit {
     }
 
     testCN() {
-        const [node, query] = this.fieldAdded(this.ongoingNodes[0], this.dataset.getFieldByName('Production_Budget'));
+        let field1 = this.dataset.getFieldByName('Creative_Type');
+        let field2 = this.dataset.getFieldByName('Production_Budget');
+
+        let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
+        this.create([field1, field2], query, Priority.Highest);
+
         this.run(5);
     }
 
     testNN() {
-        this.fieldAdded(this.ongoingNodes[6], this.dataset.getFieldByName('IMDB_Rating'));
+        let field1 = this.dataset.getFieldByName('IMDB_Rating');
+        let field2 = this.dataset.getFieldByName('Production_Budget');
+
+        let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
+        this.create([field1, field2], query, Priority.Highest);
+
         this.run(10);
     }
 
     testCC() {
-        const [] = this.fieldAdded(this.ongoingNodes[0], this.dataset.getFieldByName('Major_Genre'));
+        let field1 = this.dataset.getFieldByName('Creative_Type');
+        let field2 = this.dataset.getFieldByName('Major_Genre');
+
+        let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
+        this.create([field1, field2], query, Priority.Highest)
+
         this.run(10);
     }
 
@@ -254,15 +226,9 @@ export class AppComponent implements OnInit {
         this.metadataEditor.toggle();
     }
 
-    // toggleEditable() {
-    //     this.explorationView.toggleEditable();
-    //     this.layout();
-    // }
-
     updateNodeLists() {
-        const nodes = this.collectNodes(this.explorationRoot);
-        this.ongoingNodes = this.engine.ongoingQueries.map(q => nodes.find(node => node.query === q));
-        this.completedNodes = this.engine.completedQueries.map(q => nodes.find(node => node.query === q));
+        this.ongoingNodes = this.engine.ongoingQueries.map(q => this.nodes.find(node => node.query === q));
+        this.completedNodes = this.engine.completedQueries.map(q => this.nodes.find(node => node.query === q));
     }
 
     run(times: number, simulatedDelay = 0) {
@@ -281,24 +247,6 @@ export class AppComponent implements OnInit {
             }
         })
     }
-
-    // previousNodeView: ExplorationNodeViewComponent;
-
-    // nodeSelected(node: ExplorationNode, nodeView: ExplorationNodeViewComponent, left: number, top: number, child: boolean) {
-    //     if (child) {
-    //         // show a field selector for the child
-    //         if (this.previousNodeView) {
-    //             this.previousNodeView.selectorClosed(); // important
-    //             this.nodeUnselected(this.previousNodeView.node, this.previousNodeView, true);
-    //         }
-    //         this.fieldSelector.show(left + 70, top + 98, node.query.compatible(node.query.dataset.fields!), node);
-    //         this.previousNodeView = nodeView;
-    //     }
-    //     else if (node != this.explorationRoot) {
-    //         // show detail
-    //         this.activeNode = node;
-    //     }
-    // }
 
     rankAllowed() {
         return this.activeNode && this.activeNode.query && (this.activeNode.query as AggregateQuery).groupBy.fields.length == 1;
@@ -335,7 +283,6 @@ export class AppComponent implements OnInit {
 
     plusClicked($event: MouseEvent, node: ExplorationNode) {
         let target = util.getCurrentTarget($event) as HTMLButtonElement;
-        let rect = target.getBoundingClientRect();
         let fields = node.query.dataset.fields!;
         fields = node.query.compatible(fields)
             .filter(field => !node.fields.includes(field));
@@ -453,7 +400,6 @@ export class AppComponent implements OnInit {
                 this.operator = Operators.GreaterThanOrEqualTo;
         }
         else if (constant instanceof PointRankConstant) {
-            let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1)
             this.pointRankConstant = constant;
             // if (constant.rank >= value)
             this.operator = Operators.LessThanOrEqualTo;
@@ -612,7 +558,7 @@ export class AppComponent implements OnInit {
         this.isPlaying = true;
         let counter = interval(3000);
         this.run(1, 2500);
-        this.subs = counter.subscribe(n => {
+        this.subs = counter.subscribe(() => {
             this.run(1, 2500);
         })
     }

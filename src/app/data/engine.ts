@@ -4,12 +4,10 @@ import { FieldTrait, VlType } from './field';
 import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
-import { timeout } from 'rxjs/operators';
 import { timer } from 'rxjs';
 
 export enum Priority {
     Highest,
-    AfterCompletedQueries,
     Lowest
 }
 
@@ -42,14 +40,9 @@ export class Engine {
         })
     }
 
-    request(query: Query, priority: Priority = Priority.AfterCompletedQueries) {
-        if (priority === Priority.AfterCompletedQueries) {
-            let lastIndex = 0;
-            this.ongoingQueries.forEach((query, i) => {
-                if (query.visibleProgress.done()) lastIndex = i + 1;
-            })
-
-            this.ongoingQueries.splice(lastIndex, 0, query);
+    request(query: Query, priority: Priority = Priority.Highest) {
+        if (priority === Priority.Highest) {
+            this.ongoingQueries.unshift(query);
         }
         else if (priority === Priority.Lowest) {
             this.ongoingQueries.push(query);

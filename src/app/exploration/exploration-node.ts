@@ -32,7 +32,6 @@ export enum NodeState {
 };
 
 export class ExplorationNode {
-    children: ExplorationNode[] = [];
     visual: Visual = new Visual();
 
     domainStart = Number.MAX_VALUE;
@@ -41,31 +40,7 @@ export class ExplorationNode {
 
     state:NodeState = NodeState.Running;
 
-    constructor(public parent: ExplorationNode, public fields: FieldTrait[], public query: Query | null) {
-    }
-
-    hasChildren() {
-        return this.children.length > 0;
-    }
-
-    isLeaf() {
-        return this.children.length === 0;
-    }
-
-    firstChild() {
-        return this.children[0];
-    }
-
-    lastChild() {
-        return this.children[this.children.length - 1];
-    }
-
-    addChild(child: ExplorationNode) {
-        this.children.push(child);
-    }
-
-    isRoot() {
-        return isNull(this.parent);
+    constructor(public fields: FieldTrait[], public query: Query | null) {
     }
 
     pause() {
