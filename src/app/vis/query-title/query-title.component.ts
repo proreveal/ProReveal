@@ -16,6 +16,8 @@ export class QueryTitleComponent implements OnInit {
     ];
 
     @Input('query') query: AggregateQuery;
+    @Input('editable') editable: boolean;
+
     @Output('approximatorChanged') approximatorChanged: EventEmitter<string>
         = new EventEmitter();
 

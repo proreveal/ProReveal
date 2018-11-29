@@ -1,7 +1,7 @@
 <span *ngIf="query">
-<span *ngIf="query.target === null">COUNT(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>) </span>
+<span *ngIf="query.target === null"><span class="approx-name">COUNT</span>(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>) </span>
 <span *ngIf="query.target !== null">
-    <form class="form-inline aggregate-form">
+    <form class="form-inline approx-form" *ngIf="editable">
     <select class="form-control form-control-md"
         (change)="thisApproximatorChanged($event.target.value)"
         [ngModel]="query.approximator.name"
@@ -11,7 +11,7 @@
             {{ approx.name.toUpperCase() }}
         </option>
     </select>
-    </form>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})
+    </form><span *ngIf="!editable" class="approx-name">{{ query.approximator.name.toUpperCase() }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})
 
     </span><span class="keyword">GROUPED BY</span>
     <ng-container *ngFor="let field of query.groupBy.fields; index as i">
