@@ -33,25 +33,20 @@
     <section id="node-view" class="border-right">
         <section id="new-node" class="border-bottom">
             <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
-                    <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
-                    <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
+                <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
+                <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
                 New Visualization
             </button>
 
-            <div id="new-node-creator" class="border-bottom rounded-bottom p-2 shadow-sm"
-                [hidden]="!creating">
+            <div id="new-node-creator" class="border-bottom rounded-bottom p-2 shadow-sm" [hidden]="!creating">
                 <h6>Fields</h6>
 
                 <div class="container" *ngIf="dataset && dataset.fields">
                     <div class="row no-gutters">
                         <div *ngFor="let field of candidateFields" class="col-6 mt-1">
-                            <button (click)="fieldSelected(field)"
-                                class="btn btn-sm"
-                                [class.btn-primary]="selectedFields.includes(field)"
-                                [class.btn-light]="!selectedFields.includes(field)"
-                                [attr.title]="field.name"
-                                [disabled]="!selectableFields.includes(field) && !selectedFields.includes(field)"
-                                >
+                            <button (click)="fieldSelected(field)" class="btn btn-sm" [class.btn-primary]="selectedFields.includes(field)"
+                                [class.btn-light]="!selectedFields.includes(field)" [attr.title]="field.name"
+                                [disabled]="!selectableFields.includes(field) && !selectedFields.includes(field)">
                                 <field-badge [field]="field"></field-badge>
                                 {{ field.name }}
                             </button>
@@ -66,8 +61,8 @@
                 </div>
 
                 <div class="d-flex mt-2">
-                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0"
-                        (click)="create(selectedFields, newQuery, Priority.Highest)" [disabled]="selectedFields.length === 0">
+                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0" (click)="create(selectedFields, newQuery, Priority.Highest)"
+                        [disabled]="selectedFields.length === 0">
                         Create a Visualization
                     </button>
                     <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelCreation()">
@@ -78,8 +73,7 @@
         </section>
         <h3 id="completed-node-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
         <section id="completed-node-view" class="styled-scroll">
-            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)" (mouseenter)="hoveredNode = node"
-                (mouseleave)="hoveredNode = null">
+            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -98,8 +92,7 @@
         </section>
         <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">Ongoing Queries</h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
-            <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)" (mouseenter)="hoveredNode = node"
-                (mouseleave)="hoveredNode = null">
+            <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
                     <ul class="field-names">
@@ -132,8 +125,7 @@
             </p>
         </div>
         <div [hidden]="!activeNode">
-            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)"
-            (constantSelected)="constantSelected($event)"></vis>
+            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)" (constantSelected)="constantSelected($event)"></vis>
         </div>
     </section>
 
@@ -146,9 +138,7 @@
                 The list is empty! Click on buttons below to create a safegaurd.
             </p>
 
-            <sg-list-item *ngFor="let sg of safeguards" [safeguard]="sg"
-                (removeClicked)="sgRemoveClicked($event)"
-            ></sg-list-item>
+            <sg-list-item *ngFor="let sg of safeguards" [safeguard]="sg" (removeClicked)="sgRemoveClicked($event)"></sg-list-item>
         </section>
         <ul class="tab-list">
             <li>
@@ -173,8 +163,7 @@
                 </h4>
             </li>
             <li>
-                <h4 class="section-header p-2 border" (click)="toggle(SGT.Distributive)"
-                    [class.disabled]="!isDistributivePossible">
+                <h4 class="section-header p-2 border" (click)="toggle(SGT.Distributive)" [class.disabled]="!isDistributivePossible">
                     <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
                     <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
                     Distributive <small>V(·) ~ N(5, 2)</small>
@@ -209,8 +198,17 @@
                     by dragging the constant bar.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && pointValueConstant && !useRank">
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
+                && (variable1 || combinedVariable1)
+                && pointValueConstant && !useRank
+                && activeNode.query.approx.estimatable">
                 <p-indicator [p]="PointValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></p-indicator>
+            </div>
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
+                    && (variable1 || combinedVariable1)
+                    && pointValueConstant && !useRank
+                    && !activeNode.query.approx.estimatable">
+                <truthiness-indicator [t]="PointMinMaxValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></truthiness-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && variable1 && pointRankConstant && useRank">
                 <p-indicator [p]="PointRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></p-indicator>

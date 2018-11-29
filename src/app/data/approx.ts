@@ -33,6 +33,7 @@ export interface ApproximatorTrait {
     readonly name: string;
     readonly alwaysNonNegative: boolean;
     readonly requireTargetField: boolean;
+    readonly estimatable: boolean;
 
     approximate(
         value: AccumulatedValue,
@@ -57,6 +58,7 @@ export class MinApproximator implements ApproximatorTrait {
     name = 'min';
     alwaysNonNegative = false;
     requireTargetField = true;
+    estimatable = false;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         if(value.min === Number.MAX_VALUE) return new ApproximatedInterval(0, 0, 0);
@@ -68,6 +70,7 @@ export class MaxApproximator implements ApproximatorTrait {
     name = 'max';
     alwaysNonNegative = false;
     requireTargetField = true;
+    estimatable = false;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         if(value.max === -Number.MAX_VALUE) return new ApproximatedInterval(0, 0, 0);
@@ -79,6 +82,7 @@ export class CountApproximator implements ApproximatorTrait {
     name = 'count';
     alwaysNonNegative = true;
     requireTargetField = false;
+    estimatable = true;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
@@ -94,6 +98,7 @@ export class MeanApproximator implements ApproximatorTrait {
     name = 'mean';
     alwaysNonNegative = true;
     requireTargetField = true;
+    estimatable = true;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
@@ -112,6 +117,7 @@ export class SumApproximator implements ApproximatorTrait {
     name = 'sum';
     alwaysNonNegative = true;
     requireTargetField = true;
+    estimatable = true;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;

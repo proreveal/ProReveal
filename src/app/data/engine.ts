@@ -78,7 +78,7 @@ export class Engine {
             }
 
             if (job.query.recentProgress.done()) {
-                this.ongoingQueries.splice(0, 1);
+                util.aremove(this.ongoingQueries, job.query);
                 this.completedQueries.push(job.query);
             }
 

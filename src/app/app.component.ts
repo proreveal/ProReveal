@@ -17,7 +17,7 @@ import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstan
 import { of, interval, Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
-import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator } from './safeguard/estimate';
+import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
 
@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
     Operators = Operators;
     Priority = Priority;
     PointValueEstimate = new PointValueEstimator().estimate;
+    PointMinMaxValueEstimate = new PointMinMaxValueEstimator().estimate;
     PointRankEstimate = new PointRankEstimator().estimate;
     RangeValueEstimate = new RangeValueEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
@@ -48,7 +49,6 @@ export class AppComponent implements OnInit {
     engine: Engine;
 
     activeNode: ExplorationNode = null;
-    hoveredNode: ExplorationNode = null;
 
     ongoingNodes: ExplorationNode[];
     completedNodes: ExplorationNode[];
@@ -238,8 +238,6 @@ export class AppComponent implements OnInit {
     run(times: number, simulatedDelay = 0) {
         for (let i = 0; i < times; i++)
             this.engine.run(simulatedDelay);
-
-        this.updateNodeLists();
     }
 
     queryDone(query: Query) {
@@ -261,6 +259,8 @@ export class AppComponent implements OnInit {
             else
                 (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
         }
+
+        this.updateNodeLists();
     }
 
     rankAllowed() {

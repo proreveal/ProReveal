@@ -6,6 +6,7 @@ import { ApproximatedInterval } from "../data/approx";
 import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { isNull } from "util";
 import { Validity, PValue, Truthiness, Quality, Error } from "./validity";
+import { isFulfilled } from "q";
 
 const normal = new NormalDistribution();
 
@@ -102,6 +103,29 @@ export class PointRankEstimator implements EstimatorTrait {
         else if (operator == Operators.LessThan) return sum(T[categoryN - 1].slice(0, constant.rank + 1));
         else if (operator == Operators.LessThanOrEqualTo) return sum(T[categoryN - 1].slice(0, constant.rank));
         else throw new Error(`Invalid operator ${operator}`);
+    }
+}
+
+export class PointMinMaxValueEstimator implements EstimatorTrait {
+    estimate(query: AggregateQuery, variable: VariableTrait,
+        operator: Operators, constant: PointValueConstant): Truthiness {
+        let result = query.visibleResult[variable.hash].value;
+        let ai = query.approximator.approximate(
+            result,
+            query.visibleProgress.processedPercent(),
+            query.visibleProgress.processedRows,
+            query.visibleProgress.totalRows);
+
+        if (operator == Operators.GreaterThan)
+            return ai.center > constant.value;
+        else if(operator == Operators.GreaterThanOrEqualTo)
+            return ai.center >= constant.value;
+        else if (operator == Operators.LessThan)
+            return ai.center < constant.value;
+        else if(operator == Operators.LessThanOrEqualTo)
+            return ai.center <= constant.value;
+        else
+            throw new Error(`Invalid operator ${operator}`);
     }
 }
 
