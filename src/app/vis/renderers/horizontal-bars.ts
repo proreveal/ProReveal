@@ -76,7 +76,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.data = data;
 
         const height = VC.horizontalBars.axis.height * 2 +
-            VC.horizontalBars.height * data.length;
+            VC.horizontalBars.height * data.length + VC.horizontalBars.label.height * 2;
         const width = 800;
 
         svg.attr('width', width).attr('height', height)
@@ -89,12 +89,12 @@ export class HorizontalBarsRenderer implements Renderer {
         this.width = width;
         this.height = height;
 
-        const xMin = (query as AggregateQuery).approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
+        const xMin = query.approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
         const xMax = d3.max(data, d => d.ci3.high);
 
         const niceTicks = d3.ticks(xMin, xMax, 10);
         const step = niceTicks[1] - niceTicks[0];
-        const domainStart = (query as AggregateQuery).approximator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
+        const domainStart = query.approximator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
         if (node.domainStart > domainStart) node.domainStart = domainStart;
@@ -105,19 +105,47 @@ export class HorizontalBarsRenderer implements Renderer {
             .clamp(true)
 
         const yScale = d3.scaleBand().domain(util.srange(data.length))
-            .range([VC.horizontalBars.axis.height,
-            height - VC.horizontalBars.axis.height])
+            .range([VC.horizontalBars.axis.height + VC.horizontalBars.label.height,
+            height - VC.horizontalBars.axis.height - VC.horizontalBars.label.height])
             .padding(0.1);
 
         this.yScale = yScale;
 
-        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height));
+        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height - 2 * VC.horizontalBars.label.height));
+
+        // render top and bottom labels
+        {
+            // x labels
+            selectOrAppend(visG, 'text', '.x.field.label.top')
+                .text(query.target ? query.target.name : 'Count')
+                .attr('transform', translate((width - labelWidth - VC.padding) / 2 + labelWidth, 0))
+                .style('text-anchor', 'middle')
+                .attr('dy', '.8em')
+                .style('font-size', '.8em')
+                .style('font-style', 'italic')
+
+            selectOrAppend(visG, 'text', '.x.field.label.bottom')
+                .text(query.target ? query.target.name : 'Count')
+                .attr('transform', translate((width - labelWidth - VC.padding) / 2 + labelWidth, height - VC.horizontalBars.axis.height))
+                .style('text-anchor', 'middle')
+                .attr('dy', '1.3em')
+                .style('font-size', '.8em')
+                .style('font-style', 'italic')
+
+            selectOrAppend(visG, 'text', '.y.field.label')
+                .text(query.groupBy.fields[0].name)
+                .attr('transform', translate(labelWidth / 2, VC.horizontalBars.label.height))
+                .style('text-anchor', 'right')
+                .attr('dy', '1.2em')
+                .style('font-size', '.8em')
+                .style('font-style', 'italic')
+        }
 
         // render major ticks
         {
             selectOrAppend(visG, 'g', '.sub.axis')
                 .style('opacity', .2)
-                .attr('transform', translate(0, VC.horizontalBars.axis.height))
+                .attr('transform', translate(0, VC.horizontalBars.axis.height + VC.horizontalBars.label.height))
                 .transition()
                 .call(majorTickLines as any)
                 .selectAll('text')
@@ -129,7 +157,7 @@ export class HorizontalBarsRenderer implements Renderer {
             const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
 
             selectOrAppend(visG, 'g', '.x.axis.top')
-                .attr('transform', translate(0, VC.horizontalBars.axis.height))
+                .attr('transform', translate(0, VC.horizontalBars.axis.height + VC.horizontalBars.label.height))
                 .transition()
                 .call(topAxis as any)
         }
@@ -156,10 +184,10 @@ export class HorizontalBarsRenderer implements Renderer {
         // render labels
         {
             let labels = visG
-                .selectAll('text.label')
+                .selectAll('text.y.data.label')
                 .data(data, (d: any) => d.id);
 
-            enter = labels.enter().append('text').attr('class', 'label variable1')
+            enter = labels.enter().append('text').attr('class', 'label y data variable1')
                 .style('text-anchor', 'end')
                 .attr('font-size', '.8rem')
                 .attr('dy', '.8rem')
@@ -314,7 +342,7 @@ export class HorizontalBarsRenderer implements Renderer {
             const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
             selectOrAppend(visG, 'g', '.x.axis.bottom')
-                .attr('transform', translate(0, height - VC.horizontalBars.axis.height))
+                .attr('transform', translate(0, height - VC.horizontalBars.axis.height - VC.horizontalBars.label.height))
                 .transition()
                 .call(bottomAxis as any)
         }

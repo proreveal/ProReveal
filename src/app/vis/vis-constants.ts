@@ -4,13 +4,24 @@ export const VisConstants = Object.freeze({
         axis: {
             height: 20
         },
+        label: {
+            height: 15
+        },
         circleRadius: 3
     },
     punchcard: {
         rowHeight: 20,
         columnWidth: 30,
         legendSize: 200,
-        swatchHeight: 20
+        swatchHeight: 20,
+        label: {
+            x: {
+                height: 0,
+            },
+            y: {
+                width: 20
+            }
+        }
     },
     history: {
         height: 40,

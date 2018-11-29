@@ -128,10 +128,14 @@ export class PunchcardRenderer implements Renderer {
         let [, xLongest,] = util.amax(xValues, d => d.valueString().length);
         const xLabelWidth = xLongest ? measure(xLongest.valueString()).width : 0;
 
-        const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth)
+        const xFieldLabelHeight = VC.punchcard.label.x.height;
+        const yFieldLabelWidth = VC.punchcard.label.y.width;
+
+        const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth) + xFieldLabelHeight
         const height = VC.punchcard.rowHeight * yValues.length + header * 2;
 
-        const matrixWidth = xValues.length > 0 ? (yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
+        const matrixWidth = xValues.length > 0 ?
+            (yFieldLabelWidth + yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
         const width = matrixWidth + VC.punchcard.legendSize * 1.2;
 
         this.matrixWidth = matrixWidth;
@@ -139,7 +143,7 @@ export class PunchcardRenderer implements Renderer {
         d3.select(nativeSvg).attr('width', width).attr('height', height);
 
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
-            .range([yLabelWidth, matrixWidth - header]);
+            .range([yFieldLabelWidth + yLabelWidth, matrixWidth - header]);
 
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
             .range([header, height - header]);
@@ -147,40 +151,70 @@ export class PunchcardRenderer implements Renderer {
         this.xScale = xScale;
         this.yScale = yScale;
 
+        // render top and bottom labels
+        {
+            // x labels
+            selectOrAppend(visG, 'text', '.x.field.label.top')
+                .text(query.groupBy.fields[this.xKeyIndex].name)
+                .attr('transform', translate(matrixWidth / 2, 0))
+                .style('text-anchor', 'middle')
+                .attr('dy', '1.2em')
+                .style('font-size', '.8em')
+                .style('font-style', 'italic')
+
+            selectOrAppend(visG, 'text', '.x.field.label.bottom')
+                .text(query.groupBy.fields[this.xKeyIndex].name)
+                .attr('transform', translate(matrixWidth / 2, height - VC.horizontalBars.axis.height))
+                .style('text-anchor', 'middle')
+                .attr('dy', '1.3em')
+                .style('font-size', '.8em')
+                .style('font-style', 'italic')
+
+            selectOrAppend(visG, 'text', '.y.field.label')
+                .text(query.groupBy.fields[this.yKeyIndex].name)
+                .attr('transform',
+                    translate(0, height / 2) + 'rotate(-90)')
+                .style('text-anchor', 'middle')
+                .attr('dy', '1em')
+                .style('font-size', '.8em')
+                .style('font-style', 'italic')
+        }
+
         const yLabels = visG
-            .selectAll('text.label.y')
+            .selectAll('text.label.y.data')
             .data(yValues, (d: FieldGroupedValue) => d.hash);
 
-        let enter: any = yLabels.enter().append('text').attr('class', 'label y')
+        let enter: any = yLabels.enter().append('text').attr('class', 'label y data')
             .style('text-anchor', 'end')
             .attr('font-size', '.8rem')
             .attr('dy', '.8rem')
 
         yLabels.merge(enter)
-            .attr('transform', (d) => translate(yLabelWidth - VC.padding, yScale(d.hash)))
+            .attr('transform', (d) => translate(yFieldLabelWidth + yLabelWidth - VC.padding, yScale(d.hash)))
             .text(d => d.valueString())
 
         yLabels.exit().remove();
 
         const xTopLabels = visG
-            .selectAll('text.label.top.x')
+            .selectAll('text.label.top.x.data')
             .data(xValues, (d: FieldGroupedValue) => d.hash);
 
-        enter = xTopLabels.enter().append('text').attr('class', 'label x top')
+        enter = xTopLabels.enter().append('text').attr('class', 'label x top data')
             .style('text-anchor', 'start')
             .attr('font-size', '.8rem')
 
         xTopLabels.merge(enter)
-            .attr('transform', (d) => translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
+            .attr('transform', (d) =>
+                translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
             .text(d => d.valueString())
 
         xTopLabels.exit().remove();
 
         const xBottomLabels = visG
-            .selectAll('text.label.x.bottom')
+            .selectAll('text.label.x.bottom.data')
             .data(xValues, (d: FieldGroupedValue) => d.hash);
 
-        enter = xBottomLabels.enter().append('text').attr('class', 'label x bottom')
+        enter = xBottomLabels.enter().append('text').attr('class', 'label x bottom data')
             .style('text-anchor', 'start')
             .attr('font-size', '.8rem')
 
