@@ -97,7 +97,7 @@ export class AppComponent implements OnInit {
         else this.newQuery = newQuery;
     }
 
-    create(fields: FieldTrait[], query: Query, priority = Priority.Lowest) {
+    create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
         let node = new ExplorationNode(fields, query);
         this.nodes.push(node);
 
@@ -117,6 +117,8 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.engine = new Engine('./assets/movies.json');
+
+        this.engine.queryDone = this.queryDone.bind(this);
 
         this.engine.load().then(dataset => {
             this.dataset = dataset;
@@ -168,18 +170,20 @@ export class AppComponent implements OnInit {
             // this.testC();
             // this.testNN();
 
+            this.testN();
             // this.run(1);
-            this.testNN();
+            // this.testNN();
+
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                // this.toggle(SGT.Distributive);
+                this.toggle(SGT.Distributive);
+
                 // this.useRank = true;
                 // this.useRankToggled();
             })
         })
 
-        this.engine.queryDone = this.queryDone.bind(this);
     }
 
     testC() {
@@ -237,14 +241,27 @@ export class AppComponent implements OnInit {
         this.updateNodeLists();
     }
 
-    queryDone() {
+    queryDone(query: Query) {
         this.safeguards.forEach(sg => {
             if (sg.lastUpdated < sg.node.query.lastUpdated) {
                 sg.lastUpdated = sg.node.query.lastUpdated;
 
                 sg.history.push(sg.validity());
             }
+
+            if (sg instanceof DistributiveSafeguard && sg.node.query === query) {
+                sg.updateConstant();
+            }
         })
+
+        if(this.activeSafeguardPanel === SGT.Distributive) {
+            if(this.useLinear) {
+
+            }
+            else {
+                (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+            }
+        }
     }
 
     rankAllowed() {
@@ -255,6 +272,7 @@ export class AppComponent implements OnInit {
         if (this.activeNode === node)
             this.activeNode = null;
         else if (this.activeNode) {
+            this.activeNode.query.updateAutomatically = true;
             this.activeNode = node;
             this.cancelSafeguard();
         }
@@ -389,10 +407,12 @@ export class AppComponent implements OnInit {
         if (!variable) return;
 
         if (this.variable1) this.variable1.isRank = this.useRank;
-        let sg;
+        let sg: PointSafeguard;
+
         if (this.useRank) sg = new PointSafeguard(variable, this.operator, this.pointRankConstant, this.activeNode);
         else sg = new PointSafeguard(variable, this.operator, this.pointValueConstant, this.activeNode);
 
+        sg.history.push(sg.validity());
         this.safeguards.push(sg);
 
         this.variable1 = null;
@@ -406,11 +426,12 @@ export class AppComponent implements OnInit {
         if (!variable) return;
 
         if (this.variable1) this.variable1.isRank = this.useRank;
-        let sg;
+        let sg: RangeSafeguard;
         if (this.useRank) sg = new RangeSafeguard(variable, this.rangeRankConstant, this.activeNode);
         else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
+        sg.history.push(sg.validity());
 
         this.variable1 = null;
         this.rangeRankConstant = null;
@@ -424,6 +445,7 @@ export class AppComponent implements OnInit {
 
         let sg = new ComparativeSafeguard(
             variable, this.operator, this.activeNode);
+        sg.history.push(sg.validity());
         this.safeguards.push(sg);
 
         this.variable1 = null;
@@ -432,7 +454,13 @@ export class AppComponent implements OnInit {
     }
 
     createDistributiveSafeguard() {
-        let sg = new DistributiveSafeguard(this.powerLawConstant, this.activeNode);
+        let sg: DistributiveSafeguard;
+        if(!this.useLinear && this.useNormal)
+            sg = new DistributiveSafeguard(this.normalConstant, this.activeNode);
+        else if(!this.useLinear && this.useNormal)
+            sg = new DistributiveSafeguard(this.powerLawConstant, this.activeNode);
+
+        sg.history.push(sg.validity());
         this.safeguards.push(sg)
 
         this.toggle(SGT.None);
@@ -477,7 +505,8 @@ export class AppComponent implements OnInit {
             }
             else if (sgt === SafeguardTypes.Distributive) {
                 this.vis.setFittingType(this.useNormal ? FittingTypes.Normal : FittingTypes.PowerLaw);
-                this.fit();
+                (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+                this.vis.forceUpdate();
             }
 
             this.activeSafeguardPanel = sgt;
@@ -493,11 +522,6 @@ export class AppComponent implements OnInit {
     checkOrder() {
         this.rangeValueConstant.checkOrder();
         this.rangeRankConstant.checkOrder();
-    }
-
-    fit() {
-        (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
-        this.vis.forceUpdate();
     }
 
     toNumber(s: string) {

@@ -195,7 +195,7 @@ export class PowerLawEstimator implements EstimatorTrait {
      * @param constant
      */
     estimate(query: AggregateQuery, constant: PowerLawConstant): Quality {
-        let data = query.resultData();
+        let data = query.getVisibleData();
         let n = 0;
 
         data.forEach(datum => {
@@ -235,7 +235,7 @@ export class NormalEstimator implements EstimatorTrait {
      * @param constant
      */
     estimate(query: AggregateQuery, constant: NormalConstant): Quality {
-        let data = query.resultData();
+        let data = query.getVisibleData();
         let n = 0;
         let observed = [], expected = [];
 
@@ -286,7 +286,7 @@ export class NormalEstimator implements EstimatorTrait {
 export class LinearRegressionEstimator {
     estimate(query: AggregateQuery, constant: LinearRegressionConstant): Error {
 
-        let data = query.resultData();
+        let data = query.getVisibleData();
         let n = 0;
         let error = 0;
 

@@ -1,4 +1,4 @@
-import { Query } from "../data/query";
+import { Query, AggregateQuery } from "../data/query";
 import { isNull } from "util";
 import { Constants } from '../constants';
 import { NumericalOrdering, OrderingDirection } from "../data/ordering";
@@ -40,7 +40,7 @@ export class ExplorationNode {
 
     state:NodeState = NodeState.Running;
 
-    constructor(public fields: FieldTrait[], public query: Query | null) {
+    constructor(public fields: FieldTrait[], public query: AggregateQuery | null) {
     }
 
     pause() {

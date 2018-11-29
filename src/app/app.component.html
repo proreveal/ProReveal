@@ -302,17 +302,14 @@
                     [groupBy]="activeNode.query.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
             <div class="p-1" *ngIf="activeNode && activeNode.query && activeNode.query.visibleProgress.processedRows > 0">
-                <div class="d-flex">
-                    <div class="guide flex-grow-1" *ngIf="!useNormal && !useLinear">
-                        <quality-indicator [q]="PowerLawEstimate(activeNode.query, powerLawConstant)"></quality-indicator>
-                    </div>
-                    <div class="guide flex-grow-1" *ngIf="useNormal && !useLinear">
-                        <quality-indicator [q]="NormalEstimate(activeNode.query, normalConstant)"></quality-indicator>
-                    </div>
-                    <div class="guide flex-grow-1" *ngIf="useLinear">
-                        <error-indicator [e]="LinearRegressionEstimate(activeNode.query, linearRegressionConstant)"></error-indicator>
-                    </div>
-                    <button class="btn btn-warning rounded-0" (click)="fit()">Fit</button>
+                <div class="guide flex-grow-1" *ngIf="!useNormal && !useLinear">
+                    <quality-indicator [q]="PowerLawEstimate(activeNode.query, powerLawConstant)"></quality-indicator>
+                </div>
+                <div class="guide flex-grow-1" *ngIf="useNormal && !useLinear">
+                    <quality-indicator [q]="NormalEstimate(activeNode.query, normalConstant)"></quality-indicator>
+                </div>
+                <div class="guide flex-grow-1" *ngIf="useLinear">
+                    <error-indicator [e]="LinearRegressionEstimate(activeNode.query, linearRegressionConstant)"></error-indicator>
                 </div>
             </div>
             <div class="p-1">

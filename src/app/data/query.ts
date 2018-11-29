@@ -188,8 +188,32 @@ export class AggregateQuery extends Query {
         return desc;
     }
 
-    resultData(): Datum[] {
+    getVisibleData(): Datum[] {
         let data = Object.keys(this.visibleResult).map(k => {
+            let key = this.visibleResult[k].key;
+            let value = this.visibleResult[k].value;
+
+            const ai = this.approximator
+                .approximate(value,
+                    this.visibleProgress.processedPercent(),
+                    this.visibleProgress.processedRows,
+                    this.visibleProgress.totalRows);
+
+            return {
+                id: key.hash,
+                keys: key,
+                ci3: ai.range(3),
+                accumulatedValue: value
+            }
+        })
+
+        data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
+
+        return data;
+    }
+
+    getRecentData(): Datum[] {
+        let data = Object.keys(this.recentResult).map(k => {
             let key = this.visibleResult[k].key;
             let value = this.visibleResult[k].value;
 

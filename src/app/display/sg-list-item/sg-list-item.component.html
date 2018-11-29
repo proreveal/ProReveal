@@ -17,7 +17,7 @@
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>
     <div *ngIf="sg.type == SGT.Distributive">
-        <p-indicator [p]="sg.q()"></p-indicator>
+        <quality-indicator [q]="sg.q()"></quality-indicator>
     </div>
 
     Created {{ sg.createdAt | amTimeAgo }}

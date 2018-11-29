@@ -18,7 +18,7 @@ export class Engine {
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
-    queryDone: () => void;
+    queryDone: (query: Query) => void;
 
     constructor(private url: string) {
 
@@ -83,7 +83,7 @@ export class Engine {
             }
 
             if (this.queryDone)
-                this.queryDone();
+                this.queryDone(job.query);
         })
     }
 

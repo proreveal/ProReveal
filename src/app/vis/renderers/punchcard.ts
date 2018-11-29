@@ -70,7 +70,7 @@ export class PunchcardRenderer implements Renderer {
         let query = node.query as AggregateQuery;
         let visG = d3.select(nativeSvg).select('g.vis');
 
-        let data = query.resultData();
+        let data = query.getVisibleData();
         this.data = data;
 
         let yKeys = {}, xKeys = {};

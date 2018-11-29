@@ -1,5 +1,6 @@
 import * as regression from 'regression';
 import { NormalDistribution } from './normal';
+import { Datum } from '../data/query';
 
 export enum FittingTypes {
     PowerLaw,
@@ -99,6 +100,9 @@ export class PowerLawConstant extends ConstantTrait implements DistributionTrait
         return new PowerLawConstant(res.equation[0], res.equation[1]);
     }
 
+    static FitFromVisData(data: Datum[]) {
+        return this.Fit(data.map((d, i) => [i + 1, d.ci3.center] as NumberPair))
+    }
     /**
      * returns a pdf value (0 to 1)
      * @param x an index (starts from 1)
@@ -143,6 +147,17 @@ export class NormalConstant extends ConstantTrait implements DistributionTrait {
         let stdev = Math.sqrt(vari);
 
         return new NormalConstant(mean, stdev);
+    }
+
+    static FitFromVisData(data: Datum[]) {
+        let fitData = data.map(d => {
+            let range = d.keys.list[0].value();
+            if (range == null) return [0, 0] as NumberPair;
+            range = range as NumberPair;
+            return [(range[0] + range[1]) / 2, d.ci3.center] as NumberPair;
+        });
+
+        return this.Fit(fitData);
     }
 
     /**

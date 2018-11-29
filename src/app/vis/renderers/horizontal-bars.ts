@@ -49,7 +49,7 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
-        if ((node.query as AggregateQuery).groupBy.fields.length > 1) {
+        if (node.query.groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
 
@@ -68,10 +68,10 @@ export class HorizontalBarsRenderer implements Renderer {
 
     render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
         let svg = d3.select(nativeSvg);
-        let query = node.query as AggregateQuery;
+        let query = node.query;
         let done = query.visibleProgress.done();
         let visG = svg.select('g.vis');
-        let data = query.resultData();
+        let data = query.getVisibleData();
 
         this.data = data;
 
@@ -541,14 +541,6 @@ export class HorizontalBarsRenderer implements Renderer {
             this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
             [width - VC.padding, height - VC.horizontalBars.axis.height]]);
         }
-        /*else if (this.safeguardType == SGT.Range) {
-            this.flexBrush.snap = null;
-
-            this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
-            [width - VC.padding, height - VC.horizontalBars.axis.height]],
-            (this.constant as RangeValueConstant).center);
-        }*/
         else {
             let start = VC.horizontalBars.axis.height;
             let step = VC.horizontalBars.height;
@@ -567,7 +559,6 @@ export class HorizontalBarsRenderer implements Renderer {
     fittingType: FT = FT.Normal;
     setFittingType(ft: FT) {
         this.fittingType = ft;
-
         this.constant = null;
     }
 
@@ -674,6 +665,7 @@ export class HorizontalBarsRenderer implements Renderer {
     setDefaultConstantFromVariable(removeCurrentConstant = false) {
         if (removeCurrentConstant) this.constant = null;
         if (this.constant) return;
+
         if (this.variable1) {
             if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
                 let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
@@ -704,17 +696,10 @@ export class HorizontalBarsRenderer implements Renderer {
         else if (this.safeguardType === SGT.Distributive) {
             let constant;
             if (this.fittingType == FT.Normal) {
-                let data = this.data.map(d => {
-                    let range = d.keys.list[0].value();
-                    if (range == null) return [0, 0] as [number, number];
-                    range = range as [number, number];
-                    return [(range[0] + range[1]) / 2, d.ci3.center] as [number, number];
-                });
-
-                constant = NormalConstant.Fit(data);
+                constant = NormalConstant.FitFromVisData(this.node.query.getVisibleData());
             }
             else if (this.fittingType == FT.PowerLaw) {
-                constant = PowerLawConstant.Fit(this.data.map((d, i) => [i + 1, d.ci3.center] as [number, number]));
+                constant = PowerLawConstant.FitFromVisData(this.node.query.getVisibleData());
             }
 
             this.vis.constantSelected.emit(constant);

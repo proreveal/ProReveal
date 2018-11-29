@@ -155,4 +155,13 @@ export class DistributiveSafeguard extends Safeguard {
     validity() {
         return this.q();
     }
+
+    updateConstant() {
+        if(this.constant instanceof NormalConstant) {
+            this.constant = NormalConstant.FitFromVisData(this.node.query.getRecentData());
+        }
+        else if(this.constant instanceof PowerLawConstant) {
+            this.constant = PowerLawConstant.FitFromVisData(this.node.query.getRecentData());
+        }
+    }
 }
