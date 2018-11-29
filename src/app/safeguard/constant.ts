@@ -1,6 +1,7 @@
 import * as regression from 'regression';
 import { NormalDistribution } from './normal';
 import { Datum } from '../data/query';
+import { isNull } from 'util';
 
 export enum FittingTypes {
     PowerLaw,
@@ -205,6 +206,25 @@ export class LinearRegressionConstant extends ConstantTrait {
         let b = (y_sum * x_squared_sum - x_sum * xy_sum) / (n * x_squared_sum - x_sum * x_sum);
 
         return new LinearRegressionConstant(a, b);
+    }
+
+    static FitFromVisData(data: Datum[], xKeyIndex: number = 0, yKeyIndex: number = 1) {
+        let fitData = data
+            .filter(d => d.keys.list[0].value() && d.keys.list[1].value())
+            .map(d => {
+                let x = (d.keys.list[xKeyIndex].value() as NumberPair)
+                let y = (d.keys.list[yKeyIndex].value() as NumberPair);
+
+                if (isNull(x) || isNull(y)) return;
+
+                let cx = (x[0] + x[1]) / 2;
+                let cy = (y[0] + y[1]) / 2;
+                let count = d.ci3.center;
+
+                return [cx, cy, count] as NumberTriplet;
+            })
+
+        return this.Fit(fitData);
     }
 
     /**

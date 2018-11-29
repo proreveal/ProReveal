@@ -109,6 +109,17 @@
     background: #fefefe;
     position: relative;
     overflow:hidden;
+
+    .field-names {
+        position: absolute;
+        top: 4px;
+        left: 64px;
+        width: 400px;
+        font-size: 0.8rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 }
 
 .query:hover {
@@ -116,26 +127,15 @@
     background: lighten($ui-background-color, 2%);
 }
 
-progress-ring {
-    height: 56px;
-    display: block;
-}
-
-.query .field-names {
-    position: absolute;
-    top: 4px;
-    left: 64px;
-    width: 400px;
-    font-size: 0.8rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
 .query.selected {
     background: $ui-background-color;
     border: 1px solid $ui-border-color;
     border-bottom-width: 2px;
+}
+
+progress-ring {
+    height: 56px;
+    display: block;
 }
 
 .actions {
@@ -219,19 +219,21 @@ progress-ring {
     }
 }
 
-#safeguard-view .btn-secondary {
-    background-color: lighten($operator-highlight-color, 15%);
-    border-color: lighten($operator-highlight-color, 10%);
-}
+#safeguard-view {
+    .btn-secondary {
+        background-color: lighten($operator-highlight-color, 15%);
+        border-color: lighten($operator-highlight-color, 10%);
+    }
 
-#safeguard-view .btn-secondary:hover {
-    background-color: lighten($operator-highlight-color, 10%);
-    border-color: lighten($operator-highlight-color, 5%);
-}
+    .btn-secondary:hover {
+        background-color: lighten($operator-highlight-color, 10%);
+        border-color: lighten($operator-highlight-color, 5%);
+    }
 
-#safeguard-view .btn-secondary.active {
-    background-color: lighten($operator-highlight-color, 0%);
-    border-color: $operator-highlight-color;
+    .btn-secondary.active {
+        background-color: lighten($operator-highlight-color, 0%);
+        border-color: $operator-highlight-color;
+    }
 }
 
 .variable1 {

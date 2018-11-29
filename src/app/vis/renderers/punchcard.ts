@@ -73,12 +73,12 @@ export class PunchcardRenderer implements Renderer {
         let data = query.getVisibleData();
         this.data = data;
 
-        let yKeys = {}, xKeys = {};
-        let yKeyIndex = 0, xKeyIndex = 1;
+        let xKeys = {}, yKeys = {};
+        let xKeyIndex = 0, yKeyIndex = 1;
 
         data.forEach(row => {
-            yKeys[row.keys.list[0].hash] = row.keys.list[0];
-            xKeys[row.keys.list[1].hash] = row.keys.list[1];
+            xKeys[row.keys.list[0].hash] = row.keys.list[0];
+            yKeys[row.keys.list[1].hash] = row.keys.list[1];
         });
 
         //if (d3.values(xKeys).length > d3.values(yKeys).length)
@@ -87,8 +87,8 @@ export class PunchcardRenderer implements Renderer {
         this.xKeyIndex = xKeyIndex;
         this.yKeyIndex = yKeyIndex;
 
-        let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 1 ? xKeys : yKeys);
-        let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 0 ? yKeys : xKeys);
+        let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 0 ? xKeys : yKeys);
+        let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 1 ? yKeys : xKeys);
 
         if (this.node.query instanceof Histogram2DQuery) {
             let sortFunc = (a: FieldGroupedValue, b: FieldGroupedValue) => {
@@ -546,47 +546,11 @@ export class PunchcardRenderer implements Renderer {
                 this.constantUserChanged(constant);
             }
         }
-        else if (this.safeguardType === SGT.Distributive) {
-            let constant = new LinearRegressionConstant();
-
-            if(this.node.query instanceof Histogram2DQuery) {
-                let data = this.data
-                    .filter(d => d.keys.list[0].value() && d.keys.list[1].value())
-                    .map(d => {
-                    let x = (d.keys.list[this.xKeyIndex].value() as NumberPair)
-                    let y = (d.keys.list[this.yKeyIndex].value() as NumberPair);
-
-                    if(isNull(x) || isNull(y)) return;
-
-                    let cx = (x[0] + x[1]) / 2;
-                    let cy = (y[0] + y[1]) / 2;
-                    let count = d.ci3.center;
-
-                    return [cy, cx, count] as NumberTriplet;
-                })
-
-                constant = LinearRegressionConstant.Fit(data);
-            }
-
-
-            // if(this.fittingType == FT.Gaussian) {
-            //     let data = this.data.map(d => {
-            //         let range = d.keys.list[0].value();
-            //         if(range == null) return [0, 0] as [number, number];
-            //         return [(range[0] + range[1]) / 2, d.ci3stdev.center] as [number, number];
-            //     });
-
-            //     constant = GaussianConstant.Regression(data);
-            // }
-            // else if(this.fittingType == FT.PowerLaw) {
-            //     constant = PowerLawConstant.Regression(this.data.map((d, i) => [i + 1, d.ci3stdev.center] as [number, number]));
-            // }
-
+        else if (this.safeguardType === SGT.Distributive && this.node.query instanceof Histogram2DQuery) {
+            let constant = LinearRegressionConstant.FitFromVisData(this.node.query.getVisibleData(), this.xKeyIndex, this.yKeyIndex);
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }
-
-        // add codes for SGS
     }
 
     showTooltip(d: Datum, i: number) {
@@ -605,24 +569,10 @@ export class PunchcardRenderer implements Renderer {
             PunchcardTooltipComponent,
             data
         );
-
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-            //    let ele = d3.select(this.eventBoxes.nodes()[i]);
-            //            ele.classed('highlighted', true)
-        }
     }
 
     hideTooltip(d: Datum, i: number) {
         this.tooltip.hide();
-        /*if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-            if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
-                !== d.keys.list[0].hash) &&
-                (!this.variable2 || this.variable2.fieldGroupedValue.hash
-                    !== d.keys.list[0].hash)) {
-                let ele = d3.select(this.eventBoxes.nodes()[i]);
-                ele.classed('highlighted', false)
-            }
-        }*/
     }
 
     updateSwatch() {

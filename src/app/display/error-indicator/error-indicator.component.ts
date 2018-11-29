@@ -14,5 +14,4 @@ export class ErrorIndicatorComponent implements OnInit {
 
     ngOnInit() {
     }
-
 }

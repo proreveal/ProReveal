@@ -171,14 +171,14 @@ export class AppComponent implements OnInit {
             // this.testC();
             // this.testNN();
 
-            this.testCC();
+            this.testNN();
             // this.run(1);
             // this.testNN();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                //this.toggle(SGT.Distributive);
+                this.toggle(SGT.Distributive);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -207,8 +207,8 @@ export class AppComponent implements OnInit {
     }
 
     testNN() {
-        let field1 = this.dataset.getFieldByName('IMDB_Rating');
-        let field2 = this.dataset.getFieldByName('Production_Budget');
+        let field1 = this.dataset.getFieldByName('Production_Budget');
+        let field2 = this.dataset.getFieldByName('IMDB_Rating');
 
         let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
         this.create([field1, field2], query, Priority.Highest);
@@ -256,12 +256,10 @@ export class AppComponent implements OnInit {
         })
 
         if(this.activeSafeguardPanel === SGT.Distributive) {
-            if(this.useLinear) {
-
-            }
-            else {
+            if(this.useLinear)
+                (this.vis.renderer as PunchcardRenderer).setDefaultConstantFromVariable(true);
+            else
                 (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
-            }
         }
     }
 
@@ -463,6 +461,8 @@ export class AppComponent implements OnInit {
             sg = new DistributiveSafeguard(this.normalConstant, this.activeNode);
         else if(!this.useLinear && this.useNormal)
             sg = new DistributiveSafeguard(this.powerLawConstant, this.activeNode);
+        else if(this.useLinear)
+            sg = new DistributiveSafeguard(this.linearRegressionConstant, this.activeNode);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg)

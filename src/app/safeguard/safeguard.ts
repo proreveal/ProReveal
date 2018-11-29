@@ -1,5 +1,5 @@
 import { Operators } from "./operator";
-import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant } from "./constant";
+import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
 import { VariableTrait, SingleVariable, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
@@ -162,6 +162,12 @@ export class DistributiveSafeguard extends Safeguard {
         }
         else if(this.constant instanceof PowerLawConstant) {
             this.constant = PowerLawConstant.FitFromVisData(this.node.query.getRecentData());
+        }
+        else if(this.constant instanceof LinearRegressionConstant) {
+            this.constant = LinearRegressionConstant.FitFromVisData(this.node.query.getRecentData());
+        }
+        else {
+            throw new Error(`Unknown constant type: ${this.constant}`);
         }
     }
 }
