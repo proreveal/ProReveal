@@ -98,10 +98,10 @@ export class PointRankEstimator implements EstimatorTrait {
 
         function sum(arr: number[]) { return arr.reduce((p, c) => p + c, 0); }
 
-        if (operator == Operators.GreaterThan) return sum(T[categoryN - 1].slice(constant.rank));
-        else if (operator == Operators.GreaterThanOrEqualTo) return sum(T[categoryN - 1].slice(constant.rank - 1));
-        else if (operator == Operators.LessThan) return sum(T[categoryN - 1].slice(0, constant.rank + 1));
-        else if (operator == Operators.LessThanOrEqualTo) return sum(T[categoryN - 1].slice(0, constant.rank));
+        if (operator == Operators.GreaterThan) return 1 - sum(T[categoryN - 1].slice(constant.rank));
+        else if (operator == Operators.GreaterThanOrEqualTo) return 1 - sum(T[categoryN - 1].slice(constant.rank - 1));
+        else if (operator == Operators.LessThan) return 1 - sum(T[categoryN - 1].slice(0, constant.rank + 1));
+        else if (operator == Operators.LessThanOrEqualTo) return 1 - sum(T[categoryN - 1].slice(0, constant.rank));
         else throw new Error(`Invalid operator ${operator}`);
     }
 }

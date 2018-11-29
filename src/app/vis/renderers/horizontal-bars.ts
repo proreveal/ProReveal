@@ -387,7 +387,8 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                let index = Math.round((center - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
+                let index = Math.round((center - VC.horizontalBars.axis.height - VC.horizontalBars.label.height)
+                     / VC.horizontalBars.height)
                 let constant = new PointRankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -542,7 +543,7 @@ export class HorizontalBarsRenderer implements Renderer {
             [width - VC.padding, height - VC.horizontalBars.axis.height]]);
         }
         else {
-            let start = VC.horizontalBars.axis.height;
+            let start = VC.horizontalBars.axis.height + VC.horizontalBars.label.height;
             let step = VC.horizontalBars.height;
 
             this.flexBrush.setDirection(FlexBrushDirection.Y);
