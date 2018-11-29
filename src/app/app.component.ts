@@ -66,6 +66,7 @@ export class AppComponent implements OnInit {
     selectedFields: FieldTrait[] = [];
     newQuery: Query;
     nodes: ExplorationNode[] = [];
+    isDistributivePossible = true;
 
     constructor(private modalService: NgbModal) {
         this.sortablejsOptions = {
@@ -170,14 +171,14 @@ export class AppComponent implements OnInit {
             // this.testC();
             // this.testNN();
 
-            this.testN();
+            this.testCC();
             // this.run(1);
             // this.testNN();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Distributive);
+                //this.toggle(SGT.Distributive);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -281,7 +282,11 @@ export class AppComponent implements OnInit {
         }
 
         if (!this.rankAllowed()) this.useRank = false;
-        if (this.activeNode) this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
+        if (this.activeNode) {
+            this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
+            this.isDistributivePossible = !(this.activeNode.query.groupBy.fields.length == 2
+                && this.activeNode.query.groupBy.fields[0].vlType != VlType.Quantitative);
+        }
     }
 
     deleteClicked(modal, node: ExplorationNode) {
@@ -352,7 +357,6 @@ export class AppComponent implements OnInit {
 
             this.combinedVariablePair = CombinedVariablePair.FromVariables(this.combinedVariable1, this.combinedVariable2);
         }
-
     }
 
     constantSelected(constant: ConstantTrait) {

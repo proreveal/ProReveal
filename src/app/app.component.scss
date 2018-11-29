@@ -165,36 +165,43 @@ progress-ring {
     overflow-y: scroll;
 }
 
-h4 small {
-    @include serif-italic();
-    font-size: 0.75rem;
-}
-
-h4 fa-icon {
-    text-align:center;
-    display:inline-block;
-    width: 16px;
-}
 
 #safeguard-config-view {
     grid-row: 3;
     grid-column: 2;
 }
 
-.tab-list  h4 {
-    font-size: 1rem;
-    cursor: pointer;
-    padding-left: 0.3rem;
-}
-
-.tab-list h4:hover {
-    background: darken($ui-background-color, 5%);
-}
-
 .tab-list {
     margin: 0;
     padding: 0;
     list-style:none;
+
+    h4 {
+        font-size: 1rem;
+        cursor: pointer;
+        padding-left: 0.3rem;
+
+        small {
+            @include serif-italic();
+            font-size: 0.75rem;
+        }
+
+        fa-icon {
+            text-align:center;
+            display:inline-block;
+            width: 16px;
+        }
+    }
+
+    h4:hover {
+        background: darken($ui-background-color, 5%);
+    }
+
+    h4.disabled {
+        opacity: .5;
+        pointer-events: none;
+        cursor: default;
+    }
 }
 
 .display {

@@ -173,7 +173,8 @@
                 </h4>
             </li>
             <li>
-                <h4 class="section-header p-2 border" (click)="toggle(SGT.Distributive)">
+                <h4 class="section-header p-2 border" (click)="toggle(SGT.Distributive)"
+                    [class.disabled]="!isDistributivePossible">
                     <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
                     <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
                     Distributive <small>V(·) ~ N(5, 2)</small>
