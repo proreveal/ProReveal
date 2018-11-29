@@ -129,6 +129,42 @@ export class PointMinMaxValueEstimator implements EstimatorTrait {
     }
 }
 
+export class PointMinMaxRankValueEstimator implements EstimatorTrait {
+    estimate(query: AggregateQuery, variable: VariableTrait,
+        operator: Operators, constant: PointRankConstant): Truthiness {
+
+        let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult).map((hash) => {
+            let result = query.visibleResult[hash];
+            let ai = query.approximator.approximate(
+                result.value,
+                query.visibleProgress.processedPercent(),
+                query.visibleProgress.processedRows,
+                query.visibleProgress.totalRows
+            );
+
+            return [hash, ai] as [string, ApproximatedInterval];
+        })
+
+        results.sort((a, b) => b[1].center - a[1].center);
+        let rank = results.findIndex(d => d[0] === variable.hash);
+
+
+        rank += 1; // 1 ~ N
+        if (rank <= 0) return false;
+
+        if (operator == Operators.GreaterThan)
+            return rank > constant.rank;
+        else if(operator == Operators.GreaterThanOrEqualTo)
+            return rank >= constant.rank;
+        else if (operator == Operators.LessThan)
+            return rank < constant.rank;
+        else if(operator == Operators.LessThanOrEqualTo)
+            return rank <= constant.rank;
+        else
+            throw new Error(`Invalid operator ${operator}`);
+    }
+}
+
 export class RangeValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeValueConstant): PValue {

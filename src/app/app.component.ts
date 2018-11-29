@@ -17,7 +17,7 @@ import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstan
 import { of, interval, Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
-import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator } from './safeguard/estimate';
+import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
 
@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
     PointValueEstimate = new PointValueEstimator().estimate;
     PointMinMaxValueEstimate = new PointMinMaxValueEstimator().estimate;
     PointRankEstimate = new PointRankEstimator().estimate;
+    PointMinMaxRankEstimate = new PointMinMaxRankValueEstimator().estimate;
     RangeValueEstimate = new RangeValueEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
     PowerLawEstimate = new PowerLawEstimator().estimate;

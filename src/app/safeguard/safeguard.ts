@@ -5,7 +5,7 @@ import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair
 import { NormalDistribution } from "./normal";
 import {
     PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
-    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator
+    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator
 } from "./estimate";
 import { ValidityTypes, Validity } from "./validity";
 
@@ -17,6 +17,7 @@ const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
 const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 const PointMinMaxValueEstimate = new PointMinMaxValueEstimator().estimate
+const PointMinMaxRankEstimate = new PointMinMaxRankValueEstimator().estimate;
 
 export enum SafeguardTypes {
     None = "None",
@@ -76,6 +77,13 @@ export class PointSafeguard extends Safeguard {
     }
 
     t() {  // min or max
+        if (this.variable.isRank)
+            return PointMinMaxRankEstimate(
+                this.node.query,
+                this.variable,
+                this.operator,
+                this.constant as PointRankConstant);
+
         return PointMinMaxValueEstimate(
             this.node.query,
             this.variable,
@@ -84,7 +92,7 @@ export class PointSafeguard extends Safeguard {
     }
 
     validity() {
-        if(this.node.query.approximator.estimatable) return this.p();
+        if (this.node.query.approximator.estimatable) return this.p();
         return this.t();
     }
 }
@@ -140,7 +148,7 @@ export class ComparativeSafeguard extends Safeguard {
 
 export class DistributiveSafeguard extends Safeguard {
     get validityType() {
-        if(this.constant instanceof LinearRegressionConstant) return ValidityTypes.Error;
+        if (this.constant instanceof LinearRegressionConstant) return ValidityTypes.Error;
         return ValidityTypes.Quality
     };
 
@@ -173,18 +181,18 @@ export class DistributiveSafeguard extends Safeguard {
     }
 
     validity() {
-        if(this.constant instanceof LinearRegressionConstant) return this.e();
+        if (this.constant instanceof LinearRegressionConstant) return this.e();
         return this.q();
     }
 
     updateConstant() {
-        if(this.constant instanceof NormalConstant) {
+        if (this.constant instanceof NormalConstant) {
             this.constant = NormalConstant.FitFromVisData(this.node.query.getRecentData());
         }
-        else if(this.constant instanceof PowerLawConstant) {
+        else if (this.constant instanceof PowerLawConstant) {
             this.constant = PowerLawConstant.FitFromVisData(this.node.query.getRecentData());
         }
-        else if(this.constant instanceof LinearRegressionConstant) {
+        else if (this.constant instanceof LinearRegressionConstant) {
             this.constant = LinearRegressionConstant.FitFromVisData(this.node.query.getRecentData());
         }
         else {
