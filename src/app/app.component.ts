@@ -64,7 +64,7 @@ export class AppComponent implements OnInit {
     candidateFields: FieldTrait[] = [];
     selectableFields: FieldTrait[] = [];
     selectedFields: FieldTrait[] = [];
-    newQuery: Query;
+    newQuery: AggregateQuery;
     nodes: ExplorationNode[] = [];
     isDistributivePossible = true;
 
@@ -95,7 +95,7 @@ export class AppComponent implements OnInit {
 
         this.selectableFields = newQuery.compatible(this.candidateFields);
         if(this.selectedFields.length === 0) this.newQuery = null;
-        else this.newQuery = newQuery;
+        else this.newQuery = newQuery as AggregateQuery;
     }
 
     create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {

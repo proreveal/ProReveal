@@ -12,7 +12,7 @@ export type NumberPair = [number, number];
 export type NumberTriplet = [number, number, number];
 
 export abstract class ConstantTrait {
-
+    name: string;
 }
 
 export class PointValueConstant extends ConstantTrait {
