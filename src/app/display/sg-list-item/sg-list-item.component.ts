@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Safeguard, SafeguardTypes } from '../../safeguard/safeguard';
 
 @Component({
@@ -7,9 +7,10 @@ import { Safeguard, SafeguardTypes } from '../../safeguard/safeguard';
     styleUrls: ['./sg-list-item.component.scss']
 })
 export class SgListItemComponent implements OnInit {
+    SGT = SafeguardTypes;
 
     @Input('safeguard') sg: Safeguard;
-    SGT = SafeguardTypes;
+    @Output('removeClicked') removeClicked:EventEmitter<Safeguard> = new EventEmitter();
 
     constructor() { }
 

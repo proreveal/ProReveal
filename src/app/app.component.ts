@@ -519,4 +519,9 @@ export class AppComponent implements OnInit {
         this.isPlaying = false;
         this.subs.unsubscribe();
     }
+
+    sgRemoveClicked(sg: Safeguard)
+    {
+        util.aremove(this.safeguards, sg);
+    }
 }

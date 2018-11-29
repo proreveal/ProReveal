@@ -35,7 +35,7 @@
             <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
                     <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
                     <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
-                Open the New Visualization Panel
+                New Visualization
             </button>
 
             <div id="new-node-creator" class="border-bottom rounded-bottom p-2 shadow-sm"
@@ -146,7 +146,9 @@
                 The list is empty! Click on buttons below to create a safegaurd.
             </p>
 
-            <sg-list-item *ngFor="let sg of safeguards" [safeguard]="sg"></sg-list-item>
+            <sg-list-item *ngFor="let sg of safeguards" [safeguard]="sg"
+                (removeClicked)="sgRemoveClicked($event)"
+            ></sg-list-item>
         </section>
         <ul class="tab-list">
             <li>

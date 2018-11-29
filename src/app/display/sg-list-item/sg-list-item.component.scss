@@ -2,6 +2,7 @@
 
 .wrapper {
     font-size: .8rem;
+    position: relative;
 }
 
 .display {
@@ -11,4 +12,10 @@
 
 .badge {
     font-weight: normal;
+}
+
+.close {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

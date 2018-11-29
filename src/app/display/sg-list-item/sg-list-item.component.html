@@ -21,4 +21,9 @@
     </div>
 
     Created {{ sg.createdAt | amTimeAgo }}
+
+    <button type="button" class="close px-2 py-1" aria-label="Close"
+        (click)="removeClicked.emit(sg)">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
