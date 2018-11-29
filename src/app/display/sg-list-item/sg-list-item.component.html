@@ -16,8 +16,11 @@
     <div *ngIf="sg.type == SGT.Comparative && !sg.variable.isRank">
         <p-indicator [p]="sg.p()"></p-indicator>
     </div>
-    <div *ngIf="sg.type == SGT.Distributive">
+    <div *ngIf="sg.type == SGT.Distributive && sg.constant.name != 'linear_regression'">
         <quality-indicator [q]="sg.q()"></quality-indicator>
+    </div>
+    <div *ngIf="sg.type == SGT.Distributive && sg.constant.name == 'linear_regression'">
+        <error-indicator [e]="sg.e()"></error-indicator>
     </div>
 
     Created {{ sg.createdAt | amTimeAgo }}

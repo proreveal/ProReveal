@@ -54,8 +54,9 @@ export class SgHistoryComponent implements OnInit, DoCheck {
         let yLabel = this.sg.validityType.toString();
         let yScale = d3.scaleLinear().range([height, 0]);
 
+        console.log(this.sg.validityType);
         if(this.sg.validityType == ValidityTypes.Error)
-            yScale.domain([0, d3.max(data, d => d[0])])
+            yScale.domain([0, d3.max(data, d => d[0])]).nice(3)
         else
             yScale.domain([0, 1])
 

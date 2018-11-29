@@ -5,9 +5,8 @@ import { VariableTrait, SingleVariable, VariablePair, DistributiveVariable, Comb
 import { NormalDistribution } from "./normal";
 import {
     PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
-    NormalEstimator, PowerLawEstimator
+    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator
 } from "./estimate";
-import { AggregateQuery } from "../data/query";
 import { ValidityTypes, Validity } from "./validity";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
@@ -16,6 +15,7 @@ const RangeValueEstimate = new RangeValueEstimator().estimate;
 const ComparativeEstimate = new ComparativeEstimator().estimate;
 const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
+const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 
 export enum SafeguardTypes {
     None = "None",
@@ -61,14 +61,14 @@ export class PointSafeguard extends Safeguard {
     p() { // min or max TODO
         if (this.variable.isRank)
             return PointRankEstimate(
-                this.node.query as AggregateQuery,
+                this.node.query,
                 this.variable,
                 this.operator,
                 this.constant as PointRankConstant);
 
 
         return PointValueEstimate(
-            this.node.query as AggregateQuery,
+            this.node.query,
             this.variable,
             this.operator,
             this.constant as PointValueConstant);
@@ -93,7 +93,7 @@ export class RangeSafeguard extends Safeguard {
             throw new Error('Cannot estimate the p value for rank');
 
         return RangeValueEstimate(
-            this.node.query as AggregateQuery,
+            this.node.query,
             this.variable,
             this.operator,
             this.constant as RangeValueConstant);
@@ -118,7 +118,7 @@ export class ComparativeSafeguard extends Safeguard {
             throw new Error('Cannot estimate the p value for rank');
 
         return ComparativeEstimate(
-            this.node.query as AggregateQuery,
+            this.node.query,
             this.variable,
             this.operator);
     }
@@ -129,7 +129,10 @@ export class ComparativeSafeguard extends Safeguard {
 }
 
 export class DistributiveSafeguard extends Safeguard {
-    readonly validityType = ValidityTypes.Quality;
+    get validityType() {
+        if(this.constant instanceof LinearRegressionConstant) return ValidityTypes.Error;
+        return ValidityTypes.Quality
+    };
 
     constructor(public constant: ConstantTrait,
         public node: ExplorationNode) {
@@ -142,17 +145,25 @@ export class DistributiveSafeguard extends Safeguard {
     q() {
         if (this.constant instanceof NormalConstant) {
             return NormalEstimate(
-                this.node.query as AggregateQuery,
+                this.node.query,
                 this.constant as NormalConstant);
         }
 
         return PowerLawEstimate(
-            this.node.query as AggregateQuery,
+            this.node.query,
             this.constant as PowerLawConstant
         );
     }
 
+    e() {
+        return LinearRegressionEstimate(
+            this.node.query,
+            this.constant as LinearRegressionConstant
+        )
+    }
+
     validity() {
+        if(this.constant instanceof LinearRegressionConstant) return this.e();
         return this.q();
     }
 

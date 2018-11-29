@@ -171,14 +171,14 @@ export class AppComponent implements OnInit {
             // this.testC();
             // this.testNN();
 
-            this.testNN();
+            //this.testNN();
             // this.run(1);
             // this.testNN();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Distributive);
+                //this.toggle(SGT.Distributive);
 
                 // this.useRank = true;
                 // this.useRankToggled();
