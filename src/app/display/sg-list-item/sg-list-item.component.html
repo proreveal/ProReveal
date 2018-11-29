@@ -5,28 +5,20 @@
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
-    <sg-history [sg]="sg"></sg-history>
-    <div *ngIf="sg.type == SGT.Point">
-        <p-indicator [p]="sg.p()"></p-indicator>
-    </div>
-    <!-- min or max-->
-    <div *ngIf="sg.type == SGT.Range && !sg.variable.isRank">
-        <p-indicator [p]="sg.p()"></p-indicator>
-    </div>
-    <div *ngIf="sg.type == SGT.Comparative && !sg.variable.isRank">
-        <p-indicator [p]="sg.p()"></p-indicator>
-    </div>
-    <div *ngIf="sg.type == SGT.Distributive && sg.constant.name != 'linear_regression'">
-        <quality-indicator [q]="sg.q()"></quality-indicator>
-    </div>
-    <div *ngIf="sg.type == SGT.Distributive && sg.constant.name == 'linear_regression'">
-        <error-indicator [e]="sg.e()"></error-indicator>
-    </div>
+    <sg-history *ngIf="sg.type != SGT.Point || sg.node.query.approximator.estimatable" [sg]="sg"></sg-history>
+
+    <p-indicator *ngIf="sg.type == SGT.Point && sg.node.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
+    <truthiness-indicator *ngIf="sg.type == SGT.Point && !sg.node.query.approximator.estimatable" [t]="sg.t()"></truthiness-indicator>
+
+    <p-indicator *ngIf="sg.type == SGT.Range && !sg.variable.isRank" [p]="sg.p()"></p-indicator>
+    <p-indicator *ngIf="sg.type == SGT.Comparative && !sg.variable.isRank" [p]="sg.p()"></p-indicator>
+
+    <quality-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name != 'linear_regression'" [q]="sg.q()"></quality-indicator>
+    <error-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name == 'linear_regression'" [e]="sg.e()"></error-indicator>
 
     Created {{ sg.createdAt | amTimeAgo }}
 
-    <button type="button" class="close px-2 py-1" aria-label="Close"
-        (click)="removeClicked.emit(sg)">
+    <button type="button" class="close px-2 py-1" aria-label="Close" (click)="removeClicked.emit(sg)">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>

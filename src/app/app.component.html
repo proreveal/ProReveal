@@ -201,13 +201,13 @@
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
                 && pointValueConstant && !useRank
-                && activeNode.query.approx.estimatable">
+                && activeNode.query.approximator.estimatable">
                 <p-indicator [p]="PointValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
                     && (variable1 || combinedVariable1)
                     && pointValueConstant && !useRank
-                    && !activeNode.query.approx.estimatable">
+                    && !activeNode.query.approximator.estimatable">
                 <truthiness-indicator [t]="PointMinMaxValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></truthiness-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && variable1 && pointRankConstant && useRank">

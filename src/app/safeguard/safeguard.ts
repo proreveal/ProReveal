@@ -1,11 +1,11 @@
 import { Operators } from "./operator";
 import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
 import { ExplorationNode } from "../exploration/exploration-node";
-import { VariableTrait, SingleVariable, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
+import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
 import {
     PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
-    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator
+    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator
 } from "./estimate";
 import { ValidityTypes, Validity } from "./validity";
 
@@ -16,6 +16,7 @@ const ComparativeEstimate = new ComparativeEstimator().estimate;
 const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
 const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
+const PointMinMaxValueEstimate = new PointMinMaxValueEstimator().estimate
 
 export enum SafeguardTypes {
     None = "None",
@@ -58,7 +59,7 @@ export class PointSafeguard extends Safeguard {
         super(SafeguardTypes.Point, variable, operator, constant, node);
     }
 
-    p() { // min or max TODO
+    p() {
         if (this.variable.isRank)
             return PointRankEstimate(
                 this.node.query,
@@ -74,8 +75,17 @@ export class PointSafeguard extends Safeguard {
             this.constant as PointValueConstant);
     }
 
+    t() {  // min or max
+        return PointMinMaxValueEstimate(
+            this.node.query,
+            this.variable,
+            this.operator,
+            this.constant as PointValueConstant);
+    }
+
     validity() {
-        return this.p();
+        if(this.node.query.approximator.estimatable) return this.p();
+        return this.t();
     }
 }
 
