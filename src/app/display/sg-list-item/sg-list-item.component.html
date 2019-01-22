@@ -5,7 +5,9 @@
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
-    <sg-history *ngIf="sg.type != SGT.Point || sg.node.query.approximator.estimatable" [sg]="sg"></sg-history>
+    <!--
+        <sg-history *ngIf="sg.type != SGT.Point || sg.node.query.approximator.estimatable" [sg]="sg"></sg-history>
+    -->
 
     <p-indicator *ngIf="sg.type == SGT.Point && sg.node.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
     <truthiness-indicator *ngIf="sg.type == SGT.Point && !sg.node.query.approximator.estimatable" [t]="sg.t()"></truthiness-indicator>
@@ -16,7 +18,9 @@
     <quality-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name != 'linear_regression'" [q]="sg.q()"></quality-indicator>
     <error-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name == 'linear_regression'" [e]="sg.e()"></error-indicator>
 
-    Created {{ sg.createdAt | amTimeAgo }}
+    <fa-icon [icon]="['far', 'clock']"></fa-icon>
+    <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>
+    <p class="m-0">Created {{ sg.createdAt | amTimeAgo }}</p>
 
     <button type="button" class="close px-2 py-1" aria-label="Close" (click)="removeClicked.emit(sg)">
         <span aria-hidden="true">&times;</span>

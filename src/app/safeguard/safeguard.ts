@@ -33,6 +33,7 @@ export class Safeguard {
     validityType: ValidityTypes;
     history: Validity[] = [];
     lastUpdated: number;
+    lastUpdatedAt: Date;
 
     constructor(
         public type: SafeguardTypes,
@@ -42,6 +43,7 @@ export class Safeguard {
         public node: ExplorationNode
     ) {
         this.createdAt = new Date();
+        this.lastUpdatedAt = new Date();
         this.lastUpdated = +new Date();
     }
 

@@ -159,10 +159,13 @@ progress-ring {
 #safeguard-view {
     grid-row: 2 / 4;
     grid-column: 3;
+    display: flex;
+    flex-direction: column;
 }
 
 #safeguard-list {
     overflow-y: scroll;
+    flex-grow: 1;
 }
 
 

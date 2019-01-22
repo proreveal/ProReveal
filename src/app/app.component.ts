@@ -147,7 +147,7 @@ export class AppComponent implements OnInit {
             this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            // this.run(10);
+            this.run(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -179,7 +179,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                //this.toggle(SGT.Distributive);
+                this.toggle(SGT.Point);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -245,6 +245,7 @@ export class AppComponent implements OnInit {
         this.safeguards.forEach(sg => {
             if (sg.lastUpdated < sg.node.query.lastUpdated) {
                 sg.lastUpdated = sg.node.query.lastUpdated;
+                sg.lastUpdatedAt = new Date(sg.node.query.lastUpdated);
 
                 sg.history.push(sg.validity());
             }

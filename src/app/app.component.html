@@ -130,16 +130,6 @@
     </section>
 
     <section id="safeguard-view" class="border-left">
-        <h3 class="section-header p-1 border-right-0 border-top border-bottom">
-            Safeguard List
-        </h3>
-        <section id="safeguard-list" class="styled-scroll">
-            <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
-                The list is empty! Click on buttons below to create a safegaurd.
-            </p>
-
-            <sg-list-item *ngFor="let sg of safeguards" [safeguard]="sg" (removeClicked)="sgRemoveClicked($event)"></sg-list-item>
-        </section>
         <ul class="tab-list">
             <li>
                 <h4 class="section-header p-2 border" (click)="toggle(SGT.Point)">
@@ -170,6 +160,16 @@
                 </h4>
             </li>
         </ul>
+        <h3 class="section-header p-1 border-right-0 border-top border-bottom">
+            Safeguard List
+        </h3>
+        <section id="safeguard-list" class="styled-scroll">
+            <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
+                The list is empty! Click on buttons below to create a safegaurd.
+            </p>
+
+            <sg-list-item *ngFor="let sg of safeguards.reverse()" [safeguard]="sg" (removeClicked)="sgRemoveClicked($event)"></sg-list-item>
+        </section>
     </section>
 
     <section id="safeguard-config-view">
