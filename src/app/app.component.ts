@@ -55,7 +55,6 @@ export class AppComponent implements OnInit {
     completedNodes: ExplorationNode[];
     sortablejsOptions: any;
     highlightedNodes: ExplorationNode[] = [];
-    searchKeyword: string;
 
     activeSafeguardPanel = SGT.None;
     safeguards: Safeguard[] = [];
@@ -144,14 +143,14 @@ export class AppComponent implements OnInit {
 
             this.updateNodeLists();
 
-            this.nodeSelected(this.ongoingNodes[0]);
+            // this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
             // this.run(10);
 
             // C (Frequency histogram, Creative_Type)
-            // this.nodeSelected(this.ongoingNodes[0])
-            // this.run(5);
+            this.nodeSelected(this.ongoingNodes[0])
+            this.run(5);
 
             // N (1D histogram, IMDB_Rating)
             // this.nodeSelected(this.ongoingNodes[3]);

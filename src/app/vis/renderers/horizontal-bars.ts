@@ -186,6 +186,42 @@ export class HorizontalBarsRenderer implements Renderer {
             eventBoxes.exit().remove();
         }
 
+        // render ranks
+        if(query.rankAvailable){
+            let background = visG.selectAll('rect.alternate')
+                .data(data, (d: any) => d.id);
+
+            enter = background.enter().append('rect').attr('class', 'alternate')
+
+            background.merge(enter)
+                .attr('height', yScale.bandwidth())
+                .attr('width', labelWidth)
+                .attr('transform', (d, i) => translate(0, yScale(i + '')))
+                .attr('fill', 'black')
+                .style('opacity', (d, i) => !d.keyHasNullValue() && i % 2 ? 0.08 : 0);
+
+            background.exit().remove();
+
+            let ranks = visG
+                .selectAll('text.rank')
+                .data(data, (d: any) => d.id);
+
+            enter = ranks.enter().append('text').attr('class', 'rank variable1')
+                .attr('font-size', '.8rem')
+                .attr('dy', '.8rem')
+                .style('user-select', 'none')
+
+            this.ranks = ranks.merge(enter)
+                .attr('transform', (d, i) => translate(0, yScale(i + '')))
+                .text((d, i) => `${i + 1}`)
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0;
+                    return 0.5;
+                })
+
+            ranks.exit().remove();
+        }
+
         // render labels
         {
             let labels = visG
@@ -211,28 +247,6 @@ export class HorizontalBarsRenderer implements Renderer {
                 .on('contextmenu', (d, i) => this.datumSelected2(d))
 
             labels.exit().remove();
-        }
-
-        // render ranks
-        if(query.rankAvailable){
-            let ranks = visG
-                .selectAll('text.rank')
-                .data(data, (d: any) => d.id);
-
-            enter = ranks.enter().append('text').attr('class', 'rank variable1')
-                .attr('font-size', '.8rem')
-                .attr('dy', '.8rem')
-                .style('user-select', 'none')
-
-            this.ranks = ranks.merge(enter)
-                .attr('transform', (d, i) => translate(0, yScale(i + '')))
-                .text((d, i) => `${i + 1}`)
-                .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0;
-                    return 0.5;
-                })
-
-            ranks.exit().remove();
         }
 
         // render label lines
