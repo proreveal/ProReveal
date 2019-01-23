@@ -219,15 +219,13 @@
                 && !activeNode.query.approximator.estimatable">
                 <truthiness-indicator [t]="PointMinMaxRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></truthiness-indicator>
             </div>
-            <div class="p-1">
-                <div class="d-flex">
-                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0" (click)="createPointSafeguard()">
-                        Create a Safeguard
-                    </button>
-                    <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelSafeguard()">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+            <div class="p-1 text-right">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
+                    Cancel
+                </button>
             </div>
         </div>
 
@@ -254,15 +252,13 @@
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeValueConstant">
                 <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
-            <div class="p-1">
-                <div class="d-flex">
-                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0" (click)="createRangeSafeguard()">
-                        Create a Safeguard
-                    </button>
-                    <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelSafeguard()">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+            <div class="p-1 text-right">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
+                    Cancel
+                </button>
             </div>
         </div>
 
@@ -288,15 +284,13 @@
             <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
                 <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
-            <div class="p-1">
-                <div class="d-flex">
-                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0" (click)="createComparativeSafeguard()">
-                        Create a Safeguard
-                    </button>
-                    <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelSafeguard()">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+            <div class="p-1 text-right">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
+                    Cancel
+                </button>
             </div>
         </div>
 
@@ -317,15 +311,13 @@
                     <error-indicator [e]="LinearRegressionEstimate(activeNode.query, linearRegressionConstant)"></error-indicator>
                 </div>
             </div>
-            <div class="p-1">
-                <div class="d-flex">
-                    <button class="btn btn-success flex-grow-1 rounded-0 border-right-0" (click)="createDistributiveSafeguard()">
-                        Create a Safeguard
-                    </button>
-                    <button class="btn btn-danger rounded-0 border-right-0" (click)="cancelSafeguard()">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+            <div class="p-1 text-right">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
+                    Cancel
+                </button>
             </div>
         </div>
     </section>
