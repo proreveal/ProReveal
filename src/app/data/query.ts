@@ -11,12 +11,19 @@ import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
 import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
+import { NullGroupId } from './grouper';
 
-export type Datum = {
-    id: string,
-    keys: FieldGroupedValueList,
-    ci3: ConfidenceInterval,
-    accumulatedValue: AccumulatedValue
+export class Datum {
+    constructor(public id: string,
+        public keys: FieldGroupedValueList,
+        public ci3: ConfidenceInterval,
+        public accumulatedValue: AccumulatedValue) {
+
+        }
+
+    keyHasNullValue() {
+        return this.keys.list[0].groupId == NullGroupId;
+    }
 };
 
 export abstract class Query {
@@ -199,12 +206,12 @@ export class AggregateQuery extends Query {
                     this.visibleProgress.processedRows,
                     this.visibleProgress.totalRows);
 
-            return {
-                id: key.hash,
-                keys: key,
-                ci3: ai.range(3),
-                accumulatedValue: value
-            }
+            return new Datum(
+                key.hash,
+                key,
+                ai.range(3),
+                value
+            );
         })
 
         data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
@@ -223,12 +230,12 @@ export class AggregateQuery extends Query {
                     this.visibleProgress.processedRows,
                     this.visibleProgress.totalRows);
 
-            return {
-                id: key.hash,
-                keys: key,
-                ci3: ai.range(3),
-                accumulatedValue: value
-            }
+            return new Datum(
+                key.hash,
+                key,
+                ai.range(3),
+                value
+            );
         })
 
         data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
