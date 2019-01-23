@@ -147,7 +147,7 @@ export class AppComponent implements OnInit {
             this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            this.run(10);
+            this.run(100);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])

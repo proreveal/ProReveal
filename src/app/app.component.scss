@@ -3,7 +3,7 @@
 #wrapper {
     display: grid;
     grid-template-rows: 56px 1fr auto;
-    grid-template-columns: 480px 1fr 240px;
+    grid-template-columns: 420px 1fr 240px;
     width: 100vw;
     height: 100vh;
 }
@@ -27,8 +27,8 @@
     grid-column: 1;
     display: grid;
     grid-template-rows: auto auto 1fr;
-    grid-template-columns: 1fr 1fr;
-    overflow: auto;
+    grid-template-columns: 180px 240px;
+    overflow: hidden;
 }
 
 #new-node {
@@ -119,6 +119,10 @@
         list-style: none;
         padding: 0;
         margin: 0;
+    }
+
+    .done.field-names {
+        position: static;
     }
 }
 

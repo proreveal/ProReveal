@@ -75,8 +75,7 @@
         <section id="completed-node-view" class="styled-scroll">
             <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
-                    <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
-                    <ul class="field-names">
+                    <ul class="done field-names">
                         <li *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
