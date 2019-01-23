@@ -83,7 +83,10 @@ export class HorizontalBarsRenderer implements Renderer {
             .on('contextmenu', () => d3.event.preventDefault());
 
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
-        const labelWidth = longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0;
+        const labelWidth =
+            Math.max(longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0,
+                measure(query.groupBy.fields[0].name, '.8em').width + 20
+            );
 
         this.labelWidth = labelWidth;
         this.width = width;
@@ -134,8 +137,8 @@ export class HorizontalBarsRenderer implements Renderer {
 
             selectOrAppend(visG, 'text', '.y.field.label')
                 .text(query.groupBy.fields[0].name)
-                .attr('transform', translate(labelWidth / 2, VC.horizontalBars.label.height))
-                .style('text-anchor', 'right')
+                .attr('transform', translate(labelWidth - VC.padding, VC.horizontalBars.label.height))
+                .style('text-anchor', 'end')
                 .attr('dy', '1.2em')
                 .style('font-size', '.8em')
                 .style('font-style', 'italic')

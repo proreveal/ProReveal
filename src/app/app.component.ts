@@ -147,15 +147,15 @@ export class AppComponent implements OnInit {
             this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            this.run(100);
+            // this.run(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
             // this.run(5);
 
             // N (1D histogram, IMDB_Rating)
-            // this.nodeSelected(this.ongoingNodes[3]);
-            // this.run(105);
+            this.nodeSelected(this.ongoingNodes[3]);
+            this.run(105);
 
             // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
             // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));

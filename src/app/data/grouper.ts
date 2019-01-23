@@ -85,6 +85,7 @@ export class NumericalGrouper {
     ungroupString(id: GroupIdType, format: string = '~s'): string {
         if (id === NullGroupId) return NullString;
         let ug = this.ungroup(id);
-        return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
+        // return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
+        return `~${d3format.format(format)(ug[1])}`;
     }
 }
