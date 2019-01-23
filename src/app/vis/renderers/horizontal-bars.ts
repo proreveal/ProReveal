@@ -199,6 +199,10 @@ export class HorizontalBarsRenderer implements Renderer {
             this.labels = labels.merge(enter)
                 .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
                 .text((d) => `${d.keys.list[0].valueString()}`)
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0.6;
+                    return 1;
+                })
                 .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
                 .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
                 .on('click', (d, i) => this.datumSelected(d))
@@ -257,6 +261,10 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('width', d => xScale(d.ci3.center) - xScale(d.ci3.low))
                 .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
                 .attr('fill', this.gradient.leftUrl())
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0.6;
+                    return 1;
+                })
 
             leftBars.exit().remove();
         }
@@ -275,6 +283,10 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.center))
                 .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
                 .attr('fill', this.gradient.rightUrl())
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0.6;
+                    return 1;
+                })
 
             rightBars.exit().remove();
         }
@@ -296,6 +308,10 @@ export class HorizontalBarsRenderer implements Renderer {
                 .style('stroke-width', done ? 2 : 1)
                 .style('stroke', 'black')
                 .style('shape-rendering', 'crispEdges')
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0.3;
+                    return 1;
+                })
 
             centerLines.exit().remove();
         }
@@ -312,7 +328,11 @@ export class HorizontalBarsRenderer implements Renderer {
 
             circles.merge(enter)
                 .attr('cx', d => xScale(d.ci3.center))
-                .attr('cy', (d, i) => yScale(i + '') + yScale.bandwidth() / 2);
+                .attr('cy', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0.6;
+                    return 1;
+                })
 
             circles.exit().remove();
         }
