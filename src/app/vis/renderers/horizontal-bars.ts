@@ -84,8 +84,10 @@ export class HorizontalBarsRenderer implements Renderer {
 
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth =
-            Math.max(longest ? measure(longest.keys.list[0].valueString()).width + 20  /* rank */ : 0,
-                measure(query.groupBy.fields[0].name, '.8em').width + 20
+            Math.max(longest ? (measure(longest.keys.list[0].valueString(), '.8rem').width
+                + (query.rankAvailable ? 20 : 0)) : 0 + VC.padding,
+                measure(query.groupBy.fields[0].name, '.8rem').width + (query.rankAvailable ? 20 : 0)
+                + VC.padding
             );
 
         this.labelWidth = labelWidth;
@@ -140,7 +142,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', translate(labelWidth - VC.padding, VC.horizontalBars.label.height))
                 .style('text-anchor', 'end')
                 .attr('dy', '1.2em')
-                .style('font-size', '.8em')
+                .style('font-size', '.8rem')
                 .style('font-style', 'italic')
         }
 
@@ -212,7 +214,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
 
         // render ranks
-        {
+        if(query.rankAvailable){
             let ranks = visG
                 .selectAll('text.rank')
                 .data(data, (d: any) => d.id);
@@ -220,12 +222,15 @@ export class HorizontalBarsRenderer implements Renderer {
             enter = ranks.enter().append('text').attr('class', 'rank variable1')
                 .attr('font-size', '.8rem')
                 .attr('dy', '.8rem')
-                .style('opacity', 0.5)
                 .style('user-select', 'none')
 
             this.ranks = ranks.merge(enter)
                 .attr('transform', (d, i) => translate(0, yScale(i + '')))
                 .text((d, i) => `${i + 1}`)
+                .style('opacity', d => {
+                    if(d.keyHasNullValue()) return 0;
+                    return 0.5;
+                })
 
             ranks.exit().remove();
         }

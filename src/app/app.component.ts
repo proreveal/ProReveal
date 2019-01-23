@@ -147,7 +147,7 @@ export class AppComponent implements OnInit {
             this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            this.run(10);
+            // this.run(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -169,6 +169,7 @@ export class AppComponent implements OnInit {
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
 
+            // this.testCC();
             // this.testC();
             // this.testNN();
 
@@ -266,7 +267,8 @@ export class AppComponent implements OnInit {
     }
 
     rankAllowed() {
-        return this.activeNode && this.activeNode.query && (this.activeNode.query as AggregateQuery).groupBy.fields.length == 1;
+        return this.activeNode && this.activeNode.query
+            && this.activeNode.query.rankAvailable;
     }
 
     nodeSelected(node: ExplorationNode) {

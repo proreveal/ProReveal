@@ -100,6 +100,7 @@ export class AggregateQuery extends Query {
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
+    rankAvailable = true;
 
     /**
      *
@@ -266,6 +267,7 @@ export class Histogram1DQuery extends AggregateQuery {
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
+    rankAvailable = false;
 
     constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
@@ -305,6 +307,7 @@ export class Histogram2DQuery extends AggregateQuery {
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
+    rankAvailable = false;
 
     constructor(
         public grouping1: FieldTrait,
@@ -363,13 +366,44 @@ export class Frequency1DQuery extends AggregateQuery {
                 this.sampler);
         }
 
-        return new AggregateQuery(
-            new CountAccumulator(),
+        return new Frequency2DQuery(
+            this.grouping,
+            field,
+            this.dataset,
+            this.sampler);
+    }
+}
+
+export class Frequency2DQuery extends AggregateQuery {
+    name = "Frequency2DQuery";
+    ordering = NumericalOrdering;
+    orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
+    rankAvailable = false;
+
+    constructor(
+        public grouping1: FieldTrait,
+        public grouping2: FieldTrait,
+        public dataset: Dataset,
+        public sampler: Sampler = new UniformRandomSampler(100)) {
+
+        super(
+            new AllAccumulator(),
             new CountApproximator(),
             null,
-            this.dataset,
-            new GroupBy([this.grouping, field]),
-            this.sampler);
+            dataset,
+            new GroupBy([grouping1, grouping2]),
+            sampler);
+
+        assertIn(grouping1.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
+        assertIn(grouping2.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
+    }
+
+    combine(field: FieldTrait): AggregateQuery {
+        throw new Error(`${this.name} cannot be combined`);
+    }
+
+    compatible(fields: FieldTrait[]) {
+        return [];
     }
 }
 
