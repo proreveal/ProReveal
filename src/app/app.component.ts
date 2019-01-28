@@ -179,7 +179,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                // this.toggle(SGT.Point);
+                this.toggle(SGT.Distributive);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -284,7 +284,13 @@ export class AppComponent implements OnInit {
 
         if (!this.rankAllowed()) this.useRank = false;
         if (this.activeNode) {
-            this.useNormal = this.activeNode.query instanceof Histogram1DQuery;
+            // normal fitting: only for 1D histogram
+            // power law: always possible
+
+            this.isNormalFittingAvailable = this.activeNode.query instanceof Histogram1DQuery;
+
+            this.useNormal = this.isNormalFittingAvailable;
+
             this.isDistributivePossible = !(this.activeNode.query.groupBy.fields.length == 2
                 && this.activeNode.query.groupBy.fields[0].vlType != VlType.Quantitative);
         }
@@ -309,6 +315,8 @@ export class AppComponent implements OnInit {
     useRank = false;
     useLinear = false;
     useNormal = true;
+    isNormalFittingAvailable = false;
+    isPowerLawFittingAvailable = false;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
     pointRankConstant: PointRankConstant = new PointRankConstant(1);
@@ -462,7 +470,7 @@ export class AppComponent implements OnInit {
         let sg: DistributiveSafeguard;
         if(!this.useLinear && this.useNormal)
             sg = new DistributiveSafeguard(this.normalConstant, this.activeNode);
-        else if(!this.useLinear && this.useNormal)
+        else if(!this.useLinear && !this.useNormal)
             sg = new DistributiveSafeguard(this.powerLawConstant, this.activeNode);
         else if(this.useLinear)
             sg = new DistributiveSafeguard(this.linearRegressionConstant, this.activeNode);
@@ -520,6 +528,12 @@ export class AppComponent implements OnInit {
             this.vis.setSafeguardType(sgt);
             this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
         }
+    }
+
+    useNormalToggled() {
+        this.vis.setFittingType(this.useNormal ? FittingTypes.Normal : FittingTypes.PowerLaw);
+        (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+        this.vis.forceUpdate();
     }
 
     useRankToggled() {

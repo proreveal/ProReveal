@@ -253,7 +253,7 @@
                 <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">
                     Create a Safeguard
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
@@ -285,7 +285,7 @@
                 <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
             <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createComparativeSafeguard()">
                     Create a Safeguard
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
@@ -296,6 +296,23 @@
 
         <!-- Distributive -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Distributive">
+            <div class="p-1">
+                <div class="form-check-inline form-control-sm">
+                    Fitting Type:
+                </div>
+                <div class="form-check form-check-inline form-control-sm">
+                    <input class="form-check-input" type="radio" name="distributive"
+                        [checked]="!useNormal"
+                        id="inlineRadio2" value="option2" (click)="useNormal=false;useNormalToggled()">
+                    <label class="form-check-label" for="inlineRadio2">Power Law</label>
+                </div>
+                <div class="form-check form-check-inline form-control-sm">
+                    <input class="form-check-input" type="radio" name="distributive"
+                        [checked]="useNormal" [disabled]="!isNormalFittingAvailable"
+                        id="inlineRadio1" value="option1" (click)="useNormal=true;useNormalToggled()">
+                    <label class="form-check-label" for="inlineRadio1">Normal</label>
+                </div>
+            </div>
             <div class="display text-center p-2">
                 <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
                     [groupBy]="activeNode.query.groupBy" (highlight)="highlight($event)"></sg-distributive>
@@ -312,7 +329,7 @@
                 </div>
             </div>
             <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
                     Create a Safeguard
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
