@@ -68,6 +68,10 @@
 
     <svg class="mt-2" #svg></svg>
 
+    <button class="btn btn-secondary w-100" [hidden]="!limitNumCategories"
+        (click)="showAllCategories()">
+        Show all categories
+    </button>
     <tooltip #tooltip></tooltip>
 
     <!-- <div>

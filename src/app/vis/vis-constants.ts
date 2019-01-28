@@ -7,7 +7,8 @@ export const VisConstants = Object.freeze({
         label: {
             height: 15
         },
-        circleRadius: 3
+        circleRadius: 3,
+        initiallyVisibleCategories: 50
     },
     punchcard: {
         rowHeight: 20,

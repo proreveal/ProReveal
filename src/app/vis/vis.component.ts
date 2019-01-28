@@ -9,7 +9,8 @@ import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
-import { MinApproximator, MaxApproximator, MeanApproximator, SumApproximator, Approximator } from '../data/approx';
+import { VisConstants as VC } from './vis-constants';
+
 
 @Component({
     selector: 'vis',
@@ -35,8 +36,9 @@ export class VisComponent implements OnInit, DoCheck {
     lastUpdated: number = 0;
     lastNode: ExplorationNode;
     renderer: Renderer;
+    limitNumCategories = false;
 
-    constructor() { }
+    constructor() {}
 
     recommend(query: AggregateQuery): Renderer {
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
@@ -71,9 +73,26 @@ export class VisComponent implements OnInit, DoCheck {
             console.info('render() called for ', this.renderer);
             this.lastNode = this.node;
             this.renderer.render(this.node, this.svg.nativeElement);
+
+            this.limitNumCategories = false;
+
+            if(this.renderer instanceof HorizontalBarsRenderer) {
+                if(this.renderer.limitNumCategories &&
+                    this.renderer.data.length > VC.horizontalBars.initiallyVisibleCategories) {
+                    this.limitNumCategories = true;
+                }
+            }
         }
 
         if(!this.node) this.lastNode = this.node;
+    }
+
+    showAllCategories() {
+        if(this.limitNumCategories) {
+            this.limitNumCategories = false;
+            (this.renderer as HorizontalBarsRenderer).limitNumCategories = false;
+            this.renderer.render(this.node, this.svg.nativeElement);
+        }
     }
 
     forceUpdate() {

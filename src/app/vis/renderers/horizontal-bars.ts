@@ -41,6 +41,7 @@ export class HorizontalBarsRenderer implements Renderer {
     constantHighlight1: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     constantHighlight2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 
+    limitNumCategories = true;
 
     visG;
     interactionG;
@@ -74,6 +75,10 @@ export class HorizontalBarsRenderer implements Renderer {
         let data = query.getVisibleData();
 
         this.data = data;
+
+        if(this.limitNumCategories) {
+            data = data.slice(0, VC.horizontalBars.initiallyVisibleCategories);
+        }
 
         const height = VC.horizontalBars.axis.height * 2 +
             VC.horizontalBars.height * data.length + VC.horizontalBars.label.height * 2;
