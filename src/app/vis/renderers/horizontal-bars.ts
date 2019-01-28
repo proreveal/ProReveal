@@ -494,7 +494,7 @@ export class HorizontalBarsRenderer implements Renderer {
             if (this.fittingType == FT.PowerLaw) {
                 this.distributionLine.render(
                     this.constant as DistributionTrait,
-                    this.data,
+                    data,
                     (d: Datum, i: number) => { return [i + 1, 0]; },
                     this.xScale, this.yScale
                 )
@@ -502,7 +502,7 @@ export class HorizontalBarsRenderer implements Renderer {
             else {
                 this.distributionLine.render(
                     this.constant as DistributionTrait,
-                    this.data,
+                    data,
                     (d: Datum) => {
                         let range = d.keys.list[0].value();
                         if (range == null) return null;

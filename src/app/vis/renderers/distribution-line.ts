@@ -51,6 +51,8 @@ export class DistributionLine {
             .attr('stroke-dasharray', 4)
             .merge(path)
                 .attr('d', line)
+
+        //console.log(filtered)
     }
 
     show() {
