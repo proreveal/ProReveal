@@ -41,6 +41,7 @@ import { QualityIndicatorComponent } from './display/quality-indicator/quality-i
 import { ErrorIndicatorComponent } from './display/error-indicator/error-indicator.component';
 import { SgHistoryComponent } from './display/history/sg-history.component';
 import { QueryTitleComponent } from './vis/query-title/query-title.component';
+import { SmartNumberPipe } from './smart-number.pipe';
 
 library.add(fas, far);
 
@@ -69,7 +70,8 @@ library.add(fas, far);
         ErrorIndicatorComponent,
         SgHistoryComponent,
         PunchcardTooltipComponent,
-        QueryTitleComponent
+        QueryTitleComponent,
+        SmartNumberPipe
     ],
     imports: [
         NgbModule.forRoot(),

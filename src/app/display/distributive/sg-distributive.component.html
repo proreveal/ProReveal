@@ -1,7 +1,7 @@
 <span *ngIf="constant.name === 'linear_regression'">
-<span class="variable1">{{ groupBy.fields[1].name }}</span> = {{ constant.a | number }} *
+<span class="variable1">{{ groupBy.fields[1].name }}</span> = {{ constant.a | smartNumber }} *
 <span class="variable1">{{ groupBy.fields[0].name }}</span>
-<span *ngIf="constant.b > 0"> + </span>{{ constant.b | number }}
+<span *ngIf="constant.b > 0"> + </span>{{ constant.b | smartNumber }}
 </span>
 <span *ngIf="constant.name !== 'linear_regression'">
 <span class="variable1 pr-1">
@@ -16,9 +16,9 @@
 <span class="constant pr-1" *ngIf="constant.name == 'power'"
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
->{{ constant.a | number }}x<sup>{{ constant.b | number }}</sup> </span>
+>{{ constant.a | smartNumber }} * x<sup>{{ constant.b | smartNumber }}</sup> </span>
 <span class="constant pr-1" *ngIf="constant.name == 'normal'"
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
->N({{ constant.mean | number }}, {{ constant.stdev | number }})</span>
+>N({{ constant.mean | smartNumber }}, {{ constant.stdev | smartNumber }})</span>
 </span>

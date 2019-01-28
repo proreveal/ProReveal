@@ -9,7 +9,7 @@
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
     (click)="editing=editable" *ngIf="!isRank && !editing"
->{{ constant.value | number:CT.numberFormat }}</span>
+>{{ constant.value | smartNumber }}</span>
 <form class="inplace-editor" *ngIf="!isRank && editing">
     <div class="input-group inline ml-1">
         <input type="text" class="form-control form-control-sm"

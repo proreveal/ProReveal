@@ -8,11 +8,10 @@
 >∈</span>
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="!isRank">
-[
-<span *ngIf="!editing1" (click)="editing2=false; editing1=editable">
-    {{ constant.from | number: CT.numberFormat }}
-</span>
-<form class="inplace-editor" *ngIf="editing1">
+[<span *ngIf="!editing1" (click)="editing2=false; editing1=editable"><!--
+-->{{ constant.from | smartNumber }}
+</span><!--
+--><form class="inplace-editor" *ngIf="editing1">
     <div class="input-group inline ml-1">
         <input type="text" class="form-control form-control-sm"
         [ngModel]="constant.from | number: numberFormat"
@@ -28,12 +27,11 @@
             <button class="btn btn-danger form-control-sm" (click)="editing1=false">Cancel</button>
         </div>
     </div>
-</form>
-,
-<span *ngIf="!editing2" (click)="editing1=false; editing2=editable">
-    {{ constant.to | number: CT.numberFormat }}
-</span>
-<form class="inplace-editor" *ngIf="editing2">
+</form><!--
+-->,
+<span *ngIf="!editing2" (click)="editing1=false; editing2=editable"><!--
+-->{{ constant.to | smartNumber }}</span><!--
+--><form class="inplace-editor" *ngIf="editing2">
     <div class="input-group inline ml-1">
         <input type="text" class="form-control form-control-sm"
         [ngModel]="constant.to | number: numberFormat"
@@ -49,8 +47,8 @@
             <button class="btn btn-danger form-control-sm" (click)="editing2=false">Cancel</button>
         </div>
     </div>
-</form>
-]
+</form><!--
+-->]
 </span>
 <!--<span class="constant pr-1" [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="isRank"

@@ -586,8 +586,8 @@ export class HorizontalBarsRenderer implements Renderer {
             this.flexBrush.snap = null;
 
             this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height],
-            [width - VC.padding, height - VC.horizontalBars.axis.height]]);
+            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height - VC.padding],
+            [width - VC.padding, height - VC.horizontalBars.axis.height + VC.padding]]);
         }
         else {
             let start = VC.horizontalBars.axis.height + VC.horizontalBars.label.height;
