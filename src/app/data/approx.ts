@@ -45,6 +45,7 @@ export interface ApproximatorTrait {
 
 export abstract class Approximator {
     static FromName(name: string) {
+        name = name.toLowerCase();
         if(name === 'sum') return new SumApproximator();
         if(name === 'mean') return new MeanApproximator();
         if(name === 'min') return new MinApproximator();
@@ -55,7 +56,7 @@ export abstract class Approximator {
 }
 
 export class MinApproximator implements ApproximatorTrait {
-    name = 'min';
+    name = 'Min';
     alwaysNonNegative = false;
     requireTargetField = true;
     estimatable = false;
@@ -67,7 +68,7 @@ export class MinApproximator implements ApproximatorTrait {
 }
 
 export class MaxApproximator implements ApproximatorTrait {
-    name = 'max';
+    name = 'Max';
     alwaysNonNegative = false;
     requireTargetField = true;
     estimatable = false;
@@ -79,7 +80,7 @@ export class MaxApproximator implements ApproximatorTrait {
 }
 
 export class CountApproximator implements ApproximatorTrait {
-    name = 'count';
+    name = 'Count';
     alwaysNonNegative = true;
     requireTargetField = false;
     estimatable = true;
@@ -95,7 +96,7 @@ export class CountApproximator implements ApproximatorTrait {
 }
 
 export class MeanApproximator implements ApproximatorTrait {
-    name = 'mean';
+    name = 'Mean';
     alwaysNonNegative = true;
     requireTargetField = true;
     estimatable = true;
@@ -114,7 +115,7 @@ export class MeanApproximator implements ApproximatorTrait {
 
 
 export class SumApproximator implements ApproximatorTrait {
-    name = 'sum';
+    name = 'Sum';
     alwaysNonNegative = true;
     requireTargetField = true;
     estimatable = true;

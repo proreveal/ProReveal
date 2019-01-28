@@ -27,3 +27,16 @@
 .placeholder.variable2::after {
     content: 'B';
 }
+
+sub {
+    font-size: 1em;
+    bottom: 0;
+}
+
+.where {
+    opacity: .7;
+}
+
+.where::after {
+    content: 'where';
+}

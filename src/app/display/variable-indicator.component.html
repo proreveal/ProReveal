@@ -1,11 +1,11 @@
 <span class="{{ className }} pr-1" [class.highlighted]="highlighted"
     *ngIf="!variable"><span *ngIf="isRank">Rank(</span>V(<span class="placeholder {{ className }}"></span>)<span *ngIf="isRank">)</span></span>
 <span *ngIf="variable" class="{{ className }} pr-1" [class.highlighted]="highlighted">
-    <span *ngIf="isRank">Rank(</span>{{ query.approximator.name.toUpperCase() }}<!--
-    --><sub *ngIf="!variable.isCombined">{{ variable.fieldString() }} = {{ variable.valueString() }}</sub><!--
-    --><sub *ngIf="variable.isCombined">{{ variable.fieldString1() }} = {{ variable.valueString1() }},<!--
-    -->{{ variable.fieldString2() }} = {{ variable.valueString2() }}</sub>(<!--
+    <span *ngIf="isRank">Rank(</span>{{ query.approximator.name }}(<!--
 --><span *ngIf="query.approximator.requireTargetField">{{ query.target.name }}</span><!--
 --><span *ngIf="!query.approximator.requireTargetField">*</span>)<!--
---><span *ngIf="isRank">)</span></span>
+--><span *ngIf="isRank">)</span><!--
+--><sub *ngIf="!variable.isCombined"><span class="pl-1 where"></span> {{ variable.fieldString() }} = {{ variable.valueString() }}</sub><!--
+--><sub *ngIf="variable.isCombined"><span class="pl-1 where"></span> {{ variable.fieldString1() }} = {{ variable.valueString1() }},<!--
+-->{{ variable.fieldString2() }} = {{ variable.valueString2() }}</sub></span>
 

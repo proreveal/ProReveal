@@ -222,14 +222,14 @@ export class AggregateQuery extends Query {
 
     getRecentData(): Datum[] {
         let data = Object.keys(this.recentResult).map(k => {
-            let key = this.visibleResult[k].key;
-            let value = this.visibleResult[k].value;
+            let key = this.recentResult[k].key;
+            let value = this.recentResult[k].value;
 
             const ai = this.approximator
                 .approximate(value,
-                    this.visibleProgress.processedPercent(),
-                    this.visibleProgress.processedRows,
-                    this.visibleProgress.totalRows);
+                    this.recentProgress.processedPercent(),
+                    this.recentProgress.processedRows,
+                    this.recentProgress.totalRows);
 
             return new Datum(
                 key.hash,
@@ -253,6 +253,8 @@ export class AggregateQuery extends Query {
                 value: this.recentResult[key].value
             }
         })
+
+        // visible result = fill_empty_buckets_for_n(snapshot(recentResult))
 
         this.visibleResult = clone;
         this.visibleProgress = this.recentProgress.clone();

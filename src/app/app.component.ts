@@ -146,7 +146,7 @@ export class AppComponent implements OnInit {
             this.nodeSelected(this.ongoingNodes[1]);
 
             // Just run 10 jobs.
-            this.run(40);
+            // this.run(40);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -176,12 +176,12 @@ export class AppComponent implements OnInit {
             // this.run(1);
             // this.testNN();
 
-            this.testCN();
+            this.testN();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Range);
+                this.toggle(SGT.Point);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -195,8 +195,8 @@ export class AppComponent implements OnInit {
     }
 
     testN() {
-        this.nodeSelected(this.ongoingNodes[3]);
-        this.run(105);
+        this.nodeSelected(this.ongoingNodes[4]);
+        this.run(145);
     }
 
     testCN() {

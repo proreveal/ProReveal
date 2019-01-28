@@ -1,5 +1,5 @@
 <span *ngIf="query">
-<span *ngIf="query.target === null"><span class="approx-name">COUNT</span>(<small><fa-icon [icon]="['fas', 'asterisk']"></fa-icon></small>) </span>
+<span *ngIf="query.target === null"><span class="approx-name">Count</span>(<small>*</small>) </span>
 <span *ngIf="query.target !== null">
     <form class="form-inline approx-form" *ngIf="editable">
     <select class="form-control form-control-md"
@@ -8,12 +8,12 @@
         name="approximator"
         >
         <option *ngFor="let approx of approximators" [value]="approx.name">
-            {{ approx.name.toUpperCase() }}
+            {{ approx.name }}
         </option>
     </select>
-    </form><span *ngIf="!editable" class="approx-name">{{ query.approximator.name.toUpperCase() }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})
+    </form><span *ngIf="!editable" class="approx-name">{{ query.approximator.name }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})
 
-    </span><span class="keyword">GROUPED BY</span>
+    </span><span class="keyword">by</span>
     <ng-container *ngFor="let field of query.groupBy.fields; index as i">
         <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="query.groupBy.fields.length > 1 && i < query.groupBy.fields.length - 1" class="keyword">,</span>
     </ng-container>

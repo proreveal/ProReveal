@@ -212,7 +212,7 @@ progress-ring {
 }
 
 .display {
-    @include serif-italic();
+    @include serif();
     font-size: 1.2rem;
 }
 

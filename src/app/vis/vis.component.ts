@@ -36,6 +36,7 @@ export class VisComponent implements OnInit, DoCheck {
     lastNode: ExplorationNode;
     renderer: Renderer;
     limitNumCategories = false;
+    numCategories = 0;
 
     constructor() {}
 
@@ -79,6 +80,7 @@ export class VisComponent implements OnInit, DoCheck {
                 if(this.renderer.limitNumCategories &&
                     this.renderer.data.length > C.horizontalBars.initiallyVisibleCategories) {
                     this.limitNumCategories = true;
+                    this.numCategories = this.renderer.data.length;
                 }
             }
         }
