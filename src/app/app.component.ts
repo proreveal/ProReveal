@@ -9,7 +9,6 @@ import { ExplorationNode, NodeState } from './exploration/exploration-node';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
-import { VisConstants } from './vis/vis-constants';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
@@ -20,6 +19,7 @@ import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
+import { Constants as C } from './constants';
 
 @Component({
     selector: 'app-root',
@@ -29,7 +29,7 @@ import { isNull } from 'util';
 export class AppComponent implements OnInit {
     SGT = SGT;
     NodeState = NodeState;
-    VC = VisConstants;
+    C = C;
     VT = VariableTypes;
     Operators = Operators;
     Priority = Priority;

@@ -9,8 +9,8 @@
 <span class="constant pr-1" [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)" *ngIf="!isRank">
 [<span *ngIf="!editing1" (click)="editing2=false; editing1=editable"><!--
--->{{ constant.from | smartNumber }}
-</span><!--
+-->{{ constant.from | smartNumber }}<!--
+--></span><!--
 --><form class="inplace-editor" *ngIf="editing1">
     <div class="input-group inline ml-1">
         <input type="text" class="form-control form-control-sm"

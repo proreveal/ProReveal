@@ -2,7 +2,7 @@ import { Component, OnInit, Input, DoCheck, ViewChild, ElementRef } from '@angul
 import { Safeguard } from '../../safeguard/safeguard';
 import * as d3 from 'd3';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
-import { VisConstants as VC } from '../../vis/vis-constants';
+import { Constants as C } from '../../constants';
 import { ValidityTypes } from '../../safeguard/validity';
 
 @Component({
@@ -32,8 +32,8 @@ export class SgHistoryComponent implements OnInit, DoCheck {
     render() {
         let data = this.sg.history.map((d, i) => [d, i] as [number, number]);
         let svg = d3.select(this.svg.nativeElement);
-        let width = VC.history.width;
-        let height = VC.history.height;
+        let width = C.history.width;
+        let height = C.history.height;
 
         svg.attr('width', width).attr('height', height)
 

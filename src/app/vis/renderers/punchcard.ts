@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
-import { VisConstants as VC } from '../vis-constants';
+import { Constants as C } from '../../constants';
 import * as util from '../../util';
 import { AggregateQuery, Datum, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
@@ -139,15 +139,15 @@ export class PunchcardRenderer implements Renderer {
         let [, xLongest,] = util.amax(xValues, d => d.valueString().length);
         const xLabelWidth = xLongest ? measure(xLongest.valueString()).width : 0;
 
-        const xFieldLabelHeight = VC.punchcard.label.x.height;
-        const yFieldLabelWidth = VC.punchcard.label.y.width;
+        const xFieldLabelHeight = C.punchcard.label.x.height;
+        const yFieldLabelWidth = C.punchcard.label.y.width;
 
-        const header = 1.414 / 2 * (VC.punchcard.columnWidth + xLabelWidth) + xFieldLabelHeight
-        const height = VC.punchcard.rowHeight * yValues.length + header * 2;
+        const header = 1.414 / 2 * (C.punchcard.columnWidth + xLabelWidth) + xFieldLabelHeight
+        const height = C.punchcard.rowHeight * yValues.length + header * 2;
 
         const matrixWidth = xValues.length > 0 ?
-            (yFieldLabelWidth + yLabelWidth + VC.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
-        const width = matrixWidth + VC.punchcard.legendSize * 1.2;
+            (yFieldLabelWidth + yLabelWidth + C.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
+        const width = matrixWidth + C.punchcard.legendSize * 1.2;
 
         this.matrixWidth = matrixWidth;
 
@@ -175,7 +175,7 @@ export class PunchcardRenderer implements Renderer {
 
             selectOrAppend(visG, 'text', '.x.field.label.bottom')
                 .text(query.groupBy.fields[this.xKeyIndex].name)
-                .attr('transform', translate(matrixWidth / 2, height - VC.horizontalBars.axis.height))
+                .attr('transform', translate(matrixWidth / 2, height - C.horizontalBars.axis.height))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.3em')
                 .style('font-size', '.8rem')
@@ -204,7 +204,7 @@ export class PunchcardRenderer implements Renderer {
                 .attr('dy', '.8rem')
 
             yLabels.merge(enter)
-                .attr('transform', (d) => translate(yFieldLabelWidth + yLabelWidth - VC.padding, yScale(d.hash)))
+                .attr('transform', (d) => translate(yFieldLabelWidth + yLabelWidth - C.padding, yScale(d.hash)))
                 .text(d => d.valueString())
 
             yLabels.exit().remove();
@@ -222,7 +222,7 @@ export class PunchcardRenderer implements Renderer {
 
             xTopLabels.merge(enter)
                 .attr('transform', (d) =>
-                    translate(xScale(d.hash) + xScale.bandwidth() / 2, header - VC.padding) + 'rotate(-45)')
+                    translate(xScale(d.hash) + xScale.bandwidth() / 2, header - C.padding) + 'rotate(-45)')
                 .text(d => d.valueString())
 
             xTopLabels.exit().remove();
@@ -341,7 +341,7 @@ export class PunchcardRenderer implements Renderer {
 
             yLabelLines.exit().remove();
         }
-        let legend = vsup.legend.arcmapLegend().scale(zScale).size(VC.punchcard.legendSize);
+        let legend = vsup.legend.arcmapLegend().scale(zScale).size(C.punchcard.legendSize);
 
         selectOrAppend(visG, 'g', '.z.legend').selectAll('*').remove();
         selectOrAppend(visG, 'g', '.z.legend')
@@ -386,8 +386,8 @@ export class PunchcardRenderer implements Renderer {
             this.flexBrush.snap = null;
 
             this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[matrixWidth, VC.punchcard.legendSize * 1.5],
-            [matrixWidth + VC.punchcard.legendSize, VC.punchcard.legendSize * 1.5 + VC.punchcard.swatchHeight]]);
+            this.flexBrush.render([[matrixWidth, C.punchcard.legendSize * 1.5],
+            [matrixWidth + C.punchcard.legendSize, C.punchcard.legendSize * 1.5 + C.punchcard.swatchHeight]]);
         }
 
         if (!this.constant) this.setDefaultConstantFromVariable();
@@ -595,7 +595,7 @@ export class PunchcardRenderer implements Renderer {
 
     updateSwatch() {
         let swatch = selectOrAppend(this.visG, 'g', '.swatch')
-            .attr('transform', translate(0, VC.punchcard.legendSize * 1.5))
+            .attr('transform', translate(0, C.punchcard.legendSize * 1.5))
 
         swatch.style('display', 'none');
         if (!this.variable1) return;
@@ -606,7 +606,7 @@ export class PunchcardRenderer implements Renderer {
             this.node.domainStart,
             this.node.domainEnd]).range([
                 this.matrixWidth,
-                this.matrixWidth + VC.punchcard.legendSize
+                this.matrixWidth + C.punchcard.legendSize
             ])
         this.swatchXScale = swatchXScale;
 
@@ -616,7 +616,7 @@ export class PunchcardRenderer implements Renderer {
             .call(d3.axisTop(swatchXScale))
 
         selectOrAppend(swatch, 'g', '.bottom.main.axis')
-            .attr('transform', translate(0, VC.punchcard.swatchHeight))
+            .attr('transform', translate(0, C.punchcard.swatchHeight))
             .call(d3.axisBottom(swatchXScale))
 
         const leftBars = swatch
@@ -628,7 +628,7 @@ export class PunchcardRenderer implements Renderer {
                 .append('rect')
                 .attr('class', 'left bar')
         )
-            .attr('height', VC.punchcard.swatchHeight)
+            .attr('height', C.punchcard.swatchHeight)
             .attr('width', d => swatchXScale(d.ci3.center) - swatchXScale(d.ci3.low))
             .attr('transform', (d, i) => translate(swatchXScale(d.ci3.low), 0))
             .attr('fill', this.gradient.leftUrl())
@@ -644,7 +644,7 @@ export class PunchcardRenderer implements Renderer {
                 .append('rect')
                 .attr('class', 'right bar')
         )
-            .attr('height', VC.punchcard.swatchHeight)
+            .attr('height', C.punchcard.swatchHeight)
             .attr('width', d => swatchXScale(d.ci3.high) - swatchXScale(d.ci3.center))
             .attr('transform', (d, i) => translate(swatchXScale(d.ci3.center), 0))
             .attr('fill', this.gradient.rightUrl())
@@ -661,14 +661,14 @@ export class PunchcardRenderer implements Renderer {
             .attr('x1', (d) => swatchXScale(d.ci3.center))
             .attr('y1', 0)
             .attr('x2', (d) => swatchXScale(d.ci3.center))
-            .attr('y2', VC.punchcard.swatchHeight)
+            .attr('y2', C.punchcard.swatchHeight)
             .style('stroke-width', 1)
             .style('stroke', 'black')
             .style('shape-rendering', 'crispEdges')
 
         centerLines.exit().remove();
 
-        const majorTickLines = d3.axisTop(swatchXScale).tickSize(-VC.punchcard.swatchHeight);
+        const majorTickLines = d3.axisTop(swatchXScale).tickSize(-C.punchcard.swatchHeight);
 
         selectOrAppend(swatch, 'g', '.sub.axis')
             .style('opacity', .2)

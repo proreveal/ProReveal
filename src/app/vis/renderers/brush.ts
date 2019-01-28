@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { VisConstants as VC } from '../vis-constants';
+import { Constants as C } from '../../constants';
 import { translate, selectOrAppend, scale } from '../../d3-utils/d3-utils';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
@@ -254,9 +254,9 @@ export class FlexBrush<Datum> {
         if (typeof range === 'number') {
             let center = range;
             if (snap && this.snap) { center = this.snap(center); }
-            this.moveBrush(center - VC.pointBrushSize, center + VC.pointBrushSize, transition);
+            this.moveBrush(center - C.pointBrushSize, center + C.pointBrushSize, transition);
             this.moveBrushLine(center, transition);
-            this.moveHandles(center - VC.pointBrushSize, center + VC.pointBrushSize, transition);
+            this.moveHandles(center - C.pointBrushSize, center + C.pointBrushSize, transition);
         }
         else {
             this.moveBrush(range[0], range[1], transition);

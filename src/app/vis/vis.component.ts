@@ -9,8 +9,7 @@ import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
-import { VisConstants as VC } from './vis-constants';
-
+import { Constants as C } from '../constants';
 
 @Component({
     selector: 'vis',
@@ -78,7 +77,7 @@ export class VisComponent implements OnInit, DoCheck {
 
             if(this.renderer instanceof HorizontalBarsRenderer) {
                 if(this.renderer.limitNumCategories &&
-                    this.renderer.data.length > VC.horizontalBars.initiallyVisibleCategories) {
+                    this.renderer.data.length > C.horizontalBars.initiallyVisibleCategories) {
                     this.limitNumCategories = true;
                 }
             }

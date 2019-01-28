@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
-import { VisConstants as VC } from '../vis-constants';
+import { Constants as C } from '../../constants';
 import * as util from '../../util';
-import { AggregateQuery, Datum } from '../../data/query';
+import { Datum } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
@@ -77,11 +77,11 @@ export class HorizontalBarsRenderer implements Renderer {
         this.data = data;
 
         if(this.limitNumCategories) {
-            data = data.slice(0, VC.horizontalBars.initiallyVisibleCategories);
+            data = data.slice(0, C.horizontalBars.initiallyVisibleCategories);
         }
 
-        const height = VC.horizontalBars.axis.height * 2 +
-            VC.horizontalBars.height * data.length + VC.horizontalBars.label.height * 2;
+        const height = C.horizontalBars.axis.height * 2 +
+            C.horizontalBars.height * data.length + C.horizontalBars.label.height * 2;
         const width = 800;
 
         svg.attr('width', width).attr('height', height)
@@ -90,9 +90,9 @@ export class HorizontalBarsRenderer implements Renderer {
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth =
             Math.max(longest ? (measure(longest.keys.list[0].valueString(), '.8rem').width
-                + (query.rankAvailable ? 20 : 0)) : 0 + VC.padding,
+                + (query.rankAvailable ? 20 : 0)) : 0 + C.padding,
                 measure(query.groupBy.fields[0].name, '.8rem').width + (query.rankAvailable ? 20 : 0)
-                + VC.padding
+                + C.padding
             );
 
         this.labelWidth = labelWidth;
@@ -111,24 +111,24 @@ export class HorizontalBarsRenderer implements Renderer {
         if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
 
         const xScale = d3.scaleLinear().domain([node.domainStart, node.domainEnd])
-            .range([labelWidth, width - VC.padding])
+            .range([labelWidth, width - C.padding])
             .clamp(true)
 
         const yScale = d3.scaleBand().domain(util.srange(data.length))
-            .range([VC.horizontalBars.axis.height + VC.horizontalBars.label.height,
-            height - VC.horizontalBars.axis.height - VC.horizontalBars.label.height])
+            .range([C.horizontalBars.axis.height + C.horizontalBars.label.height,
+            height - C.horizontalBars.axis.height - C.horizontalBars.label.height])
             .padding(0.1);
 
         this.yScale = yScale;
 
-        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * VC.horizontalBars.axis.height - 2 * VC.horizontalBars.label.height));
+        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * C.horizontalBars.axis.height - 2 * C.horizontalBars.label.height));
 
         // render top and bottom labels
         {
             // x labels
             selectOrAppend(visG, 'text', '.x.field.label.top')
                 .text(query.target ? query.target.name : 'Count')
-                .attr('transform', translate((width - labelWidth - VC.padding) / 2 + labelWidth, 0))
+                .attr('transform', translate((width - labelWidth - C.padding) / 2 + labelWidth, 0))
                 .style('text-anchor', 'middle')
                 .attr('dy', '.8em')
                 .style('font-size', '.8em')
@@ -136,7 +136,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
             selectOrAppend(visG, 'text', '.x.field.label.bottom')
                 .text(query.target ? query.target.name : 'Count')
-                .attr('transform', translate((width - labelWidth - VC.padding) / 2 + labelWidth, height - VC.horizontalBars.axis.height))
+                .attr('transform', translate((width - labelWidth - C.padding) / 2 + labelWidth, height - C.horizontalBars.axis.height))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.3em')
                 .style('font-size', '.8em')
@@ -144,7 +144,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
             selectOrAppend(visG, 'text', '.y.field.label')
                 .text(query.groupBy.fields[0].name)
-                .attr('transform', translate(labelWidth - VC.padding, VC.horizontalBars.label.height))
+                .attr('transform', translate(labelWidth - C.padding, C.horizontalBars.label.height))
                 .style('text-anchor', 'end')
                 .attr('dy', '1.2em')
                 .style('font-size', '.8rem')
@@ -155,7 +155,7 @@ export class HorizontalBarsRenderer implements Renderer {
         {
             selectOrAppend(visG, 'g', '.sub.axis')
                 .style('opacity', .2)
-                .attr('transform', translate(0, VC.horizontalBars.axis.height + VC.horizontalBars.label.height))
+                .attr('transform', translate(0, C.horizontalBars.axis.height + C.horizontalBars.label.height))
                 .transition()
                 .call(majorTickLines as any)
                 .selectAll('text')
@@ -167,7 +167,7 @@ export class HorizontalBarsRenderer implements Renderer {
             const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
 
             selectOrAppend(visG, 'g', '.x.axis.top')
-                .attr('transform', translate(0, VC.horizontalBars.axis.height + VC.horizontalBars.label.height))
+                .attr('transform', translate(0, C.horizontalBars.axis.height + C.horizontalBars.label.height))
                 .transition()
                 .call(topAxis as any)
         }
@@ -240,7 +240,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .style('user-select', 'none')
 
             this.labels = labels.merge(enter)
-                .attr('transform', (d, i) => translate(labelWidth - VC.padding, yScale(i + '')))
+                .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '')))
                 .text((d) => `${d.keys.list[0].valueString()}`)
                 .style('opacity', d => {
                     if(d.keyHasNullValue()) return 0.6;
@@ -346,7 +346,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .data(data, (d: any) => d.id);
 
             enter = circles.enter().append('circle')
-                .attr('r', VC.horizontalBars.circleRadius)
+                .attr('r', C.horizontalBars.circleRadius)
                 .attr('fill', 'steelblue')
                 .style('pointer-events', 'none')
 
@@ -389,7 +389,7 @@ export class HorizontalBarsRenderer implements Renderer {
             const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
             selectOrAppend(visG, 'g', '.x.axis.bottom')
-                .attr('transform', translate(0, height - VC.horizontalBars.axis.height - VC.horizontalBars.label.height))
+                .attr('transform', translate(0, height - C.horizontalBars.axis.height - C.horizontalBars.label.height))
                 .transition()
                 .call(bottomAxis as any)
         }
@@ -399,30 +399,30 @@ export class HorizontalBarsRenderer implements Renderer {
             this.variableHighlight =
                 selectOrAppend(visG, 'rect', '.variable1.highlighted')
                     .attr('width', labelWidth)
-                    .attr('height', height - VC.horizontalBars.axis.height * 2)
-                    .attr('transform', translate(0, VC.horizontalBars.height))
+                    .attr('height', height - C.horizontalBars.axis.height * 2)
+                    .attr('transform', translate(0, C.horizontalBars.height))
                     .style('display', 'none')
                     .style('pointer-events', 'none')
 
             this.variableHighlight2 =
                 selectOrAppend(visG, 'rect', '.variable2.highlighted')
                     .attr('width', labelWidth)
-                    .attr('height', height - VC.horizontalBars.axis.height * 2)
-                    .attr('transform', translate(0, VC.horizontalBars.height))
+                    .attr('height', height - C.horizontalBars.axis.height * 2)
+                    .attr('transform', translate(0, C.horizontalBars.height))
                     .style('display', 'none')
                     .style('pointer-events', 'none')
 
             this.constantHighlight1 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-top')
-                .attr('width', width - VC.padding - labelWidth)
-                .attr('height', VC.horizontalBars.axis.height)
+                .attr('width', width - C.padding - labelWidth)
+                .attr('height', C.horizontalBars.axis.height)
                 .attr('transform', translate(labelWidth, 0))
                 .style('display', 'none')
                 .style('pointer-events', 'none')
 
             this.constantHighlight2 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-bottom')
-                .attr('width', width - VC.padding - labelWidth)
-                .attr('height', VC.horizontalBars.axis.height)
-                .attr('transform', translate(labelWidth, height - VC.horizontalBars.axis.height))
+                .attr('width', width - C.padding - labelWidth)
+                .attr('height', C.horizontalBars.axis.height)
+                .attr('transform', translate(labelWidth, height - C.horizontalBars.axis.height))
                 .style('display', 'none')
                 .style('pointer-events', 'none')
         }
@@ -434,8 +434,8 @@ export class HorizontalBarsRenderer implements Renderer {
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
-                let index = Math.round((center - VC.horizontalBars.axis.height - VC.horizontalBars.label.height)
-                     / VC.horizontalBars.height)
+                let index = Math.round((center - C.horizontalBars.axis.height - C.horizontalBars.label.height)
+                     / C.horizontalBars.height)
                 let constant = new PointRankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -448,8 +448,8 @@ export class HorizontalBarsRenderer implements Renderer {
             }
             else if (this.safeguardType === SGT.Range && this.variableType === VT.Rank) {
                 let sel = center as [number, number];
-                let index1 = Math.round((sel[0] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
-                let index2 = Math.round((sel[1] - VC.horizontalBars.axis.height) / VC.horizontalBars.height)
+                let index1 = Math.round((sel[0] - C.horizontalBars.axis.height) / C.horizontalBars.height)
+                let index2 = Math.round((sel[1] - C.horizontalBars.axis.height) / C.horizontalBars.height)
                 let constant = new RangeRankConstant(index1, index2);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -586,12 +586,12 @@ export class HorizontalBarsRenderer implements Renderer {
             this.flexBrush.snap = null;
 
             this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[labelWidth, VC.horizontalBars.axis.height - VC.padding],
-            [width - VC.padding, height - VC.horizontalBars.axis.height + VC.padding]]);
+            this.flexBrush.render([[labelWidth, C.horizontalBars.axis.height - C.padding],
+            [width - C.padding, height - C.horizontalBars.axis.height + C.padding]]);
         }
         else {
-            let start = VC.horizontalBars.axis.height + VC.horizontalBars.label.height;
-            let step = VC.horizontalBars.height;
+            let start = C.horizontalBars.axis.height + C.horizontalBars.label.height;
+            let step = C.horizontalBars.height;
 
             this.flexBrush.setDirection(FlexBrushDirection.Y);
             this.flexBrush.snap = d => {
@@ -599,8 +599,8 @@ export class HorizontalBarsRenderer implements Renderer {
                 return Math.max(1, index) * step + start;
             };
 
-            this.flexBrush.render([[0, VC.horizontalBars.axis.height],
-            [width, height - VC.horizontalBars.axis.height]]);
+            this.flexBrush.render([[0, C.horizontalBars.axis.height],
+            [width, height - C.horizontalBars.axis.height]]);
         }
     }
 
