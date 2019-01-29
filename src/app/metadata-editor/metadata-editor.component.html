@@ -1,5 +1,11 @@
 <section *ngIf="dataset && dataset.rows && dataset.fields" [hidden]="!visible">
     <h3>Metadata Editor</h3>
+    <h4>Overview</h4>
+    <p>
+        The dataset has {{ dataset.fields.length | number }} fields and {{ dataset.rows.length | number }} rows.
+    </p>
+
+    <h4>Data Viewer</h4>
     <table class="table table-striped table-bordered table-hover table-sm">
         <thead>
             <tr>

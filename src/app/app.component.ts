@@ -176,12 +176,14 @@ export class AppComponent implements OnInit {
             // this.run(1);
             // this.testNN();
 
-            this.testN();
+            // this.testN();
+
+            this.toggleMetadataEditor();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Point);
+                // this.toggle(SGT.Point);
 
                 // this.useRank = true;
                 // this.useRankToggled();
