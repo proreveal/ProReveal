@@ -1,0 +1,57 @@
+export abstract class Predicate {
+    test(row: any): boolean {
+        return true;
+    }
+
+    and(predicate: Predicate): Predicate {
+        return new AndPredicate([this, predicate]);
+    }
+}
+
+export class TruePredicate extends Predicate {
+    test(): boolean {
+        return true;
+    }
+}
+
+export class EqualPredicate extends Predicate {
+    constructor(public name: string, public target: any) {
+        super();
+    }
+
+    test(row: any): boolean {
+        return row[this.name] === this.target;
+    }
+}
+
+export class InPredicate extends Predicate {
+    constructor(public name: string, public start: number, public end: number, public includeEnd: boolean = false) {
+        super();
+    }
+
+    test(row:any): boolean {
+        const value = row[this.name];
+        if(this.includeEnd) return this.start <= value && value <= this.end;
+        return this.start <= value && value < this.end;
+    }
+}
+
+export class AndPredicate extends Predicate {
+    constructor(public predicates: Predicate[]) {
+        super();
+    }
+
+    test(value: any): boolean {
+        for(let i = 0; i < this.predicates.length; i++)
+            if(!this.predicates[i].test(value)) return false;
+
+        return true;
+    }
+
+    and(predicate: Predicate): AndPredicate {
+        let clone = this.predicates.slice();
+        clone.push(predicate);
+
+        return new AndPredicate(clone);
+    }
+}

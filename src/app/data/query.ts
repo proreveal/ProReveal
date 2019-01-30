@@ -12,6 +12,7 @@ import { NumericalOrdering, OrderingDirection } from './ordering';
 import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { NullGroupId } from './grouper';
+import { Predicate, TruePredicate } from './predicate';
 
 export class Datum {
     constructor(public id: string,
@@ -73,10 +74,10 @@ export class EmptyQuery extends Query {
 
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
-            return new Histogram1DQuery(field, this.dataset, this.sampler);
+            return new Histogram1DQuery(field, this.dataset, new TruePredicate(), this.sampler);
         }
         else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
-            return new Frequency1DQuery(field, this.dataset, this.sampler);
+            return new Frequency1DQuery(field, this.dataset, new TruePredicate(), this.sampler);
         }
 
         throw new ServerError("EmptyQuery + [Q, O, N, D]");
@@ -116,6 +117,7 @@ export class AggregateQuery extends Query {
         public target: FieldTrait,
         public dataset: Dataset,
         public groupBy: GroupBy,
+        public where: Predicate,
         public sampler: Sampler = new UniformRandomSampler(100)
     ) {
         super(dataset, sampler);
@@ -132,6 +134,7 @@ export class AggregateQuery extends Query {
                 this.target,
                 this.dataset,
                 this.groupBy,
+                this.where,
                 this,
                 i,
                 sample));
@@ -165,6 +168,7 @@ export class AggregateQuery extends Query {
                 field,
                 this.dataset,
                 this.groupBy,
+                this.where,
                 this.sampler
             );
         }
@@ -175,6 +179,7 @@ export class AggregateQuery extends Query {
             this.target,
             this.dataset,
             new GroupBy(this.groupBy.fields.concat(field)),
+            this.where,
             this.sampler
         );
     }
@@ -271,13 +276,17 @@ export class Histogram1DQuery extends AggregateQuery {
     orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
     rankAvailable = false;
 
-    constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+    constructor(public grouping: FieldTrait,
+        public dataset: Dataset,
+        public where: Predicate,
+        public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping]),
+            where,
             sampler);
 
         assert(grouping.vlType, VlType.Quantitative);
@@ -289,6 +298,7 @@ export class Histogram1DQuery extends AggregateQuery {
                 this.grouping,
                 field,
                 this.dataset,
+                this.where,
                 this.sampler);
 
         return new AggregateQuery(
@@ -297,6 +307,7 @@ export class Histogram1DQuery extends AggregateQuery {
             this.grouping,
             this.dataset,
             new GroupBy([field]),
+            this.where,
             this.sampler);
     }
 }
@@ -315,6 +326,7 @@ export class Histogram2DQuery extends AggregateQuery {
         public grouping1: FieldTrait,
         public grouping2: FieldTrait,
         public dataset: Dataset,
+        public where: Predicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new AllAccumulator(),
@@ -322,6 +334,7 @@ export class Histogram2DQuery extends AggregateQuery {
             null,
             dataset,
             new GroupBy([grouping1, grouping2]),
+            where,
             sampler);
 
         assert(grouping1.vlType, VlType.Quantitative);
@@ -345,13 +358,17 @@ export class Frequency1DQuery extends AggregateQuery {
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d:Datum) => d.ci3.center;
 
-    constructor(public grouping: FieldTrait, public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+    constructor(public grouping: FieldTrait,
+        public dataset: Dataset,
+        public where: Predicate,
+        public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping]),
+            where,
             sampler);
 
         assertIn(grouping.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
@@ -365,6 +382,7 @@ export class Frequency1DQuery extends AggregateQuery {
                 field,
                 this.dataset,
                 new GroupBy([this.grouping]),
+                this.where,
                 this.sampler);
         }
 
@@ -372,6 +390,7 @@ export class Frequency1DQuery extends AggregateQuery {
             this.grouping,
             field,
             this.dataset,
+            this.where,
             this.sampler);
     }
 }
@@ -386,6 +405,7 @@ export class Frequency2DQuery extends AggregateQuery {
         public grouping1: FieldTrait,
         public grouping2: FieldTrait,
         public dataset: Dataset,
+        public where: Predicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
 
         super(
@@ -394,6 +414,7 @@ export class Frequency2DQuery extends AggregateQuery {
             null,
             dataset,
             new GroupBy([grouping1, grouping2]),
+            where,
             sampler);
 
         assertIn(grouping1.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);

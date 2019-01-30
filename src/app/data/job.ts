@@ -5,6 +5,7 @@ import { Dataset } from './dataset';
 import { GroupBy } from './groupby';
 import { PartialKeyValue } from './keyvalue';
 import * as d3 from 'd3';
+import { Predicate } from './predicate';
 
 export abstract class Job {
     static Id = 1;
@@ -24,6 +25,7 @@ export class AggregateJob extends Job {
         public target: FieldTrait,
         public dataset: Dataset,
         public groupBy: GroupBy,
+        public where: Predicate,
         public query: Query,
         public index: number,
         public sample: number[]) {
@@ -35,6 +37,8 @@ export class AggregateJob extends Job {
 
         this.sample.forEach(i => {
             let row = this.dataset.rows[i];
+
+            if(!this.where.test(row)) return;
 
             let fieldGroupedValueList = this.groupBy.group(row);
             let hash = fieldGroupedValueList.hash;
