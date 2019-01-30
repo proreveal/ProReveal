@@ -61,10 +61,7 @@ export class AppComponent implements OnInit {
     isPlaying = false;
 
     creating = true;
-    candidateFields: FieldTrait[] = [];
-    selectableFields: FieldTrait[] = [];
-    selectedFields: FieldTrait[] = [];
-    newQuery: AggregateQuery;
+
     nodes: ExplorationNode[] = [];
     isDistributivePossible = true;
 
@@ -80,25 +77,8 @@ export class AppComponent implements OnInit {
         this.engine.reorderOngoingQueries(queries);
     }
 
-    fieldSelected(field: FieldTrait) {
-        if (this.selectedFields.includes(field)) {
-            util.aremove(this.selectedFields, field);
-        }
-        else {
-            this.selectedFields.push(field);
-        }
-
-        let newQuery: Query = new EmptyQuery(this.dataset);
-        this.selectedFields.forEach(field => {
-            newQuery = newQuery.combine(field);
-        })
-
-        this.selectableFields = newQuery.compatible(this.candidateFields);
-        if(this.selectedFields.length === 0) this.newQuery = null;
-        else this.newQuery = newQuery as AggregateQuery;
-    }
-
     create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
+        console.log(fields, query);
         let node = new ExplorationNode(fields, query);
         this.nodes.push(node);
 
@@ -107,12 +87,6 @@ export class AppComponent implements OnInit {
         this.nodeSelected(node);
 
         this.updateNodeLists();
-        this.cancelCreation();
-    }
-
-    cancelCreation() {
-        this.selectedFields = [];
-        this.selectableFields = this.candidateFields;
         this.creating = false;
     }
 
@@ -124,17 +98,6 @@ export class AppComponent implements OnInit {
         this.engine.load().then(dataset => {
             this.dataset = dataset;
 
-            this.candidateFields = this.dataset.fields!
-                .filter(field => field.vlType != VlType.Key)
-                .sort((a, b) => {
-                    if (a.vlType > b.vlType) return 1;
-                    if (a.vlType < b.vlType) return -1;
-                    if (a.name > b.name) return 1;
-                    if (a.name < b.name) return -1;
-                    return 0;
-                })
-            this.selectableFields = this.candidateFields;
-
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
                     this.create([field], (new EmptyQuery(dataset)).combine(field));
@@ -143,10 +106,10 @@ export class AppComponent implements OnInit {
 
             this.updateNodeLists();
 
-            this.nodeSelected(this.ongoingNodes[1]);
+            this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            // this.run(40);
+            this.run(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -178,7 +141,7 @@ export class AppComponent implements OnInit {
 
             // this.testN();
 
-            this.toggleMetadataEditor();
+            // this.toggleMetadataEditor();
 
             of(0).pipe(
                 delay(1000)
