@@ -18,6 +18,7 @@ import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
 import { isNull } from 'util';
 import { NullGroupId } from '../../data/grouper';
+import { QueryCreatorComponent } from '../../query-creator/query-creator.component';
 
 export class PunchcardRenderer implements Renderer {
     gradient = new Gradient();

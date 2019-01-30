@@ -75,11 +75,14 @@
 
     <!--[hidden]="!creating"-->
 
-    <query-creator id="query-creator" class="border"
-                [dataset]="this.node.query.dataset"
-                (created)="create($event.fields, $event.query, Priority.Highest)"
-                (creationCancelled)="creating=false"
-                ></query-creator>
+    <div #qcw
+        id="query-creator-wrapper" [style.top.px]="queryCreatorTop">
+        <query-creator #qc id="query-creator" class="border"
+            [dataset]="this.node.query.dataset"
+            (created)="create($event.fields, $event.query, Priority.Highest)"
+            (creationCancelled)="creating=false"
+        ></query-creator>
+    </div>
 
     <tooltip #tooltip></tooltip>
 

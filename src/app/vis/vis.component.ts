@@ -10,6 +10,7 @@ import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
 import { Constants as C } from '../constants';
+import { QueryCreatorComponent } from '../query-creator/query-creator.component';
 
 @Component({
     selector: 'vis',
@@ -30,6 +31,7 @@ export class VisComponent implements OnInit, DoCheck {
         'sg': Safeguard
     }> = new EventEmitter();
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
+    @ViewChild('qcw') queryCreator: ElementRef<HTMLDivElement>;
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
     lastUpdated: number = 0;
@@ -37,6 +39,8 @@ export class VisComponent implements OnInit, DoCheck {
     renderer: Renderer;
     limitNumCategories = false;
     numCategories = 0;
+
+    queryCreatorTop: number = 500;
 
     constructor() {}
 

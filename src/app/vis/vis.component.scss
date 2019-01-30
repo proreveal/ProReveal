@@ -30,9 +30,16 @@ header small {
     font-size: .8rem;
 }
 
+#query-creator-wrapper {
+    position: absolute;
+    left: 0;
+    width: 450px;
+    font-size: .9rem;
+    background: white;
+}
+
 #query-creator {
     display: block;
-    width: 400px;
 }
 
 @import '../theme.scss';

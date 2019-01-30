@@ -17,6 +17,8 @@ import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
+import { QueryCreatorComponent } from '../../query-creator/query-creator.component';
+import { ElementRef } from '@angular/core';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
@@ -199,7 +201,7 @@ export class HorizontalBarsRenderer implements Renderer {
             enter = background.enter().append('rect').attr('class', 'alternate')
 
             background.merge(enter)
-                .attr('height', yScale.bandwidth())
+                .attr('height', yScale.bandwidth() * (1 + yScale.padding() / 2))
                 .attr('width', labelWidth)
                 .attr('transform', (d, i) => translate(0, yScale(i + '')))
                 .attr('fill', 'black')
@@ -246,9 +248,13 @@ export class HorizontalBarsRenderer implements Renderer {
                     if(d.keyHasNullValue()) return 0.6;
                     return 1;
                 })
+                .style('cursor', 'pointer')
                 .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
                 .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
-                .on('click', (d, i) => this.datumSelected(d))
+                .on('click', (d, i) => {
+                    this.datumSelected(d);
+                    this.showQueryCreator(d, i);
+                })
                 .on('contextmenu', (d, i) => this.datumSelected2(d))
 
             labels.exit().remove();
@@ -798,5 +804,29 @@ export class HorizontalBarsRenderer implements Renderer {
                 ele.classed('highlighted', false)
             }
         }
+    }
+
+    showQueryCreator(d: Datum, i: number) {
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+
+        const clientRect = this.nativeSvg.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
+        let top = clientRect.top - parentRect.top + this.yScale(i + '')
+            + C.horizontalBars.label.height + C.padding;
+
+        this.vis.queryCreatorTop = top;
+
+        /*this.tooltip.show(
+            clientRect.left - parentRect.left + this.xScale(d.ci3.center),
+            clientRect.top - parentRect.top + this.yScale(i + ''),
+            HorizontalBarsTooltipComponent,
+            data
+        );
+
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+            let ele = d3.select(this.eventBoxes.nodes()[i]);
+            ele.classed('highlighted', true)
+        }*/
     }
 }
