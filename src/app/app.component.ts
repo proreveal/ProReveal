@@ -60,7 +60,7 @@ export class AppComponent implements OnInit {
     safeguards: Safeguard[] = [];
     isPlaying = false;
 
-    creating = true;
+    creating = false;
 
     nodes: ExplorationNode[] = [];
     isDistributivePossible = true;

@@ -30,6 +30,11 @@ header small {
     font-size: .8rem;
 }
 
+#query-creator {
+    display: block;
+    width: 400px;
+}
+
 @import '../theme.scss';
 
 :host /deep/ .event-box {

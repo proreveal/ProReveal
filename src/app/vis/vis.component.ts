@@ -57,6 +57,7 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     ngOnInit() {
+
     }
 
     ngDoCheck() {
