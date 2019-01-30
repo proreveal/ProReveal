@@ -1,11 +1,29 @@
 <div class="border-bottom rounded-bottom p-2 shadow">
+    <ng-container *ngIf="where.length > 0">
+        <h6>Filters</h6>
+        <div class="container">
+            <div class="row no-gutters">
+                <div *ngFor="let pred of where.predicates" class="col-6 mb-1">
+                    <span class="btn btn-sm btn-secondary" style="cursor:default">
+                        <field-badge [field]="pred.target"></field-badge>
+                        <predicate-indicator [predicate]="pred"></predicate-indicator>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+
     <h6>Fields</h6>
 
     <div class="container" *ngIf="dataset && dataset.fields">
         <div class="row no-gutters">
             <div *ngFor="let field of candidateFields" class="col-6 mt-1">
-                <button (click)="fieldSelected(field)" class="btn btn-sm" [class.btn-primary]="selectedFields.includes(field)"
-                    [class.btn-light]="!selectedFields.includes(field)" [attr.title]="field.name" [disabled]="!selectableFields.includes(field) && !selectedFields.includes(field)">
+                <button (click)="fieldSelected(field)" class="btn btn-sm"
+                    [class.btn-primary]="selectedFields.includes(field)"
+                    [class.btn-light]="!selectedFields.includes(field)"
+                    [attr.title]="field.name"
+                    [disabled]="!selectableFields.includes(field) && !selectedFields.includes(field)">
                     <field-badge [field]="field"></field-badge>
                     {{ field.name }}
                 </button>
@@ -20,8 +38,7 @@
     </div>
 
     <div class="mt-2 text-right">
-        <button class="btn btn-success mr-1" (click)="create()"
-            [disabled]="selectedFields.length === 0">
+        <button class="btn btn-success mr-1" (click)="create()" [disabled]="selectedFields.length === 0">
             Create a Visualization
         </button>
         <button class="btn btn-danger" (click)="cancelCreation()">

@@ -12,7 +12,7 @@ import { NumericalOrdering, OrderingDirection } from './ordering';
 import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { NullGroupId } from './grouper';
-import { Predicate, TruePredicate } from './predicate';
+import { AndPredicate } from './predicate';
 
 export class Datum {
     constructor(public id: string,
@@ -74,10 +74,10 @@ export class EmptyQuery extends Query {
 
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
-            return new Histogram1DQuery(field, this.dataset, new TruePredicate(), this.sampler);
+            return new Histogram1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
         }
         else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
-            return new Frequency1DQuery(field, this.dataset, new TruePredicate(), this.sampler);
+            return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
         }
 
         throw new ServerError("EmptyQuery + [Q, O, N, D]");
@@ -117,7 +117,7 @@ export class AggregateQuery extends Query {
         public target: FieldTrait,
         public dataset: Dataset,
         public groupBy: GroupBy,
-        public where: Predicate,
+        public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)
     ) {
         super(dataset, sampler);
@@ -278,7 +278,7 @@ export class Histogram1DQuery extends AggregateQuery {
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
-        public where: Predicate,
+        public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
@@ -326,7 +326,7 @@ export class Histogram2DQuery extends AggregateQuery {
         public grouping1: FieldTrait,
         public grouping2: FieldTrait,
         public dataset: Dataset,
-        public where: Predicate,
+        public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new AllAccumulator(),
@@ -360,7 +360,7 @@ export class Frequency1DQuery extends AggregateQuery {
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
-        public where: Predicate,
+        public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
         super(
             new CountAccumulator(),
@@ -405,7 +405,7 @@ export class Frequency2DQuery extends AggregateQuery {
         public grouping1: FieldTrait,
         public grouping2: FieldTrait,
         public dataset: Dataset,
-        public where: Predicate,
+        public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
 
         super(

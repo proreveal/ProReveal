@@ -19,6 +19,7 @@ import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
 import { QueryCreatorComponent } from '../../query-creator/query-creator.component';
 import { ElementRef } from '@angular/core';
+import { EqualPredicate } from '../../data/predicate';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
@@ -815,6 +816,7 @@ export class HorizontalBarsRenderer implements Renderer {
             this.lastDatum = null;
             return;
         }
+
         this.lastDatum = d;
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
@@ -825,16 +827,8 @@ export class HorizontalBarsRenderer implements Renderer {
         this.vis.isQueryCreatorVisible = true;
         this.vis.queryCreatorTop = top;
 
-        /*this.tooltip.show(
-            clientRect.left - parentRect.left + this.xScale(d.ci3.center),
-            clientRect.top - parentRect.top + this.yScale(i + ''),
-            HorizontalBarsTooltipComponent,
-            data
+        this.vis.queryCreator.where = this.vis.node.query.where.and(
+            new EqualPredicate(this.node.query.groupBy.fields[0], d.keys.list[0].value())
         );
-
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-            let ele = d3.select(this.eventBoxes.nodes()[i]);
-            ele.classed('highlighted', true)
-        }*/
     }
 }

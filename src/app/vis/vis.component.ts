@@ -31,7 +31,7 @@ export class VisComponent implements OnInit, DoCheck {
         'sg': Safeguard
     }> = new EventEmitter();
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
-    @ViewChild('qcw') queryCreator: ElementRef<HTMLDivElement>;
+    @ViewChild('qc') queryCreator: QueryCreatorComponent;
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
     lastUpdated: number = 0;

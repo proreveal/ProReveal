@@ -3,6 +3,7 @@ import { Dataset } from '../data/dataset';
 import { AggregateQuery, EmptyQuery, Query } from '../data/query';
 import { FieldTrait, VlType } from '../data/field';
 import * as util from '../util';
+import { AndPredicate } from '../data/predicate';
 
 @Component({
     selector: 'query-creator',
@@ -18,6 +19,7 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
     selectableFields: FieldTrait[] = [];
     selectedFields: FieldTrait[] = [];
     newQuery: AggregateQuery;
+    where: AndPredicate = new AndPredicate();
 
     constructor() { }
 

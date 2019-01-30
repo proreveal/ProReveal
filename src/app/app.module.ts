@@ -43,6 +43,7 @@ import { SgHistoryComponent } from './display/history/sg-history.component';
 import { QueryTitleComponent } from './vis/query-title/query-title.component';
 import { SmartNumberPipe } from './smart-number.pipe';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
+import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
 
 library.add(fas, far);
 
@@ -73,7 +74,8 @@ library.add(fas, far);
         PunchcardTooltipComponent,
         QueryTitleComponent,
         SmartNumberPipe,
-        QueryCreatorComponent
+        QueryCreatorComponent,
+        PredicateIndicatorComponent
     ],
     imports: [
         NgbModule.forRoot(),

@@ -1,3 +1,5 @@
+import { FieldTrait } from "./field";
+
 export abstract class Predicate {
     test(row: any): boolean {
         return true;
@@ -15,35 +17,37 @@ export class TruePredicate extends Predicate {
 }
 
 export class EqualPredicate extends Predicate {
-    constructor(public name: string, public target: any) {
+    constructor(public target: FieldTrait, public expected: any) {
         super();
     }
 
     test(row: any): boolean {
-        return row[this.name] === this.target;
+        return row[this.target.name] === this.expected;
     }
 }
 
-export class InPredicate extends Predicate {
+export class RangePredicate extends Predicate {
     constructor(public name: string, public start: number, public end: number, public includeEnd: boolean = false) {
         super();
     }
 
-    test(row:any): boolean {
+    test(row: any): boolean {
         const value = row[this.name];
-        if(this.includeEnd) return this.start <= value && value <= this.end;
+        if (this.includeEnd) return this.start <= value && value <= this.end;
         return this.start <= value && value < this.end;
     }
 }
 
 export class AndPredicate extends Predicate {
-    constructor(public predicates: Predicate[]) {
+    constructor(public predicates: Predicate[] = []) {
         super();
     }
 
+    get length() { return this.predicates.length; }
+
     test(value: any): boolean {
-        for(let i = 0; i < this.predicates.length; i++)
-            if(!this.predicates[i].test(value)) return false;
+        for (let i = 0; i < this.predicates.length; i++)
+            if (!this.predicates[i].test(value)) return false;
 
         return true;
     }
@@ -53,5 +57,9 @@ export class AndPredicate extends Predicate {
         clone.push(predicate);
 
         return new AndPredicate(clone);
+    }
+
+    clone() {
+        return new AndPredicate(this.predicates.slice());
     }
 }
