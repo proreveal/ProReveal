@@ -40,6 +40,7 @@ export class VisComponent implements OnInit, DoCheck {
     limitNumCategories = false;
     numCategories = 0;
 
+    isQueryCreatorVisible: boolean = false;
     queryCreatorTop: number = 500;
 
     constructor() {}

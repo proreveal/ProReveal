@@ -76,7 +76,9 @@
     <!--[hidden]="!creating"-->
 
     <div #qcw
-        id="query-creator-wrapper" [style.top.px]="queryCreatorTop">
+        id="query-creator-wrapper"
+        [style.top.px]="queryCreatorTop"
+        [hidden]="!isQueryCreatorVisible">
         <query-creator #qc id="query-creator" class="border"
             [dataset]="this.node.query.dataset"
             (created)="create($event.fields, $event.query, Priority.Highest)"

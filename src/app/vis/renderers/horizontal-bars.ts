@@ -253,7 +253,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
                 .on('click', (d, i) => {
                     this.datumSelected(d);
-                    this.showQueryCreator(d, i);
+                    this.toggleQueryCreator(d, i);
                 })
                 .on('contextmenu', (d, i) => this.datumSelected2(d))
 
@@ -806,15 +806,23 @@ export class HorizontalBarsRenderer implements Renderer {
         }
     }
 
-    showQueryCreator(d: Datum, i: number) {
+    lastDatum: Datum = null;
+    toggleQueryCreator(d: Datum, i: number) {
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
+        if(d == this.lastDatum) { // just hide
+            this.vis.isQueryCreatorVisible = false;
+            this.lastDatum = null;
+            return;
+        }
+        this.lastDatum = d;
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
             + C.horizontalBars.label.height + C.padding;
 
+        this.vis.isQueryCreatorVisible = true;
         this.vis.queryCreatorTop = top;
 
         /*this.tooltip.show(
