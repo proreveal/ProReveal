@@ -46,8 +46,10 @@
         </section>
         <h3 id="completed-node-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
         <section id="completed-node-view" class="styled-scroll">
-            <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)">
-                <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
+            <ng-container *ngFor="let node of completedNodes">
+                <div class="query" (click)="nodeSelected(node)"
+                    [class.selected]="activeNode === node"
+                    [class.highlighted]="highlightedNode === node">
                     <ul class="field-names m-0 p-0">
                         <li *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
@@ -67,12 +69,14 @@
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
                 </div>
-            </div>
+            </ng-container>
         </section>
         <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">Ongoing Queries</h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
-            <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)">
-                <div class="query d-flex flex-row" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
+            <ng-container *ngFor="let node of ongoingNodes">
+                <div class="query d-flex flex-row" (click)="nodeSelected(node)"
+                    [class.selected]="activeNode === node"
+                    [class.highlighted]="highlightedNode === node">
                     <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
                     <ul class="field-names m-0 p-0 ml-2">
                         <li *ngFor="let field of node.fields">
@@ -101,7 +105,7 @@
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
                 </div>
-            </div>
+            </ng-container>
         </section>
     </section>
     <section id="main" class="styled-scroll">
@@ -159,7 +163,12 @@
                 The list is empty! Click on buttons below to create a safegaurd.
             </p>
 
-            <sg-list-item *ngFor="let sg of safeguards.reverse()" [safeguard]="sg" (removeClicked)="sgRemoveClicked($event)"></sg-list-item>
+            <sg-list-item *ngFor="let sg of safeguards.reverse()"
+                [safeguard]="sg"
+                (removeClicked)="sgRemoveClicked($event)"
+                (mouseenter)="sgMouseEnter(sg)"
+                (mouseleave)="sgMouseLeave(sg)"
+                ></sg-list-item>
         </section>
     </section>
 

@@ -140,7 +140,11 @@
 .query.selected {
     background: $ui-background-color;
     border: 1px solid $ui-border-color;
-    border-bottom-width: 2px;
+}
+
+.query.highlighted {
+    background: lighten($ui-primary-color, 45%);
+    border-color: $ui-primary-color;
 }
 
 

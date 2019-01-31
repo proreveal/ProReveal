@@ -51,11 +51,11 @@ export class AppComponent implements OnInit {
     engine: Engine;
 
     activeNode: ExplorationNode = null;
+    highlightedNode: ExplorationNode = null;
 
     ongoingNodes: ExplorationNode[];
     completedNodes: ExplorationNode[];
     sortablejsOptions: any;
-    highlightedNodes: ExplorationNode[] = [];
 
     activeSafeguardPanel = SGT.None;
     safeguards: Safeguard[] = [];
@@ -571,5 +571,13 @@ export class AppComponent implements OnInit {
     sgRemoveClicked(sg: Safeguard)
     {
         util.aremove(this.safeguards, sg);
+    }
+
+    sgMouseEnter(sg: Safeguard) {
+        this.highlightedNode = sg.node;
+    }
+
+    sgMouseLeave(sg: Safeguard) {
+        this.highlightedNode = null;
     }
 }

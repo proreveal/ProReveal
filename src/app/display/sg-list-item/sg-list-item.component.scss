@@ -3,6 +3,11 @@
 .wrapper {
     font-size: .8rem;
     position: relative;
+    cursor: pointer;
+}
+
+.wrapper:hover {
+    background: lighten($ui-background-color, 5%);
 }
 
 .display {
