@@ -57,7 +57,10 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
 
         this.selectableFields = newQuery.compatible(this.candidateFields);
         if (this.selectedFields.length === 0) this.newQuery = null;
-        else this.newQuery = newQuery as AggregateQuery;
+        else {
+            this.newQuery = newQuery as AggregateQuery;
+            this.newQuery.where = this.where;
+        }
     }
 
     create() {
