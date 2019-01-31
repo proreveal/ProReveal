@@ -48,7 +48,7 @@
         <section id="completed-node-view" class="styled-scroll">
             <div *ngFor="let node of completedNodes" [class.highlighted]="highlightedNodes.includes(node)">
                 <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
-                    <ul class="done field-names">
+                    <ul class="field-names m-0 p-0">
                         <li *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
