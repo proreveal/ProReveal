@@ -40,7 +40,7 @@ import { SgListItemComponent } from './display/sg-list-item/sg-list-item.compone
 import { QualityIndicatorComponent } from './display/quality-indicator/quality-indicator.component';
 import { ErrorIndicatorComponent } from './display/error-indicator/error-indicator.component';
 import { SgHistoryComponent } from './display/history/sg-history.component';
-import { QueryTitleComponent } from './vis/query-title/query-title.component';
+import { QueryIndicatorComponent } from './query-indicator/query-indicator.component';
 import { SmartNumberPipe } from './smart-number.pipe';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
@@ -72,7 +72,7 @@ library.add(fas, far);
         ErrorIndicatorComponent,
         SgHistoryComponent,
         PunchcardTooltipComponent,
-        QueryTitleComponent,
+        QueryIndicatorComponent,
         SmartNumberPipe,
         QueryCreatorComponent,
         PredicateIndicatorComponent

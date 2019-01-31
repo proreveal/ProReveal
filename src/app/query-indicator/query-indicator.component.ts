@@ -1,13 +1,13 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ApproximatorTrait, SumApproximator, MeanApproximator, MaxApproximator, MinApproximator, Approximator } from '../../data/approx';
-import { AggregateQuery } from '../../data/query';
+import { ApproximatorTrait, SumApproximator, MeanApproximator, MaxApproximator, MinApproximator, Approximator } from '../data/approx';
+import { AggregateQuery } from '../data/query';
 
 @Component({
-    selector: 'query-title',
-    templateUrl: './query-title.component.html',
-    styleUrls: ['./query-title.component.scss']
+    selector: 'query-indicator',
+    templateUrl: './query-indicator.component.html',
+    styleUrls: ['./query-indicator.component.scss']
 })
-export class QueryTitleComponent implements OnInit {
+export class QueryIndicatorComponent implements OnInit {
     approximators: ApproximatorTrait[] = [
         new SumApproximator(),
         new MeanApproximator(),

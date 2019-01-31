@@ -1,8 +1,8 @@
 <div *ngIf="node && node.query">
 <header>
-    <query-title [query]="node.query"
+    <query-indicator [query]="node.query"
         (approximatorChanged)="approximatorChanged($event)"
-    ></query-title>
+    ></query-indicator>
     <small class="pl-1">updated {{ node.query.lastUpdatedAt | amTimeAgo }}</small>
 </header>
 
