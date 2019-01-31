@@ -109,21 +109,26 @@
     padding: 3px;
     background: #fefefe;
     position: relative;
-    overflow:hidden;
+    // overflow:hidden;
 
     .field-names {
-        position: absolute;
-        top: 4px;
-        left: 64px;
-        width: 400px;
         font-size: 0.8rem;
         list-style: none;
-        padding: 0;
-        margin: 0;
     }
 
-    .done.field-names {
-        position: static;
+    .field-names li {
+        width: 400px;
+        overflow: hidden;
+        word-break: keep-all;
+    }
+
+    progress-ring {
+        height: 56px;
+    }
+
+    .filtered-by {
+        opacity: .5;
+        font-family: 'Roboto Condensed';
     }
 }
 
@@ -138,10 +143,7 @@
     border-bottom-width: 2px;
 }
 
-progress-ring {
-    height: 56px;
-    display: block;
-}
+
 
 .actions {
     border-bottom: 1px solid $ui-border-color;

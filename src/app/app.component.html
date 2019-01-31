@@ -53,6 +53,13 @@
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
                         </li>
+                        <li *ngIf="node.query.where.length > 0" class="filtered-by">
+                            FILTERED BY
+                        </li>
+                        <li *ngFor="let pred of node.query.where.predicates">
+                            <field-badge [field]="pred.target"></field-badge>
+                            <predicate-indicator [predicate]="pred"></predicate-indicator>>
+                        </li>
                     </ul>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
@@ -65,12 +72,19 @@
         <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">Ongoing Queries</h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
             <div *ngFor="let node of ongoingNodes" [class.highlighted]="highlightedNodes.includes(node)">
-                <div class="query" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
+                <div class="query d-flex flex-row" (click)="nodeSelected(node)" [class.selected]="activeNode === node">
                     <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
-                    <ul class="field-names">
+                    <ul class="field-names m-0 p-0 ml-2">
                         <li *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
+                        </li>
+                        <li *ngIf="node.query.where.length > 0" class="filtered-by">
+                            FILTERED BY
+                        </li>
+                        <li *ngFor="let pred of node.query.where.predicates">
+                            <field-badge [field]="pred.target"></field-badge>
+                            <predicate-indicator [predicate]="pred"></predicate-indicator>
                         </li>
                     </ul>
                     <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="node.state === NodeState.Paused"></fa-icon>
