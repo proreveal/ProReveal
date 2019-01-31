@@ -11,6 +11,7 @@ import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait, FittingTypes } from '../safeguard/constant';
 import { Constants as C } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
+import { Priority } from '../data/engine';
 
 @Component({
     selector: 'vis',
@@ -19,6 +20,7 @@ import { QueryCreatorComponent } from '../query-creator/query-creator.component'
 })
 export class VisComponent implements OnInit, DoCheck {
     @Input() node: ExplorationNode;
+
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
         secondary?: boolean}>
@@ -30,9 +32,14 @@ export class VisComponent implements OnInit, DoCheck {
     @Output('safeguardAdded') safeguardAdded: EventEmitter<{
         'sg': Safeguard
     }> = new EventEmitter();
+
+    @Output('queryCreated') queryCreated: EventEmitter<{}> = new EventEmitter();
+
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
     @ViewChild('qc') queryCreator: QueryCreatorComponent;
     @ViewChild('tooltip') tooltip: TooltipComponent;
+
+    Priority = Priority;
 
     lastUpdated: number = 0;
     lastNode: ExplorationNode;

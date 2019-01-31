@@ -97,7 +97,12 @@
             </p>
         </div>
         <div [hidden]="!activeNode">
-            <vis #vis [node]="activeNode" (variableSelected)="variableSelected($event)" (constantSelected)="constantSelected($event)"></vis>
+            <vis #vis
+            [node]="activeNode"
+            (variableSelected)="variableSelected($event)"
+            (constantSelected)="constantSelected($event)"
+            (queryCreated)="queryCreated($event)"
+            ></vis>
         </div>
     </section>
 

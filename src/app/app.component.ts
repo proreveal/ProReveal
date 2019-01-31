@@ -20,6 +20,7 @@ import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRa
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
+import { AndPredicate, EqualPredicate } from './data/predicate';
 
 @Component({
     selector: 'app-root',
@@ -65,29 +66,34 @@ export class AppComponent implements OnInit {
     nodes: ExplorationNode[] = [];
     isDistributivePossible = true;
 
+    variable1: SingleVariable;
+    variable2: SingleVariable;
+    variablePair: VariablePair;
+    combinedVariable1: CombinedVariable;
+    combinedVariable2: CombinedVariable;
+    combinedVariablePair: CombinedVariablePair;
+    useRank = false;
+    useLinear = false;
+    useNormal = true;
+    isNormalFittingAvailable = false;
+    isPowerLawFittingAvailable = false;
+
+    pointValueConstant: PointValueConstant = new PointValueConstant(0);
+    pointRankConstant: PointRankConstant = new PointRankConstant(1);
+
+    rangeValueConstant: RangeValueConstant = new RangeValueConstant(0, 1);
+    rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
+
+    powerLawConstant: PowerLawConstant = new PowerLawConstant();
+    normalConstant: NormalConstant = new NormalConstant();
+    linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
+
+    operator = Operators.LessThanOrEqualTo;
+
     constructor(private modalService: NgbModal) {
         this.sortablejsOptions = {
             onUpdate: this.ongoingQueriesReordered.bind(this)
         };
-    }
-
-    ongoingQueriesReordered() {
-        // reflect the order of this.ongoingNodes to the engine
-        let queries = this.ongoingNodes.map(node => node.query);
-        this.engine.reorderOngoingQueries(queries);
-    }
-
-    create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
-        console.log(fields, query);
-        let node = new ExplorationNode(fields, query);
-        this.nodes.push(node);
-
-        this.engine.request(query, priority);
-
-        this.nodeSelected(node);
-
-        this.updateNodeLists();
-        this.creating = false;
     }
 
     ngOnInit() {
@@ -143,6 +149,8 @@ export class AppComponent implements OnInit {
 
             // this.toggleMetadataEditor();
 
+            this.testEqualWhere();
+
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
@@ -153,6 +161,20 @@ export class AppComponent implements OnInit {
             })
         })
 
+    }
+
+    testEqualWhere() {
+        let whereField = this.dataset.getFieldByName('Creative_Type');
+        let where = new AndPredicate([new EqualPredicate(whereField, 'Contemporary Fiction')]);
+
+        let visField = this.dataset.getFieldByName('Major_Genre');
+
+        let query = (new EmptyQuery(this.dataset)).combine(visField);
+        query.where = where;
+
+        this.create([visField], query, Priority.Highest);
+
+        this.run(10);
     }
 
     testC() {
@@ -192,6 +214,25 @@ export class AppComponent implements OnInit {
         this.create([field1, field2], query, Priority.Highest)
 
         this.run(10);
+    }
+
+    ongoingQueriesReordered() {
+        // reflect the order of this.ongoingNodes to the engine
+        let queries = this.ongoingNodes.map(node => node.query);
+        this.engine.reorderOngoingQueries(queries);
+    }
+
+    create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
+        console.log(fields, query);
+        let node = new ExplorationNode(fields, query);
+        this.nodes.push(node);
+
+        this.engine.request(query, priority);
+
+        this.nodeSelected(node);
+
+        this.updateNodeLists();
+        this.creating = false;
     }
 
     toggleMetadataEditor() {
@@ -273,29 +314,13 @@ export class AppComponent implements OnInit {
             });
     }
 
-    variable1: SingleVariable;
-    variable2: SingleVariable;
-    variablePair: VariablePair;
-    combinedVariable1: CombinedVariable;
-    combinedVariable2: CombinedVariable;
-    combinedVariablePair: CombinedVariablePair;
-    useRank = false;
-    useLinear = false;
-    useNormal = true;
-    isNormalFittingAvailable = false;
-    isPowerLawFittingAvailable = false;
+    queryCreated($event: any) {
+        let fields: FieldTrait[] = $event.fields;
+        let query: AggregateQuery = $event.query;
 
-    pointValueConstant: PointValueConstant = new PointValueConstant(0);
-    pointRankConstant: PointRankConstant = new PointRankConstant(1);
+        this.create(fields, query, Priority.Highest);
+    }
 
-    rangeValueConstant: RangeValueConstant = new RangeValueConstant(0, 1);
-    rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
-
-    powerLawConstant: PowerLawConstant = new PowerLawConstant();
-    normalConstant: NormalConstant = new NormalConstant();
-    linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
-
-    operator = Operators.LessThanOrEqualTo;
 
     variableSelected($event: { variable: VariableTrait, secondary?: boolean }) {
         let variable = $event.variable;
