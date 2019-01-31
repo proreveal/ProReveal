@@ -154,7 +154,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                // this.toggle(SGT.Point);
+                this.toggle(SGT.Point);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -303,15 +303,6 @@ export class AppComponent implements OnInit {
         }
     }
 
-    deleteClicked(modal, node: ExplorationNode) {
-        this.modalService
-            .open(modal, { ariaLabelledBy: 'modal-basic-title' }).result
-            .then(() => {
-                this.engine.remove(node.query);
-                this.updateNodeLists();
-            }, () => {
-            });
-    }
 
     queryCreated($event: any) {
         let fields: FieldTrait[] = $event.fields;
@@ -557,6 +548,26 @@ export class AppComponent implements OnInit {
         this.subs.unsubscribe();
     }
 
+    // node remove
+    nodeRemoveClicked(node: ExplorationNode, confirm, reject) {
+        let sg = this.safeguards.find(sg => sg.node === node);
+
+        if(sg) {
+            this.modalService
+                .open(reject, { ariaLabelledBy: 'modal-basic-title' })
+        }
+        else {
+            this.modalService
+                .open(confirm, { ariaLabelledBy: 'modal-basic-title' }).result
+                .then(() => {
+                    this.engine.remove(node.query);
+                    this.updateNodeLists();
+                }, () => {
+                });
+        }
+    }
+
+    // safeguard remove
     sgRemoveClicked(sg: Safeguard)
     {
         util.aremove(this.safeguards, sg);

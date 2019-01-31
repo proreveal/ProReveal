@@ -97,7 +97,7 @@
                     <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Running" (click)="activeNode.run()">
                         <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     </button>
-                    <button class="btn btn-light" (click)="deleteClicked(confirmDelete, node)">
+                    <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     </button>
                 </div>
@@ -334,9 +334,9 @@
     </metadata-editor>
 </div>
 
-<ng-template #confirmDelete let-c="close" let-d="dismiss">
+<ng-template #confirmRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Confirm Deletion</h4>
+        <h4 class="modal-title" id="modal-basic-title">Removing a node</h4>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -349,5 +349,19 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-danger" (click)="c()">Delete</button>
         <button type="button" class="btn btn-outline-secondary" (click)="d()">Cancel</button>
+    </div>
+</ng-template>
+
+<ng-template #rejectRemoval let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Error</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p>
+            You cannot remove a node that has a safeguard on it.
+        </p>
     </div>
 </ng-template>
