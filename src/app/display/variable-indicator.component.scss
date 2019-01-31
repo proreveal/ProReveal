@@ -40,3 +40,10 @@ sub {
 .where::after {
     content: 'where';
 }
+
+.and {
+    opacity: .7;
+}
+.and::after {
+    content: 'and';
+}

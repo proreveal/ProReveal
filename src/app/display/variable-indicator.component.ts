@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AggregateQuery } from '../data/query';
+import { FieldTrait, QuantitativeField } from '../data/field';
 
 @Component({
     selector: 'variable-indicator',
@@ -14,6 +15,8 @@ export class VariableIndicatorComponent implements OnInit {
     @Input('query') query: AggregateQuery;
 
     constructor() { }
+
+    isQuantitative(field: FieldTrait) { return field instanceof QuantitativeField; }
 
     ngOnInit() {
     }
