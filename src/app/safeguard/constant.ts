@@ -1,7 +1,7 @@
 import * as regression from 'regression';
 import { NormalDistribution } from './normal';
-import { Datum } from '../data/query';
 import { isNull } from 'util';
+import { Datum } from '../data/datum';
 
 export enum FittingTypes {
     PowerLaw,

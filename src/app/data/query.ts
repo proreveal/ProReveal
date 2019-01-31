@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
-import { FieldTrait, VlType, FieldGroupedValueList } from './field';
+import { FieldTrait, VlType } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatorTrait, CountAccumulator, AccumulatedValue, AllAccumulator } from './accum';
+import { AccumulatorTrait, CountAccumulator, AllAccumulator } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -11,21 +11,8 @@ import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
 import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
-import { NullGroupId } from './grouper';
 import { AndPredicate } from './predicate';
-
-export class Datum {
-    constructor(public id: string,
-        public keys: FieldGroupedValueList,
-        public ci3: ConfidenceInterval,
-        public accumulatedValue: AccumulatedValue) {
-
-        }
-
-    keyHasNullValue() {
-        return this.keys.list[0].groupId == NullGroupId;
-    }
-};
+import { Datum } from './datum';
 
 export abstract class Query {
     id: number;
@@ -42,13 +29,11 @@ export abstract class Query {
     ordering = NumericalOrdering;
     orderingAttributeGetter = d => d;
     orderingDirection = OrderingDirection.Descending;
-    jobs: Job[];
     updateAutomatically;
     createdAt: Date;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
-        this.jobs = [];
         this.createdAt = new Date();
     }
 
@@ -56,6 +41,7 @@ export abstract class Query {
     abstract combine(field: FieldTrait): Query;
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
     abstract desc(): string;
+    abstract jobs(): Job[];
 }
 
 /**
@@ -90,6 +76,10 @@ export class EmptyQuery extends Query {
     desc() {
         return this.name;
     }
+
+    jobs() {
+        return [];
+    }
 }
 
 /**
@@ -99,7 +89,7 @@ export class EmptyQuery extends Query {
 export class AggregateQuery extends Query {
     name = "AggregateQuery";
     ordering = NumericalOrdering;
-    orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
+    orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
     rankAvailable = true;
 
@@ -127,8 +117,11 @@ export class AggregateQuery extends Query {
 
         this.recentProgress.totalBlocks = samples.length;
         this.recentProgress.totalRows = dataset.length;
+    }
 
-        this.jobs = samples.map((sample, i) =>
+    jobs() {
+        let samples = this.sampler.sample(this.dataset.rows.length);
+        return samples.map((sample, i) =>
             new AggregateJob(
                 this.accumulator,
                 this.target,
@@ -186,7 +179,7 @@ export class AggregateQuery extends Query {
 
     compatible(fields: FieldTrait[]) {
         let compatibleTypes: VlType[] = [];
-        if(this.target == null && this.groupBy.fields.length == 1) compatibleTypes.push(VlType.Quantitative, VlType.Dozen, VlType.Nominal, VlType.Ordinal);
+        if (this.target == null && this.groupBy.fields.length == 1) compatibleTypes.push(VlType.Quantitative, VlType.Dozen, VlType.Nominal, VlType.Ordinal);
 
         return fields.filter(field => compatibleTypes.includes(field.vlType))
     }
@@ -356,7 +349,7 @@ export class Histogram2DQuery extends AggregateQuery {
 export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
     ordering = NumericalOrdering;
-    orderingAttributeGetter = (d:Datum) => d.ci3.center;
+    orderingAttributeGetter = (d: Datum) => d.ci3.center;
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
@@ -398,7 +391,7 @@ export class Frequency1DQuery extends AggregateQuery {
 export class Frequency2DQuery extends AggregateQuery {
     name = "Frequency2DQuery";
     ordering = NumericalOrdering;
-    orderingAttributeGetter = (d:Datum) => (d.ci3 as ConfidenceInterval).center;
+    orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     rankAvailable = false;
 
     constructor(

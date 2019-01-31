@@ -115,7 +115,7 @@ export class AppComponent implements OnInit {
             this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            this.run(10);
+            // this.run(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -167,7 +167,7 @@ export class AppComponent implements OnInit {
         let whereField = this.dataset.getFieldByName('Creative_Type');
         let where = new AndPredicate([new EqualPredicate(whereField, 'Contemporary Fiction')]);
 
-        let visField = this.dataset.getFieldByName('Major_Genre');
+        let visField = this.dataset.getFieldByName('Creative_Type');
 
         let query = (new EmptyQuery(this.dataset)).combine(visField);
         query.where = where;
@@ -223,7 +223,6 @@ export class AppComponent implements OnInit {
     }
 
     create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
-        console.log(fields, query);
         let node = new ExplorationNode(fields, query);
         this.nodes.push(node);
 

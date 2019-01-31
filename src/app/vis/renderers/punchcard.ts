@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
-import { AggregateQuery, Datum, Histogram2DQuery } from '../../data/query';
+import { AggregateQuery, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { FieldGroupedValue, QuantitativeField } from '../../data/field';
@@ -10,15 +10,14 @@ import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
-import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant, LinearRegressionConstant, NumberTriplet, NumberPair } from '../../safeguard/constant';
+import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant, LinearRegressionConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, CombinedVariable, SingleVariable } from '../../safeguard/variable';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
-import { isNull } from 'util';
 import { NullGroupId } from '../../data/grouper';
-import { QueryCreatorComponent } from '../../query-creator/query-creator.component';
+import { Datum } from '../../data/datum';
 
 export class PunchcardRenderer implements Renderer {
     gradient = new Gradient();
@@ -301,8 +300,8 @@ export class PunchcardRenderer implements Renderer {
             })
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
-            .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
-            .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
+            .on('mouseenter', (d, i) => { this.showTooltip(d); })
+            .on('mouseleave', (d, i) => { this.hideTooltip(); })
             .on('click', (d) => this.datumSelected(d))
             .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -572,7 +571,7 @@ export class PunchcardRenderer implements Renderer {
         }
     }
 
-    showTooltip(d: Datum, i: number) {
+    showTooltip(d: Datum) {
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
@@ -590,7 +589,7 @@ export class PunchcardRenderer implements Renderer {
         );
     }
 
-    hideTooltip(d: Datum, i: number) {
+    hideTooltip() {
         this.tooltip.hide();
     }
 
@@ -631,7 +630,7 @@ export class PunchcardRenderer implements Renderer {
         )
             .attr('height', C.punchcard.swatchHeight)
             .attr('width', d => swatchXScale(d.ci3.center) - swatchXScale(d.ci3.low))
-            .attr('transform', (d, i) => translate(swatchXScale(d.ci3.low), 0))
+            .attr('transform', (d) => translate(swatchXScale(d.ci3.low), 0))
             .attr('fill', this.gradient.leftUrl())
 
         leftBars.exit().remove();
@@ -647,7 +646,7 @@ export class PunchcardRenderer implements Renderer {
         )
             .attr('height', C.punchcard.swatchHeight)
             .attr('width', d => swatchXScale(d.ci3.high) - swatchXScale(d.ci3.center))
-            .attr('transform', (d, i) => translate(swatchXScale(d.ci3.center), 0))
+            .attr('transform', (d) => translate(swatchXScale(d.ci3.center), 0))
             .attr('fill', this.gradient.rightUrl())
 
         rightBars.exit().remove();

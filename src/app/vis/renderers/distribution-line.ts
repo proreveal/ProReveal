@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { selectOrAppend } from '../../d3-utils/d3-utils';
 import { DistributionTrait, ConstantTrait } from '../../safeguard/constant';
-import { Datum } from '../../data/query';
+import { Datum } from '../../data/datum';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 

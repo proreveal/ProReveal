@@ -5,7 +5,7 @@ import { Dataset } from './dataset';
 import { GroupBy } from './groupby';
 import { PartialKeyValue } from './keyvalue';
 import * as d3 from 'd3';
-import { Predicate } from './predicate';
+import { Predicate, AndPredicate } from './predicate';
 
 export abstract class Job {
     static Id = 1;

@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
-import { Datum, Histogram1DQuery } from '../../data/query';
+import { Histogram1DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
@@ -17,10 +17,9 @@ import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
-import { QueryCreatorComponent } from '../../query-creator/query-creator.component';
-import { ElementRef } from '@angular/core';
 import { EqualPredicate, AndPredicate, RangePredicate } from '../../data/predicate';
 import { QuantitativeField } from '../../data/field';
+import { Datum } from '../../data/datum';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
@@ -80,7 +79,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
         this.data = data;
 
-        if(this.limitNumCategories) {
+        if (this.limitNumCategories) {
             data = data.slice(0, C.horizontalBars.initiallyVisibleCategories);
         }
 
@@ -196,7 +195,7 @@ export class HorizontalBarsRenderer implements Renderer {
         }
 
         // render ranks
-        if(query.rankAvailable){
+        if (query.rankAvailable) {
             let background = visG.selectAll('rect.alternate')
                 .data(data, (d: any) => d.id);
 
@@ -224,7 +223,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(0, yScale(i + '')))
                 .text((d, i) => `${i + 1}`)
                 .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0;
+                    if (d.keyHasNullValue()) return 0;
                     return 0.5;
                 })
 
@@ -247,7 +246,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '')))
                 .text((d) => `${d.keys.list[0].valueString()}`)
                 .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0.6;
+                    if (d.keyHasNullValue()) return 0.6;
                     return 1;
                 })
                 .style('cursor', 'pointer')
@@ -257,7 +256,7 @@ export class HorizontalBarsRenderer implements Renderer {
                     this.datumSelected(d);
                     this.toggleQueryCreator(d, i);
                 })
-                .on('contextmenu', (d, i) => this.datumSelected2(d))
+                .on('contextmenu', (d) => this.datumSelected2(d))
 
             labels.exit().remove();
         }
@@ -294,7 +293,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
                 .attr('fill', this.gradient.leftUrl())
                 .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0.6;
+                    if (d.keyHasNullValue()) return 0.6;
                     return 1;
                 })
 
@@ -316,7 +315,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
                 .attr('fill', this.gradient.rightUrl())
                 .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0.6;
+                    if (d.keyHasNullValue()) return 0.6;
                     return 1;
                 })
 
@@ -341,7 +340,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .style('stroke', 'black')
                 .style('shape-rendering', 'crispEdges')
                 .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0.3;
+                    if (d.keyHasNullValue()) return 0.3;
                     return 1;
                 })
 
@@ -362,7 +361,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('cx', d => xScale(d.ci3.center))
                 .attr('cy', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
                 .style('opacity', d => {
-                    if(d.keyHasNullValue()) return 0.6;
+                    if (d.keyHasNullValue()) return 0.6;
                     return 1;
                 })
 
@@ -443,7 +442,7 @@ export class HorizontalBarsRenderer implements Renderer {
             }
             else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
                 let index = Math.round((center - C.horizontalBars.axis.height - C.horizontalBars.label.height)
-                     / C.horizontalBars.height)
+                    / C.horizontalBars.height)
                 let constant = new PointRankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -811,7 +810,7 @@ export class HorizontalBarsRenderer implements Renderer {
     toggleQueryCreator(d: Datum, i: number) {
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        if(d == this.vis.queryCreatorDatum) { // just hide
+        if (d == this.vis.queryCreatorDatum) { // just hide
             this.vis.isQueryCreatorVisible = false;
             this.vis.queryCreatorDatum = null;
             return;
@@ -830,7 +829,7 @@ export class HorizontalBarsRenderer implements Renderer {
         let where: AndPredicate = this.vis.node.query.where;
         let field = this.node.query.groupBy.fields[0];
 
-        if(this.node.query instanceof Histogram1DQuery) {
+        if (this.node.query instanceof Histogram1DQuery) {
             let range: [number, number] = d.keys.list[0].value() as [number, number];
             let includeEnd = range[1] == (field as QuantitativeField).grouper.max;
             where = where.and(new RangePredicate(field, range[0], range[1], includeEnd));

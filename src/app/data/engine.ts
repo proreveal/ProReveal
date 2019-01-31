@@ -1,6 +1,5 @@
 import * as util from '../util';
 import { Dataset } from './dataset';
-import { FieldTrait, VlType } from './field';
 import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
@@ -48,7 +47,7 @@ export class Engine {
             this.ongoingQueries.push(query);
         }
 
-        query.jobs.forEach(job => this.queue.append(job));
+        query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
     }
 

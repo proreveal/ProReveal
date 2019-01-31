@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, Event
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
-import { AggregateQuery, Histogram2DQuery, Datum } from '../data/query';
+import { AggregateQuery, Histogram2DQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
@@ -12,6 +12,7 @@ import { ConstantTrait, FittingTypes } from '../safeguard/constant';
 import { Constants as C } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
 import { Priority } from '../data/engine';
+import { Datum } from '../data/datum';
 
 @Component({
     selector: 'vis',
