@@ -3,7 +3,7 @@
         <h6>Filters</h6>
         <div class="container">
             <div class="row no-gutters">
-                <div *ngFor="let pred of where.predicates" class="col-6 mb-1">
+                <div *ngFor="let pred of where.predicates" class="col-12 mb-1">
                     <span class="btn btn-sm btn-secondary" style="cursor:default">
                         <field-badge [field]="pred.target"></field-badge>
                         <predicate-indicator [predicate]="pred"></predicate-indicator>
