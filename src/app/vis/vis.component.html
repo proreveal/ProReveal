@@ -81,28 +81,11 @@
         [hidden]="!isQueryCreatorVisible">
         <query-creator #qc id="query-creator" class="border"
             [dataset]="this.node.query.dataset"
-            (created)="queryCreated.emit($event); isQueryCreatorVisible=false"
-            (creationCancelled)="isQueryCreatorVisible=false"
+            (created)="queryCreated.emit($event); isQueryCreatorVisible=false; queryCreatorDatum = null;"
+            (creationCancelled)="isQueryCreatorVisible=false; queryCreatorDatum = null;"
         ></query-creator>
     </div>
 
     <tooltip #tooltip></tooltip>
-
-    <!-- <div>
-        Sort a categorical axis
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-secondary">Data</button>
-            <button type="button" class="btn btn-outline-secondary">Alaphabetical</button>
-            <button type="button" class="btn btn-outline-secondary">Value</button>
-        </div>
-    </div>
-
-    <div>
-        Sort a numerical axis (binning)
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-secondary">Default</button>
-            <button type="button" class="btn btn-outline-secondary">Value</button>
-        </div>
-    </div> -->
 </div>
 </div>

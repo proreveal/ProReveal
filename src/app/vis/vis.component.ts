@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, Event
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
-import { AggregateQuery, Histogram2DQuery } from '../data/query';
+import { AggregateQuery, Histogram2DQuery, Datum } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
@@ -49,6 +49,7 @@ export class VisComponent implements OnInit, DoCheck {
 
     isQueryCreatorVisible: boolean = false;
     queryCreatorTop: number = 500;
+    queryCreatorDatum: Datum = null;
 
     constructor() {}
 
@@ -86,7 +87,7 @@ export class VisComponent implements OnInit, DoCheck {
             console.info('render() called for ', this.renderer);
             this.lastNode = this.node;
             this.renderer.render(this.node, this.svg.nativeElement);
-
+            this.isQueryCreatorVisible = false;
             this.limitNumCategories = false;
 
             if(this.renderer instanceof HorizontalBarsRenderer) {

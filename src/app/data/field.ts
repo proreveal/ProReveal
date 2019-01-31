@@ -28,7 +28,7 @@ export interface FieldTrait {
 
 export class QuantitativeField implements FieldTrait {
     vlType: VlType = VlType.Quantitative;
-    private grouper: NumericalGrouper;
+    public grouper: NumericalGrouper;
 
     constructor(public name: string, public dataType: DataType,
         public initialMin: number, public initialMax: number, public numBins: number = 40,

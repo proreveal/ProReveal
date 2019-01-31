@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { ExplorationNode } from '../../exploration/exploration-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
-import { Datum } from '../../data/query';
+import { Datum, Histogram1DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
@@ -19,7 +19,8 @@ import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
 import { QueryCreatorComponent } from '../../query-creator/query-creator.component';
 import { ElementRef } from '@angular/core';
-import { EqualPredicate } from '../../data/predicate';
+import { EqualPredicate, AndPredicate, RangePredicate } from '../../data/predicate';
+import { QuantitativeField } from '../../data/field';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
@@ -807,17 +808,16 @@ export class HorizontalBarsRenderer implements Renderer {
         }
     }
 
-    lastDatum: Datum = null;
     toggleQueryCreator(d: Datum, i: number) {
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
-        if(d == this.lastDatum) { // just hide
+        if(d == this.vis.queryCreatorDatum) { // just hide
             this.vis.isQueryCreatorVisible = false;
-            this.lastDatum = null;
+            this.vis.queryCreatorDatum = null;
             return;
         }
 
-        this.lastDatum = d;
+        this.vis.queryCreatorDatum = d;
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
@@ -827,8 +827,18 @@ export class HorizontalBarsRenderer implements Renderer {
         this.vis.isQueryCreatorVisible = true;
         this.vis.queryCreatorTop = top;
 
-        this.vis.queryCreator.where = this.vis.node.query.where.and(
-            new EqualPredicate(this.node.query.groupBy.fields[0], d.keys.list[0].value())
-        );
+        let where: AndPredicate = this.vis.node.query.where;
+        let field = this.node.query.groupBy.fields[0];
+
+        if(this.node.query instanceof Histogram1DQuery) {
+            let range: [number, number] = d.keys.list[0].value() as [number, number];
+            let includeEnd = range[1] == (field as QuantitativeField).grouper.max;
+            where = where.and(new RangePredicate(field, range[0], range[1], includeEnd));
+        }
+        else {
+            where = where.and(new EqualPredicate(field, d.keys.list[0].value()));
+        }
+
+        this.vis.queryCreator.where = where;
     }
 }

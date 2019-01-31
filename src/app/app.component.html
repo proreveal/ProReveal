@@ -57,7 +57,7 @@
                             FILTERED BY
                         </li>
                         <li *ngFor="let pred of node.query.where.predicates">
-                            <field-badge [field]="pred.target"></field-badge>
+                            <field-badge [field]="pred.target" class="mr-1"></field-badge>
                             <predicate-indicator [predicate]="pred"></predicate-indicator>>
                         </li>
                     </ul>
@@ -83,7 +83,7 @@
                             FILTERED BY
                         </li>
                         <li *ngFor="let pred of node.query.where.predicates">
-                            <field-badge [field]="pred.target"></field-badge>
+                            <field-badge [field]="pred.target" class="mr-1"></field-badge>
                             <predicate-indicator [predicate]="pred"></predicate-indicator>
                         </li>
                     </ul>
