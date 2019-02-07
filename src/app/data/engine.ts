@@ -4,6 +4,7 @@ import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
 import { timer } from 'rxjs';
+import { Schema } from './schema';
 
 export enum Priority {
     Highest,
@@ -13,29 +14,34 @@ export enum Priority {
 export class Engine {
     rows: any[];
     dataset: Dataset;
+    schema: Schema;
     ongoingQueries: Query[] = [];
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
 
-    constructor(private url: string) {
+    constructor(private url: string, private schemaUrl: string) {
 
     }
 
     /**
      * This will take long. For real datasets, use `sampleRows` instead.
      */
-    load(): Promise<Dataset> {
-        if (this.dataset) {
-            return Promise.resolve(this.dataset);
+    load(): Promise<[Dataset, Schema]> {
+        if (this.dataset && this.schema) {
+            return Promise.resolve([this.dataset, this.schema] as [Dataset, Schema]);
         }
 
-        return util.get(this.url, "json").then(rows => {
-            this.rows = rows;
-            this.dataset = new Dataset(this.rows);
+        return util.get(this.schemaUrl, "json").then(schema => {
+            this.schema = new Schema(schema);
 
-            return this.dataset;
+            return util.get(this.url, "json").then(rows => {
+                this.rows = rows;
+                this.dataset = new Dataset(this.schema, this.rows);
+
+                return [this.dataset, this.schema] as [Dataset, Schema];
+            });
         })
     }
 

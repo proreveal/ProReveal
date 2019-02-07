@@ -15,6 +15,18 @@ export enum VlType {
     Key = "Key"
 }
 
+export function getVlType(name: string) {
+    switch(name.toLowerCase()) {
+        case VlType.Quantitative.toLowerCase(): return VlType.Quantitative;
+        case VlType.Dozen.toLowerCase(): return VlType.Dozen;
+        case VlType.Ordinal.toLowerCase(): return VlType.Ordinal;
+        case VlType.Nominal.toLowerCase(): return VlType.Nominal;
+        case VlType.Key.toLowerCase(): return VlType.Key;
+    }
+
+    throw new Error(`unknown vltype: ${name}`);
+}
+
 export interface FieldTrait {
     name: string;
     dataType: DataType;

@@ -294,9 +294,9 @@ export class Histogram1DQuery extends AggregateQuery {
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
     rankAvailable = false;
 
-    aggregationLevel = 1;
+    aggregationLevel = 2;
     minLevel = 1;
-    maxLevel = 8;
+    maxLevel = 16;
 
     constructor(public grouping: QuantitativeField,
         public dataset: Dataset,
@@ -357,8 +357,6 @@ export class Histogram1DQuery extends AggregateQuery {
             aggregated[binId] = this.accumulator.accumulate(aggregated[binId], d.accumulatedValue.toPartial());
         })
 
-
-        console.log(aggregated, this.grouping.grouper)
         d3.keys(aggregated).forEach(id => {
             const nid = +id;
             let value = aggregated[id];

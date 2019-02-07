@@ -47,7 +47,6 @@ export class AppComponent implements OnInit {
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('vis') vis: VisComponent;
 
-    dataset: Dataset;
     engine: Engine;
 
     activeNode: ExplorationNode = null;
@@ -97,13 +96,11 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.engine = new Engine('./assets/movies.json');
+        this.engine = new Engine('./assets/movies.json', './assets/movies.schema.json');
 
         this.engine.queryDone = this.queryDone.bind(this);
 
-        this.engine.load().then(dataset => {
-            this.dataset = dataset;
-
+        this.engine.load().then(([dataset, schema]) => {
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
                     this.create([field], (new EmptyQuery(dataset)).combine(field));
@@ -156,12 +153,12 @@ export class AppComponent implements OnInit {
     }
 
     testEqualWhere() {
-        let whereField = this.dataset.getFieldByName('Creative_Type');
+        let whereField = this.engine.dataset.getFieldByName('Creative_Type');
         let where = new AndPredicate([new EqualPredicate(whereField, 'Contemporary Fiction')]);
 
-        let visField = this.dataset.getFieldByName('IMDB_Rating');
+        let visField = this.engine.dataset.getFieldByName('IMDB_Rating');
 
-        let query = (new EmptyQuery(this.dataset)).combine(visField);
+        let query = (new EmptyQuery(this.engine.dataset)).combine(visField);
         query.where = where;
 
         this.create([visField], query, Priority.Highest);

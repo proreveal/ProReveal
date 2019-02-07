@@ -1,0 +1,74 @@
+[
+    {
+        "name": "Title",
+        "type": "key"
+    },
+    {
+        "name": "US_Gross",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "Worldwide_Gross",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "US_DVD_Sales",
+        "type": "dozen"
+    },
+    {
+        "name": "Production_Budget",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "Release_Date",
+        "type": "key"
+    },
+    {
+        "name": "MPAA_Rating",
+        "type": "dozen"
+    },
+    {
+        "name": "Running_Time_min",
+        "type": "dozen"
+    },
+    {
+        "name": "Distributor",
+        "type": "nominal"
+    },
+    {
+        "name": "Source",
+        "type": "dozen"
+    },
+    {
+        "name": "Major_Genre",
+        "type": "dozen"
+    },
+    {
+        "name": "Creative_Type",
+        "type": "dozen"
+    },
+    {
+        "name": "Director",
+        "type": "nominal"
+    },
+    {
+        "name": "Rotten_Tomatoes_Rating",
+        "type": "quantitative",
+        "min": 0,
+        "max": 100
+    },
+    {
+        "name": "IMDB_Rating",
+        "type": "quantitative",
+        "min": 0,
+        "max": 10
+    },
+    {
+        "name": "IMDB_Votes",
+        "type": "quantitative",
+        "min": 0
+    }
+]

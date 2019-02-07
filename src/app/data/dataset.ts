@@ -1,15 +1,17 @@
 import * as util from '../util';
 import { FieldTrait, guess, VlType, QuantitativeField, NominalField, DozenField, KeyField } from './field';
 import * as d3 from 'd3-array';
+import { Schema } from './schema';
+import { isUndefined } from 'util';
 
 export class Dataset {
-    constructor(public rows: any[], public fields?: FieldTrait[]) {
+    constructor(public schema: Schema, public rows: any[], public fields?: FieldTrait[]) {
         if (!fields) {
-            this.fields = this.guess(rows);
+            this.fields = this.guess(schema, rows);
         }
     }
 
-    guess(rows: any[]): FieldTrait[] {
+    guess(schema: Schema, rows: any[]): FieldTrait[] {
         let n = Math.min(rows.length * 0.1, 200);
         let indices = util.arange(n);
         let fields: FieldTrait[] = [];
@@ -22,10 +24,18 @@ export class Dataset {
             let [dataType, vlType, nullable] = guess(values);
 
             let field: FieldTrait;
+            let columnSchema = schema.getColumnSchema(name);
+
+            if(columnSchema) {
+                vlType = columnSchema.type;
+                if(!isUndefined(columnSchema.nullable)) nullable = columnSchema.nullable;
+            }
 
             if (vlType === VlType.Quantitative) {
-                field = new QuantitativeField(name, dataType,
-                    d3.min(values), d3.max(values), 20, nullable);
+                let minValue = (columnSchema && !isUndefined(columnSchema.min)) ? columnSchema.min : d3.min(values);
+                let maxValue = (columnSchema && !isUndefined(columnSchema.max)) ? columnSchema.max : d3.max(values);
+
+                field = new QuantitativeField(name, dataType, minValue, maxValue, 40, nullable);
             }
             else if (vlType === VlType.Nominal) {
                 field = new NominalField(name, dataType, nullable);
