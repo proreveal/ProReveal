@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
 
             this.updateNodeLists();
 
-            // this.nodeSelected(this.ongoingNodes[0]);
+            this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
             // this.run(10);
@@ -133,16 +133,18 @@ export class AppComponent implements OnInit {
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
 
-            this.testN();
+            // this.testC();
 
             // this.toggleMetadataEditor();
 
             // this.testEqualWhere();
 
+            //this.testN();
+
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                this.toggle(SGT.Point);
+                //this.toggle(SGT.Distributive);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -271,7 +273,7 @@ export class AppComponent implements OnInit {
         else if (this.activeNode) {
             this.activeNode.query.updateAutomatically = true;
             this.activeNode = node;
-            this.cancelSafeguard();
+            this.toggle(SGT.None);
         }
         else {
             this.activeNode = node;
@@ -558,6 +560,12 @@ export class AppComponent implements OnInit {
                 .then(() => {
                     this.engine.remove(node.query);
                     this.updateNodeLists();
+                    if(this.ongoingNodes.length > 0) {
+                        this.nodeSelected(this.ongoingNodes[0]);
+                    }
+                    else if(this.completedNodes.length > 0) {
+                        this.nodeSelected(this.completedNodes[0]);
+                    }
                 }, () => {
                 });
         }

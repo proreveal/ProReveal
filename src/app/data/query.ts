@@ -434,6 +434,7 @@ export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
+    rankAvailable = true;
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,

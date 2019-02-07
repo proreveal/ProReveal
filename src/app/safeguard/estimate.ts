@@ -133,7 +133,8 @@ export class PointMinMaxRankValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointRankConstant): Truthiness {
 
-        let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult).map((hash) => {
+        let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult)
+        .map((hash) => {
             let result = query.visibleResult[hash];
             let ai = query.approximator.approximate(
                 result.value,
@@ -168,6 +169,7 @@ export class PointMinMaxRankValueEstimator implements EstimatorTrait {
 export class RangeValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeValueConstant): PValue {
+
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
             result,

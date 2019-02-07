@@ -102,7 +102,10 @@ export class PowerLawConstant extends ConstantTrait implements DistributionTrait
     }
 
     static FitFromVisData(data: Datum[]) {
-        return this.Fit(data.map((d, i) => [i + 1, d.ci3.center] as NumberPair))
+        return this.Fit(
+            data
+            .map((d, i) => [i + 1, d.ci3.center] as NumberPair)
+            .filter(d => d[1] > 0));
     }
     /**
      * returns a pdf value (0 to 1)

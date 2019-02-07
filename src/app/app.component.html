@@ -251,7 +251,7 @@
                     by dragging the edge of the range brush.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && activeSafeguardPanel === SGT.Range && rangeValueConstant">
+            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && activeSafeguardPanel === SGT.Range && (variable1 || combinedVariable1) && rangeValueConstant">
                 <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
