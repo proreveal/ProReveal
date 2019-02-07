@@ -64,7 +64,8 @@
         "name": "IMDB_Rating",
         "type": "quantitative",
         "min": 0,
-        "max": 10
+        "max": 10,
+        "numBins": 20
     },
     {
         "name": "IMDB_Votes",

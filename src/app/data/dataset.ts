@@ -34,8 +34,8 @@ export class Dataset {
             if (vlType === VlType.Quantitative) {
                 let minValue = (columnSchema && !isUndefined(columnSchema.min)) ? columnSchema.min : d3.min(values);
                 let maxValue = (columnSchema && !isUndefined(columnSchema.max)) ? columnSchema.max : d3.max(values);
-
-                field = new QuantitativeField(name, dataType, minValue, maxValue, 40, nullable);
+                let numBins = (columnSchema && !isUndefined(columnSchema.numBins)) ? columnSchema.numBins : 40;
+                field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable);
             }
             else if (vlType === VlType.Nominal) {
                 field = new NominalField(name, dataType, nullable);
