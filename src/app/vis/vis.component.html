@@ -51,6 +51,23 @@
             </span>,
             {{ node.query.recentProgress.processedPercent() | percent }})
         </div>
+
+        <button type="button" class="btn btn-light btn-sm ml-1"
+            [hidden]="!node.query.aggregationLevel"
+            [disabled]="node.query.aggregationLevel == node.query.minLevel"
+            (click)="splitBins()">
+            <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
+            Split bins
+        </button>
+
+        <button type="button" class="btn btn-light btn-sm ml-1"
+            [hidden]="!node.query.aggregationLevel"
+            [disabled]="node.query.aggregationLevel == node.query.maxLevel"
+            (click)="mergeBins()">
+            <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
+            Merge bins
+        </button>
+
         <button type="button" class="btn btn-light btn-sm ml-1"
             (click)="node.query.updateAutomatically=!node.query.updateAutomatically">
             <fa-icon icon="check-square" [hidden]="!node.query.updateAutomatically"></fa-icon>

@@ -30,6 +30,10 @@ export class AccumulatedValue {
     clone() {
         return new AccumulatedValue(this.sum, this.ssum, this.count, this.min, this.max, this.nullCount);
     }
+
+    toPartial() {
+        return new PartialValue(this.sum, this.ssum, this.count, this.min, this.max, this.nullCount);
+    }
 }
 
 export interface AccumulatorTrait {

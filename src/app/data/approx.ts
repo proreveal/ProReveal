@@ -11,6 +11,7 @@ export class ApproximatedInterval {
     }
 
     range(factor: number) {
+        if(this == EmptyApproximatedInterval) return EmptyConfidenceInterval;
         return new ConfidenceInterval(this.center, this.center - factor * this.stdev, this.center + factor * this.stdev);
     }
 
@@ -29,7 +30,8 @@ export class ConfidenceInterval {
     }
 }
 
-export const EmptyInterval = new ConfidenceInterval(0, 0, 0);
+export const EmptyApproximatedInterval = new ApproximatedInterval(0, 0, 0);
+export const EmptyConfidenceInterval = new ConfidenceInterval(0, 0, 0);
 
 export interface ApproximatorTrait {
     readonly name: string;
@@ -90,6 +92,8 @@ export class CountApproximator implements ApproximatorTrait {
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
         let Ny_bar = N * n1 / n;
+        if(n == 0) return EmptyApproximatedInterval;
+        if(n == 1) return new ApproximatedInterval(Ny_bar, 0, n1); // TODO
         let s_squared = n1 * (n - n1) / n / (n - 1);
         let s = Math.sqrt(s_squared);
 
@@ -105,9 +109,9 @@ export class MeanApproximator implements ApproximatorTrait {
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
-        if(n1 == 0) return new ApproximatedInterval(0, 0, n1);
+        if(n1 == 0) return EmptyApproximatedInterval;
         let X_bar = value.sum / n1;
-        if(n1 == 1) return new ApproximatedInterval(X_bar, 0, n1);
+        if(n1 == 1) return new ApproximatedInterval(X_bar, 0, n1); // TODO
         let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
         let s = Math.sqrt(s_squared);
 

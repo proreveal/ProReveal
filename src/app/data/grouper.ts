@@ -1,9 +1,9 @@
 import * as d3 from 'd3-array';
 import * as d3format from 'd3-format';
 
-import { isUndefined, isNull } from 'util';
+import { isNull, isArray } from 'util';
 
-export type GroupIdType = number;
+export type GroupIdType = number | [number, number];
 export const NullGroupId = Number.MAX_SAFE_INTEGER;
 export const NullString = '(empty)';
 
@@ -37,7 +37,8 @@ export class CategoricalGrouper {
     }
 
     ungroup(id: GroupIdType): null | string {
-        return this.inverse[id];
+        if(isArray(id)) throw new Error(`${id} is not a single integer!`);
+        return this.inverse[id as any];
     }
 
     ungroupString(id: GroupIdType): string {
@@ -78,7 +79,8 @@ export class NumericalGrouper {
 
     ungroup(id: GroupIdType): null | [number, number] {
         if (id === NullGroupId) return null;
-
+        if(isArray(id)) return [this.base + this.step * id[0], this.base + this.step * (id[1] + 1)]
+        id = <number>id;
         return [this.base + this.step * id, this.base + this.step * (id + 1)];
     }
 

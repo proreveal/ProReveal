@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType, QuantitativeField, FieldGroupedValueList, FieldGroupedValue } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatorTrait, CountAccumulator, AllAccumulator } from './accum';
+import { AccumulatorTrait, CountAccumulator, AllAccumulator, AccumulatedValue, PartialValue } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
@@ -9,10 +9,13 @@ import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
-import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator, EmptyInterval } from './approx';
+import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator, EmptyConfidenceInterval } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { AndPredicate } from './predicate';
 import { Datum } from './datum';
+import { NullGroupId } from './grouper';
+import { isArray } from 'util';
+import * as d3 from 'd3';
 
 export abstract class Query {
     id: number;
@@ -60,7 +63,7 @@ export class EmptyQuery extends Query {
 
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
-            return new Histogram1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
+            return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]), this.sampler);
         }
         else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
             return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
@@ -237,7 +240,7 @@ export class AggregateQuery extends Query {
             );
         })
 
-        if(this instanceof Histogram1DQuery) {
+        if (this instanceof Histogram1DQuery) {
             let field = this.groupBy.fields[0] as QuantitativeField;
             let allGroupIds = field.grouper.getGroupIds();
             let groupIds = data.map(d => d.keys.list[0].groupId);
@@ -252,10 +255,12 @@ export class AggregateQuery extends Query {
                 data.push(new Datum(
                     key.hash,
                     key,
-                    EmptyInterval,
+                    EmptyConfidenceInterval,
                     this.accumulator.initAccumulatedValue
                 ));
             })
+
+            data = this.aggregate(data);
         }
 
         data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
@@ -285,10 +290,15 @@ export class Histogram1DQuery extends AggregateQuery {
     name = "Histogram1DQuery";
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
-    orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
+    orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
+        d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
     rankAvailable = false;
 
-    constructor(public grouping: FieldTrait,
+    aggregationLevel = 1;
+    minLevel = 1;
+    maxLevel = 8;
+
+    constructor(public grouping: QuantitativeField,
         public dataset: Dataset,
         public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {
@@ -308,7 +318,7 @@ export class Histogram1DQuery extends AggregateQuery {
         if (field.vlType === VlType.Quantitative)
             return new Histogram2DQuery(
                 this.grouping,
-                field,
+                field as QuantitativeField,
                 this.dataset,
                 this.where,
                 this.sampler);
@@ -322,6 +332,57 @@ export class Histogram1DQuery extends AggregateQuery {
             this.where,
             this.sampler);
     }
+
+    aggregate(data: Datum[]) {
+        const level = this.aggregationLevel;
+
+        // level = 4
+        // [-4 ... -1], [0 ... 3], [4 ... 7]
+
+        let aggregated: { [id: number]: AccumulatedValue } = {};
+        let result: Datum[] = [];
+
+        data.forEach(d => {
+            let id = d.keys.list[0].groupId;
+            if (id === NullGroupId) {
+                result.push(d);
+                return;
+            }
+
+            let binId = Math.floor(<number>id / level);
+
+            if (!(binId in aggregated))
+                aggregated[binId] = this.accumulator.initAccumulatedValue;
+
+            aggregated[binId] = this.accumulator.accumulate(aggregated[binId], d.accumulatedValue.toPartial());
+        })
+
+
+        console.log(aggregated, this.grouping.grouper)
+        d3.keys(aggregated).forEach(id => {
+            const nid = +id;
+            let value = aggregated[id];
+            let key = new FieldGroupedValueList([
+                new FieldGroupedValue(this.grouping, [
+                    nid * level,
+                    (nid + 1) * level - 1])
+            ]);
+
+            result.push(new Datum(
+                key.hash,
+                key,
+                this.approximator.approximate(
+                    value,
+                    this.visibleProgress.processedPercent(),
+                    this.visibleProgress.processedRows,
+                    this.visibleProgress.totalRows
+                ).range(3),
+                value
+            ))
+        })
+
+        return result;
+    }
 }
 
 /**
@@ -331,12 +392,13 @@ export class Histogram2DQuery extends AggregateQuery {
     name = "Histogram2DQuery";
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
-    orderingAttributeGetter = (d: Datum) => d.keys.list[0].groupId;
+    orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
+        d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
     rankAvailable = false;
 
     constructor(
-        public grouping1: FieldTrait,
-        public grouping2: FieldTrait,
+        public grouping1: QuantitativeField,
+        public grouping2: QuantitativeField,
         public dataset: Dataset,
         public where: AndPredicate,
         public sampler: Sampler = new UniformRandomSampler(100)) {

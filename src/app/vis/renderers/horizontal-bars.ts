@@ -20,7 +20,7 @@ import { DistributionLine } from './distribution-line';
 import { EqualPredicate, AndPredicate, RangePredicate } from '../../data/predicate';
 import { QuantitativeField } from '../../data/field';
 import { Datum } from '../../data/datum';
-import { EmptyInterval } from '../../data/approx';
+import { EmptyConfidenceInterval } from '../../data/approx';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
@@ -291,7 +291,9 @@ export class HorizontalBarsRenderer implements Renderer {
             leftBars.merge(enter)
                 .attr('height', yScale.bandwidth())
                 .attr('width', d => xScale(d.ci3.center) - xScale(d.ci3.low))
-                .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
+                .attr('transform', (d, i) => {
+                    return translate(xScale(d.ci3.low), yScale(i + ''))
+                })
                 .attr('fill', this.gradient.leftUrl())
                 .style('opacity', d => {
                     if (d.keyHasNullValue()) return 0.6;
@@ -687,7 +689,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
     datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
-        if(d.ci3 === EmptyInterval) return;
+        if(d.ci3 === EmptyConfidenceInterval) return;
 
         let variable = new SingleVariable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
@@ -705,7 +707,7 @@ export class HorizontalBarsRenderer implements Renderer {
     datumSelected2(d: Datum) {
         d3.event.preventDefault();
         if (this.safeguardType != SGT.Comparative) return;
-        if(d.ci3 === EmptyInterval) return;
+        if(d.ci3 === EmptyConfidenceInterval) return;
 
         let variable = new SingleVariable(d.keys.list[0]);
 

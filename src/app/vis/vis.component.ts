@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, Event
 import { ExplorationNode } from '../exploration/exploration-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
-import { AggregateQuery, Histogram2DQuery } from '../data/query';
+import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
 import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
@@ -142,6 +142,22 @@ export class VisComponent implements OnInit, DoCheck {
     approximatorChanged() {
         this.node.domainStart = Number.MAX_VALUE;
         this.node.domainEnd = -Number.MAX_VALUE;
+        this.forceUpdate();
+    }
+
+    splitBins() {
+        if(!(this.node.query instanceof Histogram1DQuery)) return;
+        if(this.node.query.aggregationLevel == this.node.query.minLevel) return;
+
+        this.node.query.aggregationLevel /= 2;
+        this.forceUpdate();
+    }
+
+    mergeBins() {
+        if(!(this.node.query instanceof Histogram1DQuery)) return;
+        if(this.node.query.aggregationLevel == this.node.query.maxLevel) return;
+
+        this.node.query.aggregationLevel *= 2;
         this.forceUpdate();
     }
 }
