@@ -318,7 +318,7 @@
                 <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
                     [groupBy]="activeNode.query.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <div class="p-1" *ngIf="activeNode && activeNode.query && activeNode.query.visibleProgress.processedRows > 0">
+            <div class="p-1" *ngIf="activeNode && activeNode.query && activeNode.query.visibleProgress.processedRows > 0 && activeSafeguardPanel == SGT.Distributive">
                 <div class="guide flex-grow-1" *ngIf="!useNormal && !useLinear">
                     <quality-indicator [q]="PowerLawEstimate(activeNode.query, powerLawConstant)"></quality-indicator>
                 </div>

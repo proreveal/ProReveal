@@ -112,7 +112,7 @@ export class AppComponent implements OnInit {
 
             this.updateNodeLists();
 
-            this.nodeSelected(this.ongoingNodes[0]);
+            // this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
             // this.run(10);
@@ -137,15 +137,7 @@ export class AppComponent implements OnInit {
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
 
-            // this.testCC();
-            // this.testC();
-            // this.testNN();
-
-            //this.testNN();
-            // this.run(1);
-            // this.testNN();
-
-            // this.testN();
+            this.testN();
 
             // this.toggleMetadataEditor();
 

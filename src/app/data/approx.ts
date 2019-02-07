@@ -29,6 +29,8 @@ export class ConfidenceInterval {
     }
 }
 
+export const EmptyInterval = new ConfidenceInterval(0, 0, 0);
+
 export interface ApproximatorTrait {
     readonly name: string;
     readonly alwaysNonNegative: boolean;

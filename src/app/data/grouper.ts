@@ -88,4 +88,8 @@ export class NumericalGrouper {
         // return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
         return `~${d3format.format(format)(ug[1])}`;
     }
+
+    getGroupIds() {
+        return d3.range(Math.floor((this.min - this.base) / this.step), Math.floor((this.max - this.base) / this.step))
+    }
 }

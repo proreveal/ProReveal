@@ -1,5 +1,5 @@
 import { Dataset } from './dataset';
-import { FieldTrait, VlType } from './field';
+import { FieldTrait, VlType, QuantitativeField, FieldGroupedValueList, FieldGroupedValue } from './field';
 import { assert, assertIn } from './assert';
 import { AccumulatorTrait, CountAccumulator, AllAccumulator } from './accum';
 import { Sampler, UniformRandomSampler } from './sampler';
@@ -9,7 +9,7 @@ import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
-import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
+import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator, EmptyInterval } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { AndPredicate } from './predicate';
 import { Datum } from './datum';
@@ -194,30 +194,6 @@ export class AggregateQuery extends Query {
         return desc;
     }
 
-    getVisibleData(): Datum[] {
-        let data = Object.keys(this.visibleResult).map(k => {
-            let key = this.visibleResult[k].key;
-            let value = this.visibleResult[k].value;
-
-            const ai = this.approximator
-                .approximate(value,
-                    this.visibleProgress.processedPercent(),
-                    this.visibleProgress.processedRows,
-                    this.visibleProgress.totalRows);
-
-            return new Datum(
-                key.hash,
-                key,
-                ai.range(3),
-                value
-            );
-        })
-
-        data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
-
-        return data;
-    }
-
     getRecentData(): Datum[] {
         let data = Object.keys(this.recentResult).map(k => {
             let key = this.recentResult[k].key;
@@ -242,6 +218,51 @@ export class AggregateQuery extends Query {
         return data;
     }
 
+    getVisibleData(): Datum[] {
+        let data = Object.keys(this.visibleResult).map(k => {
+            let key = this.visibleResult[k].key;
+            let value = this.visibleResult[k].value;
+
+            const ai = this.approximator
+                .approximate(value,
+                    this.visibleProgress.processedPercent(),
+                    this.visibleProgress.processedRows,
+                    this.visibleProgress.totalRows);
+
+            return new Datum(
+                key.hash,
+                key,
+                ai.range(3),
+                value
+            );
+        })
+
+        if(this instanceof Histogram1DQuery) {
+            let field = this.groupBy.fields[0] as QuantitativeField;
+            let allGroupIds = field.grouper.getGroupIds();
+            let groupIds = data.map(d => d.keys.list[0].groupId);
+
+            let nonexist = allGroupIds.filter(id => !groupIds.includes(id));
+
+            nonexist.forEach(id => {
+                let key = new FieldGroupedValueList([
+                    new FieldGroupedValue(field, id)
+                ]);
+
+                data.push(new Datum(
+                    key.hash,
+                    key,
+                    EmptyInterval,
+                    this.accumulator.initAccumulatedValue
+                ));
+            })
+        }
+
+        data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
+
+        return data;
+    }
+
     sync() {
         let clone: AccumulatedKeyValues = {};
 
@@ -251,8 +272,6 @@ export class AggregateQuery extends Query {
                 value: this.recentResult[key].value
             }
         })
-
-        // visible result = fill_empty_buckets_for_n(snapshot(recentResult))
 
         this.visibleResult = clone;
         this.visibleProgress = this.recentProgress.clone();
