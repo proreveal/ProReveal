@@ -207,7 +207,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('width', labelWidth)
                 .attr('transform', (d, i) => translate(0, yScale(i + '')))
                 .attr('fill', 'black')
-                .style('opacity', (d, i) => !d.keyHasNullValue() && i % 2 ? 0.08 : 0);
+                .style('opacity', (d, i) => !d.keys.hasNullValue() && i % 2 ? 0.08 : 0);
 
             background.exit().remove();
 
@@ -224,7 +224,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(0, yScale(i + '')))
                 .text((d, i) => `${i + 1}`)
                 .style('opacity', d => {
-                    if (d.keyHasNullValue()) return 0;
+                    if (d.keys.hasNullValue()) return 0;
                     return 0.5;
                 })
 
@@ -247,7 +247,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '')))
                 .text((d) => `${d.keys.list[0].valueString()}`)
                 .style('opacity', d => {
-                    if (d.keyHasNullValue()) return 0.6;
+                    if (d.keys.hasNullValue()) return 0.6;
                     return 1;
                 })
                 .style('cursor', 'pointer')
@@ -296,7 +296,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 })
                 .attr('fill', this.gradient.leftUrl())
                 .style('opacity', d => {
-                    if (d.keyHasNullValue()) return 0.6;
+                    if (d.keys.hasNullValue()) return 0.6;
                     return 1;
                 })
 
@@ -318,7 +318,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
                 .attr('fill', this.gradient.rightUrl())
                 .style('opacity', d => {
-                    if (d.keyHasNullValue()) return 0.6;
+                    if (d.keys.hasNullValue()) return 0.6;
                     return 1;
                 })
 
@@ -343,7 +343,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .style('stroke', 'black')
                 .style('shape-rendering', 'crispEdges')
                 .style('opacity', d => {
-                    if (d.keyHasNullValue()) return 0.3;
+                    if (d.keys.hasNullValue()) return 0.3;
                     return 1;
                 })
 
@@ -364,7 +364,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .attr('cx', d => xScale(d.ci3.center))
                 .attr('cy', (d, i) => yScale(i + '') + yScale.bandwidth() / 2)
                 .style('opacity', d => {
-                    if (d.keyHasNullValue()) return 0.6;
+                    if (d.keys.hasNullValue()) return 0.6;
                     return 1;
                 })
 
@@ -689,10 +689,12 @@ export class HorizontalBarsRenderer implements Renderer {
 
     datumSelected(d: Datum) {
         if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
-        if(d.ci3 === EmptyConfidenceInterval) return;
+        if (d.ci3 === EmptyConfidenceInterval) return;
+        if (d.keys.hasNullValue()) return;
 
         let variable = new SingleVariable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
+
         this.variable1 = variable;
 
         if (this.safeguardType === SGT.Range) {
@@ -707,7 +709,8 @@ export class HorizontalBarsRenderer implements Renderer {
     datumSelected2(d: Datum) {
         d3.event.preventDefault();
         if (this.safeguardType != SGT.Comparative) return;
-        if(d.ci3 === EmptyConfidenceInterval) return;
+        if (d.ci3 === EmptyConfidenceInterval) return;
+        if (d.keys.hasNullValue()) return;
 
         let variable = new SingleVariable(d.keys.list[0]);
 

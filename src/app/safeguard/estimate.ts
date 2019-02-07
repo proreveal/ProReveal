@@ -71,8 +71,9 @@ export class PointRankEstimator implements EstimatorTrait {
             return [hash, ai] as [string, ApproximatedInterval];
         })
 
-        let categoryN = results.length;
+        results = results.filter(d => !query.visibleResult[d[0]].key.hasNullValue());
 
+        let categoryN = results.length;
 
         let probs = new Array(categoryN - 1); // the probability of V_i > V_target
         let targetInterval = results.filter(res => res[0] == variable.hash)[0][1];

@@ -37,15 +37,15 @@ export function AlphabeticalOrdering<T>(getter: (d: T) => string, direction = Or
  * @param getter
  * @param direction
  */
-export function NumericalOrdering<T extends {keyHasNullValue}>
+export function NumericalOrdering<T extends {keys: any}>
     (getter: (d: T) => number, direction = OrderingDirection.Descending): OrderingType<T> {
     if (direction === OrderingDirection.Ascending) {
         return (a: T, b: T) => {
             let ga = getter(a);
             let gb = getter(b);
 
-            if(a.keyHasNullValue()) return 1;
-            if(b.keyHasNullValue()) return -1;
+            if(a.keys.hasNullValue()) return 1;
+            if(b.keys.hasNullValue()) return -1;
 
             if (ga > gb) return 1;
             else if (ga < gb) return -1;
@@ -57,8 +57,8 @@ export function NumericalOrdering<T extends {keyHasNullValue}>
         let ga = getter(a);
         let gb = getter(b);
 
-        if(a.keyHasNullValue()) return 1;
-        if(b.keyHasNullValue()) return -1;
+        if(a.keys.hasNullValue()) return 1;
+        if(b.keys.hasNullValue()) return -1;
 
         if (ga > gb) return -1;
         else if (ga < gb) return 1;

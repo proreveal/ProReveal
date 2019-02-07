@@ -1,7 +1,6 @@
 import { FieldGroupedValueList } from "./field";
 import { ConfidenceInterval } from "./approx";
 import { AccumulatedValue } from "./accum";
-import { NullGroupId } from "./grouper";
 
 export class Datum {
     constructor(public id: string,
@@ -10,8 +9,4 @@ export class Datum {
         public accumulatedValue: AccumulatedValue) {
 
         }
-
-    keyHasNullValue() {
-        return this.keys.list[0].groupId == NullGroupId;
-    }
 };

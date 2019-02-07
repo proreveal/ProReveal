@@ -1,5 +1,5 @@
 import { isNull, isNumber, isString } from "util";
-import { NumericalGrouper, CategoricalGrouper, GroupIdType } from './grouper';
+import { NumericalGrouper, CategoricalGrouper, GroupIdType, NullGroupId } from './grouper';
 
 export enum DataType {
     String = "String",
@@ -164,6 +164,13 @@ export class FieldGroupedValueList {
 
     desc() {
         return this.list.map(item => `${item.field.name}: ${item.field.ungroup(item.groupId)}`).join(', ');
+    }
+
+    hasNullValue() {
+        for(let i = 0; i < this.list.length; i++) {
+            if(this.list[i].groupId == NullGroupId) return true;
+        }
+        return false;
     }
 }
 
