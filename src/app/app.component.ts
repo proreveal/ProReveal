@@ -119,8 +119,8 @@ export class AppComponent implements OnInit {
             // this.run(5);
 
             // N (1D histogram, IMDB_Rating)
-            this.nodeSelected(this.ongoingNodes[3]);
-            this.run(105);
+            // this.nodeSelected(this.ongoingNodes[3]);
+            // this.run(105);
 
             // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
             // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
@@ -134,7 +134,7 @@ export class AppComponent implements OnInit {
             // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
             // this.run(10);
 
-            // this.testN();
+            this.testN();
 
             // this.toggleMetadataEditor();
 

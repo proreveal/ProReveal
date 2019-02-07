@@ -24,7 +24,8 @@ export class VisComponent implements OnInit, DoCheck {
 
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
-        secondary?: boolean}>
+        secondary?: boolean
+    }>
         = new EventEmitter();
 
     @Output('constantSelected') constantSelected: EventEmitter<ConstantTrait>
@@ -52,7 +53,7 @@ export class VisComponent implements OnInit, DoCheck {
     queryCreatorTop: number = 500;
     queryCreatorDatum: Datum = null;
 
-    constructor() {}
+    constructor() { }
 
     recommend(query: AggregateQuery): Renderer {
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
@@ -87,24 +88,15 @@ export class VisComponent implements OnInit, DoCheck {
 
             console.info('render() called for ', this.renderer);
             this.lastNode = this.node;
-            this.renderer.render(this.node, this.svg.nativeElement);
-            this.isQueryCreatorVisible = false;
-            this.limitNumCategories = false;
 
-            if(this.renderer instanceof HorizontalBarsRenderer) {
-                if(this.renderer.limitNumCategories &&
-                    this.renderer.data.length > C.horizontalBars.initiallyVisibleCategories) {
-                    this.limitNumCategories = true;
-                    this.numCategories = this.renderer.data.length;
-                }
-            }
+            this.forceUpdate();
         }
 
-        if(!this.node) this.lastNode = this.node;
+        if (!this.node) this.lastNode = this.node;
     }
 
     showAllCategories() {
-        if(this.limitNumCategories) {
+        if (this.limitNumCategories) {
             this.limitNumCategories = false;
             (this.renderer as HorizontalBarsRenderer).limitNumCategories = false;
             this.renderer.render(this.node, this.svg.nativeElement);
@@ -113,14 +105,24 @@ export class VisComponent implements OnInit, DoCheck {
 
     forceUpdate() {
         this.renderer.render(this.node, this.svg.nativeElement);
+        this.isQueryCreatorVisible = false;
+        this.limitNumCategories = false;
+
+        if (this.renderer instanceof HorizontalBarsRenderer) {
+            if (this.renderer.limitNumCategories &&
+                this.renderer.data.length > C.horizontalBars.initiallyVisibleCategories) {
+                this.limitNumCategories = true;
+                this.numCategories = this.renderer.data.length;
+            }
+        }
     }
 
     highlight(highlighted: number) {
-        if(this.renderer) this.renderer.highlight(highlighted);
+        if (this.renderer) this.renderer.highlight(highlighted);
     }
 
     setSafeguardType(set: SafeguardTypes) {
-        if(!this.renderer) return;
+        if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
         this.renderer.render(this.node, this.svg.nativeElement);
     }
@@ -146,16 +148,16 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     splitBins() {
-        if(!(this.node.query instanceof Histogram1DQuery)) return;
-        if(this.node.query.aggregationLevel == this.node.query.minLevel) return;
+        if (!(this.node.query instanceof Histogram1DQuery)) return;
+        if (this.node.query.aggregationLevel == this.node.query.minLevel) return;
 
         this.node.query.aggregationLevel /= 2;
         this.forceUpdate();
     }
 
     mergeBins() {
-        if(!(this.node.query instanceof Histogram1DQuery)) return;
-        if(this.node.query.aggregationLevel == this.node.query.maxLevel) return;
+        if (!(this.node.query instanceof Histogram1DQuery)) return;
+        if (this.node.query.aggregationLevel == this.node.query.maxLevel) return;
 
         this.node.query.aggregationLevel *= 2;
         this.forceUpdate();
