@@ -65,8 +65,8 @@
                     </ul>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
-                    <button class="btn btn-light">
-                        <fa-icon [icon]="['fas', 'trash']"></fa-icon>
+                    <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
+                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     </button>
                 </div>
             </ng-container>
@@ -102,7 +102,7 @@
                         <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     </button>
                     <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
-                        <fa-icon [icon]="['fas', 'trash']"></fa-icon>
+                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     </button>
                 </div>
             </ng-container>
