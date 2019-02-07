@@ -36,7 +36,7 @@ export class PointValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointValueConstant): PValue {
 
-        let result = query.visibleResult[variable.hash].value;
+        let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
             result,
             query.visibleProgress.processedPercent(),
@@ -109,7 +109,7 @@ export class PointRankEstimator implements EstimatorTrait {
 export class PointMinMaxValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointValueConstant): Truthiness {
-        let result = query.visibleResult[variable.hash].value;
+        let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
             result,
             query.visibleProgress.processedPercent(),
@@ -168,7 +168,7 @@ export class PointMinMaxRankValueEstimator implements EstimatorTrait {
 export class RangeValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeValueConstant): PValue {
-        let result = query.visibleResult[variable.hash].value;
+        let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
             result,
             query.visibleProgress.processedPercent(),
@@ -220,8 +220,8 @@ export class ComparativeEstimator implements EstimatorTrait {
         const n = query.visibleProgress.processedRows;
         const N = query.visibleProgress.totalRows;
 
-        let result1 = query.visibleResult[variable.first.hash].value;
-        let result2 = query.visibleResult[variable.second.hash].value;
+        let result1 = query.visibleData.find(d => d.keys.hash == variable.first.hash).accumulatedValue;
+        let result2 = query.visibleData.find(d => d.keys.hash == variable.second.hash).accumulatedValue;
 
         let ai1 = query.approximator.approximate(
             result1,

@@ -37,6 +37,8 @@ export class VisComponent implements OnInit, DoCheck {
 
     @Output('queryCreated') queryCreated: EventEmitter<{}> = new EventEmitter();
 
+    @Output('numBinsChanged') numBinsChanged: EventEmitter<{}> = new EventEmitter();
+
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
     @ViewChild('qc') queryCreator: QueryCreatorComponent;
     @ViewChild('tooltip') tooltip: TooltipComponent;
@@ -153,6 +155,7 @@ export class VisComponent implements OnInit, DoCheck {
 
         this.node.query.aggregationLevel /= 2;
         this.forceUpdate();
+        this.numBinsChanged.emit();
     }
 
     mergeBins() {
@@ -161,5 +164,6 @@ export class VisComponent implements OnInit, DoCheck {
 
         this.node.query.aggregationLevel *= 2;
         this.forceUpdate();
+        this.numBinsChanged.emit();
     }
 }

@@ -142,7 +142,7 @@ export class AppComponent implements OnInit {
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
-                // this.toggle(SGT.Point);
+                this.toggle(SGT.Point);
 
                 // this.useRank = true;
                 // this.useRankToggled();
@@ -290,90 +290,6 @@ export class AppComponent implements OnInit {
                 && this.activeNode.query.groupBy.fields[0].vlType != VlType.Quantitative);
         }
     }
-
-
-    queryCreated($event: any) {
-        let fields: FieldTrait[] = $event.fields;
-        let query: AggregateQuery = $event.query;
-
-        this.create(fields, query, Priority.Highest);
-    }
-
-
-    variableSelected($event: { variable: VariableTrait, secondary?: boolean }) {
-        let variable = $event.variable;
-
-        if (variable instanceof SingleVariable) {
-            if ($event.secondary)
-                this.variable2 = variable;
-            else
-                this.variable1 = variable;
-        }
-        else if (variable instanceof CombinedVariable) {
-            if ($event.secondary)
-                this.combinedVariable2 = variable;
-            else this.combinedVariable1 = variable;
-        }
-
-        if (this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
-            let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
-            let value2 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable2)
-
-            if (value1.ci3.center < value2.ci3.center)
-                this.operator = Operators.LessThanOrEqualTo;
-            else this.operator = Operators.GreaterThanOrEqualTo;
-
-            this.variablePair = VariablePair.FromVariables(this.variable1, this.variable2);
-        }
-
-        if (this.activeSafeguardPanel === SGT.Comparative && this.combinedVariable1 && this.combinedVariable2) {
-            let value1 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable1)
-            let value2 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable2)
-
-            if (value1.ci3.center < value2.ci3.center)
-                this.operator = Operators.LessThanOrEqualTo;
-            else this.operator = Operators.GreaterThanOrEqualTo;
-
-            this.combinedVariablePair = CombinedVariablePair.FromVariables(this.combinedVariable1, this.combinedVariable2);
-        }
-    }
-
-    constantSelected(constant: ConstantTrait) {
-        if (constant instanceof PointValueConstant) {
-            let value;
-            this.pointValueConstant = constant;
-
-            if (this.vis.renderer instanceof HorizontalBarsRenderer)
-                value = this.vis.renderer.getDatum(this.variable1)
-            else if (this.vis.renderer instanceof PunchcardRenderer)
-                value = this.vis.renderer.getDatum(this.combinedVariable1);
-
-            if (constant.value >= value.ci3.center)
-                this.operator = Operators.LessThanOrEqualTo;
-            else
-                this.operator = Operators.GreaterThanOrEqualTo;
-        }
-        else if (constant instanceof PointRankConstant) {
-            this.pointRankConstant = constant;
-            // if (constant.rank >= value)
-            this.operator = Operators.LessThanOrEqualTo;
-            // else
-            //     this.operator = Operators.GreaterThanOrEqualTo;
-        }
-        else if (constant instanceof RangeValueConstant)
-            this.rangeValueConstant = constant;
-        else if (constant instanceof RangeRankConstant)
-            this.rangeRankConstant = constant;
-        else if (constant instanceof PowerLawConstant)
-            this.powerLawConstant = constant;
-        else if (constant instanceof NormalConstant)
-            this.normalConstant = constant;
-        else if (constant instanceof LinearRegressionConstant)
-            this.linearRegressionConstant = constant;
-        else
-            throw new Error(`Unknown Constant Type ${constant}`);
-    }
-
     highlighted = 0;
     highlight(highlighted: number) {
         this.highlighted = highlighted;
@@ -470,9 +386,6 @@ export class AppComponent implements OnInit {
 
         if (this.activeSafeguardPanel === SGT.None && sgt != SGT.None) {
             if (isNull(this.activeNode)) return;
-            // when opened, stop updating
-
-            // this.activeNode.query.updateAutomatically = false;
         }
 
         if (this.activeSafeguardPanel === sgt) {
@@ -538,6 +451,97 @@ export class AppComponent implements OnInit {
     pause() {
         this.isPlaying = false;
         this.subs.unsubscribe();
+    }
+
+    // from vis events
+
+
+
+    queryCreated($event: any) {
+        let fields: FieldTrait[] = $event.fields;
+        let query: AggregateQuery = $event.query;
+
+        this.create(fields, query, Priority.Highest);
+    }
+
+    variableSelected($event: { variable: VariableTrait, secondary?: boolean }) {
+        let variable = $event.variable;
+
+        if (variable instanceof SingleVariable) {
+            if ($event.secondary)
+                this.variable2 = variable;
+            else
+                this.variable1 = variable;
+        }
+        else if (variable instanceof CombinedVariable) {
+            if ($event.secondary)
+                this.combinedVariable2 = variable;
+            else this.combinedVariable1 = variable;
+        }
+
+        if (this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
+            let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
+            let value2 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable2)
+
+            if (value1.ci3.center < value2.ci3.center)
+                this.operator = Operators.LessThanOrEqualTo;
+            else this.operator = Operators.GreaterThanOrEqualTo;
+
+            this.variablePair = VariablePair.FromVariables(this.variable1, this.variable2);
+        }
+
+        if (this.activeSafeguardPanel === SGT.Comparative && this.combinedVariable1 && this.combinedVariable2) {
+            let value1 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable1)
+            let value2 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable2)
+
+            if (value1.ci3.center < value2.ci3.center)
+                this.operator = Operators.LessThanOrEqualTo;
+            else this.operator = Operators.GreaterThanOrEqualTo;
+
+            this.combinedVariablePair = CombinedVariablePair.FromVariables(this.combinedVariable1, this.combinedVariable2);
+        }
+    }
+
+    constantSelected(constant: ConstantTrait) {
+        if (constant instanceof PointValueConstant) {
+            let value;
+            this.pointValueConstant = constant;
+
+            if (this.vis.renderer instanceof HorizontalBarsRenderer)
+                value = this.vis.renderer.getDatum(this.variable1)
+            else if (this.vis.renderer instanceof PunchcardRenderer)
+                value = this.vis.renderer.getDatum(this.combinedVariable1);
+
+            if (constant.value >= value.ci3.center)
+                this.operator = Operators.LessThanOrEqualTo;
+            else
+                this.operator = Operators.GreaterThanOrEqualTo;
+        }
+        else if (constant instanceof PointRankConstant) {
+            this.pointRankConstant = constant;
+            // if (constant.rank >= value)
+            this.operator = Operators.LessThanOrEqualTo;
+            // else
+            //     this.operator = Operators.GreaterThanOrEqualTo;
+        }
+        else if (constant instanceof RangeValueConstant)
+            this.rangeValueConstant = constant;
+        else if (constant instanceof RangeRankConstant)
+            this.rangeRankConstant = constant;
+        else if (constant instanceof PowerLawConstant)
+            this.powerLawConstant = constant;
+        else if (constant instanceof NormalConstant)
+            this.normalConstant = constant;
+        else if (constant instanceof LinearRegressionConstant)
+            this.linearRegressionConstant = constant;
+        else
+            throw new Error(`Unknown Constant Type ${constant}`);
+    }
+
+    numBinsChanged() {
+        let prev = this.activeSafeguardPanel;
+        this.toggle(SGT.None);
+        this.toggle(prev);
     }
 
     // node remove

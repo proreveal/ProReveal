@@ -28,6 +28,7 @@ export abstract class Query {
 
     recentResult: AccumulatedKeyValues = {};
     visibleResult: AccumulatedKeyValues = {};
+    visibleData: Datum[];
 
     lastUpdated: number = +new Date(); // epoch
     ordering = NumericalOrdering;
@@ -266,6 +267,8 @@ export class AggregateQuery extends Query {
         }
 
         data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
+
+        this.visibleData = data;
 
         return data;
     }
