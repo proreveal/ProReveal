@@ -16,6 +16,7 @@ import { Datum } from './datum';
 import { NullGroupId } from './grouper';
 import { isArray } from 'util';
 import * as d3 from 'd3';
+import { Safeguard } from '../safeguard/safeguard';
 
 export abstract class Query {
     id: number;
@@ -95,6 +96,7 @@ export class AggregateQuery extends Query {
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
     rankAvailable = true;
+    safeguards: Safeguard[] = []; // underlying safeguards
 
     /**
      *

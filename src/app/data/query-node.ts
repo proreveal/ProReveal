@@ -1,5 +1,5 @@
-import { AggregateQuery } from "../data/query";
-import { FieldTrait } from "../data/field";
+import { AggregateQuery } from "./query";
+import { FieldTrait } from "./field";
 
 
 export enum NodeState {
@@ -7,7 +7,7 @@ export enum NodeState {
     Paused = "Paused"
 };
 
-export class ExplorationNode {
+export class QueryNode {
     domainStart = Number.MAX_VALUE;
     domainEnd = -Number.MAX_VALUE;
     maxUncertainty = 0;

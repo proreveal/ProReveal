@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { ExplorationNode } from '../../exploration/exploration-node';
+import { QueryNode } from '../../data/query-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
 import { AggregateQuery, Histogram2DQuery } from '../../data/query';
@@ -30,7 +30,7 @@ export class PunchcardRenderer implements Renderer {
 
     variable1: CombinedVariable;
     variable2: CombinedVariable;
-    node: ExplorationNode;
+    node: QueryNode;
     nativeSvg: SVGSVGElement;
     swatchXScale: d3.ScaleLinear<number, number>;
     flexBrush = new FlexBrush<Datum>(FlexBrushDirection.X, FlexBrushMode.Point, {
@@ -48,7 +48,7 @@ export class PunchcardRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
-    setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+    setup(node: QueryNode, nativeSvg: SVGSVGElement) {
         if ((node.query as AggregateQuery).groupBy.fields.length !== 2) {
             throw 'Punchcards can be used for 2 categories!';
         }
@@ -67,7 +67,7 @@ export class PunchcardRenderer implements Renderer {
         //this.distributionLine.setup(this.interactionG);
     }
 
-    render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+    render(node: QueryNode, nativeSvg: SVGSVGElement) {
         let query = node.query as AggregateQuery;
         let visG = d3.select(nativeSvg).select('g.vis');
 

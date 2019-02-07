@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { ExplorationNode } from '../../exploration/exploration-node';
+import { QueryNode } from '../../data/query-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
 import { Histogram1DQuery } from '../../data/query';
@@ -27,7 +27,7 @@ export class HorizontalBarsRenderer implements Renderer {
     xScale: ScaleLinear<number, number>;
     yScale: d3.ScaleBand<string>;
     data: Datum[];
-    node: ExplorationNode;
+    node: QueryNode;
     nativeSvg: SVGSVGElement;
     variable1: SingleVariable;
     variable2: SingleVariable;
@@ -53,7 +53,7 @@ export class HorizontalBarsRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
-    setup(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+    setup(node: QueryNode, nativeSvg: SVGSVGElement) {
         if (node.query.groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
@@ -71,7 +71,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.distributionLine.setup(this.interactionG);
     }
 
-    render(node: ExplorationNode, nativeSvg: SVGSVGElement) {
+    render(node: QueryNode, nativeSvg: SVGSVGElement) {
         let svg = d3.select(nativeSvg);
         let query = node.query;
         let done = query.visibleProgress.done();

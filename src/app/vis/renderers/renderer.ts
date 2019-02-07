@@ -1,4 +1,4 @@
-import { ExplorationNode } from "../../exploration/exploration-node";
+import { QueryNode } from "../../data/query-node";
 import { SafeguardTypes } from '../../safeguard/safeguard';
 import { ConstantTrait, FittingTypes } from '../../safeguard/constant';
 import { VariableTypes } from '../../safeguard/variable';
@@ -12,8 +12,8 @@ export abstract class Renderer {
 
     }
 
-    abstract setup(node: ExplorationNode, nativeSvg: SVGSVGElement);
-    abstract render(node: ExplorationNode, nativeSvg: SVGSVGElement);
+    abstract setup(node: QueryNode, nativeSvg: SVGSVGElement);
+    abstract render(node: QueryNode, nativeSvg: SVGSVGElement);
 
     abstract highlight(highlighted: number);
     abstract setSafeguardType(st: SafeguardTypes);

@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Dataset } from './data/dataset';
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
 import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
-import { ExplorationNode, NodeState } from './exploration/exploration-node';
+import { QueryNode, NodeState } from './data/query-node';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
@@ -49,11 +48,11 @@ export class AppComponent implements OnInit {
 
     engine: Engine;
 
-    activeNode: ExplorationNode = null;
-    highlightedNode: ExplorationNode = null;
+    activeNode: QueryNode = null;
+    highlightedNode: QueryNode = null;
 
-    ongoingNodes: ExplorationNode[];
-    completedNodes: ExplorationNode[];
+    ongoingNodes: QueryNode[];
+    completedNodes: QueryNode[];
     sortablejsOptions: any;
 
     activeSafeguardPanel = SGT.None;
@@ -62,7 +61,7 @@ export class AppComponent implements OnInit {
 
     creating = false;
 
-    nodes: ExplorationNode[] = [];
+    nodes: QueryNode[] = [];
     isDistributivePossible = true;
 
     variable1: SingleVariable;
@@ -176,30 +175,30 @@ export class AppComponent implements OnInit {
     }
 
     testCN() {
-        let field1 = this.dataset.getFieldByName('Creative_Type');
-        let field2 = this.dataset.getFieldByName('Production_Budget');
+        let field1 = this.engine.dataset.getFieldByName('Creative_Type');
+        let field2 = this.engine.dataset.getFieldByName('Production_Budget');
 
-        let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
+        let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create([field1, field2], query, Priority.Highest);
 
         this.run(5);
     }
 
     testNN() {
-        let field1 = this.dataset.getFieldByName('Production_Budget');
-        let field2 = this.dataset.getFieldByName('IMDB_Rating');
+        let field1 = this.engine.dataset.getFieldByName('Production_Budget');
+        let field2 = this.engine.dataset.getFieldByName('IMDB_Rating');
 
-        let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
+        let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create([field1, field2], query, Priority.Highest);
 
         this.run(10);
     }
 
     testCC() {
-        let field1 = this.dataset.getFieldByName('Creative_Type');
-        let field2 = this.dataset.getFieldByName('Major_Genre');
+        let field1 = this.engine.dataset.getFieldByName('Creative_Type');
+        let field2 = this.engine.dataset.getFieldByName('Major_Genre');
 
-        let query = (new EmptyQuery(this.dataset)).combine(field1).combine(field2);
+        let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create([field1, field2], query, Priority.Highest)
 
         this.run(10);
@@ -212,7 +211,7 @@ export class AppComponent implements OnInit {
     }
 
     create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
-        let node = new ExplorationNode(fields, query);
+        let node = new QueryNode(fields, query);
         this.nodes.push(node);
 
         this.engine.request(query, priority);
@@ -266,7 +265,7 @@ export class AppComponent implements OnInit {
             && this.activeNode.query.rankAvailable;
     }
 
-    nodeSelected(node: ExplorationNode) {
+    nodeSelected(node: QueryNode) {
         if (this.activeNode === node)
             this.activeNode = null;
         else if (this.activeNode) {
@@ -398,6 +397,7 @@ export class AppComponent implements OnInit {
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
+        this.activeNode.query.safeguards.push(sg);
 
         this.variable1 = null;
         this.pointRankConstant = null;
@@ -415,6 +415,7 @@ export class AppComponent implements OnInit {
         else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeNode);
 
         this.safeguards.push(sg);
+        this.activeNode.query.safeguards.push(sg);
         sg.history.push(sg.validity());
 
         this.variable1 = null;
@@ -431,6 +432,7 @@ export class AppComponent implements OnInit {
             variable, this.operator, this.activeNode);
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
+        this.activeNode.query.safeguards.push(sg);
 
         this.variable1 = null;
         this.variable2 = null;
@@ -448,6 +450,7 @@ export class AppComponent implements OnInit {
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg)
+        this.activeNode.query.safeguards.push(sg);
 
         this.toggle(SGT.None);
     }
@@ -538,7 +541,7 @@ export class AppComponent implements OnInit {
     }
 
     // node remove
-    nodeRemoveClicked(node: ExplorationNode, confirm, reject) {
+    nodeRemoveClicked(node: QueryNode, confirm, reject) {
         let sg = this.safeguards.find(sg => sg.node === node);
 
         if(sg) {
@@ -560,6 +563,7 @@ export class AppComponent implements OnInit {
     sgRemoveClicked(sg: Safeguard)
     {
         util.aremove(this.safeguards, sg);
+        util.aremove(sg.node.query.safeguards, sg);
     }
 
     sgMouseEnter(sg: Safeguard) {

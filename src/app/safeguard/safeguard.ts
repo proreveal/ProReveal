@@ -1,6 +1,6 @@
 import { Operators } from "./operator";
 import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
-import { ExplorationNode } from "../exploration/exploration-node";
+import { QueryNode } from "../data/query-node";
 import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
 import {
@@ -8,7 +8,6 @@ import {
     NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator
 } from "./estimate";
 import { ValidityTypes, Validity } from "./validity";
-import { AggregateQuery } from "../data/query";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
 const PointRankEstimate = new PointRankEstimator().estimate;
@@ -41,7 +40,7 @@ export class Safeguard {
         public variable: VariableTrait,
         public operator: Operators,
         public constant: ConstantTrait,
-        public node: ExplorationNode
+        public node: QueryNode
     ) {
         this.createdAt = new Date();
         this.lastUpdatedAt = new Date();
@@ -59,7 +58,7 @@ export class PointSafeguard extends Safeguard {
     constructor(public variable: VariableTrait,
         public operator: Operators,
         public constant: ConstantTrait,
-        public node: ExplorationNode) {
+        public node: QueryNode) {
         super(SafeguardTypes.Point, variable, operator, constant, node);
     }
 
@@ -105,7 +104,7 @@ export class RangeSafeguard extends Safeguard {
 
     constructor(public variable: VariableTrait,
         public constant: ConstantTrait,
-        public node: ExplorationNode) {
+        public node: QueryNode) {
         super(SafeguardTypes.Range, variable, Operators.InRange, constant, node);
     }
 
@@ -130,7 +129,7 @@ export class ComparativeSafeguard extends Safeguard {
 
     constructor(public variable: VariablePair | CombinedVariablePair,
         public operator: Operators,
-        public node: ExplorationNode) {
+        public node: QueryNode) {
         super(SafeguardTypes.Comparative, variable, operator, null, node);
     }
 
@@ -156,7 +155,7 @@ export class DistributiveSafeguard extends Safeguard {
     };
 
     constructor(public constant: ConstantTrait,
-        public node: ExplorationNode) {
+        public node: QueryNode) {
         super(SafeguardTypes.Distributive,
             new DistributiveVariable(),
             Operators.Follow,

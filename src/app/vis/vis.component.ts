@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter } from '@angular/core';
-import { ExplorationNode } from '../exploration/exploration-node';
+import { QueryNode } from '../data/query-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
@@ -20,7 +20,7 @@ import { Datum } from '../data/datum';
     styleUrls: ['./vis.component.scss']
 })
 export class VisComponent implements OnInit, DoCheck {
-    @Input() node: ExplorationNode;
+    @Input() node: QueryNode;
 
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
@@ -44,7 +44,7 @@ export class VisComponent implements OnInit, DoCheck {
     Priority = Priority;
 
     lastUpdated: number = 0;
-    lastNode: ExplorationNode;
+    lastNode: QueryNode;
     renderer: Renderer;
     limitNumCategories = false;
     numCategories = 0;
