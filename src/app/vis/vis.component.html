@@ -54,7 +54,7 @@
 
         <button type="button" class="btn btn-light btn-sm ml-1"
             [hidden]="!node.query.aggregationLevel"
-            [disabled]="node.query.aggregationLevel == node.query.minLevel"
+            [disabled]="node.query.aggregationLevel == node.query.minLevel || node.query.safeguards.length > 0"
             (click)="splitBins()">
             <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
             Split bins
@@ -62,7 +62,7 @@
 
         <button type="button" class="btn btn-light btn-sm ml-1"
             [hidden]="!node.query.aggregationLevel"
-            [disabled]="node.query.aggregationLevel == node.query.maxLevel"
+            [disabled]="node.query.aggregationLevel == node.query.maxLevel || node.query.safeguards.length > 0"
             (click)="mergeBins()">
             <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
             Merge bins

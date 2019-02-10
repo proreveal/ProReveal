@@ -137,10 +137,10 @@ export class AppComponent implements OnInit {
 
             // this.toggleMetadataEditor();
 
-            this.testEqualWhere();
+            // this.testEqualWhere();
             // this.testCC();
 
-            // this.testN();
+            this.testN();
             // this.testCN();
 
             of(0).pipe(
@@ -589,6 +589,6 @@ export class AppComponent implements OnInit {
     }
 
     sgClick(sg: Safeguard) {
-        this.nodeSelected(sg.node);
+        if(this.activeNode != sg.node) this.nodeSelected(sg.node);
     }
 }

@@ -152,6 +152,7 @@ export class VisComponent implements OnInit, DoCheck {
     splitBins() {
         if (!(this.node.query instanceof Histogram1DQuery)) return;
         if (this.node.query.aggregationLevel == this.node.query.minLevel) return;
+        if (this.node.query.safeguards.length > 0) return;
 
         this.node.query.aggregationLevel /= 2;
         this.forceUpdate();
@@ -161,6 +162,7 @@ export class VisComponent implements OnInit, DoCheck {
     mergeBins() {
         if (!(this.node.query instanceof Histogram1DQuery)) return;
         if (this.node.query.aggregationLevel == this.node.query.maxLevel) return;
+        if (this.node.query.safeguards.length > 0) return;
 
         this.node.query.aggregationLevel *= 2;
         this.forceUpdate();
