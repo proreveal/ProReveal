@@ -31,13 +31,10 @@ export class VisComponent implements OnInit, DoCheck {
     @Output('constantSelected') constantSelected: EventEmitter<ConstantTrait>
         = new EventEmitter();
 
-    @Output('safeguardAdded') safeguardAdded: EventEmitter<{
-        'sg': Safeguard
-    }> = new EventEmitter();
-
     @Output('queryCreated') queryCreated: EventEmitter<{}> = new EventEmitter();
 
     @Output('numBinsChanged') numBinsChanged: EventEmitter<{}> = new EventEmitter();
+    @Output('sgPanelRequested') sgPanelRequested: EventEmitter<{}> = new EventEmitter();
 
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
     @ViewChild('qc') queryCreator: QueryCreatorComponent;
@@ -188,6 +185,12 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     safeguardClick() {
+        this.sgPanelRequested.emit();
+        (this.renderer as HorizontalBarsRenderer).datumSelected(this.selectedDatum);
+
+        this.isDropdownVisible = false;
+        this.isQueryCreatorVisible = false;
+        this.selectedDatum = null;
         return false;
     }
 

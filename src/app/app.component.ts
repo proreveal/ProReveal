@@ -549,6 +549,10 @@ export class AppComponent implements OnInit {
         this.toggle(prev);
     }
 
+    sgPanelRequested() {
+        this.toggle(SGT.Point);
+    }
+
     // node remove
     nodeRemoveClicked(node: QueryNode, confirm, reject) {
         let sg = this.safeguards.find(sg => sg.node === node);
