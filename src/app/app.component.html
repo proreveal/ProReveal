@@ -49,19 +49,19 @@
                 <div class="query" (click)="nodeSelected(node)"
                     [class.selected]="activeNode === node"
                     [class.highlighted]="highlightedNode === node">
-                    <ul class="field-names m-0 p-0">
-                        <li *ngFor="let field of node.fields">
+                    <div class="field-names m-0 p-0">
+                        <div *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
-                        </li>
-                        <li *ngIf="node.query.where.length > 0" class="filtered-by">
+                        </div>
+                        <div *ngIf="node.query.where.length > 0" class="filtered-by">
                             FILTERED BY
-                        </li>
-                        <li *ngFor="let pred of node.query.where.predicates">
+                        </div>
+                        <div *ngFor="let pred of node.query.where.predicates">
                             <field-badge [field]="pred.target" class="mr-1"></field-badge>
                             <predicate-indicator [predicate]="pred"></predicate-indicator>>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
                     <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
@@ -78,20 +78,20 @@
                     [class.selected]="activeNode === node"
                     [class.highlighted]="highlightedNode === node">
                     <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
-                    <ul class="field-names m-0 p-0 ml-2">
-                        <li *ngFor="let field of node.fields">
+                    <div class="field-names m-0 p-0 ml-2">
+                        <div *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
-                        </li>
-                        <li *ngIf="node.query.where.length > 0" class="filtered-by">
+                        </div>
+                        <div *ngIf="node.query.where.length > 0" class="filtered-by">
                             FILTERED BY
-                        </li>
-                        <li *ngFor="let pred of node.query.where.predicates">
+                        </div>
+                        <div *ngFor="let pred of node.query.where.predicates">
                             <field-badge [field]="pred.target" class="mr-1"></field-badge>
                             <predicate-indicator [predicate]="pred"></predicate-indicator>
-                        </li>
-                    </ul>
-                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="node.state === NodeState.Paused"></fa-icon>
+                        </div>
+                    </div>
+                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.queue.headQuery != node.query || node.state === NodeState.Paused"></fa-icon>
                     <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="node.state === NodeState.Running"></fa-icon>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
@@ -169,6 +169,7 @@
                 (removeClicked)="sgRemoveClicked($event)"
                 (mouseenter)="sgMouseEnter(sg)"
                 (mouseleave)="sgMouseLeave(sg)"
+                (click)="sgClick(sg)"
                 ></sg-list-item>
         </section>
     </section>

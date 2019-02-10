@@ -43,4 +43,9 @@ export class Queue {
     remove(query: Query){
         this.jobs = this.jobs.filter(job => job.query !== query)
     }
+
+    get headQuery() {
+        if(this.jobs.length > 0) return this.jobs[0].query;
+        return null;
+    }
 }

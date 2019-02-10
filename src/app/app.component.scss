@@ -111,26 +111,36 @@
     padding: 3px;
     background: #fefefe;
     position: relative;
-    // overflow:hidden;
+    width: 100%;
+    overflow:hidden;
+
+    progress-ring {
+        height: 56px;
+        flex-basis: 56px;
+    }
 
     .field-names {
         font-size: 0.8rem;
         list-style: none;
+        margin: 0;
+        flex-grow: 1;
+        flex-basis: auto;
     }
 
-    .field-names li {
-        overflow: hidden;
+    .field-names div {
         white-space: nowrap;
-    }
-
-    progress-ring {
-        height: 56px;
+        overflow: hidden;
+        width: calc(100% - 56px - .5rem);
     }
 
     .filtered-by {
         opacity: .5;
         font-family: 'Roboto Condensed';
     }
+}
+
+#completed-node-view .field-names div {
+    width: 100%;
 }
 
 .query:hover {

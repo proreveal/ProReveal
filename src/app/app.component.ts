@@ -587,4 +587,8 @@ export class AppComponent implements OnInit {
     sgMouseLeave(sg: Safeguard) {
         this.highlightedNode = null;
     }
+
+    sgClick(sg: Safeguard) {
+        this.nodeSelected(sg.node);
+    }
 }
