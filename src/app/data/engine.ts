@@ -5,6 +5,7 @@ import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
 import { timer } from 'rxjs';
 import { Schema } from './schema';
+import { Job } from './job';
 
 export enum Priority {
     Highest,
@@ -20,6 +21,7 @@ export class Engine {
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
+    runningJob: Job;
 
     constructor(private url: string, private schemaUrl: string) {
 
@@ -68,11 +70,13 @@ export class Engine {
         if (this.queue.empty()) return;
 
         const job = this.queue.pop();
-
+        this.runningJob = job;
         job.query.recentProgress.ongoingBlocks = 1;
 
         let latency = timer(simulatedDelay);
         latency.subscribe(() => {
+            this.runningJob = null;
+
             const partialKeyValues = job.run();
             job.query.recentProgress.ongoingBlocks = 0;
 
@@ -105,5 +109,16 @@ export class Engine {
         });
 
         this.queue.reschedule();
+    }
+
+    reschedule(scheduler: Scheduler) {
+        this.queue.scheduler = scheduler;
+        this.queue.reschedule();
+    }
+
+    get runningQuery() {
+        if(this.runningJob) return this.runningJob.query;
+        if(this.queue.jobs.length > 0) return this.queue.jobs[0].query;
+        return null;
     }
 }

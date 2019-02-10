@@ -20,6 +20,7 @@ import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
+import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 
 @Component({
     selector: 'app-root',
@@ -590,5 +591,15 @@ export class AppComponent implements OnInit {
 
     sgClick(sg: Safeguard) {
         if(this.activeNode != sg.node) this.nodeSelected(sg.node);
+    }
+
+    roundRobin = false;
+
+    roundRobinChange() {
+        let scheduler;
+        if(this.roundRobin) scheduler = new RoundRobinScheduler();
+        else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
+
+        this.engine.reschedule(scheduler);
     }
 }

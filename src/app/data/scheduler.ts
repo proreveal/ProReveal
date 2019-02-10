@@ -23,9 +23,20 @@ export class FIFOScheduler extends Scheduler {
 
 export class RoundRobinScheduler extends Scheduler {
     schedule(jobs: Job[]) {
+        let minIndex = {};
+
+        jobs.forEach(job => {
+            const qid = job.query.id;
+            if(!minIndex[qid]) minIndex[qid] = job.index;
+            if(minIndex[qid] > job.index) minIndex[qid] = job.index;
+        });
+
         jobs.sort((a, b) => {
-            if (a.index < b.index) return -1;
-            else if (a.index > b.index) return 1;
+            const aindex = a.index - minIndex[a.query.id];
+            const bindex = b.index - minIndex[b.query.id];
+
+            if (aindex < bindex) return -1;
+            else if (aindex > bindex) return 1;
 
             if (a.id < b.id) return -1;
             else if (a.id > b.id) return 1;

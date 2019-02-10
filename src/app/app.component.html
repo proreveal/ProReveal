@@ -70,7 +70,16 @@
                 </div>
             </ng-container>
         </section>
-        <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">Ongoing Queries</h6>
+        <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">
+            Ongoing Queries
+            <div class="form-check round-robin mr-2">
+                <input class="form-check-input" type="checkbox" id="roundrobin"
+                    [(ngModel)]="roundRobin" (change)="roundRobinChange()">
+                <label class="form-check-label" for="roundrobin">
+                    Round Robin
+                </label>
+            </div>
+        </h6>
         <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes"
             [sortablejsOptions]="sortablejsOptions">
             <div *ngFor="let node of ongoingNodes">
@@ -91,7 +100,7 @@
                             <predicate-indicator [predicate]="pred"></predicate-indicator>
                         </div>
                     </div>
-                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.queue.headQuery != node.query || node.state === NodeState.Paused"></fa-icon>
+                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != node.query || node.state === NodeState.Paused"></fa-icon>
                     <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="node.state === NodeState.Running"></fa-icon>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
