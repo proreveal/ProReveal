@@ -32,18 +32,3 @@ sub {
     font-size: 1em;
     bottom: 0;
 }
-
-.where {
-    opacity: .7;
-}
-
-.where::after {
-    content: 'where';
-}
-
-.and {
-    opacity: .7;
-}
-.and::after {
-    content: 'and';
-}

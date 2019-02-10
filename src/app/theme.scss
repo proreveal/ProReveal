@@ -29,3 +29,39 @@ $constant-highlight-color: #303f9f;
     background-color: #999;
     outline: #333 solid 1px;
 }
+
+.by {
+    opacity: .7;
+    font-family: 'Roboto Condensed';
+}
+
+.by::after {
+    content: 'by';
+}
+
+.where {
+    opacity: .7;
+    font-family: 'Roboto Condensed';
+}
+
+.where::after {
+    content: 'where';
+}
+
+.and {
+    opacity: .7;
+    font-family: 'Roboto Condensed';
+}
+
+.and::after {
+    content: 'and';
+}
+
+.comma {
+    opacity: .7;
+    font-family: 'Roboto Condensed';
+}
+
+.comma::after {
+    content: ',';
+}

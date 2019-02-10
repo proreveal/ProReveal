@@ -1,4 +1,6 @@
 
+@import '../theme.scss';
+
 field-badge {
     font-size: .8em;
 }
@@ -11,14 +13,9 @@ field-badge {
     font-family: 'Roboto Condensed';
 }
 
-.keyword {
-    font-family: 'Roboto Condensed';
-    opacity: .5;
-}
-
-.query-desc field-badge {
+field-badge {
     position: relative;
-    top: -.15rem;
+    top: -.1em;
 }
 
 select {

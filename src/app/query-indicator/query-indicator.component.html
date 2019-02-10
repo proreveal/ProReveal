@@ -1,28 +1,15 @@
-<ng-container *ngIf="query">
-<ng-container *ngIf="query.target === null"><span class="approx-name">Count</span>(<small>*</small>) </ng-container>
-<ng-container *ngIf="query.target !== null">
-    <form class="form-inline approx-form" *ngIf="editable">
-    <select class="form-control form-control-md"
-        (change)="thisApproximatorChanged($event.target.value)"
-        [ngModel]="query.approximator.name"
-        name="approximator"
-        >
-        <option *ngFor="let approx of approximators" [value]="approx.name">
-            {{ approx.name }}
-        </option>
-    </select>
-    </form><span *ngIf="!editable" class="approx-name">{{ query.approximator.name }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})
-
-    </ng-container>
-    <span class="keyword ">by</span>
+<ng-container *ngIf="query"><!--
+--><ng-container *ngIf="query.target === null"><span class="approx-name">Count</span>(<small>*</small>)</ng-container><!--
+--><ng-container *ngIf="query.target !== null"><span class="approx-name">{{ query.approximator.name }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})</ng-container><!--
+--><span class="ml-2 by"></span>
     <ng-container *ngFor="let field of query.groupBy.fields; index as i">
-        <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="i < query.groupBy.fields.length - 1" class="keyword">,</span>
+        <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="i < query.groupBy.fields.length - 1" class="comma"></span>
     </ng-container>
     <ng-container *ngIf="query.where.length > 0">
-        <span class="keyword ml-2 mr-1">where</span>
+        <span class="where ml-2"></span>
         <ng-container *ngFor="let pred of query.where.predicates index as i">
-            <field-badge [field]="pred.target" class="mr-1"></field-badge>
-            <predicate-indicator [predicate]="pred"></predicate-indicator><span *ngIf="i < query.where.length - 1" class="keyword ml-1 mr-1">and</span>
+            <field-badge [field]="pred.target" class="ml-2 mr-1"></field-badge>
+            <predicate-indicator [predicate]="pred"></predicate-indicator><span *ngIf="i < query.where.length - 1" class="and ml-1"></span>
         </ng-container>
     </ng-container>
 </ng-container>
