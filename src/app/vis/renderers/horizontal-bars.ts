@@ -255,7 +255,8 @@ export class HorizontalBarsRenderer implements Renderer {
                 .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
                 .on('click', (d, i) => {
                     this.datumSelected(d);
-                    this.toggleQueryCreator(d, i);
+                    this.toggleDropdown(d, i);
+                    // this.toggleQueryCreator(d, i);
                 })
                 .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -815,24 +816,60 @@ export class HorizontalBarsRenderer implements Renderer {
         }
     }
 
-    toggleQueryCreator(d: Datum, i: number) {
+    toggleDropdown(d: Datum, i: number) {
+        d3.event.stopPropagation();
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if(this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
+            this.closeDropdown();
+            this.closeQueryCreator();
+        }
 
-        if (d == this.vis.queryCreatorDatum) { // just hide
-            this.vis.isQueryCreatorVisible = false;
-            this.vis.queryCreatorDatum = null;
+        if(d == this.vis.selectedDatum) { // double click the same item
+            this.closeDropdown();
+        }
+        else {
+            this.openDropdown(d);
             return;
         }
 
-        this.vis.queryCreatorDatum = d;
+        // always hide query creator
+        this.vis.isQueryCreatorVisible = false;
+    }
+
+    openDropdown(d:Datum) {
+        this.vis.selectedDatum = d;
+
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
+        let i = this.data.indexOf(d);
+        let top = clientRect.top - parentRect.top + this.yScale(i + '')
+            + C.horizontalBars.label.height + C.padding;
+
+        this.vis.isDropdownVisible = true;
+        this.vis.dropdownTop = top;
+        this.vis.dropdownLeft = this.labelWidth;
+    }
+
+    closeDropdown() {
+        this.vis.selectedDatum = null;
+        this.vis.isQueryCreatorVisible = false;
+        this.vis.isDropdownVisible = false;
+    }
+
+    openQueryCreator(d: Datum) {
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+
+        const clientRect = this.nativeSvg.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
+        let i = this.data.indexOf(d);
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
             + C.horizontalBars.label.height + C.padding;
 
         this.vis.isQueryCreatorVisible = true;
         this.vis.queryCreatorTop = top;
+        this.vis.queryCreatorLeft = this.labelWidth;
 
         let where: AndPredicate = this.vis.node.query.where;
         let field = this.node.query.groupBy.fields[0];
@@ -847,5 +884,9 @@ export class HorizontalBarsRenderer implements Renderer {
         }
 
         this.vis.queryCreator.where = where;
+    }
+
+    closeQueryCreator() {
+        this.vis.isQueryCreatorVisible = false;
     }
 }

@@ -42,6 +42,20 @@ header small {
     display: block;
 }
 
+#dropdown {
+    display: block;
+    position: absolute;
+    top: auto;
+    left: auto;
+
+    fa-icon {
+        display: inline-block;
+        width: 20px;
+        height: 16px;
+        text-align: center;
+    }
+}
+
 @import '../theme.scss';
 
 :host /deep/ .event-box {

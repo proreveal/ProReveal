@@ -51,9 +51,14 @@ export class VisComponent implements OnInit, DoCheck {
     limitNumCategories = false;
     numCategories = 0;
 
-    isQueryCreatorVisible: boolean = false;
-    queryCreatorTop: number = 500;
-    queryCreatorDatum: Datum = null;
+    isDropdownVisible = false;
+    dropdownTop = 500;
+    dropdownLeft = 500;
+
+    isQueryCreatorVisible = false;
+    queryCreatorTop = 500;
+    queryCreatorLeft = 500;
+    selectedDatum: Datum = null;
 
     constructor() { }
 
@@ -167,5 +172,26 @@ export class VisComponent implements OnInit, DoCheck {
         this.node.query.aggregationLevel *= 2;
         this.forceUpdate();
         this.numBinsChanged.emit();
+    }
+
+    backgroundClick() {
+        this.isDropdownVisible = false;
+        this.isQueryCreatorVisible = false;
+        this.selectedDatum = null;
+    }
+
+    filterClick() {
+        this.isDropdownVisible = false;
+
+        (this.renderer as HorizontalBarsRenderer).openQueryCreator(this.selectedDatum);
+        return false;
+    }
+
+    safeguardClick() {
+        return false;
+    }
+
+    detailClick() {
+        return false;
     }
 }
