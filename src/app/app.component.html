@@ -72,8 +72,9 @@
             </ng-container>
         </section>
         <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">Ongoing Queries</h6>
-        <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes" [sortablejsOptions]="sortablejsOptions">
-            <ng-container *ngFor="let node of ongoingNodes">
+        <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes"
+            [sortablejsOptions]="sortablejsOptions">
+            <div *ngFor="let node of ongoingNodes">
                 <div class="query d-flex flex-row" (click)="nodeSelected(node)"
                     [class.selected]="activeNode === node"
                     [class.highlighted]="highlightedNode === node">
@@ -105,7 +106,7 @@
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     </button>
                 </div>
-            </ng-container>
+            </div>
         </section>
     </section>
     <section id="main" class="styled-scroll">

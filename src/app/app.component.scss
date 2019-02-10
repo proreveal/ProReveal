@@ -91,6 +91,7 @@
     grid-column: 1;
     border-right: 1px solid $ui-border-color;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 #ongoing-node-view-header {
@@ -102,6 +103,7 @@
     grid-row: 3;
     grid-column: 2;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .query {
@@ -117,9 +119,8 @@
     }
 
     .field-names li {
-        width: 400px;
         overflow: hidden;
-        word-break: keep-all;
+        white-space: nowrap;
     }
 
     progress-ring {

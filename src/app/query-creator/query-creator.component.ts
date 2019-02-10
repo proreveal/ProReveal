@@ -76,6 +76,7 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
     cancelCreation() {
         this.selectedFields = [];
         this.selectableFields = this.candidateFields;
+        this.newQuery = null;
 
         this.creationCancelled.emit();
     }

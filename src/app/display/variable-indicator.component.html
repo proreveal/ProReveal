@@ -10,11 +10,11 @@
     {{ variable.fieldString() }} ∈ [{{ variable.fieldGroupedValue.value()[0] | smartNumber }},
     {{ variable.fieldGroupedValue.value()[1] | smartNumber}}]</ng-container>
 <ng-container *ngIf="!isQuantitative(variable.fieldGroupedValue.field)">
-    {{ variable.fieldString() }} = {{ variable.valueString() }}</ng-container>
+    {{ variable.fieldString() }} = '{{ variable.valueString() }}'</ng-container>
 </ng-container>
 <!--
---><sub *ngIf="variable.isCombined"><span class="pl-1 where"></span> {{ variable.fieldString1() }} = {{ variable.valueString1() }},<!--
--->{{ variable.fieldString2() }} = {{ variable.valueString2() }}</sub><!--
+--><sub *ngIf="variable.isCombined"><span class="pl-1 where"></span> {{ variable.fieldString1() }} = '{{ variable.valueString1() }}',<!--
+-->{{ variable.fieldString2() }} = '{{ variable.valueString2() }}'</sub><!--
 --><ng-container *ngIf="variable"><!--
 --><ng-container *ngFor="let pred of query.where.predicates">
     <span class="px-1 and"></span><predicate-indicator [predicate]="pred"></predicate-indicator>
