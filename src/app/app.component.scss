@@ -172,8 +172,6 @@
     border-color: $ui-primary-color;
 }
 
-
-
 .actions {
     border-bottom: 1px solid $ui-border-color;
 }
@@ -307,3 +305,18 @@
     background: lighten($constant-highlight-color, 50%);
 }
 
+
+::ng-deep .modal-xxl {
+    .modal-lg {
+        max-width: 90% !important;
+    }
+
+    .modal-header {
+        border-bottom: none;
+    }
+
+    .modal-body {
+        overflow-x: auto;
+        padding: 0;
+    }
+}

@@ -1,11 +1,12 @@
 import * as util from '../util';
-import { Dataset } from './dataset';
+import { Dataset, Row } from './dataset';
 import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
 import { timer } from 'rxjs';
 import { Schema } from './schema';
 import { Job } from './job';
+import { AndPredicate } from './predicate';
 
 export enum Priority {
     Highest,
@@ -13,7 +14,7 @@ export enum Priority {
 }
 
 export class Engine {
-    rows: any[];
+    rows: Row[];
     dataset: Dataset;
     schema: Schema;
     ongoingQueries: Query[] = [];
@@ -120,5 +121,11 @@ export class Engine {
         if(this.runningJob) return this.runningJob.query;
         if(this.queue.jobs.length > 0) return this.queue.jobs[0].query;
         return null;
+    }
+
+    select(where: AndPredicate): Row[] {
+        return this.dataset.rows.filter((row: Row) => {
+            return where.test(row);
+        })
     }
 }

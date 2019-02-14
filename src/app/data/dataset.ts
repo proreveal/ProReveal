@@ -4,14 +4,16 @@ import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
 
+export type Row = any;
+
 export class Dataset {
-    constructor(public schema: Schema, public rows: any[], public fields?: FieldTrait[]) {
+    constructor(public schema: Schema, public rows: Row[], public fields?: FieldTrait[]) {
         if (!fields) {
             this.fields = this.guess(schema, rows);
         }
     }
 
-    guess(schema: Schema, rows: any[]): FieldTrait[] {
+    guess(schema: Schema, rows: Row[]): FieldTrait[] {
         let n = Math.min(rows.length * 0.1, 200);
         let indices = util.arange(n);
         let fields: FieldTrait[] = [];

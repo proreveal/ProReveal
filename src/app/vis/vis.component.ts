@@ -35,6 +35,7 @@ export class VisComponent implements OnInit, DoCheck {
 
     @Output('numBinsChanged') numBinsChanged: EventEmitter<{}> = new EventEmitter();
     @Output('sgPanelRequested') sgPanelRequested: EventEmitter<{}> = new EventEmitter();
+    @Output('dataViewerRequested') dataViewerRequested: EventEmitter<Datum> = new EventEmitter();
 
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
     @ViewChild('qc') queryCreator: QueryCreatorComponent;
@@ -88,6 +89,8 @@ export class VisComponent implements OnInit, DoCheck {
                 this.renderer = this.recommend(this.node.query as AggregateQuery);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
                 this.renderer.setup(this.node, this.svg.nativeElement);
+                this.isDropdownVisible = false;
+                this.isQueryCreatorVisible = false;
             }
 
             console.info('render() called for ', this.renderer);
@@ -195,6 +198,9 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     detailClick() {
+        this.dataViewerRequested.emit(this.selectedDatum);
+        this.isDropdownVisible = false;
+        this.isQueryCreatorVisible = false;
         return false;
     }
 }

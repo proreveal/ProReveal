@@ -818,10 +818,12 @@ export class HorizontalBarsRenderer implements Renderer {
 
     toggleDropdown(d: Datum, i: number) {
         d3.event.stopPropagation();
+
         if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if(this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
             this.closeDropdown();
             this.closeQueryCreator();
+            return;
         }
 
         if(d == this.vis.selectedDatum) { // double click the same item
@@ -872,17 +874,9 @@ export class HorizontalBarsRenderer implements Renderer {
         this.vis.queryCreatorLeft = this.labelWidth;
 
         let where: AndPredicate = this.vis.node.query.where;
-        let field = this.node.query.groupBy.fields[0];
+        // where + datum
 
-        if (this.node.query instanceof Histogram1DQuery) {
-            let range: [number, number] = d.keys.list[0].value() as [number, number];
-            let includeEnd = range[1] == (field as QuantitativeField).grouper.max;
-            where = where.and(new RangePredicate(field, range[0], range[1], includeEnd));
-        }
-        else {
-            where = where.and(new EqualPredicate(field, d.keys.list[0].value()));
-        }
-
+        where = where.and(this.node.query.getPredicateFromDatum(d));
         this.vis.queryCreator.where = where;
     }
 

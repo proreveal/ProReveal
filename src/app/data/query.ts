@@ -11,7 +11,7 @@ import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
 import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator, EmptyConfidenceInterval } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
-import { AndPredicate } from './predicate';
+import { AndPredicate, EqualPredicate, RangePredicate, Predicate } from './predicate';
 import { Datum } from './datum';
 import { NullGroupId } from './grouper';
 import { isArray } from 'util';
@@ -286,6 +286,10 @@ export class AggregateQuery extends Query {
         this.visibleResult = clone;
         this.visibleProgress = this.recentProgress.clone();
     }
+
+    getPredicateFromDatum(d: Datum): Predicate {
+        throw new Error('not implemented!')
+    }
 }
 
 /**
@@ -386,6 +390,14 @@ export class Histogram1DQuery extends AggregateQuery {
 
         return result;
     }
+
+    getPredicateFromDatum(d: Datum) {
+        let field = this.groupBy.fields[0];
+        let range: [number, number] = d.keys.list[0].value() as [number, number];
+        let includeEnd = range[1] == (field as QuantitativeField).grouper.max;
+
+        return new RangePredicate(field, range[0], range[1], includeEnd);
+    }
 }
 
 /**
@@ -470,6 +482,11 @@ export class Frequency1DQuery extends AggregateQuery {
             this.dataset,
             this.where,
             this.sampler);
+    }
+
+    getPredicateFromDatum(d: Datum) {
+        let field = this.groupBy.fields[0];
+        return new EqualPredicate(field, d.keys.list[0].value());
     }
 }
 

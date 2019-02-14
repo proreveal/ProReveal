@@ -1,0 +1,20 @@
+table {
+    font-size: 0.8em;
+    white-space: nowrap;
+    width: 100%;
+    text-overflow:ellipsis;
+}
+
+th {
+    overflow:hidden;
+    min-width: 40px;
+    max-width: 90px;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+td {
+    overflow:hidden;
+    min-width: 40px;
+    max-width: 90px;
+}

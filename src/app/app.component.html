@@ -135,6 +135,7 @@
             (queryCreated)="queryCreated($event)"
             (numBinsChanged)="numBinsChanged()"
             (sgPanelRequested)="sgPanelRequested()"
+            (dataViewerRequested)="dataViewerRequested($event)"
             ></vis>
         </div>
     </section>
@@ -361,7 +362,7 @@
 
 <ng-template #confirmRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Removing a node</h4>
+        <h4 class="modal-title">Removing a node</h4>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -379,7 +380,7 @@
 
 <ng-template #rejectRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Error</h4>
+        <h4 class="modal-title">Error</h4>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -388,5 +389,20 @@
         <p>
             You cannot remove a node that has a safeguard on it.
         </p>
+    </div>
+</ng-template>
+
+<ng-template #dataViewerModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Data Viewer <small>({{ filteredRows.length | number}} row{{ filteredRows.length == 1 ? '' : 's'}})</small></h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body styled-scroll">
+        <data-viewer
+            [dataset]="engine.dataset"
+            [rows]="filteredRows"
+            ></data-viewer>
     </div>
 </ng-template>

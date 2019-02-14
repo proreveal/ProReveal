@@ -44,6 +44,7 @@ import { QueryIndicatorComponent } from './query-indicator/query-indicator.compo
 import { SmartNumberPipe } from './smart-number.pipe';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
+import { DataViewerComponent } from './data-viewer/data-viewer.component';
 
 library.add(fas, far);
 
@@ -75,7 +76,8 @@ library.add(fas, far);
         QueryIndicatorComponent,
         SmartNumberPipe,
         QueryCreatorComponent,
-        PredicateIndicatorComponent
+        PredicateIndicatorComponent,
+        DataViewerComponent
     ],
     imports: [
         NgbModule.forRoot(),

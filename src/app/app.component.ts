@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
@@ -21,6 +21,7 @@ import { isNull } from 'util';
 import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
+import { Datum } from './data/datum';
 
 @Component({
     selector: 'app-root',
@@ -46,6 +47,8 @@ export class AppComponent implements OnInit {
 
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('vis') vis: VisComponent;
+
+    @ViewChild('dataViewerModal') dataViewerModal: TemplateRef<ElementRef>;
 
     engine: Engine;
 
@@ -86,6 +89,7 @@ export class AppComponent implements OnInit {
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     normalConstant: NormalConstant = new NormalConstant();
     linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
+    filteredRows: any[] = [];
 
     operator = Operators.LessThanOrEqualTo;
 
@@ -109,10 +113,10 @@ export class AppComponent implements OnInit {
 
             this.updateNodeLists();
 
-            // this.nodeSelected(this.ongoingNodes[0]);
+            this.nodeSelected(this.ongoingNodes[0]);
 
             // Just run 10 jobs.
-            // this.run(10);
+            this.run(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -141,12 +145,13 @@ export class AppComponent implements OnInit {
             // this.testEqualWhere();
             // this.testCC();
 
-            this.testN();
+            // this.testN();
             // this.testCN();
 
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {
+
                 // this.toggle(SGT.Point);
 
                 // this.useRank = true;
@@ -551,6 +556,16 @@ export class AppComponent implements OnInit {
 
     sgPanelRequested() {
         this.toggle(SGT.Point);
+    }
+
+    dataViewerRequested(d: Datum) {
+        console.log(this.activeNode.query)
+        let predicate = this.activeNode.query.getPredicateFromDatum(d);
+        let where = this.activeNode.query.where.and(predicate);
+        this.filteredRows = this.engine.select(where);
+
+        this.modalService
+        .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })
     }
 
     // node remove
