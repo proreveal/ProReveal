@@ -1,3 +1,7 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins";
+
 @import 'theme.scss';
 
 #wrapper {
@@ -119,14 +123,13 @@
         margin-left: -1rem;
     }
 }
-
 .query {
-    border-bottom: 1px solid $ui-border-color;
     padding: 3px;
     background: #fefefe;
     position: relative;
     width: 100%;
     overflow:hidden;
+    border:1px solid $border-color;
 
     progress-ring {
         height: 56px;
@@ -151,29 +154,44 @@
         opacity: .5;
         font-family: 'Roboto Condensed';
     }
+
+    &:hover {
+        cursor: pointer;
+        background: lighten($ui-background-color, 3%);
+
+        .actions {
+            display: block;
+        }
+    }
+
+    &.selected {
+        border-color: $primary;
+        background: lighten($primary, 46%);
+    }
+
+    &.highlighted {
+        border-color: $warning;
+        background: lighten($warning, 45%);
+    }
 }
 
 #completed-query-view .field-names div {
     width: 100%;
 }
 
-.query:hover {
-    cursor: pointer;
-    background: lighten($ui-background-color, 2%);
-}
-
-.query.selected {
-    background: $ui-background-color;
-    border: 1px solid $ui-border-color;
-}
-
-.query.highlighted {
-    background: lighten($ui-primary-color, 45%);
-    border-color: $ui-primary-color;
-}
-
 .actions {
-    border-bottom: 1px solid $ui-border-color;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    display: none;
+
+    button {
+        font-size: .8rem;
+        background-color: transparent;
+        border: 0;
+        cursor: pointer;
+    }
 }
 
 .state-icon {

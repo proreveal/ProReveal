@@ -285,8 +285,18 @@ export class AppComponent implements OnInit {
         }
     }
 
-    queryStateChanged() {
+    queryPauseClick(query: AggregateQuery, $event: UIEvent){
+        query.pause();
         this.engine.reschedule();
+        $event.stopPropagation();
+        return false;
+    }
+
+    queryRunClick(query: AggregateQuery, $event: UIEvent){
+        query.run();
+        this.engine.reschedule();
+        $event.stopPropagation();
+        return false;
     }
 
     highlighted = 0;

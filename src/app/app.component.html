@@ -109,17 +109,18 @@
                     </div>
                     <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
                     <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
-                </div>
-                <div class="actions" *ngIf="activeQuery === query">
-                    <button class="btn btn-light" [hidden]="activeQuery.state === QS.Paused" (click)="activeQuery.pause();queryStateChanged()">
-                        <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                    </button>
-                    <button class="btn btn-light" [hidden]="activeQuery.state === QS.Running" (click)="activeQuery.run();queryStateChanged()">
-                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                    </button>
-                    <button class="btn btn-light" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval)">
-                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                    </button>
+
+                    <div class="actions">
+                        <button class="px-2 py-1" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
+                            <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                        </button>
+                        <button class="px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
+                            <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                        </button>
+                        <button class="px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval)">
+                            <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
