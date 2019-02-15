@@ -1,4 +1,4 @@
-import { Query } from './query';
+import { Query, QueryState } from './query';
 import { Job } from './job';
 import { isUndefined } from 'util';
 
@@ -42,6 +42,9 @@ export class RoundRobinScheduler extends Scheduler {
         });
 
         const comparator = (a: Job, b: Job) => {
+            if(a.query.state === QueryState.Paused) return 1;
+            if(b.query.state === QueryState.Paused) return -1;
+
             const aindex = a.index - minIndex[a.query.id];
             const bindex = b.index - minIndex[b.query.id];
 
@@ -72,6 +75,9 @@ export class QueryOrderScheduler extends Scheduler {
         });
 
         jobs.sort((a, b) => {
+            if(a.query.state === QueryState.Paused) return 1;
+            if(b.query.state === QueryState.Paused) return -1;
+
             if(order[a.query.id] !== order[b.query.id]) {
                 return order[a.query.id] - order[b.query.id];
             }

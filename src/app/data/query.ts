@@ -46,7 +46,7 @@ export abstract class Query {
     domainEnd = -Number.MAX_VALUE;
     maxUncertainty = 0;
 
-    state:QueryState = QueryState.Running;
+    state: QueryState = QueryState.Running;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -108,8 +108,8 @@ export class AggregateQuery extends Query {
 
     get fields() {
         let fields = [];
-        if(this.target) fields.push(this.target);
-        if(this.groupBy) {
+        if (this.target) fields.push(this.target);
+        if (this.groupBy) {
             fields = fields.concat(this.groupBy.fields);
         }
         return fields;
@@ -286,7 +286,7 @@ export class EmptyQuery extends AggregateQuery {
     name = "EmptyQuery";
 
     constructor(public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
-        super(null, null, null, dataset,  null, null, sampler);
+        super(null, null, null, dataset, null, null, sampler);
     }
 
     accumulate(job: Job, partialResponses: PartialKeyValue[]) {
