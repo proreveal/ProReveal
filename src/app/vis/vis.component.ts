@@ -179,7 +179,7 @@ export class VisComponent implements OnInit, DoCheck {
     backgroundClick() {
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;
-        this.selectedDatum = null;
+        this.emptySelectedDatum();
     }
 
     filterClick() {
@@ -195,7 +195,7 @@ export class VisComponent implements OnInit, DoCheck {
 
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;
-        this.selectedDatum = null;
+        this.emptySelectedDatum();
         return false;
     }
 
@@ -203,7 +203,14 @@ export class VisComponent implements OnInit, DoCheck {
         this.dataViewerRequested.emit(this.selectedDatum);
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;
-        this.selectedDatum = null;
+        this.emptySelectedDatum();
         return false;
+    }
+
+    emptySelectedDatum() {
+        if(this.renderer instanceof HorizontalBarsRenderer) {
+            this.renderer.emptySelectedDatum();
+        }
+        this.selectedDatum = null;
     }
 }

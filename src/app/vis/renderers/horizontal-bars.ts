@@ -143,6 +143,7 @@ export class HorizontalBarsRenderer implements Renderer {
                 .style('font-size', '.8em')
                 .style('font-style', 'italic')
 
+            // y labels
             selectOrAppend(visG, 'text', '.y.field.label')
                 .text(query.groupBy.fields[0].name)
                 .attr('transform', translate(labelWidth - C.padding, C.horizontalBars.label.height))
@@ -248,12 +249,20 @@ export class HorizontalBarsRenderer implements Renderer {
                     return 1;
                 })
                 .style('cursor', 'pointer')
-                .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
-                .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
-                .on('click', (d, i) => {
+                .on('mouseenter', (d, i, ele) => {
+                    this.showTooltip(d, i);
+                    d3.select(ele[i]).classed('hover-highlighted', true);
+                })
+                .on('mouseleave', (d, i, ele) => {
+                    this.hideTooltip(d, i);
+                    d3.select(ele[i]).classed('hover-highlighted', false);
+                })
+                .on('click', (d, i, ele) => {
                     this.datumSelected(d);
                     this.toggleDropdown(d, i);
-                    // this.toggleQueryCreator(d, i);
+
+                    let d3ele = d3.select(ele[i]);
+                    d3ele.classed('menu-open-highlighted', this.vis.selectedDatum === d);
                 })
                 .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -778,6 +787,7 @@ export class HorizontalBarsRenderer implements Renderer {
 
     */
 
+
     showTooltip(d: Datum, i: number) {
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
@@ -851,7 +861,7 @@ export class HorizontalBarsRenderer implements Renderer {
     }
 
     closeDropdown() {
-        this.vis.selectedDatum = null;
+        this.vis.emptySelectedDatum();
         this.vis.isQueryCreatorVisible = false;
         this.vis.isDropdownVisible = false;
     }
@@ -879,5 +889,9 @@ export class HorizontalBarsRenderer implements Renderer {
 
     closeQueryCreator() {
         this.vis.isQueryCreatorVisible = false;
+    }
+
+    emptySelectedDatum() {
+        this.labels.classed('menu-open-highlighted', false);
     }
 }

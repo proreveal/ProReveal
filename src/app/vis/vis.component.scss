@@ -58,50 +58,63 @@ header small {
 
 @import '../theme.scss';
 
-:host /deep/ .event-box {
+::ng-deep .event-box {
     fill: transparent;
 }
 
-:host /deep/ .variable1.highlighted {
+::ng-deep .hover-highlighted {
+    fill: $variable1-highlight-color;
+    stroke: $variable1-highlight-color;
+    stroke-width: .5px;
+}
+
+::ng-deep .menu-open-highlighted {
+    fill: darken($variable1-highlight-color, 3%);
+    stroke: darken($variable1-highlight-color, 3%);
+    stroke-width: .5px;
+    font-weight: bold;
+}
+
+::ng-deep .variable1.highlighted {
     fill: lighten($variable1-highlight-color, 0%);
     opacity: 0.2;
 }
 
-:host /deep/ .variable2.highlighted {
+::ng-deep .variable2.highlighted {
     fill: lighten($variable2-highlight-color, 0%);
     opacity: 0.2;
 }
 
-:host /deep/ .variable1.text-highlighted {
+::ng-deep .variable1.text-highlighted {
     fill: darken($variable1-highlight-color, 10%);
     stroke: darken($variable1-highlight-color, 10%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-:host /deep/ .variable2.text-highlighted {
+::ng-deep .variable2.text-highlighted {
     fill: darken($variable2-highlight-color, 10%);
     stroke: darken($variable2-highlight-color, 10%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-:host /deep/ .constant.highlighted {
+::ng-deep .constant.highlighted {
     fill: lighten($constant-highlight-color, 0%);
     opacity: 0.2;
 }
 
-:host /deep/ line.constant {
+::ng-deep line.constant {
     stroke: $constant-highlight-color;
     stroke-width: 1px;
 }
 
-:host /deep/ .variable1.stroke-highlighted {
+::ng-deep .variable1.stroke-highlighted {
     stroke: lighten($variable1-highlight-color, 0%);
     stroke-width: 3px;
 }
 
-:host /deep/ .variable2.stroke-highlighted {
+::ng-deep .variable2.stroke-highlighted {
     stroke: lighten($variable2-highlight-color, 0%);
     stroke-width: 3px;
 }
