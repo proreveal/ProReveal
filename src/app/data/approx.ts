@@ -128,10 +128,14 @@ export class SumApproximator implements ApproximatorTrait {
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
-        if(n1 == 1) n1 = 2;
+        if(n1 == 0) return EmptyApproximatedInterval;
+
         let N1_hat = N * n1 / n;
 
         let X_bar = value.sum / n1;
+
+        if(n1 == 1) return new ApproximatedInterval(X_bar, 0, n1);
+
         let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
         let s = Math.sqrt(s_squared);
 
