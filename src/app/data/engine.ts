@@ -71,6 +71,7 @@ export class Engine {
         if (this.queue.empty()) return;
 
         const job = this.queue.pop();
+
         this.runningJob = job;
         job.query.recentProgress.ongoingBlocks = 1;
 
@@ -112,8 +113,8 @@ export class Engine {
         this.queue.reschedule();
     }
 
-    reschedule(scheduler: Scheduler) {
-        this.queue.scheduler = scheduler;
+    reschedule(scheduler?: Scheduler) {
+        if(scheduler) this.queue.scheduler = scheduler;
         this.queue.reschedule();
     }
 

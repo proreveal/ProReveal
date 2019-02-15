@@ -1,7 +1,6 @@
 import { AggregateQuery } from "./query";
 import { FieldTrait } from "./field";
 
-
 export enum NodeState {
     Running = "Running",
     Paused = "Paused"

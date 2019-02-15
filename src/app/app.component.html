@@ -111,10 +111,10 @@
                     <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="node.state === NodeState.Running"></fa-icon>
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
-                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Paused" (click)="activeNode.pause()">
+                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Paused" (click)="activeNode.pause();queryStateChanged()">
                         <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     </button>
-                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Running" (click)="activeNode.run()">
+                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Running" (click)="activeNode.run();queryStateChanged()">
                         <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     </button>
                     <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">

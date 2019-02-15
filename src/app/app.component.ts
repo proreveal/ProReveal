@@ -300,6 +300,11 @@ export class AppComponent implements OnInit {
                 && this.activeNode.query.groupBy.fields[0].vlType != VlType.Quantitative);
         }
     }
+
+    queryStateChanged() {
+        this.engine.reschedule();
+    }
+
     highlighted = 0;
     highlight(highlighted: number) {
         this.highlighted = highlighted;
@@ -464,8 +469,6 @@ export class AppComponent implements OnInit {
     }
 
     // from vis events
-
-
 
     queryCreated($event: any) {
         let fields: FieldTrait[] = $event.fields;
