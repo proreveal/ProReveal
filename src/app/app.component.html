@@ -90,7 +90,10 @@
                 <div class="query d-flex flex-row" (click)="nodeSelected(node)"
                     [class.selected]="activeNode === node"
                     [class.highlighted]="highlightedNode === node">
-                    <progress-ring [processed]="node.query.recentProgress.processedPercent()" [ongoing]="node.query.recentProgress.ongoingPercent()"></progress-ring>
+                    <progress-ring
+                        [processed]="node.query.recentProgress.processedPercent()"
+                        [ongoing]="node.query.recentProgress.ongoingPercent()"
+                        [style.opacity]="node.state === NodeState.Paused ? 0.2 : 1"></progress-ring>
                     <div class="field-names m-0 p-0 ml-2">
                         <div *ngFor="let field of node.fields">
                             <field-badge [field]="field"></field-badge>
@@ -109,10 +112,10 @@
                 </div>
                 <div class="actions" *ngIf="activeNode === node">
                     <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Paused" (click)="activeNode.pause()">
-                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                        <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     </button>
                     <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Running" (click)="activeNode.run()">
-                        <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     </button>
                     <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
