@@ -4,6 +4,7 @@ import { AggregateQuery, EmptyQuery, Query } from '../data/query';
 import { FieldTrait, VlType } from '../data/field';
 import * as util from '../util';
 import { AndPredicate } from '../data/predicate';
+import { MeanApproximator, SumApproximator, MinApproximator, MaxApproximator, ApproximatorTrait } from '../data/approx';
 
 @Component({
     selector: 'query-creator',
@@ -14,6 +15,13 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
     @Input('dataset') dataset: Dataset;
     @Output('created') created = new EventEmitter<{}>();
     @Output('creationCancelled') creationCancelled = new EventEmitter<{}>();
+
+    approximators = [
+        new MeanApproximator(),
+        new SumApproximator(),
+        new MinApproximator(),
+        new MaxApproximator()
+    ];
 
     candidateFields: FieldTrait[] = [];
     selectableFields: FieldTrait[] = [];
@@ -61,6 +69,11 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
             this.newQuery = newQuery as AggregateQuery;
             this.newQuery.where = this.where;
         }
+    }
+
+    approxClick(approx:ApproximatorTrait) {
+        if(this.newQuery)
+            this.newQuery.approximator = approx;
     }
 
     create() {

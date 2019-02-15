@@ -78,6 +78,8 @@ export class AggregateQuery extends Query {
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
     rankAvailable = true;
+    hasAggregateFunction = true;
+
     safeguards: Safeguard[] = []; // underlying safeguards
 
     /**
@@ -284,6 +286,7 @@ export class AggregateQuery extends Query {
 
 export class EmptyQuery extends AggregateQuery {
     name = "EmptyQuery";
+    hasAggregateFunction = false;
 
     constructor(public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
         super(null, null, null, dataset, null, null, sampler);
@@ -328,6 +331,7 @@ export class Histogram1DQuery extends AggregateQuery {
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
     rankAvailable = false;
+    hasAggregateFunction = false;
 
     aggregationLevel = 2;
     minLevel = 1;
@@ -436,6 +440,7 @@ export class Histogram2DQuery extends AggregateQuery {
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
     rankAvailable = false;
+    hasAggregateFunction = false;
 
     constructor(
         public grouping1: QuantitativeField,
@@ -473,6 +478,7 @@ export class Frequency1DQuery extends AggregateQuery {
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
     rankAvailable = true;
+    hasAggregateFunction = false;
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
@@ -521,6 +527,7 @@ export class Frequency2DQuery extends AggregateQuery {
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     rankAvailable = false;
+    hasAggregateFunction = false;
 
     constructor(
         public grouping1: FieldTrait,
