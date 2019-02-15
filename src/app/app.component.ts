@@ -616,7 +616,7 @@ export class AppComponent implements OnInit {
 
     roundRobinChange() {
         let scheduler;
-        if(this.roundRobin) scheduler = new RoundRobinScheduler();
+        if(this.roundRobin) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
         else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
 
         this.engine.reschedule(scheduler);

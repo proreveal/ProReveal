@@ -1,5 +1,6 @@
 import { Query } from './query';
 import { Job } from './job';
+import { isUndefined } from 'util';
 
 export abstract class Scheduler {
     abstract schedule(jobs: Job[]): Job[];
@@ -22,27 +23,38 @@ export class FIFOScheduler extends Scheduler {
 }
 
 export class RoundRobinScheduler extends Scheduler {
+    constructor(public queries: Query[]) {
+        super();
+    }
+
     schedule(jobs: Job[]) {
+        const order = {};
         let minIndex = {};
+
+        this.queries.forEach((q, i) => {
+            order[q.id] = i;
+        });
 
         jobs.forEach(job => {
             const qid = job.query.id;
-            if(!minIndex[qid]) minIndex[qid] = job.index;
+            if(isUndefined(minIndex[qid])) minIndex[qid] = job.index;
             if(minIndex[qid] > job.index) minIndex[qid] = job.index;
         });
 
-        jobs.sort((a, b) => {
+        const comparator = (a: Job, b: Job) => {
             const aindex = a.index - minIndex[a.query.id];
             const bindex = b.index - minIndex[b.query.id];
 
             if (aindex < bindex) return -1;
             else if (aindex > bindex) return 1;
 
-            if (a.id < b.id) return -1;
-            else if (a.id > b.id) return 1;
+            if(order[a.query.id] < order[b.query.id]) return -1;
+            else if(order[a.query.id] > order[b.query.id]) return 1;
 
             return 0;
-        });
+        };
+
+        jobs.sort(comparator);
 
         return jobs;
     }
