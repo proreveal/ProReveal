@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 <div class="actions" *ngIf="activeQuery === query">
-                    <button class="btn btn-light" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval)">
+                    <button class="btn btn-light" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     </button>
                 </div>
@@ -117,7 +117,7 @@
                         <button class="px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
                             <fa-icon [icon]="['fas', 'play']"></fa-icon>
                         </button>
-                        <button class="px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval)">
+                        <button class="px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
                             <fa-icon [icon]="['fas', 'times']"></fa-icon>
                         </button>
                     </div>

@@ -569,7 +569,7 @@ export class AppComponent implements OnInit {
     }
 
     // query remove
-    queryRemoveClicked(query: Query, confirm, reject) {
+    queryRemoveClicked(query: Query, confirm, reject, $event: UIEvent) {
         let sg = this.safeguards.find(sg => sg.query === query);
 
         if(sg) {
@@ -590,6 +590,9 @@ export class AppComponent implements OnInit {
                 }, () => {
                 });
         }
+
+        $event.stopPropagation();
+        return false;
     }
 
     // safeguard remove
