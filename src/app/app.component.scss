@@ -208,6 +208,10 @@
     overflow-y: scroll;
 }
 
+vis {
+    min-height: 100%;
+}
+
 #safeguard-view {
     grid-row: 2 / 4;
     grid-column: 3;

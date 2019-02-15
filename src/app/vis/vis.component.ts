@@ -111,7 +111,6 @@ export class VisComponent implements OnInit, DoCheck {
 
     forceUpdate() {
         this.renderer.render(this.query, this.svg.nativeElement);
-        this.isQueryCreatorVisible = false;
         this.limitNumCategories = false;
 
         if (this.renderer instanceof HorizontalBarsRenderer) {
@@ -159,6 +158,8 @@ export class VisComponent implements OnInit, DoCheck {
         if (this.query.safeguards.length > 0) return;
 
         this.query.aggregationLevel /= 2;
+        this.isQueryCreatorVisible = false;
+        this.isDropdownVisible = false;
         this.forceUpdate();
         this.numBinsChanged.emit();
     }
@@ -169,6 +170,8 @@ export class VisComponent implements OnInit, DoCheck {
         if (this.query.safeguards.length > 0) return;
 
         this.query.aggregationLevel *= 2;
+        this.isQueryCreatorVisible = false;
+        this.isDropdownVisible = false;
         this.forceUpdate();
         this.numBinsChanged.emit();
     }
@@ -200,6 +203,7 @@ export class VisComponent implements OnInit, DoCheck {
         this.dataViewerRequested.emit(this.selectedDatum);
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;
+        this.selectedDatum = null;
         return false;
     }
 }

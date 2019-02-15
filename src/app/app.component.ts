@@ -464,6 +464,10 @@ export class AppComponent implements OnInit {
 
     // from vis events
 
+    visBackgroundClick() {
+        this.vis.backgroundClick();
+    }
+
     queryCreated($event: any) {
         let query: AggregateQuery = $event.query;
 

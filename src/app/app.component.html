@@ -125,23 +125,22 @@
             </div>
         </section>
     </section>
-    <section id="main" class="styled-scroll">
+    <section id="main" class="styled-scroll" (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery">
             <p>
                 Choose a query to inspect.
             </p>
         </div>
-        <div [hidden]="!activeQuery">
-            <vis #vis
-            [query]="activeQuery"
-            (variableSelected)="variableSelected($event)"
-            (constantSelected)="constantSelected($event)"
-            (queryCreated)="queryCreated($event)"
-            (numBinsChanged)="numBinsChanged()"
-            (sgPanelRequested)="sgPanelRequested()"
-            (dataViewerRequested)="dataViewerRequested($event)"
-            ></vis>
-        </div>
+        <vis #vis
+        [hidden]="!activeQuery"
+        [query]="activeQuery"
+        (variableSelected)="variableSelected($event)"
+        (constantSelected)="constantSelected($event)"
+        (queryCreated)="queryCreated($event)"
+        (numBinsChanged)="numBinsChanged()"
+        (sgPanelRequested)="sgPanelRequested()"
+        (dataViewerRequested)="dataViewerRequested($event)"
+        ></vis>
     </section>
 
     <section id="safeguard-view">
