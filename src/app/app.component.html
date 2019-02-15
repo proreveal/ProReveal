@@ -33,8 +33,8 @@
         <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
         <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
     </section>
-    <section id="node-view" class="border-right">
-        <section id="new-node" class="border-bottom">
+    <section id="query-view" class="border-right">
+        <section id="new-query" class="border-bottom">
             <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
                 <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
                 <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
@@ -43,38 +43,38 @@
 
             <query-creator id="query-creator" [hidden]="!creating"
                 [dataset]="engine.dataset"
-                (created)="create($event.fields, $event.query, Priority.Highest)"
+                (created)="create($event.query, Priority.Highest)"
                 (creationCancelled)="creating=false"
                 ></query-creator>
         </section>
-        <h3 id="completed-node-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
-        <section id="completed-node-view" class="styled-scroll">
-            <ng-container *ngFor="let node of completedNodes">
-                <div class="query" (click)="nodeSelected(node)"
-                    [class.selected]="activeNode === node"
-                    [class.highlighted]="highlightedNode === node">
+        <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
+        <section id="completed-query-view" class="styled-scroll">
+            <ng-container *ngFor="let query of engine.completedQueries">
+                <div class="query" (click)="querySelected(query)"
+                    [class.selected]="activeQuery === query"
+                    [class.highlighted]="highlightedQuery === query">
                     <div class="field-names m-0 p-0">
-                        <div *ngFor="let field of node.fields">
+                        <div *ngFor="let field of query.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
                         </div>
-                        <div *ngIf="node.query.where.length > 0" class="filtered-by">
+                        <div *ngIf="query.where.length > 0" class="filtered-by">
                             FILTERED BY
                         </div>
-                        <div *ngFor="let pred of node.query.where.predicates">
+                        <div *ngFor="let pred of query.where.predicates">
                             <field-badge [field]="pred.target" class="mr-1"></field-badge>
                             <predicate-indicator [predicate]="pred"></predicate-indicator>>
                         </div>
                     </div>
                 </div>
-                <div class="actions" *ngIf="activeNode === node">
-                    <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
+                <div class="actions" *ngIf="activeQuery === query">
+                    <button class="btn btn-light" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval)">
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     </button>
                 </div>
             </ng-container>
         </section>
-        <h6 id="ongoing-node-view-header" class="section-header p-1 border-bottom">
+        <h6 id="ongoing-query-view-header" class="section-header p-1 border-bottom">
             Ongoing Queries
             <div class="form-check round-robin mr-2">
                 <input class="form-check-input" type="checkbox" id="roundrobin"
@@ -84,40 +84,40 @@
                 </label>
             </div>
         </h6>
-        <section id="ongoing-node-view" class="styled-scroll" [sortablejs]="ongoingNodes"
+        <section id="ongoing-query-view" class="styled-scroll" [sortablejs]="engine.ongoingQueries"
             [sortablejsOptions]="sortablejsOptions">
-            <div *ngFor="let node of ongoingNodes">
-                <div class="query d-flex flex-row" (click)="nodeSelected(node)"
-                    [class.selected]="activeNode === node"
-                    [class.highlighted]="highlightedNode === node">
+            <div *ngFor="let query of engine.ongoingQueries">
+                <div class="query d-flex flex-row" (click)="querySelected(query)"
+                    [class.selected]="activeQuery === query"
+                    [class.highlighted]="highlightedQuery === query">
                     <progress-ring
-                        [processed]="node.query.recentProgress.processedPercent()"
-                        [ongoing]="node.query.recentProgress.ongoingPercent()"
-                        [style.opacity]="node.state === NodeState.Paused ? 0.2 : 1"></progress-ring>
+                        [processed]="query.recentProgress.processedPercent()"
+                        [ongoing]="query.recentProgress.ongoingPercent()"
+                        [style.opacity]="query.state === QS.Paused ? 0.2 : 1"></progress-ring>
                     <div class="field-names m-0 p-0 ml-2">
-                        <div *ngFor="let field of node.fields">
+                        <div *ngFor="let field of query.fields">
                             <field-badge [field]="field"></field-badge>
                             {{ field.name }}
                         </div>
-                        <div *ngIf="node.query.where.length > 0" class="filtered-by">
+                        <div *ngIf="query.where.length > 0" class="filtered-by">
                             FILTERED BY
                         </div>
-                        <div *ngFor="let pred of node.query.where.predicates">
+                        <div *ngFor="let pred of query.where.predicates">
                             <field-badge [field]="pred.target" class="mr-1"></field-badge>
                             <predicate-indicator [predicate]="pred"></predicate-indicator>
                         </div>
                     </div>
-                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != node.query || node.state === NodeState.Paused"></fa-icon>
-                    <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="node.state === NodeState.Running"></fa-icon>
+                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
+                    <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
                 </div>
-                <div class="actions" *ngIf="activeNode === node">
-                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Paused" (click)="activeNode.pause();queryStateChanged()">
+                <div class="actions" *ngIf="activeQuery === query">
+                    <button class="btn btn-light" [hidden]="activeQuery.state === QS.Paused" (click)="activeQuery.pause();queryStateChanged()">
                         <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     </button>
-                    <button class="btn btn-light" [hidden]="activeNode.state === NodeState.Running" (click)="activeNode.run();queryStateChanged()">
+                    <button class="btn btn-light" [hidden]="activeQuery.state === QS.Running" (click)="activeQuery.run();queryStateChanged()">
                         <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     </button>
-                    <button class="btn btn-light" (click)="nodeRemoveClicked(node, confirmRemoval, rejectRemoval)">
+                    <button class="btn btn-light" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval)">
                         <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     </button>
                 </div>
@@ -125,14 +125,14 @@
         </section>
     </section>
     <section id="main" class="styled-scroll">
-        <div *ngIf="!activeNode">
+        <div *ngIf="!activeQuery">
             <p>
-                Choose a node to inspect.
+                Choose a query to inspect.
             </p>
         </div>
-        <div [hidden]="!activeNode">
+        <div [hidden]="!activeQuery">
             <vis #vis
-            [node]="activeNode"
+            [query]="activeQuery"
             (variableSelected)="variableSelected($event)"
             (constantSelected)="constantSelected($event)"
             (queryCreated)="queryCreated($event)"
@@ -196,7 +196,7 @@
         <!-- Point -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
-                <sg-point *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable1"
+                <sg-point *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [isRank]="useRank" [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
                     (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
@@ -218,27 +218,27 @@
                     by dragging the constant bar.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
                 && pointValueConstant && !useRank
-                && activeNode.query.approximator.estimatable">
-                <p-indicator [p]="PointValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></p-indicator>
+                && activeQuery.approximator.estimatable">
+                <p-indicator [p]="PointValueEstimate(activeQuery, variable1 || combinedVariable1, operator, pointValueConstant)"></p-indicator>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                     && (variable1 || combinedVariable1)
                     && pointValueConstant && !useRank
-                    && !activeNode.query.approximator.estimatable">
-                <truthiness-indicator [t]="PointMinMaxValueEstimate(activeNode.query, variable1 || combinedVariable1, operator, pointValueConstant)"></truthiness-indicator>
+                    && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="PointMinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, pointValueConstant)"></truthiness-indicator>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && variable1 && pointRankConstant && useRank
-                && activeNode.query.approximator.estimatable">
-                <p-indicator [p]="PointRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></p-indicator>
+                && activeQuery.approximator.estimatable">
+                <p-indicator [p]="PointRankEstimate(activeQuery, variable1, operator, pointRankConstant)"></p-indicator>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && variable1 && pointRankConstant && useRank
-                && !activeNode.query.approximator.estimatable">
-                <truthiness-indicator [t]="PointMinMaxRankEstimate(activeNode.query, variable1, operator, pointRankConstant)"></truthiness-indicator>
+                && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="PointMinMaxRankEstimate(activeQuery, variable1, operator, pointRankConstant)"></truthiness-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createPointSafeguard()">
@@ -253,7 +253,7 @@
         <!-- Range -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
-                <sg-range *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable]="variable1 || combinedVariable1"
+                <sg-range *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
@@ -270,8 +270,8 @@
                     by dragging the edge of the range brush.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && activeSafeguardPanel === SGT.Range && (variable1 || combinedVariable1) && rangeValueConstant">
-                <p-indicator [p]="RangeValueEstimate(activeNode.query, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0 && activeSafeguardPanel === SGT.Range && (variable1 || combinedVariable1) && rangeValueConstant">
+                <p-indicator [p]="RangeValueEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">
@@ -286,7 +286,7 @@
         <!-- Comparative -->
         <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
-                <sg-comparative *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [variable1]="variable1 || combinedVariable1"
+                <sg-comparative *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
                     [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div class="alert guide p-2 m-1">
@@ -302,8 +302,8 @@
                     by <strong>right-clicking</strong> on a category.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeNode && activeNode.query.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
-                <p-indicator [p]="ComparativeEstimate(activeNode.query, variablePair || combinedVariablePair, operator)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
+                <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createComparativeSafeguard()">
@@ -335,18 +335,18 @@
                 </div>
             </div>
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeNode" [highlighted]="highlighted" [query]="activeNode.query" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
-                    [groupBy]="activeNode.query.groupBy" (highlight)="highlight($event)"></sg-distributive>
+                <sg-distributive *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
+                    [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <div class="p-1" *ngIf="activeNode && activeNode.query && activeNode.query.visibleProgress.processedRows > 0 && activeSafeguardPanel == SGT.Distributive">
+            <div class="p-1" *ngIf="activeQuery && activeQuery && activeQuery.visibleProgress.processedRows > 0 && activeSafeguardPanel == SGT.Distributive">
                 <div class="guide flex-grow-1" *ngIf="!useNormal && !useLinear">
-                    <quality-indicator [q]="PowerLawEstimate(activeNode.query, powerLawConstant)"></quality-indicator>
+                    <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
                 </div>
                 <div class="guide flex-grow-1" *ngIf="useNormal && !useLinear">
-                    <quality-indicator [q]="NormalEstimate(activeNode.query, normalConstant)"></quality-indicator>
+                    <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
                 </div>
                 <div class="guide flex-grow-1" *ngIf="useLinear">
-                    <error-indicator [e]="LinearRegressionEstimate(activeNode.query, linearRegressionConstant)"></error-indicator>
+                    <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
                 </div>
             </div>
             <div class="p-1 text-right">
@@ -365,7 +365,7 @@
 
 <ng-template #confirmRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title">Removing a node</h4>
+        <h4 class="modal-title">Removing a query</h4>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -390,7 +390,7 @@
     </div>
     <div class="modal-body">
         <p>
-            You cannot remove a node that has a safeguard on it.
+            You cannot remove a query that has a safeguard on it.
         </p>
     </div>
 </ng-template>

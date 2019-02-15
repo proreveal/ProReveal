@@ -1,8 +1,6 @@
 import * as d3 from 'd3';
-import { QueryNode } from '../../data/query-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
-import { Histogram1DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
@@ -17,17 +15,17 @@ import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
-import { EqualPredicate, AndPredicate, RangePredicate } from '../../data/predicate';
-import { QuantitativeField } from '../../data/field';
+import {  AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
+import { AggregateQuery } from '../../data/query';
 
 export class HorizontalBarsRenderer implements Renderer {
     gradient = new Gradient();
     xScale: ScaleLinear<number, number>;
     yScale: d3.ScaleBand<string>;
     data: Datum[];
-    node: QueryNode;
+    query: AggregateQuery;
     nativeSvg: SVGSVGElement;
     variable1: SingleVariable;
     variable2: SingleVariable;
@@ -53,8 +51,8 @@ export class HorizontalBarsRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
-    setup(node: QueryNode, nativeSvg: SVGSVGElement) {
-        if (node.query.groupBy.fields.length > 1) {
+    setup(query: AggregateQuery, nativeSvg: SVGSVGElement) {
+        if (query.groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
 
@@ -63,7 +61,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
-        this.node = node;
+        this.query = query;
         this.nativeSvg = nativeSvg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
@@ -71,9 +69,8 @@ export class HorizontalBarsRenderer implements Renderer {
         this.distributionLine.setup(this.interactionG);
     }
 
-    render(node: QueryNode, nativeSvg: SVGSVGElement) {
+    render(query: AggregateQuery, nativeSvg: SVGSVGElement) {
         let svg = d3.select(nativeSvg);
-        let query = node.query;
         let done = query.visibleProgress.done();
         let visG = svg.select('g.vis');
         let data = query.getVisibleData();
@@ -111,10 +108,10 @@ export class HorizontalBarsRenderer implements Renderer {
         const domainStart = query.approximator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
-        if (node.domainStart > domainStart) node.domainStart = domainStart;
-        if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
+        if (query.domainStart > domainStart) query.domainStart = domainStart;
+        if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
-        const xScale = d3.scaleLinear().domain([node.domainStart, node.domainEnd])
+        const xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
             .range([labelWidth, width - C.padding])
             .clamp(true)
 
@@ -760,10 +757,10 @@ export class HorizontalBarsRenderer implements Renderer {
         else if (this.safeguardType === SGT.Distributive) {
             let constant;
             if (this.fittingType == FT.Normal) {
-                constant = NormalConstant.FitFromVisData(this.node.query.getVisibleData());
+                constant = NormalConstant.FitFromVisData(this.query.getVisibleData());
             }
             else if (this.fittingType == FT.PowerLaw) {
-                constant = PowerLawConstant.FitFromVisData(this.node.query.getVisibleData());
+                constant = PowerLawConstant.FitFromVisData(this.query.getVisibleData());
             }
 
             this.vis.constantSelected.emit(constant);
@@ -786,7 +783,7 @@ export class HorizontalBarsRenderer implements Renderer {
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
         let data = {
-            query: this.node.query,
+            query: this.query,
             datum: d
         };
 
@@ -873,10 +870,10 @@ export class HorizontalBarsRenderer implements Renderer {
         this.vis.queryCreatorTop = top;
         this.vis.queryCreatorLeft = this.labelWidth;
 
-        let where: AndPredicate = this.vis.node.query.where;
+        let where: AndPredicate = this.vis.query.where;
         // where + datum
 
-        where = where.and(this.node.query.getPredicateFromDatum(d));
+        where = where.and(this.query.getPredicateFromDatum(d));
         this.vis.queryCreator.where = where;
     }
 

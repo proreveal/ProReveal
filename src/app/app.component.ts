@@ -2,9 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/
 import { FieldTrait, VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
-import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery, QueryState } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
-import { QueryNode, NodeState } from './data/query-node';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
@@ -30,7 +29,7 @@ import { Datum } from './data/datum';
 })
 export class AppComponent implements OnInit {
     SGT = SGT;
-    NodeState = NodeState;
+    QS = QueryState;
     C = C;
     VT = VariableTypes;
     Operators = Operators;
@@ -52,11 +51,9 @@ export class AppComponent implements OnInit {
 
     engine: Engine;
 
-    activeNode: QueryNode = null;
-    highlightedNode: QueryNode = null;
+    activeQuery: AggregateQuery = null;
+    highlightedQuery: AggregateQuery = null;
 
-    ongoingNodes: QueryNode[];
-    completedNodes: QueryNode[];
     sortablejsOptions: any;
 
     activeSafeguardPanel = SGT.None;
@@ -65,7 +62,7 @@ export class AppComponent implements OnInit {
 
     creating = false;
 
-    nodes: QueryNode[] = [];
+    queries: AggregateQuery[] = [];
     isDistributivePossible = true;
 
     variable1: SingleVariable;
@@ -95,7 +92,9 @@ export class AppComponent implements OnInit {
 
     constructor(private modalService: NgbModal) {
         this.sortablejsOptions = {
-            onUpdate: this.ongoingQueriesReordered.bind(this)
+            onUpdate: () => {
+                this.engine.queue.reschedule();
+            }
         };
     }
 
@@ -107,13 +106,11 @@ export class AppComponent implements OnInit {
         this.engine.load().then(([dataset, schema]) => {
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
-                    this.create([field], (new EmptyQuery(dataset)).combine(field));
+                    this.create(new EmptyQuery(dataset).combine(field));
                 }
             });
 
-            this.updateNodeLists();
-
-            this.nodeSelected(this.ongoingNodes[0]);
+            this.querySelected(this.engine.ongoingQueries[0]);
 
             // Just run 10 jobs.
             this.run(10);
@@ -170,7 +167,7 @@ export class AppComponent implements OnInit {
         let query = (new EmptyQuery(this.engine.dataset)).combine(visField);
         query.where = where;
 
-        this.create([visField], query, Priority.Highest);
+        this.create(query, Priority.Highest);
 
         this.run(10);
     }
@@ -180,7 +177,7 @@ export class AppComponent implements OnInit {
     }
 
     testN() {
-        this.nodeSelected(this.ongoingNodes[4]);
+        this.querySelected(this.engine.ongoingQueries[4]);
         this.run(145);
     }
 
@@ -189,7 +186,7 @@ export class AppComponent implements OnInit {
         let field2 = this.engine.dataset.getFieldByName('Production_Budget');
 
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
-        this.create([field1, field2], query, Priority.Highest);
+        this.create(query, Priority.Highest);
 
         this.run(5);
     }
@@ -199,7 +196,7 @@ export class AppComponent implements OnInit {
         let field2 = this.engine.dataset.getFieldByName('IMDB_Rating');
 
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
-        this.create([field1, field2], query, Priority.Highest);
+        this.create(query, Priority.Highest);
 
         this.run(10);
     }
@@ -209,36 +206,24 @@ export class AppComponent implements OnInit {
         let field2 = this.engine.dataset.getFieldByName('Major_Genre');
 
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
-        this.create([field1, field2], query, Priority.Highest)
+        this.create(query, Priority.Highest)
 
         this.run(10);
     }
 
-    ongoingQueriesReordered() {
-        // reflect the order of this.ongoingNodes to the engine
-        let queries = this.ongoingNodes.map(node => node.query);
-        this.engine.reorderOngoingQueries(queries);
-    }
+    create(query: AggregateQuery, priority = Priority.Lowest) {
 
-    create(fields: FieldTrait[], query: AggregateQuery, priority = Priority.Lowest) {
-        let node = new QueryNode(fields, query);
-        this.nodes.push(node);
+        this.queries.push(query);
 
         this.engine.request(query, priority);
 
-        this.nodeSelected(node);
+        this.querySelected(query);
 
-        this.updateNodeLists();
         this.creating = false;
     }
 
     toggleMetadataEditor() {
         this.metadataEditor.toggle();
-    }
-
-    updateNodeLists() {
-        this.ongoingNodes = this.engine.ongoingQueries.map(q => this.nodes.find(node => node.query === q));
-        this.completedNodes = this.engine.completedQueries.map(q => this.nodes.find(node => node.query === q));
     }
 
     run(times: number, simulatedDelay = 0) {
@@ -248,14 +233,14 @@ export class AppComponent implements OnInit {
 
     queryDone(query: Query) {
         this.safeguards.forEach(sg => {
-            if (sg.lastUpdated < sg.node.query.lastUpdated) {
-                sg.lastUpdated = sg.node.query.lastUpdated;
-                sg.lastUpdatedAt = new Date(sg.node.query.lastUpdated);
+            if (sg.lastUpdated < sg.query.lastUpdated) {
+                sg.lastUpdated = sg.query.lastUpdated;
+                sg.lastUpdatedAt = new Date(sg.query.lastUpdated);
 
                 sg.history.push(sg.validity());
             }
 
-            if (sg instanceof DistributiveSafeguard && sg.node.query === query) {
+            if (sg instanceof DistributiveSafeguard && sg.query === query) {
                 sg.updateConstant();
             }
         })
@@ -266,38 +251,37 @@ export class AppComponent implements OnInit {
             else
                 (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
         }
-
-        this.updateNodeLists();
     }
 
     rankAllowed() {
-        return this.activeNode && this.activeNode.query
-            && this.activeNode.query.rankAvailable;
+        return this.activeQuery && this.activeQuery.rankAvailable;
     }
 
-    nodeSelected(node: QueryNode) {
-        if (this.activeNode === node)
-            this.activeNode = null;
-        else if (this.activeNode) {
-            this.activeNode.query.updateAutomatically = true;
-            this.activeNode = node;
+    querySelected(q: Query) {
+        let query = q as AggregateQuery;
+
+        if (this.activeQuery === query)
+            this.activeQuery = null;
+        else if (this.activeQuery) {
+            this.activeQuery.updateAutomatically = true;
+            this.activeQuery = query;
             this.toggle(SGT.None);
         }
         else {
-            this.activeNode = node;
+            this.activeQuery = query;
         }
 
         if (!this.rankAllowed()) this.useRank = false;
-        if (this.activeNode) {
+        if (this.activeQuery) {
             // normal fitting: only for 1D histogram
             // power law: always possible
 
-            this.isNormalFittingAvailable = this.activeNode.query instanceof Histogram1DQuery;
+            this.isNormalFittingAvailable = this.activeQuery instanceof Histogram1DQuery;
 
             this.useNormal = this.isNormalFittingAvailable;
 
-            this.isDistributivePossible = !(this.activeNode.query.groupBy.fields.length == 2
-                && this.activeNode.query.groupBy.fields[0].vlType != VlType.Quantitative);
+            this.isDistributivePossible = !(this.activeQuery.groupBy.fields.length == 2
+                && this.activeQuery.groupBy.fields[0].vlType != VlType.Quantitative);
         }
     }
 
@@ -323,12 +307,12 @@ export class AppComponent implements OnInit {
         if (this.variable1) this.variable1.isRank = this.useRank;
         let sg: PointSafeguard;
 
-        if (this.useRank) sg = new PointSafeguard(variable, this.operator, this.pointRankConstant, this.activeNode);
-        else sg = new PointSafeguard(variable, this.operator, this.pointValueConstant, this.activeNode);
+        if (this.useRank) sg = new PointSafeguard(variable, this.operator, this.pointRankConstant, this.activeQuery);
+        else sg = new PointSafeguard(variable, this.operator, this.pointValueConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
-        this.activeNode.query.safeguards.push(sg);
+        this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
         this.pointRankConstant = null;
@@ -342,11 +326,11 @@ export class AppComponent implements OnInit {
 
         if (this.variable1) this.variable1.isRank = this.useRank;
         let sg: RangeSafeguard;
-        if (this.useRank) sg = new RangeSafeguard(variable, this.rangeRankConstant, this.activeNode);
-        else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeNode);
+        if (this.useRank) sg = new RangeSafeguard(variable, this.rangeRankConstant, this.activeQuery);
+        else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeQuery);
 
         this.safeguards.push(sg);
-        this.activeNode.query.safeguards.push(sg);
+        this.activeQuery.safeguards.push(sg);
         sg.history.push(sg.validity());
 
         this.variable1 = null;
@@ -360,10 +344,10 @@ export class AppComponent implements OnInit {
         if (!variable) return;
 
         let sg = new ComparativeSafeguard(
-            variable, this.operator, this.activeNode);
+            variable, this.operator, this.activeQuery);
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
-        this.activeNode.query.safeguards.push(sg);
+        this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
         this.variable2 = null;
@@ -373,15 +357,15 @@ export class AppComponent implements OnInit {
     createDistributiveSafeguard() {
         let sg: DistributiveSafeguard;
         if(!this.useLinear && this.useNormal)
-            sg = new DistributiveSafeguard(this.normalConstant, this.activeNode);
+            sg = new DistributiveSafeguard(this.normalConstant, this.activeQuery);
         else if(!this.useLinear && !this.useNormal)
-            sg = new DistributiveSafeguard(this.powerLawConstant, this.activeNode);
+            sg = new DistributiveSafeguard(this.powerLawConstant, this.activeQuery);
         else if(this.useLinear)
-            sg = new DistributiveSafeguard(this.linearRegressionConstant, this.activeNode);
+            sg = new DistributiveSafeguard(this.linearRegressionConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg)
-        this.activeNode.query.safeguards.push(sg);
+        this.activeQuery.safeguards.push(sg);
 
         this.toggle(SGT.None);
     }
@@ -400,7 +384,7 @@ export class AppComponent implements OnInit {
         this.combinedVariablePair = null;
 
         if (this.activeSafeguardPanel === SGT.None && sgt != SGT.None) {
-            if (isNull(this.activeNode)) return;
+            if (isNull(this.activeQuery)) return;
         }
 
         if (this.activeSafeguardPanel === sgt) {
@@ -417,7 +401,7 @@ export class AppComponent implements OnInit {
             this.useRank = false;
             this.useLinear = false;
 
-            if (this.activeNode.query instanceof Histogram2DQuery && sgt === SafeguardTypes.Distributive) {
+            if (this.activeQuery instanceof Histogram2DQuery && sgt === SafeguardTypes.Distributive) {
                 this.useLinear = true;
             }
             else if (sgt === SafeguardTypes.Distributive) {
@@ -471,10 +455,9 @@ export class AppComponent implements OnInit {
     // from vis events
 
     queryCreated($event: any) {
-        let fields: FieldTrait[] = $event.fields;
         let query: AggregateQuery = $event.query;
 
-        this.create(fields, query, Priority.Highest);
+        this.create(query, Priority.Highest);
     }
 
     variableSelected($event: { variable: VariableTrait, secondary?: boolean }) {
@@ -562,34 +545,33 @@ export class AppComponent implements OnInit {
     }
 
     dataViewerRequested(d: Datum) {
-        console.log(this.activeNode.query)
-        let predicate = this.activeNode.query.getPredicateFromDatum(d);
-        let where = this.activeNode.query.where.and(predicate);
+        console.log(this.activeQuery)
+        let predicate = this.activeQuery.getPredicateFromDatum(d);
+        let where = this.activeQuery.where.and(predicate);
         this.filteredRows = this.engine.select(where);
 
         this.modalService
         .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })
     }
 
-    // node remove
-    nodeRemoveClicked(node: QueryNode, confirm, reject) {
-        let sg = this.safeguards.find(sg => sg.node === node);
+    // query remove
+    queryRemoveClicked(query: Query, confirm, reject) {
+        let sg = this.safeguards.find(sg => sg.query === query);
 
         if(sg) {
             this.modalService
-                .open(reject, { ariaLabelledBy: 'modal-basic-title' })
+                .open(reject)
         }
         else {
             this.modalService
-                .open(confirm, { ariaLabelledBy: 'modal-basic-title' }).result
+                .open(confirm).result
                 .then(() => {
-                    this.engine.remove(node.query);
-                    this.updateNodeLists();
-                    if(this.ongoingNodes.length > 0) {
-                        this.nodeSelected(this.ongoingNodes[0]);
+                    this.engine.remove(query);
+                    if(this.engine.ongoingQueries.length > 0) {
+                        this.querySelected(this.engine.ongoingQueries[0]);
                     }
-                    else if(this.completedNodes.length > 0) {
-                        this.nodeSelected(this.completedNodes[0]);
+                    else if(this.engine.completedQueries.length > 0) {
+                        this.querySelected(this.engine.completedQueries[0]);
                     }
                 }, () => {
                 });
@@ -600,19 +582,19 @@ export class AppComponent implements OnInit {
     sgRemoveClicked(sg: Safeguard)
     {
         util.aremove(this.safeguards, sg);
-        util.aremove(sg.node.query.safeguards, sg);
+        util.aremove(sg.query.safeguards, sg);
     }
 
     sgMouseEnter(sg: Safeguard) {
-        this.highlightedNode = sg.node;
+        this.highlightedQuery = sg.query;
     }
 
     sgMouseLeave(sg: Safeguard) {
-        this.highlightedNode = null;
+        this.highlightedQuery = null;
     }
 
     sgClick(sg: Safeguard) {
-        if(this.activeNode != sg.node) this.nodeSelected(sg.node);
+        if(this.activeQuery != sg.query) this.querySelected(sg.query);
     }
 
     roundRobin = false;

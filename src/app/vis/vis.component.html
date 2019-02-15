@@ -1,34 +1,34 @@
-<div *ngIf="node && node.query">
+<div *ngIf="query && query">
 <header>
-    <query-indicator [query]="node.query"
+    <query-indicator [query]="query"
         (approximatorChanged)="approximatorChanged($event)"
     ></query-indicator>
-    <small class="pl-1">updated {{ node.query.lastUpdatedAt | amTimeAgo }}</small>
+    <small class="pl-1">updated {{ query.lastUpdatedAt | amTimeAgo }}</small>
 </header>
 
 <hr class="mt-1 mb-2">
 
-<p [hidden]="node.query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert">
+<p [hidden]="query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert">
     This query has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
 </p>
 
-<div [hidden]="node.query.recentProgress.processedBlocks === 0" class="vis-content"
+<div [hidden]="query.recentProgress.processedBlocks === 0" class="vis-content"
     (click)="backgroundClick()">
     <div class="progress-control">
         <div class="progress mb-2">
             <div class="progress-bar" role="progressbar"
-                [style.width.%]="node.query.recentProgress.processedPercent() * 100"
-                [attr.aria-valuenow]="node.query.recentProgress.processedPercent() * 100"
+                [style.width.%]="query.recentProgress.processedPercent() * 100"
+                [attr.aria-valuenow]="query.recentProgress.processedPercent() * 100"
                 aria-valuemin="0" aria-valuemax="100">
             </div>
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                [style.width.%]="node.query.recentProgress.ongoingPercent() * 100"
-                [attr.aria-valuenow]="node.query.recentProgress.ongoingPercent() * 100"
+                [style.width.%]="query.recentProgress.ongoingPercent() * 100"
+                [attr.aria-valuenow]="query.recentProgress.ongoingPercent() * 100"
                 aria-valuemin="0" aria-valuemax="100">
             </div>
         </div>
         <div class="text-center" id="visible-progress-indicator"
-            [style.left.%]="node.query.visibleProgress.processedPercent() * 100"
+            [style.left.%]="query.visibleProgress.processedPercent() * 100"
         >
             <fa-icon [icon]="['fas', 'caret-down']"></fa-icon> <br />
             <fa-icon [icon]="['far', 'eye']"></fa-icon>
@@ -37,48 +37,48 @@
     <div class="d-flex flex-row justify-content-between mb-1">
         <div class="pt-1 flex-grow-1">
             Processed
-            <span class="font-weight-bold text-primary">{{ node.query.recentProgress.processedRows | number }}</span>
+            <span class="font-weight-bold text-primary">{{ query.recentProgress.processedRows | number }}</span>
             of
-            <span [ngPlural]="node.query.recentProgress.totalRows">
+            <span [ngPlural]="query.recentProgress.totalRows">
                 <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> row</ng-template>
-                <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ node.query.recentProgress.totalRows | number }}</span> rows</ng-template>
+                <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.totalRows | number }}</span> rows</ng-template>
             </span>
 
-            (<span class="font-weight-bold text-primary">{{ node.query.recentProgress.processedBlocks | number }}</span>
+            (<span class="font-weight-bold text-primary">{{ query.recentProgress.processedBlocks | number }}</span>
             of
-            <span [ngPlural]="node.query.recentProgress.totalBlocks">
+            <span [ngPlural]="query.recentProgress.totalBlocks">
                 <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> block</ng-template>
-                <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ node.query.recentProgress.totalBlocks | number }}</span> blocks</ng-template>
+                <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.totalBlocks | number }}</span> blocks</ng-template>
             </span>,
-            {{ node.query.recentProgress.processedPercent() | percent }})
+            {{ query.recentProgress.processedPercent() | percent }})
         </div>
 
         <button type="button" class="btn btn-light btn-sm ml-1"
-            [hidden]="!node.query.aggregationLevel"
-            [disabled]="node.query.aggregationLevel == node.query.minLevel || node.query.safeguards.length > 0"
+            [hidden]="!query.aggregationLevel"
+            [disabled]="query.aggregationLevel == query.minLevel || query.safeguards.length > 0"
             (click)="splitBins()">
             <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
             Split bins
         </button>
 
         <button type="button" class="btn btn-light btn-sm ml-1"
-            [hidden]="!node.query.aggregationLevel"
-            [disabled]="node.query.aggregationLevel == node.query.maxLevel || node.query.safeguards.length > 0"
+            [hidden]="!query.aggregationLevel"
+            [disabled]="query.aggregationLevel == query.maxLevel || query.safeguards.length > 0"
             (click)="mergeBins()">
             <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
             Merge bins
         </button>
 
         <button type="button" class="btn btn-light btn-sm ml-1"
-            (click)="node.query.updateAutomatically=!node.query.updateAutomatically">
-            <fa-icon icon="check-square" [hidden]="!node.query.updateAutomatically"></fa-icon>
-            <fa-icon [icon]="['far', 'square']" [hidden]="node.query.updateAutomatically"></fa-icon>
+            (click)="query.updateAutomatically=!query.updateAutomatically">
+            <fa-icon icon="check-square" [hidden]="!query.updateAutomatically"></fa-icon>
+            <fa-icon [icon]="['far', 'square']" [hidden]="query.updateAutomatically"></fa-icon>
             Update automatically
         </button>
 
         <button type="button" class="btn btn-light btn-sm ml-1"
-            [disabled]="node.query.updateAutomatically"
-            (click)="node.query.sync();forceUpdate()">
+            [disabled]="query.updateAutomatically"
+            (click)="query.sync();forceUpdate()">
             <fa-icon icon="sync-alt"></fa-icon>
             Sync
         </button>
@@ -120,7 +120,7 @@
         [hidden]="!isQueryCreatorVisible"
         (click)="$event.stopPropagation()">
         <query-creator #qc id="query-creator" class="border rounded"
-            [dataset]="this.node.query.dataset"
+            [dataset]="this.query.dataset"
             (created)="queryCreated.emit($event); isQueryCreatorVisible=false; queryCreatorDatum = null;"
             (creationCancelled)="isQueryCreatorVisible=false; queryCreatorDatum = null;"
         ></query-creator>

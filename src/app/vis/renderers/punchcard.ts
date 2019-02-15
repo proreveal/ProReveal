@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { QueryNode } from '../../data/query-node';
 import { Constants as C } from '../../constants';
 import * as util from '../../util';
 import { AggregateQuery, Histogram2DQuery } from '../../data/query';
@@ -30,7 +29,7 @@ export class PunchcardRenderer implements Renderer {
 
     variable1: CombinedVariable;
     variable2: CombinedVariable;
-    node: QueryNode;
+    query: AggregateQuery;
     nativeSvg: SVGSVGElement;
     swatchXScale: d3.ScaleLinear<number, number>;
     flexBrush = new FlexBrush<Datum>(FlexBrushDirection.X, FlexBrushMode.Point, {
@@ -48,8 +47,8 @@ export class PunchcardRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
-    setup(node: QueryNode, nativeSvg: SVGSVGElement) {
-        if ((node.query as AggregateQuery).groupBy.fields.length !== 2) {
+    setup(query: AggregateQuery, nativeSvg: SVGSVGElement) {
+        if (query.groupBy.fields.length !== 2) {
             throw 'Punchcards can be used for 2 categories!';
         }
 
@@ -58,7 +57,7 @@ export class PunchcardRenderer implements Renderer {
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
-        this.node = node;
+        this.query = query;
         this.nativeSvg = nativeSvg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
@@ -67,8 +66,7 @@ export class PunchcardRenderer implements Renderer {
         //this.distributionLine.setup(this.interactionG);
     }
 
-    render(node: QueryNode, nativeSvg: SVGSVGElement) {
-        let query = node.query as AggregateQuery;
+    render(query: AggregateQuery, nativeSvg: SVGSVGElement) {
         let visG = d3.select(nativeSvg).select('g.vis');
 
         let data = query.getVisibleData();
@@ -91,7 +89,7 @@ export class PunchcardRenderer implements Renderer {
         let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 0 ? xKeys : yKeys);
         let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 1 ? yKeys : xKeys);
 
-        if (this.node.query instanceof Histogram2DQuery) {
+        if (this.query instanceof Histogram2DQuery) {
             let sortFunc = (a: FieldGroupedValue, b: FieldGroupedValue) => {
                 let av = a.value(), bv = b.value();
 
@@ -258,14 +256,14 @@ export class PunchcardRenderer implements Renderer {
         const domainStart = (query as AggregateQuery).approximator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
-        if (node.domainStart > domainStart) node.domainStart = domainStart;
-        if (node.domainEnd < domainEnd) node.domainEnd = domainEnd;
+        if (query.domainStart > domainStart) query.domainStart = domainStart;
+        if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
         let maxUncertainty = d3.max(data, d => d.ci3.high - d.ci3.center);
 
-        if (node.maxUncertainty < maxUncertainty) node.maxUncertainty = maxUncertainty;
+        if (query.maxUncertainty < maxUncertainty) query.maxUncertainty = maxUncertainty;
 
-        maxUncertainty = node.maxUncertainty;
+        maxUncertainty = query.maxUncertainty;
 
         let quant = vsup.quantization().branching(2).layers(4)
             .valueDomain([domainStart, domainEnd])
@@ -564,8 +562,8 @@ export class PunchcardRenderer implements Renderer {
                 this.constantUserChanged(constant);
             }
         }
-        else if (this.safeguardType === SGT.Distributive && this.node.query instanceof Histogram2DQuery) {
-            let constant = LinearRegressionConstant.FitFromVisData(this.node.query.getVisibleData(), this.xKeyIndex, this.yKeyIndex);
+        else if (this.safeguardType === SGT.Distributive && this.query instanceof Histogram2DQuery) {
+            let constant = LinearRegressionConstant.FitFromVisData(this.query.getVisibleData(), this.xKeyIndex, this.yKeyIndex);
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }
@@ -576,7 +574,7 @@ export class PunchcardRenderer implements Renderer {
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
         let data = {
-            query: this.node.query,
+            query: this.query,
             datum: d
         };
 
@@ -603,8 +601,8 @@ export class PunchcardRenderer implements Renderer {
         swatch.style('display', 'inline');
 
         let swatchXScale = d3.scaleLinear<number>().domain([
-            this.node.domainStart,
-            this.node.domainEnd]).range([
+            this.query.domainStart,
+            this.query.domainEnd]).range([
                 this.matrixWidth,
                 this.matrixWidth + C.punchcard.legendSize
             ])

@@ -18,6 +18,11 @@ import { isArray } from 'util';
 import * as d3 from 'd3';
 import { Safeguard } from '../safeguard/safeguard';
 
+export enum QueryState {
+    Running = "Running",
+    Paused = "Paused"
+};
+
 export abstract class Query {
     id: number;
     static Id = 1;
@@ -34,8 +39,14 @@ export abstract class Query {
     ordering = NumericalOrdering;
     orderingAttributeGetter = d => d;
     orderingDirection = OrderingDirection.Descending;
-    updateAutomatically;
+    updateAutomatically: boolean;
     createdAt: Date;
+
+    domainStart = Number.MAX_VALUE;
+    domainEnd = -Number.MAX_VALUE;
+    maxUncertainty = 0;
+
+    state:QueryState = QueryState.Running;
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -47,43 +58,13 @@ export abstract class Query {
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
     abstract desc(): string;
     abstract jobs(): Job[];
-}
 
-/**
- * Represent an empty query (a query placeholder for the root node)
- */
-export class EmptyQuery extends Query {
-    name = "EmptyQuery";
-
-    constructor(public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
-        super(dataset, sampler);
+    pause() {
+        this.state = QueryState.Paused;
     }
 
-    accumulate(job: Job, partialResponses: PartialKeyValue[]) {
-        this.lastUpdated = +new Date();
-    }
-
-    combine(field: FieldTrait) {
-        if (field.vlType === VlType.Quantitative) {
-            return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]), this.sampler);
-        }
-        else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
-            return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
-        }
-
-        throw new ServerError("EmptyQuery + [Q, O, N, D]");
-    }
-
-    compatible(fields: FieldTrait[]) {
-        return fields.filter(field => field.vlType !== VlType.Key);
-    }
-
-    desc() {
-        return this.name;
-    }
-
-    jobs() {
-        return [];
+    run() {
+        this.state = QueryState.Running;
     }
 }
 
@@ -123,6 +104,15 @@ export class AggregateQuery extends Query {
 
         this.recentProgress.totalBlocks = samples.length;
         this.recentProgress.totalRows = dataset.length;
+    }
+
+    get fields() {
+        let fields = [];
+        if(this.target) fields.push(this.target);
+        if(this.groupBy) {
+            fields = fields.concat(this.groupBy.fields);
+        }
+        return fields;
     }
 
     jobs() {
@@ -291,6 +281,42 @@ export class AggregateQuery extends Query {
         throw new Error('not implemented!')
     }
 }
+
+export class EmptyQuery extends AggregateQuery {
+    name = "EmptyQuery";
+
+    constructor(public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+        super(null, null, null, dataset,  null, null, sampler);
+    }
+
+    accumulate(job: Job, partialResponses: PartialKeyValue[]) {
+        this.lastUpdated = +new Date();
+    }
+
+    combine(field: FieldTrait) {
+        if (field.vlType === VlType.Quantitative) {
+            return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]), this.sampler);
+        }
+        else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
+            return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
+        }
+
+        throw new ServerError("EmptyQuery + [Q, O, N, D]");
+    }
+
+    compatible(fields: FieldTrait[]) {
+        return fields.filter(field => field.vlType !== VlType.Key);
+    }
+
+    desc() {
+        return this.name;
+    }
+
+    jobs() {
+        return [];
+    }
+}
+
 
 /**
  * one quantitative

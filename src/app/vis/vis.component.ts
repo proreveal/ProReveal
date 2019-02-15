@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter } from '@angular/core';
-import { QueryNode } from '../data/query-node';
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
@@ -20,7 +19,7 @@ import { Datum } from '../data/datum';
     styleUrls: ['./vis.component.scss']
 })
 export class VisComponent implements OnInit, DoCheck {
-    @Input() node: QueryNode;
+    @Input() query: AggregateQuery;
 
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
@@ -44,7 +43,7 @@ export class VisComponent implements OnInit, DoCheck {
     Priority = Priority;
 
     lastUpdated: number = 0;
-    lastNode: QueryNode;
+    lastQuery: AggregateQuery;
     renderer: Renderer;
     limitNumCategories = false;
     numCategories = 0;
@@ -81,37 +80,37 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     ngDoCheck() {
-        if (this.node && this.svg &&
-            (this.lastUpdated < this.node.query.lastUpdated || this.lastNode != this.node)) {
-            this.lastUpdated = this.node.query.lastUpdated;
+        if (this.query && this.svg &&
+            (this.lastUpdated < this.query.lastUpdated || this.lastQuery != this.query)) {
+            this.lastUpdated = this.query.lastUpdated;
 
-            if (this.lastNode !== this.node) {
-                this.renderer = this.recommend(this.node.query as AggregateQuery);
+            if (this.lastQuery !== this.query) {
+                this.renderer = this.recommend(this.query);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
-                this.renderer.setup(this.node, this.svg.nativeElement);
+                this.renderer.setup(this.query, this.svg.nativeElement);
                 this.isDropdownVisible = false;
                 this.isQueryCreatorVisible = false;
             }
 
             console.info('render() called for ', this.renderer);
-            this.lastNode = this.node;
+            this.lastQuery = this.query;
 
             this.forceUpdate();
         }
 
-        if (!this.node) this.lastNode = this.node;
+        if (!this.query) this.lastQuery = this.query;
     }
 
     showAllCategories() {
         if (this.limitNumCategories) {
             this.limitNumCategories = false;
             (this.renderer as HorizontalBarsRenderer).limitNumCategories = false;
-            this.renderer.render(this.node, this.svg.nativeElement);
+            this.renderer.render(this.query, this.svg.nativeElement);
         }
     }
 
     forceUpdate() {
-        this.renderer.render(this.node, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement);
         this.isQueryCreatorVisible = false;
         this.limitNumCategories = false;
 
@@ -131,17 +130,17 @@ export class VisComponent implements OnInit, DoCheck {
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
-        this.renderer.render(this.node, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement);
     }
 
     setVariableType(type: VariableTypes) {
         this.renderer.setVariableType(type);
-        this.renderer.render(this.node, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement);
     }
 
     setFittingType(type: FittingTypes) {
         this.renderer.setFittingType(type);
-        this.renderer.render(this.node, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement);
     }
 
     constantUserChanged(constant: ConstantTrait) {
@@ -149,27 +148,27 @@ export class VisComponent implements OnInit, DoCheck {
     }
 
     approximatorChanged() {
-        this.node.domainStart = Number.MAX_VALUE;
-        this.node.domainEnd = -Number.MAX_VALUE;
+        this.query.domainStart = Number.MAX_VALUE;
+        this.query.domainEnd = -Number.MAX_VALUE;
         this.forceUpdate();
     }
 
     splitBins() {
-        if (!(this.node.query instanceof Histogram1DQuery)) return;
-        if (this.node.query.aggregationLevel == this.node.query.minLevel) return;
-        if (this.node.query.safeguards.length > 0) return;
+        if (!(this.query instanceof Histogram1DQuery)) return;
+        if (this.query.aggregationLevel == this.query.minLevel) return;
+        if (this.query.safeguards.length > 0) return;
 
-        this.node.query.aggregationLevel /= 2;
+        this.query.aggregationLevel /= 2;
         this.forceUpdate();
         this.numBinsChanged.emit();
     }
 
     mergeBins() {
-        if (!(this.node.query instanceof Histogram1DQuery)) return;
-        if (this.node.query.aggregationLevel == this.node.query.maxLevel) return;
-        if (this.node.query.safeguards.length > 0) return;
+        if (!(this.query instanceof Histogram1DQuery)) return;
+        if (this.query.aggregationLevel == this.query.maxLevel) return;
+        if (this.query.safeguards.length > 0) return;
 
-        this.node.query.aggregationLevel *= 2;
+        this.query.aggregationLevel *= 2;
         this.forceUpdate();
         this.numBinsChanged.emit();
     }

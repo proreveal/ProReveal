@@ -1,6 +1,5 @@
 import { Operators } from "./operator";
 import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
-import { QueryNode } from "../data/query-node";
 import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
 import {
@@ -8,6 +7,7 @@ import {
     NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator
 } from "./estimate";
 import { ValidityTypes, Validity } from "./validity";
+import { AggregateQuery } from "../data/query";
 
 const PointValueEstimate = new PointValueEstimator().estimate;
 const PointRankEstimate = new PointRankEstimator().estimate;
@@ -40,7 +40,7 @@ export class Safeguard {
         public variable: VariableTrait,
         public operator: Operators,
         public constant: ConstantTrait,
-        public node: QueryNode
+        public query: AggregateQuery
     ) {
         this.createdAt = new Date();
         this.lastUpdatedAt = new Date();
@@ -58,21 +58,21 @@ export class PointSafeguard extends Safeguard {
     constructor(public variable: VariableTrait,
         public operator: Operators,
         public constant: ConstantTrait,
-        public node: QueryNode) {
-        super(SafeguardTypes.Point, variable, operator, constant, node);
+        public query: AggregateQuery) {
+        super(SafeguardTypes.Point, variable, operator, constant, query);
     }
 
     p() {
         if (this.variable.isRank)
             return PointRankEstimate(
-                this.node.query,
+                this.query,
                 this.variable,
                 this.operator,
                 this.constant as PointRankConstant);
 
 
         return PointValueEstimate(
-            this.node.query,
+            this.query,
             this.variable,
             this.operator,
             this.constant as PointValueConstant);
@@ -81,20 +81,20 @@ export class PointSafeguard extends Safeguard {
     t() {  // min or max
         if (this.variable.isRank)
             return PointMinMaxRankEstimate(
-                this.node.query,
+                this.query,
                 this.variable,
                 this.operator,
                 this.constant as PointRankConstant);
 
         return PointMinMaxValueEstimate(
-            this.node.query,
+            this.query,
             this.variable,
             this.operator,
             this.constant as PointValueConstant);
     }
 
     validity() {
-        if (this.node.query.approximator.estimatable) return this.p();
+        if (this.query.approximator.estimatable) return this.p();
         return this.t();
     }
 }
@@ -104,8 +104,8 @@ export class RangeSafeguard extends Safeguard {
 
     constructor(public variable: VariableTrait,
         public constant: ConstantTrait,
-        public node: QueryNode) {
-        super(SafeguardTypes.Range, variable, Operators.InRange, constant, node);
+        public query: AggregateQuery) {
+        super(SafeguardTypes.Range, variable, Operators.InRange, constant, query);
     }
 
     p() {
@@ -113,7 +113,7 @@ export class RangeSafeguard extends Safeguard {
             throw new Error('Cannot estimate the p value for rank');
 
         return RangeValueEstimate(
-            this.node.query,
+            this.query,
             this.variable,
             this.operator,
             this.constant as RangeValueConstant);
@@ -129,8 +129,8 @@ export class ComparativeSafeguard extends Safeguard {
 
     constructor(public variable: VariablePair | CombinedVariablePair,
         public operator: Operators,
-        public node: QueryNode) {
-        super(SafeguardTypes.Comparative, variable, operator, null, node);
+        public query: AggregateQuery) {
+        super(SafeguardTypes.Comparative, variable, operator, null, query);
     }
 
     p() {
@@ -138,7 +138,7 @@ export class ComparativeSafeguard extends Safeguard {
             throw new Error('Cannot estimate the p value for rank');
 
         return ComparativeEstimate(
-            this.node.query,
+            this.query,
             this.variable,
             this.operator);
     }
@@ -155,29 +155,29 @@ export class DistributiveSafeguard extends Safeguard {
     };
 
     constructor(public constant: ConstantTrait,
-        public node: QueryNode) {
+        public query: AggregateQuery) {
         super(SafeguardTypes.Distributive,
             new DistributiveVariable(),
             Operators.Follow,
-            constant, node);
+            constant, query);
     }
 
     q() {
         if (this.constant instanceof NormalConstant) {
             return NormalEstimate(
-                this.node.query,
+                this.query,
                 this.constant as NormalConstant);
         }
 
         return PowerLawEstimate(
-            this.node.query,
+            this.query,
             this.constant as PowerLawConstant
         );
     }
 
     e() {
         return LinearRegressionEstimate(
-            this.node.query,
+            this.query,
             this.constant as LinearRegressionConstant
         )
     }
@@ -189,13 +189,13 @@ export class DistributiveSafeguard extends Safeguard {
 
     updateConstant() {
         if (this.constant instanceof NormalConstant) {
-            this.constant = NormalConstant.FitFromVisData(this.node.query.getRecentData());
+            this.constant = NormalConstant.FitFromVisData(this.query.getRecentData());
         }
         else if (this.constant instanceof PowerLawConstant) {
-            this.constant = PowerLawConstant.FitFromVisData(this.node.query.getRecentData());
+            this.constant = PowerLawConstant.FitFromVisData(this.query.getRecentData());
         }
         else if (this.constant instanceof LinearRegressionConstant) {
-            this.constant = LinearRegressionConstant.FitFromVisData(this.node.query.getRecentData());
+            this.constant = LinearRegressionConstant.FitFromVisData(this.query.getRecentData());
         }
         else {
             throw new Error(`Unknown constant type: ${this.constant}`);

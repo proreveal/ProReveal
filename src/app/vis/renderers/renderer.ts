@@ -1,10 +1,10 @@
-import { QueryNode } from "../../data/query-node";
 import { SafeguardTypes } from '../../safeguard/safeguard';
 import { ConstantTrait, FittingTypes } from '../../safeguard/constant';
 import { VariableTypes } from '../../safeguard/variable';
+import { AggregateQuery } from '../../data/query';
 
 /**
- * A renderer does not have states. States must be saved in a node.
+ * A renderer does not have states. States must be saved in a query.
  */
 export abstract class Renderer {
     constructor()
@@ -12,8 +12,8 @@ export abstract class Renderer {
 
     }
 
-    abstract setup(node: QueryNode, nativeSvg: SVGSVGElement);
-    abstract render(node: QueryNode, nativeSvg: SVGSVGElement);
+    abstract setup(query: AggregateQuery, nativeSvg: SVGSVGElement);
+    abstract render(query: AggregateQuery, nativeSvg: SVGSVGElement);
 
     abstract highlight(highlighted: number);
     abstract setSafeguardType(st: SafeguardTypes);
