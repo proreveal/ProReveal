@@ -32,7 +32,9 @@
     },
     {
         "name": "Running_Time_min",
-        "type": "dozen"
+        "type": "quantitative",
+        "min": 60,
+        "numBins": 20
     },
     {
         "name": "Distributor",
