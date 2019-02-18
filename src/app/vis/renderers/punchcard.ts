@@ -17,6 +17,7 @@ import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
+import { AngularBrush, AngularBrushMode } from './angular-brush';
 
 export class PunchcardRenderer {
     gradient = new Gradient();
@@ -44,6 +45,7 @@ export class PunchcardRenderer {
     visG;
     interactionG;
     brushG;
+    ngb = new AngularBrush();
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
@@ -66,7 +68,10 @@ export class PunchcardRenderer {
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
         this.brushG = selectOrAppend(svg, 'g', 'brush-layer');
         this.flexBrush.setup(this.brushG);
-        //this.distributionLine.setup(this.interactionG);
+
+        let fsvgw = d3.select(floatingSvg);
+        let fbrush = fsvgw.select('.angular-brush');
+        this.ngb.setup(fbrush);
     }
 
     render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -331,11 +336,18 @@ export class PunchcardRenderer {
         let legend = vsup.legend.arcmapLegend()
             .scale(zScale).size(size);
         let fsvgw = d3.select(floatingSvg);
-        let fsvg = fsvgw.select('svg');
+        let fsvg = fsvgw.select('.legend');
+        let fbrush = fsvgw.select('.angular-brush');
+
         let parentWidth = nativeSvg.parentElement.parentElement.offsetWidth;
+
+        this.ngb.setMode(AngularBrushMode.Point);
+        this.ngb.render([[padding, padding], [size + padding, size + padding]]);
+        this.ngb.move(100);
 
         if(matrixWidth + size + padding * 2 > parentWidth) {
             fsvg.attr('width', size + 2 * padding).attr('height', size + 2 * padding);
+            fbrush.attr('width', size + 2 * padding).attr('height', size + 2 * padding);
             selectOrAppend(fsvg, 'g', '.z.legend').selectAll('*').remove();
             selectOrAppend(fsvg, 'g', '.z.legend')
                 .attr('transform', translate(padding, padding))
@@ -448,18 +460,14 @@ export class PunchcardRenderer {
         this.updateHighlight();
 
         if (st == SGT.None) {
-            this.eventRects.style('display', 'none');
         }
         else if (st == SGT.Point) {
-            this.eventRects.style('display', 'inline');
             this.flexBrush.setMode(FlexBrushMode.Point);
         }
         else if (st === SGT.Range) {
-            this.eventRects.style('display', 'inline');
             this.flexBrush.setMode(FlexBrushMode.SymmetricRange);
         }
         else if (st === SGT.Comparative) {
-            this.eventRects.style('display', 'inline');
         }
     }
 

@@ -219,6 +219,15 @@ vis {
     float: left;
     background: white;
     bottom: 20px;
+
+    .legend {
+        pointer-events: none;
+    }
+
+    .angular-brush {
+        position: absolute;
+        left: 0;
+    }
 }
 
 #safeguard-view {
