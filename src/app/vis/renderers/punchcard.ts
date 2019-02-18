@@ -295,14 +295,14 @@ export class PunchcardRenderer {
 
         rects.exit().remove();
 
-        const eventRects = visG
+        let eventRects = visG
             .selectAll('rect.event.variable1')
             .data(data, (d: any) => d.id);
 
         enter = eventRects
             .enter().append('rect').attr('class', 'event variable1')
 
-        eventRects.merge(enter)
+        eventRects = eventRects.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', xScale.bandwidth())
             .attr('transform', (d) => {
@@ -703,9 +703,6 @@ export class PunchcardRenderer {
             this.openDropdown(d);
             return;
         }
-
-        // always hide query creator
-        this.vis.isQueryCreatorVisible = false;
     }
 
     openDropdown(d:Datum) {
@@ -730,6 +727,6 @@ export class PunchcardRenderer {
     }
 
     emptySelectedDatum() {
-//        this.labels.classed('menu-open-highlighted', false);
+        this.eventRects.classed('menu-open-highlighted', false);
     }
 }
