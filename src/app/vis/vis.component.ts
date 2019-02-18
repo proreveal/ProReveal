@@ -239,7 +239,7 @@ export class VisComponent implements DoCheck {
 
     safeguardClick(sgt: SafeguardTypes) {
         this.sgPanelRequested.emit(sgt);
-        (this.renderer as HorizontalBarsRenderer).datumSelected(this.selectedDatum);
+        this.renderer.datumSelected(this.selectedDatum);
 
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;
@@ -267,9 +267,7 @@ export class VisComponent implements DoCheck {
     }
 
     emptySelectedDatum() {
-        if (this.renderer instanceof HorizontalBarsRenderer) {
-            this.renderer.emptySelectedDatum();
-        }
+        this.renderer.emptySelectedDatum();
         this.selectedDatum = null;
     }
 }
