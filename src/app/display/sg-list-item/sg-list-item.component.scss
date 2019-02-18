@@ -6,8 +6,23 @@
     cursor: pointer;
 }
 
+.remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    background-color: transparent;
+    border: 0;
+    font-size: .8rem;
+    cursor: pointer;
+}
+
 .wrapper:hover {
-    background: lighten($ui-background-color, 5%);
+    background: lighten($ui-background-color, 3%);
+
+    .remove {
+        display: block;
+    }
 }
 
 .display {
@@ -18,8 +33,4 @@
     font-weight: normal;
 }
 
-.close {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
+

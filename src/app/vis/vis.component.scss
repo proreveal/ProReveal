@@ -62,59 +62,59 @@ header small {
     fill: transparent;
 }
 
-::ng-deep .hover-highlighted {
+::ng-deep vis .hover-highlighted {
     fill: $variable1-highlight-color;
     stroke: $variable1-highlight-color;
     stroke-width: .5px;
 }
 
-::ng-deep .menu-open-highlighted {
+::ng-deep vis .menu-open-highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep .variable1.highlighted {
+::ng-deep vis .variable1.highlighted {
     fill: lighten($variable1-highlight-color, 0%);
     opacity: 0.2;
 }
 
-::ng-deep .variable2.highlighted {
+::ng-deep vis .variable2.highlighted {
     fill: lighten($variable2-highlight-color, 0%);
     opacity: 0.2;
 }
 
-::ng-deep .variable1.text-highlighted {
+::ng-deep vis .variable1.sg-highlighted {
     fill: darken($variable1-highlight-color, 10%);
     stroke: darken($variable1-highlight-color, 10%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep .variable2.text-highlighted {
+::ng-deep vis .variable2.sg-highlighted {
     fill: darken($variable2-highlight-color, 10%);
     stroke: darken($variable2-highlight-color, 10%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep .constant.highlighted {
+::ng-deep vis .constant.highlighted {
     fill: lighten($constant-highlight-color, 0%);
     opacity: 0.2;
 }
 
-::ng-deep line.constant {
+::ng-deep vis line.constant {
     stroke: $constant-highlight-color;
     stroke-width: 1px;
 }
 
-::ng-deep .variable1.stroke-highlighted {
+::ng-deep vis .variable1.stroke-highlighted {
     stroke: lighten($variable1-highlight-color, 0%);
     stroke-width: 3px;
 }
 
-::ng-deep .variable2.stroke-highlighted {
+::ng-deep vis .variable2.stroke-highlighted {
     stroke: lighten($variable2-highlight-color, 0%);
     stroke-width: 3px;
 }

@@ -637,12 +637,12 @@ export class HorizontalBarsRenderer implements Renderer {
             .classed('highlighted', true)
 
         this.labels
-            .classed('text-highlighted', false)
+            .classed('sg-highlighted', false)
             .filter((d) =>
                 this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
             )
-            .classed('text-highlighted', true)
+            .classed('sg-highlighted', true)
 
         this.eventBoxes
             .classed('variable2', false)

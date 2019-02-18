@@ -14,11 +14,11 @@
     <quality-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name != 'linear_regression'" [q]="sg.q()"></quality-indicator>
     <error-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name == 'linear_regression'" [e]="sg.e()"></error-indicator>
 
-    <fa-icon [icon]="['far', 'clock']"></fa-icon>
+    <!--<fa-icon [icon]="['far', 'clock']"></fa-icon>
     <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>
-    <p class="m-0">Created {{ sg.createdAt | amTimeAgo }}</p>
+    <p class="m-0">Created {{ sg.createdAt | amTimeAgo }}</p> -->
 
-    <button type="button" class="close px-2 py-1" aria-label="Close" (click)="removeClicked.emit(sg)">
-        <span aria-hidden="true">&times;</span>
+    <button type="button" class="remove px-2 py-1" aria-label="Close" (click)="removeClicked.emit(sg)">
+        <fa-icon [icon]="['fas', 'times']"></fa-icon>
     </button>
 </div>
