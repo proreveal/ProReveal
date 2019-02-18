@@ -134,6 +134,7 @@
         <vis #vis
         [hidden]="!activeQuery"
         [query]="activeQuery"
+        [floatingSvg]="floatingSvg"
         (variableSelected)="variableSelected($event)"
         (constantSelected)="constantSelected($event)"
         (queryCreated)="queryCreated($event)"
@@ -141,6 +142,10 @@
         (sgPanelRequested)="sgPanelRequested($event)"
         (dataViewerRequested)="dataViewerRequested($event)"
         ></vis>
+
+        <div id="floating-svg-wrapper" class="shadow border" #floatingSvg>
+            <svg class="mr-2 mt-2"></svg>
+        </div>
     </section>
 
     <section id="safeguard-view">
