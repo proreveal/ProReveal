@@ -60,6 +60,7 @@ export class HorizontalBarsRenderer {
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
+        this.visG.classed('horizontal-bars', true);
         this.query = query;
         this.nativeSvg = nativeSvg;
 

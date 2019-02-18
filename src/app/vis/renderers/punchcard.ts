@@ -26,6 +26,7 @@ export class PunchcardRenderer {
     xKeyIndex: number;
     yKeyIndex: number;
     matrixWidth: number;
+    header: number;
 
     variable1: CombinedVariable;
     variable2: CombinedVariable;
@@ -56,6 +57,8 @@ export class PunchcardRenderer {
 
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
+
+        this.visG.classed('punchcard', true);
 
         this.query = query;
         this.nativeSvg = nativeSvg;
@@ -159,6 +162,7 @@ export class PunchcardRenderer {
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
             .range([header, height - header]);
 
+        this.header = header;
         this.xScale = xScale;
         this.yScale = yScale;
 
@@ -308,7 +312,14 @@ export class PunchcardRenderer {
             .style('cursor', 'pointer')
             .on('mouseenter', (d, i) => { this.showTooltip(d); })
             .on('mouseleave', (d, i) => { this.hideTooltip(); })
-            .on('click', (d) => this.datumSelected(d))
+            .on('click', (d, i, ele) => {
+                this.datumSelected(d);
+
+                this.toggleDropdown(d, i);
+
+                let d3ele = d3.select(ele[i]);
+                d3ele.classed('menu-open-highlighted', this.vis.selectedDatum === d);
+            })
             .on('contextmenu', (d) => this.datumSelected2(d))
 
         eventRects.exit().remove();
@@ -674,5 +685,51 @@ export class PunchcardRenderer {
             .selectAll('text')
             .style('display', 'none')
 
+    }
+
+    toggleDropdown(d: Datum, i: number) {
+        d3.event.stopPropagation();
+
+        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if(this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
+            this.closeDropdown();
+            return;
+        }
+
+        if(d == this.vis.selectedDatum) { // double click the same item
+            this.closeDropdown();
+        }
+        else {
+            this.openDropdown(d);
+            return;
+        }
+
+        // always hide query creator
+        this.vis.isQueryCreatorVisible = false;
+    }
+
+    openDropdown(d:Datum) {
+        this.vis.selectedDatum = d;
+
+        const clientRect = this.nativeSvg.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
+        let i = this.data.indexOf(d);
+        let top = clientRect.top - parentRect.top
+            + this.yScale(d.keys.list[1].hash) + this.yScale.bandwidth();
+
+        this.vis.isDropdownVisible = true;
+        this.vis.dropdownTop = top;
+        this.vis.dropdownLeft = this.xScale(d.keys.list[0].hash) + this.xScale.bandwidth();
+    }
+
+    closeDropdown() {
+        this.vis.emptySelectedDatum();
+        this.vis.isQueryCreatorVisible = false;
+        this.vis.isDropdownVisible = false;
+    }
+
+    emptySelectedDatum() {
+//        this.labels.classed('menu-open-highlighted', false);
     }
 }
