@@ -102,14 +102,14 @@
         </a>
         <h6 class="dropdown-header px-3">Create a safeguard on this</h6>
 
-        <a class="dropdown-item px-3" href="#" (click)="safeguardClick()">
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Point)">
             <svg class="mr-1">
                 <circle cx="10" cy="12" r="3"></circle>
             </svg>
             Point
             <small>V(A) &lt; 5</small>
         </a>
-        <a class="dropdown-item px-3" href="#" (click)="safeguardClick()">
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Range)">
             <svg class="mr-1">
                 <line x1="3" x2="17" y1="12" y2="12"></line>
                 <line x1="2" x2="2" y1="8" y2="16"></line>
@@ -118,7 +118,7 @@
             Range
             <small>V(A) ∈ [5, 10]</small>
         </a>
-        <a class="dropdown-item px-3" href="#" (click)="safeguardClick()">
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Comparative)">
             <svg class="mr-1">
                 <line x1="6" x2="14" y1="12" y2="8"></line>
                 <line x1="6" x2="14" y1="12" y2="16"></line>
@@ -143,9 +143,9 @@
         [hidden]="!isQueryCreatorVisible"
         (click)="$event.stopPropagation()">
         <query-creator #qc id="query-creator" class="border rounded"
-            [dataset]="this.query.dataset"
-            (created)="queryCreated.emit($event); isQueryCreatorVisible=false; queryCreatorDatum = null;"
-            (creationCancelled)="isQueryCreatorVisible=false; queryCreatorDatum = null;"
+            [dataset]="query.dataset"
+            (created)="queryCreatorCreated($event)"
+            (creationCancelled)="queryCreatorCreationCancelled($event)"
         ></query-creator>
     </div>
 

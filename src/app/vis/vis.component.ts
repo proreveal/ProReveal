@@ -33,7 +33,7 @@ export class VisComponent implements OnInit, DoCheck {
     @Output('queryCreated') queryCreated: EventEmitter<{}> = new EventEmitter();
 
     @Output('numBinsChanged') numBinsChanged: EventEmitter<{}> = new EventEmitter();
-    @Output('sgPanelRequested') sgPanelRequested: EventEmitter<{}> = new EventEmitter();
+    @Output('sgPanelRequested') sgPanelRequested: EventEmitter<SafeguardTypes> = new EventEmitter();
     @Output('dataViewerRequested') dataViewerRequested: EventEmitter<Datum> = new EventEmitter();
 
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
@@ -41,6 +41,7 @@ export class VisComponent implements OnInit, DoCheck {
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
     Priority = Priority;
+    SGT = SafeguardTypes;
 
     lastUpdated: number = 0;
     lastQuery: AggregateQuery;
@@ -189,8 +190,8 @@ export class VisComponent implements OnInit, DoCheck {
         return false;
     }
 
-    safeguardClick() {
-        this.sgPanelRequested.emit();
+    safeguardClick(sgt: SafeguardTypes) {
+        this.sgPanelRequested.emit(sgt);
         (this.renderer as HorizontalBarsRenderer).datumSelected(this.selectedDatum);
 
         this.isDropdownVisible = false;
@@ -207,8 +208,19 @@ export class VisComponent implements OnInit, DoCheck {
         return false;
     }
 
+    queryCreatorCreated($event) {
+        this.queryCreated.emit($event);
+        this.isQueryCreatorVisible = false;
+        this.emptySelectedDatum();
+    }
+
+    queryCreatorCreationCancelled($event) {
+        this.isQueryCreatorVisible = false;
+        this.emptySelectedDatum();
+    }
+
     emptySelectedDatum() {
-        if(this.renderer instanceof HorizontalBarsRenderer) {
+        if (this.renderer instanceof HorizontalBarsRenderer) {
             this.renderer.emptySelectedDatum();
         }
         this.selectedDatum = null;

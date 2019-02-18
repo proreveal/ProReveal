@@ -554,8 +554,8 @@ export class AppComponent implements OnInit {
         this.toggle(prev);
     }
 
-    sgPanelRequested() {
-        this.toggle(SGT.Point);
+    sgPanelRequested(sgt: SafeguardTypes) {
+        this.toggle(sgt);
     }
 
     dataViewerRequested(d: Datum) {
