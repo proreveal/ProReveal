@@ -3,7 +3,6 @@ import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
 import { PunchcardRenderer } from './renderers/punchcard';
-import { Renderer } from './renderers/renderer';
 import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
@@ -18,8 +17,9 @@ import { Datum } from '../data/datum';
     templateUrl: './vis.component.html',
     styleUrls: ['./vis.component.scss']
 })
-export class VisComponent implements OnInit, DoCheck {
+export class VisComponent implements DoCheck {
     @Input() query: AggregateQuery;
+    @Input() floatingSvg: HTMLDivElement;
 
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
@@ -37,6 +37,8 @@ export class VisComponent implements OnInit, DoCheck {
     @Output('dataViewerRequested') dataViewerRequested: EventEmitter<Datum> = new EventEmitter();
 
     @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
+    //@ViewChild('floatingSvg') floatingSvg: ElementRef<SVGSVGElement>;
+
     @ViewChild('qc') queryCreator: QueryCreatorComponent;
     @ViewChild('tooltip') tooltip: TooltipComponent;
 
@@ -45,7 +47,7 @@ export class VisComponent implements OnInit, DoCheck {
 
     lastUpdated: number = 0;
     lastQuery: AggregateQuery;
-    renderer: Renderer;
+    renderer: HorizontalBarsRenderer | PunchcardRenderer;
     limitNumCategories = false;
     numCategories = 0;
 
@@ -60,7 +62,7 @@ export class VisComponent implements OnInit, DoCheck {
 
     constructor() { }
 
-    recommend(query: AggregateQuery): Renderer {
+    recommend(query: AggregateQuery) {
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
             return new HorizontalBarsRenderer(
                 this,
@@ -76,10 +78,6 @@ export class VisComponent implements OnInit, DoCheck {
         return null;
     }
 
-    ngOnInit() {
-
-    }
-
     ngDoCheck() {
         if (this.query && this.svg &&
             (this.lastUpdated < this.query.lastUpdated || this.lastQuery != this.query)) {
@@ -88,7 +86,8 @@ export class VisComponent implements OnInit, DoCheck {
             if (this.lastQuery !== this.query) {
                 this.renderer = this.recommend(this.query);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
-                this.renderer.setup(this.query, this.svg.nativeElement);
+                this.renderer.setup(this.query, this.svg.nativeElement,
+                    this.floatingSvg);
                 this.isDropdownVisible = false;
                 this.isQueryCreatorVisible = false;
             }
@@ -106,12 +105,12 @@ export class VisComponent implements OnInit, DoCheck {
         if (this.limitNumCategories) {
             this.limitNumCategories = false;
             (this.renderer as HorizontalBarsRenderer).limitNumCategories = false;
-            this.renderer.render(this.query, this.svg.nativeElement);
+            this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
         }
     }
 
     forceUpdate() {
-        this.renderer.render(this.query, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
         this.limitNumCategories = false;
 
         if (this.renderer instanceof HorizontalBarsRenderer) {
@@ -130,17 +129,17 @@ export class VisComponent implements OnInit, DoCheck {
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
-        this.renderer.render(this.query, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
     }
 
     setVariableType(type: VariableTypes) {
         this.renderer.setVariableType(type);
-        this.renderer.render(this.query, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
     }
 
     setFittingType(type: FittingTypes) {
         this.renderer.setFittingType(type);
-        this.renderer.render(this.query, this.svg.nativeElement);
+        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
     }
 
     constantUserChanged(constant: ConstantTrait) {

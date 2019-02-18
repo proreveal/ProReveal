@@ -4,7 +4,6 @@ import * as util from '../../util';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
-import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
@@ -20,7 +19,7 @@ import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
 import { AggregateQuery } from '../../data/query';
 
-export class HorizontalBarsRenderer implements Renderer {
+export class HorizontalBarsRenderer {
     gradient = new Gradient();
     xScale: ScaleLinear<number, number>;
     yScale: d3.ScaleBand<string>;
@@ -51,7 +50,7 @@ export class HorizontalBarsRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
-    setup(query: AggregateQuery, nativeSvg: SVGSVGElement) {
+    setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
         if (query.groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
@@ -69,7 +68,7 @@ export class HorizontalBarsRenderer implements Renderer {
         this.distributionLine.setup(this.interactionG);
     }
 
-    render(query: AggregateQuery, nativeSvg: SVGSVGElement) {
+    render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
         let svg = d3.select(nativeSvg);
         let done = query.visibleProgress.done();
         let visG = svg.select('g.vis');
@@ -410,6 +409,8 @@ export class HorizontalBarsRenderer implements Renderer {
                 .transition()
                 .call(bottomAxis as any)
         }
+
+        d3.select(floatingSvg).style('display', 'none');
 
         // highlights
         {

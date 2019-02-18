@@ -206,10 +206,18 @@
     grid-column: 2;
     padding: 10px;
     overflow-y: scroll;
+    position: relative;
 }
 
 vis {
     min-height: 100%;
+}
+
+#floating-svg-wrapper {
+    position: sticky;
+    display: block;
+    float: left;
+    background: white;
 }
 
 #safeguard-view {

@@ -20,6 +20,7 @@ export const Constants = Object.freeze({
         rowHeight: 20,
         columnWidth: 30,
         legendSize: 200,
+        legendPadding: 30,
         swatchHeight: 20,
         label: {
             x: {

@@ -5,7 +5,6 @@ import { AggregateQuery, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { FieldGroupedValue, QuantitativeField } from '../../data/field';
-import { Renderer } from './renderer';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
@@ -19,7 +18,7 @@ import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
 
-export class PunchcardRenderer implements Renderer {
+export class PunchcardRenderer {
     gradient = new Gradient();
     data: Datum[];
     xScale: d3.ScaleBand<string>;
@@ -48,7 +47,7 @@ export class PunchcardRenderer implements Renderer {
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
 
-    setup(query: AggregateQuery, nativeSvg: SVGSVGElement) {
+    setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
         if (query.groupBy.fields.length !== 2) {
             throw 'Punchcards can be used for 2 categories!';
         }
@@ -67,7 +66,7 @@ export class PunchcardRenderer implements Renderer {
         //this.distributionLine.setup(this.interactionG);
     }
 
-    render(query: AggregateQuery, nativeSvg: SVGSVGElement) {
+    render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
         let visG = d3.select(nativeSvg).select('g.vis');
 
         let data = query.getVisibleData();
@@ -151,7 +150,8 @@ export class PunchcardRenderer implements Renderer {
 
         this.matrixWidth = matrixWidth;
 
-        d3.select(nativeSvg).attr('width', width).attr('height', height);
+        d3.select(nativeSvg).attr('width', width)
+            .attr('height', Math.max(height, C.punchcard.legendSize + C.punchcard.legendPadding * 2));
 
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
             .range([yFieldLabelWidth + yLabelWidth, matrixWidth - header]);
@@ -315,13 +315,37 @@ export class PunchcardRenderer implements Renderer {
 
         this.eventRects = eventRects;
 
-        let legend = vsup.legend.arcmapLegend().scale(zScale).size(C.punchcard.legendSize);
+        const size = C.punchcard.legendSize;
+        const padding = C.punchcard.legendPadding;
+        let legend = vsup.legend.arcmapLegend()
+            .scale(zScale).size(size);
+        let fsvgw = d3.select(floatingSvg);
+        let fsvg = fsvgw.select('svg');
+        let parentWidth = nativeSvg.parentElement.parentElement.offsetWidth;
 
-        selectOrAppend(visG, 'g', '.z.legend').selectAll('*').remove();
-        selectOrAppend(visG, 'g', '.z.legend')
-            .attr('transform', translate(matrixWidth, 50))
-            .append('g')
-            .call(legend);
+        if(matrixWidth + size + padding * 2 > parentWidth) {
+            fsvg.attr('width', size + 2 * padding).attr('height', size + 2 * padding);
+            selectOrAppend(fsvg, 'g', '.z.legend').selectAll('*').remove();
+            selectOrAppend(fsvg, 'g', '.z.legend')
+                .attr('transform', translate(padding, padding))
+                .append('g')
+                .call(legend);
+
+            selectOrAppend(visG, 'g', '.z.legend').remove();
+            fsvgw
+                .style('display', 'block')
+                .style('left', `${parentWidth - size - padding * 2 - C.padding}px`)
+                .style('bottom', `${C.padding}px`)
+        }
+        else {
+            selectOrAppend(visG, 'g', '.z.legend').selectAll('*').remove();
+            selectOrAppend(visG, 'g', '.z.legend')
+                .attr('transform', translate(matrixWidth, padding))
+                .append('g')
+                .call(legend);
+
+            fsvgw.style('display', 'none');
+        }
 
         this.updateSwatch();
 
