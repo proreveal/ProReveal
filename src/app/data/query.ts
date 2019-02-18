@@ -263,19 +263,27 @@ export class AggregateQuery extends Query {
 
             let exist = {};
 
+            let xHasNull = false, yHasNull = false;
+
             data.forEach(d => {
                 let xGroupId = d.keys.list[0].groupId as number;
                 let yGroupId = d.keys.list[1].groupId as number;
+
+                if(xGroupId === NullGroupId) xHasNull = true;
+                if(yGroupId == NullGroupId) yHasNull = true;
 
                 if (!exist[xGroupId]) exist[xGroupId] = {};
                 exist[xGroupId][yGroupId] = true;
             })
 
-            let xGroupIds = data.map(d => d.keys.list[0].groupId);
-            let yGroupIds = data.map(d => d.keys.list[1].groupId);
+            let allXIds = fieldX.grouper.getGroupIds();
+            if(xHasNull) allXIds.push(NullGroupId);
 
-            xGroupIds.forEach((xGroupId: number) => {
-                yGroupIds.forEach((yGroupId: number) => {
+            let allYIds = fieldY.grouper.getGroupIds();
+            if(yHasNull) allYIds.push(NullGroupId);
+
+            allXIds.forEach((xGroupId: number) => {
+                allYIds.forEach((yGroupId: number) => {
                     if (exist[xGroupId] && exist[xGroupId][yGroupId]) return;
 
                     let key = new FieldGroupedValueList([
