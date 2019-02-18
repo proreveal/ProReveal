@@ -61,6 +61,38 @@
         </button>-->
 
         <button type="button" class="btn btn-light btn-sm ml-1"
+            [hidden]="!query.aggregationLevelX"
+            [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
+            (click)="splitXBins()">
+            <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
+            Split X-axis bins
+        </button>
+
+        <button type="button" class="btn btn-light btn-sm ml-1"
+            [hidden]="!query.aggregationLevelX"
+            [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
+            (click)="mergeXBins()">
+            <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
+            Merge X-axis bins
+        </button>
+
+        <button type="button" class="btn btn-light btn-sm ml-1"
+            [hidden]="!query.aggregationLevelY"
+            [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
+            (click)="splitYBins()">
+            <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
+            Split Y-axis bins
+        </button>
+
+        <button type="button" class="btn btn-light btn-sm ml-1"
+            [hidden]="!query.aggregationLevelY"
+            [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
+            (click)="mergeYBins()">
+            <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
+            Merge Y-axis bins
+        </button>
+
+        <button type="button" class="btn btn-light btn-sm ml-1"
             [hidden]="!query.aggregationLevel"
             [disabled]="query.aggregationLevel == query.minLevel || query.safeguards.length > 0"
             (click)="splitBins()">

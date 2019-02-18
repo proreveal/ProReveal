@@ -162,7 +162,8 @@
         </section>
     </section>
 
-    <section id="safeguard-config-view" class="border-top border-right px-2 pb-1">
+    <section id="safeguard-config-view" class="border-top border-right px-2 pb-1"
+        [hidden]="activeSafeguardPanel == SGT.None">
         <!-- Point -->
         <div [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
