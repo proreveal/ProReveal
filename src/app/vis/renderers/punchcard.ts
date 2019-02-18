@@ -269,9 +269,10 @@ export class PunchcardRenderer implements Renderer {
             .valueDomain([domainStart, domainEnd])
             .uncertaintyDomain([0, maxUncertainty]);
 
+        let viridis = d3.interpolateViridis;
         let zScale = vsup.scale()
             .quantize(quant)
-            .range(d3.interpolateViridis);
+            .range(t => viridis(1 - t));
 
         rects.merge(enter)
             .attr('height', yScale.bandwidth())

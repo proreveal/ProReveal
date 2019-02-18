@@ -177,6 +177,54 @@ export class VisComponent implements OnInit, DoCheck {
         this.numBinsChanged.emit();
     }
 
+    splitXBins() {
+        if (!(this.query instanceof Histogram2DQuery)) return;
+        if (this.query.aggregationLevelX == this.query.minLevelX) return;
+        if (this.query.safeguards.length > 0) return;
+
+        this.query.aggregationLevelX /= 2;
+        this.isQueryCreatorVisible = false;
+        this.isDropdownVisible = false;
+        this.forceUpdate();
+        this.numBinsChanged.emit();
+    }
+
+    mergeXBins() {
+        if (!(this.query instanceof Histogram2DQuery)) return;
+        if (this.query.aggregationLevelX == this.query.maxLevelX) return;
+        if (this.query.safeguards.length > 0) return;
+
+        this.query.aggregationLevelX *= 2;
+        this.isQueryCreatorVisible = false;
+        this.isDropdownVisible = false;
+        this.forceUpdate();
+        this.numBinsChanged.emit();
+    }
+
+    splitYBins() {
+        if (!(this.query instanceof Histogram2DQuery)) return;
+        if (this.query.aggregationLevelY == this.query.minLevelY) return;
+        if (this.query.safeguards.length > 0) return;
+
+        this.query.aggregationLevelY /= 2;
+        this.isQueryCreatorVisible = false;
+        this.isDropdownVisible = false;
+        this.forceUpdate();
+        this.numBinsChanged.emit();
+    }
+
+    mergeYBins() {
+        if (!(this.query instanceof Histogram2DQuery)) return;
+        if (this.query.aggregationLevelY == this.query.maxLevelY) return;
+        if (this.query.safeguards.length > 0) return;
+
+        this.query.aggregationLevelY *= 2;
+        this.isQueryCreatorVisible = false;
+        this.isDropdownVisible = false;
+        this.forceUpdate();
+        this.numBinsChanged.emit();
+    }
+
     backgroundClick() {
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;

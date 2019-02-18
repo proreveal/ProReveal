@@ -146,6 +146,8 @@ export class AppComponent implements OnInit {
             // this.testN();
             // this.testCN();
 
+            this.testNN();
+
             of(0).pipe(
                 delay(1000)
             ).subscribe(() => {

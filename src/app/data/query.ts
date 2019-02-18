@@ -13,7 +13,7 @@ import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproxima
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { AndPredicate, EqualPredicate, RangePredicate, Predicate } from './predicate';
 import { Datum } from './datum';
-import { NullGroupId } from './grouper';
+import { NullGroupId, GroupIdType } from './grouper';
 import { isArray } from 'util';
 import * as d3 from 'd3';
 import { Safeguard } from '../safeguard/safeguard';
@@ -257,6 +257,43 @@ export class AggregateQuery extends Query {
 
             data = this.aggregate(data);
         }
+        else if (this instanceof Histogram2DQuery) {
+            let fieldX = this.groupBy.fields[0] as QuantitativeField;
+            let fieldY = this.groupBy.fields[1] as QuantitativeField;
+
+            let exist = {};
+
+            data.forEach(d => {
+                let xGroupId = d.keys.list[0].groupId as number;
+                let yGroupId = d.keys.list[1].groupId as number;
+
+                if (!exist[xGroupId]) exist[xGroupId] = {};
+                exist[xGroupId][yGroupId] = true;
+            })
+
+            let xGroupIds = data.map(d => d.keys.list[0].groupId);
+            let yGroupIds = data.map(d => d.keys.list[1].groupId);
+
+            xGroupIds.forEach((xGroupId: number) => {
+                yGroupIds.forEach((yGroupId: number) => {
+                    if (exist[xGroupId] && exist[xGroupId][yGroupId]) return;
+
+                    let key = new FieldGroupedValueList([
+                        new FieldGroupedValue(fieldX, xGroupId),
+                        new FieldGroupedValue(fieldY, yGroupId)
+                    ]);
+
+                    data.push(new Datum(
+                        key.hash,
+                        key,
+                        EmptyConfidenceInterval,
+                        this.accumulator.initAccumulatedValue
+                    ));
+                })
+            });
+
+            data = this.aggregate(data);
+        }
 
         data.sort(this.ordering(this.orderingAttributeGetter, this.orderingDirection));
 
@@ -442,6 +479,14 @@ export class Histogram2DQuery extends AggregateQuery {
     rankAvailable = false;
     hasAggregateFunction = false;
 
+    aggregationLevelX = 2;
+    minLevelX = 1;
+    maxLevelX = 16;
+
+    aggregationLevelY = 2;
+    minLevelY = 1;
+    maxLevelY = 16;
+
     constructor(
         public grouping1: QuantitativeField,
         public grouping2: QuantitativeField,
@@ -467,6 +512,94 @@ export class Histogram2DQuery extends AggregateQuery {
 
     compatible(fields: FieldTrait[]) {
         return [];
+    }
+
+    aggregate(data: Datum[]) {
+        const xLevel = this.aggregationLevelX;
+        const yLevel = this.aggregationLevelY;
+
+        // level = 4
+        // [-4 ... -1], [0 ... 3], [4 ... 7]
+
+        let aggregated: {
+            [id: number]:
+            {
+                [id: number]: AccumulatedValue
+            }
+        } = {};
+
+        let result: Datum[] = [];
+
+        data.forEach(d => {
+            let xId = d.keys.list[0].groupId;
+            let yId = d.keys.list[1].groupId;
+
+            if (xId === NullGroupId && yId === NullGroupId) {
+                result.push(d);
+                return;
+            }
+
+            let xBinId = xId === NullGroupId ? NullGroupId : Math.floor(<number>xId / xLevel);
+            let yBinId = yId === NullGroupId ? NullGroupId : Math.floor(<number>yId / yLevel);
+
+            if (!(xBinId in aggregated))
+                aggregated[xBinId] = {};
+
+            if (!(yBinId in aggregated[xBinId]))
+                aggregated[xBinId][yBinId] = this.accumulator.initAccumulatedValue;
+
+            aggregated[xBinId][yBinId] =
+                this.accumulator.accumulate(aggregated[xBinId][yBinId], d.accumulatedValue.toPartial());
+        })
+
+        d3.keys(aggregated).forEach(xId => {
+            d3.keys(aggregated[xId]).forEach(yId => {
+                let xNewId: GroupIdType = +xId;
+                let yNewId: GroupIdType = +yId;
+
+                if(xNewId != NullGroupId)
+                    xNewId = [xNewId * xLevel, (xNewId + 1) * xLevel - 1]
+
+                if(yNewId != NullGroupId)
+                    yNewId = [yNewId * yLevel, (yNewId + 1) * yLevel - 1]
+
+                let value = aggregated[xId][yId];
+
+                let key = new FieldGroupedValueList([
+                    new FieldGroupedValue(this.grouping1, xNewId),
+                    new FieldGroupedValue(this.grouping2, yNewId)
+                ]);
+
+                result.push(new Datum(
+                    key.hash,
+                    key,
+                    this.approximator.approximate(
+                        value,
+                        this.visibleProgress.processedPercent(),
+                        this.visibleProgress.processedRows,
+                        this.visibleProgress.totalRows
+                    ).range(3),
+                    value
+                ))
+            })
+        })
+
+        return result;
+    }
+
+    getPredicateFromDatum(d: Datum) {
+        let fieldX = this.groupBy.fields[0];
+        let rangeX: [number, number] = d.keys.list[0].value() as [number, number];
+        let includeEndX = rangeX[1] == (fieldX as QuantitativeField).grouper.max;
+
+        let fieldY = this.groupBy.fields[1];
+        let rangeY: [number, number] = d.keys.list[1].value() as [number, number];
+        let includeEndY = rangeY[1] == (fieldY as QuantitativeField).grouper.max;
+
+        return new AndPredicate([
+            new RangePredicate(fieldX, rangeX[0], rangeX[1], includeEndX),
+            new RangePredicate(fieldY, rangeY[0], rangeY[1], includeEndY)
+        ]);
     }
 }
 
