@@ -144,6 +144,13 @@ export class FieldGroupedValue {
         this.hash = `${field.name}:${groupId}`;
     }
 
+    get includeEnd() {
+        if(isString(this.value())) return false;
+
+        let range: [number, number] = this.value() as [number, number];
+        return range[1] == (this.field as QuantitativeField).grouper.max;
+    }
+
     value() {
         return this.field.ungroup(this.groupId);
     }
