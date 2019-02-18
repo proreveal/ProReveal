@@ -17,6 +17,7 @@ import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
+import { EmptyConfidenceInterval } from '../../data/approx';
 
 export class PunchcardRenderer implements Renderer {
     gradient = new Gradient();
@@ -283,7 +284,10 @@ export class PunchcardRenderer implements Renderer {
             .attr('transform', (d) => {
                 return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
             })
-            .attr('fill', d => zScale(d.ci3.center, d.ci3.high - d.ci3.center));
+            .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
+                'transparent' :
+                zScale(d.ci3.center, d.ci3.high - d.ci3.center)
+            );
 
         rects.exit().remove();
 
@@ -308,8 +312,6 @@ export class PunchcardRenderer implements Renderer {
             .on('contextmenu', (d) => this.datumSelected2(d))
 
         eventRects.exit().remove();
-
-        console.log(eventRects);
 
         this.eventRects = eventRects;
 
