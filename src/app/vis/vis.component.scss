@@ -121,7 +121,7 @@ header {
     stroke-width: .5px;
 }
 
-::ng-deep vis .menu-open-highlighted {
+::ng-deep vis .horizontal-bars .menu-open-highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
     stroke-width: .5px;
@@ -162,12 +162,17 @@ header {
     stroke-width: 1px;
 }
 
-::ng-deep vis .variable1.stroke-highlighted {
-    stroke: lighten($variable1-highlight-color, 0%);
+::ng-deep vis .punchcard .menu-open-highlighted {
+    stroke: lighten($variable1-highlight-color, 3%);
     stroke-width: 3px;
 }
 
-::ng-deep vis .variable2.stroke-highlighted {
-    stroke: lighten($variable2-highlight-color, 0%);
+::ng-deep vis .punchcard .variable1.stroke-highlighted {
+    stroke: darken($variable1-highlight-color, 10%);
+    stroke-width: 3px;
+}
+
+::ng-deep vis .punchcard .variable2.stroke-highlighted {
+    stroke: darken($variable2-highlight-color, 10%);
     stroke-width: 3px;
 }
