@@ -98,12 +98,36 @@
         <h6 class="dropdown-header px-3" *ngIf="selectedDatum">{{ selectedDatum.keys.list[0].valueString() }}</h6>
         <a class="dropdown-item px-3" href="#" (click)="filterClick()">
             <fa-icon class="mr-1" [icon]="['fas', 'filter']"></fa-icon>
-            Filter these data items
+            See only these data items
+        </a>
+        <h6 class="dropdown-header px-3">Create a safeguard on this</h6>
+
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick()">
+            <svg class="mr-1">
+                <circle cx="10" cy="12" r="3"></circle>
+            </svg>
+            Point
+            <small>V(A) &lt; 5</small>
         </a>
         <a class="dropdown-item px-3" href="#" (click)="safeguardClick()">
-            <fa-icon class="mr-1" [icon]="['far', 'eye']"></fa-icon>
-            Create a safeguard
+            <svg class="mr-1">
+                <line x1="3" x2="17" y1="12" y2="12"></line>
+                <line x1="2" x2="2" y1="8" y2="16"></line>
+                <line x1="18" x2="18" y1="8" y2="16"></line>
+            </svg>
+            Range
+            <small>V(A) ∈ [5, 10]</small>
         </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick()">
+            <svg class="mr-1">
+                <line x1="6" x2="14" y1="12" y2="8"></line>
+                <line x1="6" x2="14" y1="12" y2="16"></line>
+            </svg>
+            Comparative
+            <small>V(A) &lt; V(B)</small>
+        </a>
+        <div class="dropdown-divider"></div>
+
         <a class="dropdown-item px-3" href="#" (click)="detailClick()">
             <fa-icon class="mr-1" [icon]="['fas', 'table']"></fa-icon>
             Show data items

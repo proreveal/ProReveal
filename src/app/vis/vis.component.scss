@@ -54,6 +54,29 @@ header small {
         height: 16px;
         text-align: center;
     }
+
+    svg{
+        width: 20px;
+        height: 24px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    line {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+    }
+
+    small {
+        opacity: .8;
+        font-family: 'Roboto Condensed';
+    }
+}
+
+#dropdown-safeguard-header {
+    opacity: .8;
+    pointer-events: none;
 }
 
 @import '../theme.scss';
