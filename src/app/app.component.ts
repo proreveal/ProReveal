@@ -100,6 +100,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.engine = new Engine('./assets/movies.json', './assets/movies.schema.json');
+        // this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
 
         this.engine.queryDone = this.queryDone.bind(this);
 
