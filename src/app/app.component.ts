@@ -12,7 +12,7 @@ import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes, LinearRegressionConstant } from './safeguard/constant';
 import { of, interval, Subscription } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, timeout } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
@@ -114,7 +114,7 @@ export class AppComponent implements OnInit {
             this.querySelected(this.engine.ongoingQueries[0]);
 
             // Just run 10 jobs.
-            this.run(10);
+            this.runMany(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -170,16 +170,16 @@ export class AppComponent implements OnInit {
 
         this.create(query, Priority.Highest);
 
-        this.run(10);
+        this.runMany(10);
     }
 
     testC() {
-        this.run(5);
+        this.runMany(5);
     }
 
     testN() {
         this.querySelected(this.engine.ongoingQueries[4]);
-        this.run(145);
+        this.runMany(145);
     }
 
     testCN() {
@@ -189,7 +189,7 @@ export class AppComponent implements OnInit {
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create(query, Priority.Highest);
 
-        this.run(5);
+        this.runMany(5);
     }
 
     testNN() {
@@ -199,7 +199,7 @@ export class AppComponent implements OnInit {
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create(query, Priority.Highest);
 
-        this.run(10);
+        this.runMany(10);
     }
 
     testCC() {
@@ -209,7 +209,7 @@ export class AppComponent implements OnInit {
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create(query, Priority.Highest)
 
-        this.run(10);
+        this.runMany(10);
     }
 
     create(query: AggregateQuery, priority = Priority.Lowest) {
@@ -225,11 +225,6 @@ export class AppComponent implements OnInit {
 
     toggleMetadataEditor() {
         this.metadataEditor.toggle();
-    }
-
-    run(times: number, simulatedDelay = 0) {
-        for (let i = 0; i < times; i++)
-            this.engine.run(simulatedDelay);
     }
 
     queryDone(query: Query) {
@@ -448,19 +443,10 @@ export class AppComponent implements OnInit {
         return num;
     }
 
-    subs: Subscription;
-    play() {
-        this.isPlaying = true;
-        let counter = interval(3000);
-        this.run(1, 2500);
-        this.subs = counter.subscribe(() => {
-            this.run(1, 2500);
-        })
-    }
 
-    pause() {
-        this.isPlaying = false;
-        this.subs.unsubscribe();
+    runMany(times: number) {
+        for (let i = 0; i < times; i++)
+            this.engine.runOne(true);
     }
 
     // from vis events

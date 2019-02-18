@@ -3,7 +3,7 @@ import { Dataset, Row } from './dataset';
 import { Query, AggregateQuery } from './query';
 import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
-import { timer } from 'rxjs';
+import { timer, Subscription } from 'rxjs';
 import { Schema } from './schema';
 import { Job } from './job';
 import { AndPredicate } from './predicate';
@@ -23,6 +23,7 @@ export class Engine {
     queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
     runningJob: Job;
+    isRunning = false;
 
     constructor(private url: string, private schemaUrl: string) {
 
@@ -58,6 +59,8 @@ export class Engine {
 
         query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
+
+        if(this.isRunning) this.runOne();
     }
 
     remove(query: Query) {
@@ -67,7 +70,24 @@ export class Engine {
         this.queue.remove(query);
     }
 
-    run(simulatedDelay = 2500) {
+
+    latencySubs: Subscription;
+
+    run() {
+        this.isRunning = true;
+        this.runOne();
+    }
+
+    pause() {
+        this.isRunning = false;
+    }
+
+    gaussianRandom(mean: number, sigma: number) {
+        let u = Math.random()*0.682;
+        return ((u % 1e-8 > 5e-9 ? 1 : -1) * (Math.sqrt(-Math.log(Math.max(1e-9, u)))-0.618))*1.618 * sigma + mean;
+    }
+
+    runOne(noDelay = false) {
         if (this.queue.empty()) return;
 
         const job = this.queue.pop();
@@ -75,8 +95,7 @@ export class Engine {
         this.runningJob = job;
         job.query.recentProgress.ongoingBlocks = 1;
 
-        let latency = timer(simulatedDelay);
-        latency.subscribe(() => {
+        let body = () => {
             this.runningJob = null;
 
             const partialKeyValues = job.run();
@@ -95,7 +114,23 @@ export class Engine {
 
             if (this.queryDone)
                 this.queryDone(job.query);
-        })
+        }
+
+        if(noDelay) body(); // no casecading
+        else {
+            let latency = this.gaussianRandom(3000, 1000);
+            if(job.index === 0) latency = 300;
+
+            console.log(`running Job(${job.id}, ${job.index}) with latency of ${latency}`);
+
+            let latencyTimer = timer(latency);
+            this.latencySubs = latencyTimer.subscribe(() => {
+                body();
+
+                if(this.isRunning)
+                    this.runOne();
+            });
+        }
     }
 
     empty() {
