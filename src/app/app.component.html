@@ -144,42 +144,12 @@
     </section>
 
     <section id="safeguard-view">
-        <ul class="tab-list">
-            <li>
-                <h4 class="section-header p-2 border-bottom" (click)="toggle(SGT.Point)">
-                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Point"></fa-icon>
-                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Point"></fa-icon>
-                    Point <small>V(A) &lt; 5</small>
-                </h4>
-            </li>
-            <li>
-                <h4 class="section-header p-2 border-bottom" (click)="toggle(SGT.Range)">
-                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Range"></fa-icon>
-                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Range"></fa-icon>
-                    Range <small>V(A) ∈ [5, 10]</small>
-                </h4>
-            </li>
-            <li>
-                <h4 class="section-header p-2 border-bottom" (click)="toggle(SGT.Comparative)">
-                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Comparative"></fa-icon>
-                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Comparative"></fa-icon>
-                    Comparative <small>V(A) &lt; V(B)</small>
-                </h4>
-            </li>
-            <li>
-                <h4 class="section-header p-2" (click)="toggle(SGT.Distributive)" [class.disabled]="!isDistributivePossible">
-                    <fa-icon [icon]="['fas', 'times']" [hidden]="activeSafeguardPanel != SGT.Distributive"></fa-icon>
-                    <fa-icon [icon]="['fas', 'plus']" [hidden]="activeSafeguardPanel == SGT.Distributive"></fa-icon>
-                    Distributive <small>V(·) ~ N(5, 2)</small>
-                </h4>
-            </li>
-        </ul>
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             Safeguard List
         </h3>
         <section id="safeguard-list" class="styled-scroll">
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
-                The list is empty! Click on buttons below to create a safegaurd.
+                The safeguard list is empty! Create a visualization and click on a label in it to make a safegaurd.
             </p>
 
             <sg-list-item *ngFor="let sg of safeguards.reverse()"
@@ -192,9 +162,9 @@
         </section>
     </section>
 
-    <section id="safeguard-config-view">
+    <section id="safeguard-config-view" class="border-top border-right px-2 pb-1">
         <!-- Point -->
-        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Point">
+        <div [hidden]="activeSafeguardPanel != SGT.Point">
             <div class="display text-center p-2">
                 <sg-point *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [isRank]="useRank" [operator]="operator" [constant]="useRank ? pointRankConstant : pointValueConstant"
@@ -251,7 +221,7 @@
         </div>
 
         <!-- Range -->
-        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Range">
+        <div [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
                 <sg-range *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"
@@ -284,7 +254,7 @@
         </div>
 
         <!-- Comparative -->
-        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Comparative">
+        <div [hidden]="activeSafeguardPanel != SGT.Comparative">
             <div class="display text-center p-2">
                 <sg-comparative *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
                     [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
@@ -316,7 +286,7 @@
         </div>
 
         <!-- Distributive -->
-        <div class="border-top" [hidden]="activeSafeguardPanel != SGT.Distributive">
+        <div [hidden]="activeSafeguardPanel != SGT.Distributive">
             <div class="p-1">
                 <div class="form-check-inline form-control-sm">
                     Fitting Type:

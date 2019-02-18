@@ -2,6 +2,19 @@
     position: relative;
 }
 
+.normal-icon {
+    width: 20px;
+    height: 16px;
+
+    path {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+        fill: none;
+        transform: translate(0, -1.5px);
+    }
+}
+
 header {
     font-size: 1.3rem;
 }
@@ -66,6 +79,13 @@ header small {
         stroke: black;
         stroke-width: 3px;
         stroke-linecap: round;
+    }
+
+    path {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+        fill: none;
     }
 
     small {
