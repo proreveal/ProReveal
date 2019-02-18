@@ -539,8 +539,10 @@ export class AppComponent implements OnInit {
 
     numBinsChanged() {
         let prev = this.activeSafeguardPanel;
-        this.toggle(SGT.None);
-        this.toggle(prev);
+        if(prev != SGT.None) {
+            this.toggle(SGT.None);
+            this.toggle(prev);
+        }
     }
 
     sgPanelRequested(sgt: SafeguardTypes) {
