@@ -443,7 +443,7 @@ export class Histogram1DQuery extends AggregateQuery {
 
         d3.keys(aggregated).forEach(id => {
             const nid = +id;
-            let value = aggregated[id];
+            let value: AccumulatedValue = aggregated[id];
             let key = new FieldGroupedValueList([
                 new FieldGroupedValue(this.grouping, [
                     nid * level,
@@ -453,12 +453,12 @@ export class Histogram1DQuery extends AggregateQuery {
             result.push(new Datum(
                 key.hash,
                 key,
-                this.approximator.approximate(
+                value.count > 0 ? this.approximator.approximate(
                     value,
                     this.visibleProgress.processedPercent(),
                     this.visibleProgress.processedRows,
                     this.visibleProgress.totalRows
-                ).range(3),
+                ).range(3) : EmptyConfidenceInterval,
                 value
             ))
         })
@@ -571,7 +571,7 @@ export class Histogram2DQuery extends AggregateQuery {
                 if(yNewId != NullGroupId)
                     yNewId = [yNewId * yLevel, (yNewId + 1) * yLevel - 1]
 
-                let value = aggregated[xId][yId];
+                let value: AccumulatedValue = aggregated[xId][yId];
 
                 let key = new FieldGroupedValueList([
                     new FieldGroupedValue(this.grouping1, xNewId),
@@ -581,12 +581,13 @@ export class Histogram2DQuery extends AggregateQuery {
                 result.push(new Datum(
                     key.hash,
                     key,
+                    value.count > 0 ?
                     this.approximator.approximate(
                         value,
                         this.visibleProgress.processedPercent(),
                         this.visibleProgress.processedRows,
                         this.visibleProgress.totalRows
-                    ).range(3),
+                    ).range(3) : EmptyConfidenceInterval,
                     value
                 ))
             })
