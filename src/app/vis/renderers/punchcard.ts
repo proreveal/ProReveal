@@ -8,10 +8,9 @@ import { FieldGroupedValue, QuantitativeField } from '../../data/field';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
-import { FittingTypes, ConstantTrait, PointValueConstant, RangeValueConstant, LinearRegressionConstant } from '../../safeguard/constant';
+import { ConstantTrait, PointValueConstant, RangeValueConstant, LinearRegressionConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, CombinedVariable, SingleVariable } from '../../safeguard/variable';
-import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
@@ -381,7 +380,7 @@ export class PunchcardRenderer {
                 .style('pointer-events', 'none')
 
         this.angularBrush.on('brush', (center) => {
-            if (this.safeguardType === SGT.Point) {
+            if (this.safeguardType === SGT.Value) {
                 let constant = new PointValueConstant(this.legendXScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -405,13 +404,13 @@ export class PunchcardRenderer {
 
         if (!this.constant) this.setDefaultConstantFromVariable();
 
-        if ([SGT.Point, SGT.Range].includes(this.safeguardType) && this.constant)
+        if ([SGT.Value, SGT.Range].includes(this.safeguardType) && this.constant)
             this.angularBrush.show();
         else
             this.angularBrush.hide();
 
         if (this.constant) {
-            if (this.safeguardType === SGT.Point) {
+            if (this.safeguardType === SGT.Value) {
                 let center = this.legendXScale((this.constant as PointValueConstant).value);
                 this.angularBrush.move(center);
             }
@@ -452,7 +451,7 @@ export class PunchcardRenderer {
 
         if (st == SGT.None) {
         }
-        else if (st == SGT.Point) {
+        else if (st == SGT.Value) {
             this.angularBrush.setMode(AngularBrushMode.Point);
         }
         else if (st === SGT.Range) {
@@ -467,10 +466,6 @@ export class PunchcardRenderer {
         this.variableType = vt;
 
         this.constant = null;
-    }
-
-    setFittingType(type: FittingTypes) {
-
     }
 
     updateHighlight() {
@@ -491,7 +486,7 @@ export class PunchcardRenderer {
     /* invoked when a constant is selected indirectly (by clicking on a category) */
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
-        if (this.safeguardType === SGT.Point) {
+        if (this.safeguardType === SGT.Value) {
             let center = this.legendXScale((constant as PointValueConstant).value);
             this.angularBrush.show();
             this.angularBrush.move(center);
@@ -515,7 +510,7 @@ export class PunchcardRenderer {
     }
 
     datumSelected(d: Datum) {
-        if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if (![SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
         let variable = new CombinedVariable(
             new SingleVariable(d.keys.list[0]),
@@ -523,7 +518,7 @@ export class PunchcardRenderer {
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
-        if(this.safeguardType === SGT.Point) {
+        if(this.safeguardType === SGT.Value) {
             this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
         }
         else if (this.safeguardType === SGT.Range) {
@@ -559,7 +554,7 @@ export class PunchcardRenderer {
         if (removeCurrentConstant) this.constant = null;
         if (this.constant) return;
         if (this.variable1) {
-            if (this.safeguardType === SGT.Point) {
+            if (this.safeguardType === SGT.Value) {
                 let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
@@ -605,7 +600,7 @@ export class PunchcardRenderer {
     toggleDropdown(d: Datum, i: number) {
         d3.event.stopPropagation();
 
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if(this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
             this.closeDropdown();
             return;

@@ -1,18 +1,18 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
-import { FieldTrait, VlType } from './data/field';
+import { VlType } from './data/field';
 import { Engine, Priority } from './data/engine';
 
-import { Query, EmptyQuery, AggregateQuery, Histogram1DQuery, Histogram2DQuery, QueryState } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, Histogram2DQuery, QueryState } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Safeguard, SafeguardTypes as SGT, PointSafeguard, RangeSafeguard, ComparativeSafeguard, DistributiveSafeguard, SafeguardTypes } from './safeguard/safeguard';
+import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, ComparativeSafeguard, SafeguardTypes, DistributiveSafeguard, DistributiveSafeguardTypes, NormalSafeguard, PowerLawSafeguard, LinearSafeguard } from './safeguard/safeguard';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, FittingTypes, LinearRegressionConstant } from './safeguard/constant';
-import { of, interval, Subscription } from 'rxjs';
-import { delay, timeout } from 'rxjs/operators';
+import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
+import { of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
@@ -63,7 +63,6 @@ export class AppComponent implements OnInit {
     creating = false;
 
     queries: AggregateQuery[] = [];
-    isDistributivePossible = true;
 
     variable1: SingleVariable;
     variable2: SingleVariable;
@@ -71,11 +70,15 @@ export class AppComponent implements OnInit {
     combinedVariable1: CombinedVariable;
     combinedVariable2: CombinedVariable;
     combinedVariablePair: CombinedVariablePair;
+
     useRank = false;
     useLinear = false;
     useNormal = true;
-    isNormalFittingAvailable = false;
-    isPowerLawFittingAvailable = false;
+
+    isRankAvailable = false;
+    isPowerLawAvailable = false;
+    isNormalAvailable = false;
+    isLinearAvailable = false;
 
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
     pointRankConstant: PointRankConstant = new PointRankConstant(1);
@@ -104,7 +107,7 @@ export class AppComponent implements OnInit {
 
         this.engine.queryDone = this.queryDone.bind(this);
 
-        this.engine.load().then(([dataset, schema]) => {
+        this.engine.load().then(([dataset]) => {
             dataset.fields.forEach(field => {
                 if (field.vlType !== VlType.Key) {
                     this.create(new EmptyQuery(dataset).combine(field));
@@ -146,7 +149,7 @@ export class AppComponent implements OnInit {
             // this.testN();
             // this.testCN();
 
-            this.testNN();
+            // this.testNN();
 
             of(0).pipe(
                 delay(1000)
@@ -243,16 +246,14 @@ export class AppComponent implements OnInit {
             }
         })
 
-        if(this.activeSafeguardPanel === SGT.Distributive) {
-            if(this.useLinear)
-                (this.vis.renderer as PunchcardRenderer).setDefaultConstantFromVariable(true);
-            else
-                (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+
+        if(DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
+            this.vis.renderer.setDefaultConstantFromVariable(true);
         }
     }
 
     rankAllowed() {
-        return this.activeQuery && this.activeQuery.rankAvailable;
+        return this.activeQuery && this.activeQuery.isRankAvailable;
     }
 
     querySelected(q: Query) {
@@ -270,17 +271,6 @@ export class AppComponent implements OnInit {
         }
 
         if (!this.rankAllowed()) this.useRank = false;
-        if (this.activeQuery) {
-            // normal fitting: only for 1D histogram
-            // power law: always possible
-
-            this.isNormalFittingAvailable = this.activeQuery instanceof Histogram1DQuery;
-
-            this.useNormal = this.isNormalFittingAvailable;
-
-            this.isDistributivePossible = !(this.activeQuery.groupBy.fields.length == 2
-                && this.activeQuery.groupBy.fields[0].vlType != VlType.Quantitative);
-        }
     }
 
     queryPauseClick(query: AggregateQuery, $event: UIEvent){
@@ -308,15 +298,15 @@ export class AppComponent implements OnInit {
         this.vis.constantUserChanged(constant);
     }
 
-    createPointSafeguard() {
+    createValueSafeguard() {
         let variable = this.variable1 || this.combinedVariable1;
         if (!variable) return;
 
         if (this.variable1) this.variable1.isRank = this.useRank;
-        let sg: PointSafeguard;
+        let sg: ValueSafeguard;
 
-        if (this.useRank) sg = new PointSafeguard(variable, this.operator, this.pointRankConstant, this.activeQuery);
-        else sg = new PointSafeguard(variable, this.operator, this.pointValueConstant, this.activeQuery);
+        if (this.useRank) sg = new ValueSafeguard(variable, this.operator, this.pointRankConstant, this.activeQuery);
+        else sg = new ValueSafeguard(variable, this.operator, this.pointValueConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
@@ -365,11 +355,11 @@ export class AppComponent implements OnInit {
     createDistributiveSafeguard() {
         let sg: DistributiveSafeguard;
         if(!this.useLinear && this.useNormal)
-            sg = new DistributiveSafeguard(this.normalConstant, this.activeQuery);
+            sg = new NormalSafeguard(this.normalConstant, this.activeQuery);
         else if(!this.useLinear && !this.useNormal)
-            sg = new DistributiveSafeguard(this.powerLawConstant, this.activeQuery);
+            sg = new PowerLawSafeguard(this.powerLawConstant, this.activeQuery);
         else if(this.useLinear)
-            sg = new DistributiveSafeguard(this.linearRegressionConstant, this.activeQuery);
+            sg = new LinearSafeguard(this.linearRegressionConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg)
@@ -409,11 +399,10 @@ export class AppComponent implements OnInit {
             this.useRank = false;
             this.useLinear = false;
 
-            if (this.activeQuery instanceof Histogram2DQuery && sgt === SafeguardTypes.Distributive) {
+            if (this.activeQuery instanceof Histogram2DQuery && DistributiveSafeguardTypes.includes(sgt)) {
                 this.useLinear = true;
             }
-            else if (sgt === SafeguardTypes.Distributive) {
-                this.vis.setFittingType(this.useNormal ? FittingTypes.Normal : FittingTypes.PowerLaw);
+            else if (DistributiveSafeguardTypes.includes(sgt)) {
                 (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
                 this.vis.forceUpdate();
             }
@@ -425,7 +414,6 @@ export class AppComponent implements OnInit {
     }
 
     useNormalToggled() {
-        this.vis.setFittingType(this.useNormal ? FittingTypes.Normal : FittingTypes.PowerLaw);
         (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
         this.vis.forceUpdate();
     }
@@ -589,6 +577,7 @@ export class AppComponent implements OnInit {
     // safeguard remove
     sgRemoveClicked(sg: Safeguard)
     {
+        this.highlightedQuery = null;
         util.aremove(this.safeguards, sg);
         util.aremove(sg.query.safeguards, sg);
     }
@@ -597,7 +586,7 @@ export class AppComponent implements OnInit {
         this.highlightedQuery = sg.query;
     }
 
-    sgMouseLeave(sg: Safeguard) {
+    sgMouseLeave() {
         this.highlightedQuery = null;
     }
 

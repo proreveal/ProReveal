@@ -6,15 +6,14 @@ import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
 import { Gradient } from '../errorbars/gradient';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
-import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { FittingTypes as FT } from '../../safeguard/constant';
+import { SafeguardTypes as SGT, DistributiveSafeguardTypes } from '../../safeguard/safeguard';
 import { SingleVariable, VariableTypes as VT } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
 import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
-import {  AndPredicate } from '../../data/predicate';
+import { AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
 import { AggregateQuery } from '../../data/query';
@@ -91,8 +90,8 @@ export class HorizontalBarsRenderer {
         let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
         const labelWidth =
             Math.max(longest ? (measure(longest.keys.list[0].valueString(), '.8rem').width
-                + (query.rankAvailable ? 20 : 0)) : 0 + C.padding,
-                measure(query.groupBy.fields[0].name, '.8rem').width + (query.rankAvailable ? 20 : 0)
+                + (query.isRankAvailable ? 20 : 0)) : 0 + C.padding,
+                measure(query.groupBy.fields[0].name, '.8rem').width + (query.isRankAvailable ? 20 : 0)
                 + C.padding
             );
 
@@ -194,7 +193,7 @@ export class HorizontalBarsRenderer {
         }
 
         // render ranks
-        if (query.rankAvailable) {
+        if (query.isRankAvailable) {
             let background = visG.selectAll('rect.alternate')
                 .data(data, (d: any) => d.id);
 
@@ -447,12 +446,12 @@ export class HorizontalBarsRenderer {
         }
 
         this.flexBrush.on('brush', (center) => {
-            if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            if (this.safeguardType === SGT.Value && this.variableType === VT.Value) {
                 let constant = new PointValueConstant(this.xScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
-            else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            else if (this.safeguardType === SGT.Value && this.variableType === VT.Rank) {
                 let index = Math.round((center - C.horizontalBars.axis.height - C.horizontalBars.label.height)
                     / C.horizontalBars.height)
                 let constant = new PointRankConstant(index);
@@ -482,20 +481,20 @@ export class HorizontalBarsRenderer {
 
         if (!this.constant) this.setDefaultConstantFromVariable();
 
-        if ([SGT.Point, SGT.Range].includes(this.safeguardType) && this.constant)
+        if ([SGT.Value, SGT.Range].includes(this.safeguardType) && this.constant)
             this.flexBrush.show();
         else
             this.flexBrush.hide();
 
-        if (this.safeguardType === SGT.Distributive) this.distributionLine.show();
+        if (DistributiveSafeguardTypes.includes(this.safeguardType)) this.distributionLine.show();
         else this.distributionLine.hide();
 
         if (this.constant) {
-            if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            if (this.safeguardType === SGT.Value && this.variableType === VT.Value) {
                 let center = xScale((this.constant as PointValueConstant).value);
                 this.flexBrush.move(center);
             }
-            else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            else if (this.safeguardType === SGT.Value && this.variableType === VT.Rank) {
                 let center = yScale((this.constant as PointRankConstant).rank.toString());
                 this.flexBrush.move(center);
             }
@@ -509,28 +508,25 @@ export class HorizontalBarsRenderer {
             }
         }
 
-        if (this.safeguardType === SGT.Distributive) {
-            if (this.fittingType == FT.PowerLaw) {
-                this.distributionLine.render(
-                    this.constant as DistributionTrait,
-                    data,
-                    (d: Datum, i: number) => { return [i + 1, 0]; },
-                    this.xScale, this.yScale
-                )
-            }
-            else {
-                this.distributionLine.render(
-                    this.constant as DistributionTrait,
-                    data,
-                    (d: Datum) => {
-                        let range = d.keys.list[0].value();
-                        if (range == null) return null;
-                        return range as [number, number];
-                    },
-                    this.xScale, this.yScale
-                )
-            }
-
+        if (this.safeguardType === SGT.PowerLaw) {
+            this.distributionLine.render(
+                this.constant as DistributionTrait,
+                data,
+                (d: Datum, i: number) => { return [i + 1, 0]; },
+                this.xScale, this.yScale
+            )
+        }
+        else if(this.safeguardType === SGT.Normal) {
+            this.distributionLine.render(
+                this.constant as DistributionTrait,
+                data,
+                (d: Datum) => {
+                    let range = d.keys.list[0].value();
+                    if (range == null) return null;
+                    return range as [number, number];
+                },
+                this.xScale, this.yScale
+            )
         }
 
         // ADD CODE FOR SGS
@@ -576,7 +572,7 @@ export class HorizontalBarsRenderer {
             this.labels.style('cursor', 'auto');
             this.flexBrush.hide();
         }
-        else if (st == SGT.Point) {
+        else if (st == SGT.Value) {
             this.labels.style('cursor', 'pointer');
             this.flexBrush.setMode(FlexBrushMode.Point);
         }
@@ -623,12 +619,6 @@ export class HorizontalBarsRenderer {
         }
     }
 
-    fittingType: FT = FT.Normal;
-    setFittingType(ft: FT) {
-        this.fittingType = ft;
-        this.constant = null;
-    }
-
     updateHighlight() {
         this.eventBoxes
             .classed('highlighted', false)
@@ -660,12 +650,12 @@ export class HorizontalBarsRenderer {
     /* invoked when a constant is selected indirectly (by clicking on a category) */
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
-        if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+        if (this.safeguardType === SGT.Value && this.variableType === VT.Value) {
             let center = this.xScale((constant as PointValueConstant).value);
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
-        else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+        else if (this.safeguardType === SGT.Value && this.variableType === VT.Rank) {
             let center = this.yScale((constant as PointRankConstant).rank.toString());
             this.flexBrush.show();
             this.flexBrush.move(center);
@@ -697,7 +687,7 @@ export class HorizontalBarsRenderer {
     }
 
     datumSelected(d: Datum) {
-        if (![SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if (![SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if (d.ci3 === EmptyConfidenceInterval) return;
         if (d.keys.hasNullValue()) return;
 
@@ -739,12 +729,12 @@ export class HorizontalBarsRenderer {
         if (this.constant) return;
 
         if (this.variable1) {
-            if (this.safeguardType === SGT.Point && this.variableType === VT.Value) {
+            if (this.safeguardType === SGT.Value && this.variableType === VT.Value) {
                 let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
-            else if (this.safeguardType === SGT.Point && this.variableType === VT.Rank) {
+            else if (this.safeguardType === SGT.Value && this.variableType === VT.Rank) {
                 let constant = new PointRankConstant(this.getRank(this.variable1));
 
                 this.vis.constantSelected.emit(constant);
@@ -765,15 +755,13 @@ export class HorizontalBarsRenderer {
                 this.constantUserChanged(constant);
             }
         }
-        else if (this.safeguardType === SGT.Distributive) {
-            let constant;
-            if (this.fittingType == FT.Normal) {
-                constant = NormalConstant.FitFromVisData(this.query.getVisibleData());
-            }
-            else if (this.fittingType == FT.PowerLaw) {
-                constant = PowerLawConstant.FitFromVisData(this.query.getVisibleData());
-            }
-
+        else if (this.safeguardType === SGT.PowerLaw) {
+            let constant = PowerLawConstant.FitFromVisData(this.query.getVisibleData());
+            this.vis.constantSelected.emit(constant);
+            this.constantUserChanged(constant);
+        }
+        else if (this.safeguardType === SGT.Normal) {
+            let constant = NormalConstant.FitFromVisData(this.query.getVisibleData());
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }
@@ -806,7 +794,7 @@ export class HorizontalBarsRenderer {
             data
         );
 
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+        if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
             let ele = d3.select(this.eventBoxes.nodes()[i]);
             ele.classed('highlighted', true)
         }
@@ -814,7 +802,7 @@ export class HorizontalBarsRenderer {
 
     hideTooltip(d: Datum, i: number) {
         this.tooltip.hide();
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+        if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
             if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
                 !== d.keys.list[0].hash) &&
                 (!this.variable2 || this.variable2.fieldGroupedValue.hash
@@ -828,14 +816,14 @@ export class HorizontalBarsRenderer {
     toggleDropdown(d: Datum, i: number) {
         d3.event.stopPropagation();
 
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
-        if(this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
+        if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
             this.closeDropdown();
             this.closeQueryCreator();
             return;
         }
 
-        if(d == this.vis.selectedDatum) { // double click the same item
+        if (d == this.vis.selectedDatum) { // double click the same item
             this.closeDropdown();
         }
         else {
@@ -847,7 +835,7 @@ export class HorizontalBarsRenderer {
         this.vis.isQueryCreatorVisible = false;
     }
 
-    openDropdown(d:Datum) {
+    openDropdown(d: Datum) {
         this.vis.selectedDatum = d;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
@@ -869,7 +857,7 @@ export class HorizontalBarsRenderer {
     }
 
     openQueryCreator(d: Datum) {
-        if ([SGT.Point, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();

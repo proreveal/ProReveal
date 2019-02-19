@@ -3,11 +3,6 @@ import { NormalDistribution } from './normal';
 import { isNull } from 'util';
 import { Datum } from '../data/datum';
 
-export enum FittingTypes {
-    PowerLaw,
-    Normal
-}
-
 export type NumberPair = [number, number];
 export type NumberTriplet = [number, number, number];
 

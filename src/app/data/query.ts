@@ -77,7 +77,12 @@ export class AggregateQuery extends Query {
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
-    rankAvailable = true;
+
+    isRankAvailable = true;
+    isPowerLawAvailble = true;
+    isNormalAvailable = false;
+    isLinearAvailable = false;
+
     hasAggregateFunction = true;
 
     safeguards: Safeguard[] = []; // underlying safeguards
@@ -375,7 +380,12 @@ export class Histogram1DQuery extends AggregateQuery {
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
-    rankAvailable = false;
+
+    isRankAvailable = false;
+    isPowerLawAvailble = true;
+    isNormalAvailable = true;
+    isLinearAvailable = false;
+
     hasAggregateFunction = false;
 
     aggregationLevel = 2;
@@ -484,7 +494,12 @@ export class Histogram2DQuery extends AggregateQuery {
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
-    rankAvailable = false;
+
+    isRankAvailable = false;
+    isPowerLawAvailble = false;
+    isNormalAvailable = false;
+    isLinearAvailable = true;
+
     hasAggregateFunction = false;
 
     aggregationLevelX = 2;
@@ -619,7 +634,12 @@ export class Frequency1DQuery extends AggregateQuery {
     name = "Frequency1DQuery";
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
-    rankAvailable = true;
+
+    isRankAvailable = true;
+    isPowerLawAvailble = true;
+    isNormalAvailable = false;
+    isLinearAvailable = false;
+
     hasAggregateFunction = false;
 
     constructor(public grouping: FieldTrait,
@@ -668,7 +688,12 @@ export class Frequency2DQuery extends AggregateQuery {
     name = "Frequency2DQuery";
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
-    rankAvailable = false;
+
+    isRankAvailable = false;
+    isPowerLawAvailble = false;
+    isNormalAvailable = false;
+    isLinearAvailable = false;
+
     hasAggregateFunction = false;
 
     constructor(

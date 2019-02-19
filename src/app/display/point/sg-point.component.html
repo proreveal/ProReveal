@@ -14,8 +14,8 @@
 <form class="inplace-editor" *ngIf="!isRank && editing">
     <div class="input-group inline ml-1">
         <input type="text" class="form-control form-control-sm"
-        [ngModel]="constant.value | number: numberFormat"
-        [size]="(constant.value.toString() | number: numberFormat).length" name="valueConstant"
+        [ngModel]="constant.value | smartNumber"
+        [size]="(constant.value.toString() | smartNumber).length" name="valueConstant"
         autofocus #valueConstant>
         <div class="input-group-append">
             <button type="submit" class="btn btn-success form-control-sm"
@@ -31,7 +31,7 @@
 <form class="inplace-editor" *ngIf="isRank && editing">
     <div class="input-group inline ml-1">
         <input type="text" class="form-control form-control-sm"
-        [ngModel]="constant.rank | number: numberFormat"
+        [ngModel]="constant.rank | smartNumber"
         size="3" name="rankConstant" autofocus #rankConstant>
         <div class="input-group-append">
             <button type="submit" class="btn btn-success form-control-sm"
