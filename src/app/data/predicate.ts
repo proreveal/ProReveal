@@ -54,7 +54,11 @@ export class AndPredicate extends Predicate {
 
     and(predicate: Predicate): AndPredicate {
         let clone = this.predicates.slice();
-        clone.push(predicate);
+
+        if(predicate instanceof AndPredicate) {
+            clone = clone.concat(predicate.predicates);
+        }
+        else clone.push(predicate);
 
         return new AndPredicate(clone);
     }

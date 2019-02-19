@@ -1,4 +1,4 @@
-<div *ngIf="query && query">
+<div *ngIf="query">
     <header>
         <query-indicator [query]="query"
             (approximatorChanged)="approximatorChanged($event)"
@@ -141,7 +141,6 @@
                 See only these data items
             </a>
             <h6 class="dropdown-header px-3">Create a safeguard on this</h6>
-
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Value)">
                 <svg class="mr-1">
                     <circle cx="10" cy="12" r="3"></circle>

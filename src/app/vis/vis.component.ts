@@ -228,7 +228,7 @@ export class VisComponent implements DoCheck {
     filterClick() {
         this.isDropdownVisible = false;
 
-        (this.renderer as HorizontalBarsRenderer).openQueryCreator(this.selectedDatum);
+        this.renderer.openQueryCreator(this.selectedDatum);
         return false;
     }
 

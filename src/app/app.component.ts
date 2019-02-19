@@ -138,9 +138,9 @@ export class AppComponent implements OnInit {
             // this.toggleMetadataEditor();
 
             // this.testEqualWhere();
-            // this.testCC();
+            this.testCC();
 
-            this.testNN();
+            // this.testNN();
             // this.testCN();
 
             // this.testNN();

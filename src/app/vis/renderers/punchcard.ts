@@ -17,6 +17,7 @@ import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
 import { AngularBrush, AngularBrushMode } from './angular-brush';
+import { AndPredicate } from '../../data/predicate';
 
 export class PunchcardRenderer {
     gradient = new Gradient();
@@ -363,7 +364,7 @@ export class PunchcardRenderer {
 
         this.variableHighlight =
             selectOrAppend(visG, 'rect', '.variable1.highlighted')
-                .attr('width', matrixWidth - header - yLabelWidth)
+                .attr('width', Math.max(0, matrixWidth - header - yLabelWidth))
                 .attr('height', height - header)
                 .attr('transform', translate(yLabelWidth, header))
                 .attr('display', 'none')
@@ -371,7 +372,7 @@ export class PunchcardRenderer {
 
         this.variableHighlight2 =
             selectOrAppend(visG, 'rect', '.variable2.highlighted')
-                .attr('width', matrixWidth - header - yLabelWidth)
+                .attr('width', Math.max(0, matrixWidth - header - yLabelWidth))
                 .attr('height', height - header)
                 .attr('transform', translate(yLabelWidth, header))
                 .attr('display', 'none')
@@ -438,7 +439,7 @@ export class PunchcardRenderer {
 
     constant: ConstantTrait;
 
-    safeguardType: SGT;
+    safeguardType: SGT = SGT.None;
     setSafeguardType(st: SGT) {
         this.safeguardType = st;
 
@@ -632,6 +633,33 @@ export class PunchcardRenderer {
         this.vis.emptySelectedDatum();
         this.vis.isQueryCreatorVisible = false;
         this.vis.isDropdownVisible = false;
+    }
+
+    openQueryCreator(d: Datum) {
+        if (this.safeguardType != SGT.None) return;
+
+        const clientRect = this.nativeSvg.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
+        let i = this.data.indexOf(d);
+        let left = clientRect.left - parentRect.left
+            + this.xScale(d.keys.list[this.xKeyIndex].hash) + this.xScale.bandwidth() / 2;
+        let top = clientRect.top - parentRect.top + this.yScale(d.keys.list[this.yKeyIndex].hash),
+
+        this.vis.isQueryCreatorVisible = true;
+        this.vis.queryCreatorTop = top;
+        this.vis.queryCreatorLeft = left;
+
+        let where: AndPredicate = this.vis.query.where;
+        // where + datum
+
+        console.log(this.query.getPredicateFromDatum(d));
+        where = where.and(this.query.getPredicateFromDatum(d));
+        this.vis.queryCreator.where = where;
+    }
+
+    closeQueryCreator() {
+        this.vis.isQueryCreatorVisible = false;
     }
 
     emptySelectedDatum() {
