@@ -17,6 +17,7 @@ export interface AngularBrushOptions {
 export class AngularBrush<Datum> {
     brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     brushLine2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    referenceLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     root: G;
     g: G;
     g1: G; // left
@@ -53,11 +54,20 @@ export class AngularBrush<Datum> {
         this.handleG1.style('display', 'none')
         this.handleG2.style('display', 'none')
 
+        let referenceLine = selectOrAppend(root as any, 'line', '.reference-line')
+        this.referenceLine = referenceLine;
+
         let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
         this.brushLine = brushLine;
 
         brushLine
             .style('stroke', 'black')
+            .attr('pointer-events', 'none')
+
+        referenceLine
+            .style('stroke', 'red')
+            .style('stroke-width', 3)
+            .style('stroke-linecap', 'round')
             .attr('pointer-events', 'none')
     }
 
@@ -75,6 +85,24 @@ export class AngularBrush<Datum> {
             this.g2.style('display', 'inline');
         }
         this.brushLine.style('display', 'none')
+    }
+
+    setReferenceValue(ref: number) {
+        let extent = this.extent;
+
+        let [[startX, startY], [endX, endY]] = extent;
+        let width = endX - startX;
+        let height = endY - startY;
+
+        let norm = (ref - startX) / (endX - startX);
+        let angle = (norm - 0.5) * Math.PI / 3;
+
+        this.referenceLine
+            .style('display', 'inline')
+            .attr('x1', norm * (endX - startX) + startX)
+            .attr('y1', startY + height * (1 - Math.cos(angle)))
+            .attr('x2', startX + width / 2)
+            .attr('y2', endY)
     }
 
     setCenter(center: number) {

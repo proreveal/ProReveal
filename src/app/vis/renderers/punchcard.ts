@@ -479,7 +479,6 @@ export class PunchcardRenderer {
     }
 
     updateHighlight() {
-
         this.eventRects
             .classed('stroke-highlighted', false)
             .filter((d) =>
@@ -529,7 +528,10 @@ export class PunchcardRenderer {
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
-        if (this.safeguardType === SGT.Range) {
+        if(this.safeguardType === SGT.Point) {
+            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+        }
+        else if (this.safeguardType === SGT.Range) {
             this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
         }
         this.updateHighlight();
