@@ -85,6 +85,10 @@ header {
         stroke: black;
         stroke-width: 3px;
         stroke-linecap: round;
+
+        &.thin {
+            stroke-width: 2px;
+        }
     }
 
     path {
@@ -97,6 +101,12 @@ header {
     small {
         opacity: .8;
         font-family: 'Roboto Condensed';
+    }
+
+    a:active {
+        circle, line, path {
+            stroke: white;
+        }
     }
 }
 
