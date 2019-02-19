@@ -533,6 +533,7 @@ export class PunchcardRenderer {
         }
         else if (this.safeguardType === SGT.Range) {
             this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
+            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
         }
         this.updateHighlight();
 
