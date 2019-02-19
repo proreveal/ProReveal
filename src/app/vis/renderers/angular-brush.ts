@@ -147,12 +147,13 @@ export class AngularBrush<Datum> {
     <path d="M0.5,33.33A6,6 0 0 1 6.5,39.33V60.66A6,6 0 0 1 0.5,66.66ZM2.5,41.33V58.66M4.5,41.33V58.66"></path>
     */
 
-    render(extent = [[1, 2], [3, 4]] as [[number, number], [number, number]]) {
+    render(extent:Extent) {
         this.extent = extent;
-        this.brush.extent([[extent[0][0] - brushSize, extent[0][1] - 2 * brushSize],
-            [extent[1][0] + brushSize, (extent[1][1] - extent[0][1]) * (1 - Math.cos(Math.PI / 3))]]);
-        this.brush1.extent(extent);
-        this.brush2.extent(extent);
+        let adjustedExtent: Extent = [[extent[0][0] - brushSize, extent[0][1] - 2 * brushSize],
+            [extent[1][0] + brushSize, (extent[1][1] - extent[0][1]) * (1 - Math.cos(Math.PI / 3))]];
+        this.brush.extent(adjustedExtent);
+        this.brush1.extent(adjustedExtent);
+        this.brush2.extent(adjustedExtent);
 
         this.g.call(this.brush);
         this.g1.call(this.brush1);
@@ -161,12 +162,6 @@ export class AngularBrush<Datum> {
         this.g.select('rect.selection').style('stroke-width', 0);
         this.g1.select('rect.selection').style('stroke-width', 0);
         this.g2.select('rect.selection').style('stroke-width', 0);
-
-        let translation = translate(0, this.extent[0][1] - 40);
-
-        this.handleG.attr('transform', translation);
-        this.handleG1.attr('transform', translation);
-        this.handleG2.attr('transform', translation);
 
         let handles = this.handleG.selectAll('.fb-handle')
             .data(this.handles);
@@ -339,12 +334,12 @@ export class AngularBrush<Datum> {
             let height = endY - startY;
             let y = startY + height * (1 - Math.cos(angle));
 
-            let adj = startY + 10;
+            let adj = startY - 10;
 
             d3.select(handles.nodes()[0])
                 .attr('transform', `translate(${
-                            x + adj * Math.sin(angle) / 2
-                            - brushSize * Math.cos(angle) + brushSize * (norm * 2 - 1) * 1.2
+                            x + adj * Math.sin(angle)
+                            - brushSize * Math.cos(angle)
                             }, ${
                             y - adj * Math.cos(angle)
                             - brushSize * Math.sin(angle)
@@ -353,8 +348,8 @@ export class AngularBrush<Datum> {
 
             d3.select(handles.nodes()[1])
                 .attr('transform', `translate(${
-                            x + adj * Math.sin(angle) / 2
-                            + brushSize * Math.cos(angle) + brushSize * (norm * 2 - 1) * 1.2
+                            x + adj * Math.sin(angle)
+                            + brushSize * Math.cos(angle)
                             }, ${
                             y - adj * Math.cos(angle)
                             + brushSize * Math.sin(angle)
