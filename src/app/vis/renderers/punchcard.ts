@@ -333,39 +333,35 @@ export class PunchcardRenderer {
         const padding = C.punchcard.legendPadding;
         let legend = vsup.legend.arcmapLegend()
             .scale(zScale).size(size);
-        let fsvgw = d3.select(floatingSvg);
-        let fsvg = fsvgw.select('.legend');
-        let fbrush = fsvgw.select('.angular-brush');
+        let floatingSvgWrapper = d3.select(floatingSvg);
+        let floatingLegend = floatingSvgWrapper.select('.legend');
+        let floatingBrush = floatingSvgWrapper.select('.angular-brush');
 
         let parentWidth = nativeSvg.parentElement.parentElement.offsetWidth;
+        let parentOffsetTop = nativeSvg.getBoundingClientRect().top;
+        floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+        floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+        selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
+        selectOrAppend(floatingLegend, 'g', '.z.legend')
+            .attr('transform', translate(padding, 2 * padding))
+            .append('g')
+            .call(legend);
 
-        /*this.angularBrush.setMode(AngularBrushMode.Point);
-        this.angularBrush.render([[padding, padding], [size + padding, size + padding]]);
-        this.angularBrush.move(100);*/
+        selectOrAppend(visG, 'g', '.z.legend').remove();
 
         if(matrixWidth + size + padding * 2 > parentWidth) {
-            fsvg.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
-            fbrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
-            selectOrAppend(fsvg, 'g', '.z.legend').selectAll('*').remove();
-            selectOrAppend(fsvg, 'g', '.z.legend')
-                .attr('transform', translate(padding, 2 * padding))
-                .append('g')
-                .call(legend);
-
-            selectOrAppend(visG, 'g', '.z.legend').remove();
-            fsvgw
-                .style('display', 'block')
-                .style('left', `${parentWidth - size - padding * 2 - C.padding}px`)
+            floatingSvgWrapper
+                .style('position', 'sticky')
+                .style('left', `${parentWidth - size - padding * 3}px`)
                 .style('bottom', `${C.padding}px`)
+                .style('top', 'auto')
         }
         else {
-            selectOrAppend(visG, 'g', '.z.legend').selectAll('*').remove();
-            selectOrAppend(visG, 'g', '.z.legend')
-                .attr('transform', translate(matrixWidth, 2 * padding))
-                .append('g')
-                .call(legend);
-
-            fsvgw.style('display', 'none');
+            floatingSvgWrapper
+                .style('position', 'absolute')
+                .style('left', `${matrixWidth}px`)
+                .style('top', `${parentOffsetTop}px`)
+                .style('bottom', 'auto')
         }
 
         this.variableHighlight =
@@ -429,7 +425,6 @@ export class PunchcardRenderer {
     highlight(highlighted: number) {
         this.variableHighlight.attr('display', 'none')
         this.variableHighlight2.attr('display', 'none')
-        //this.constantHighlight.style('opacity', 0)
 
         if (highlighted == 1) {
             this.variableHighlight.attr('display', 'inline')
