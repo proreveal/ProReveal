@@ -4,6 +4,7 @@
         <div class="container mb-3">
             <div class="row no-gutters">
                 <div *ngFor="let pred of where.predicates" class="col-12 mb-1">
+                    {{ pred.field }}
                     <span class="btn btn-sm btn-secondary" style="cursor:default">
                         <field-badge [field]="pred.target"></field-badge>
                         <predicate-indicator [predicate]="pred"></predicate-indicator>

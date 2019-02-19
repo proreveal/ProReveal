@@ -545,7 +545,7 @@ export class HorizontalBarsRenderer {
 
     constant: ConstantTrait;
 
-    safeguardType: SGT;
+    safeguardType: SGT = SGT.None;
     setSafeguardType(st: SGT) {
         this.safeguardType = st;
 

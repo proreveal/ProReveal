@@ -690,7 +690,7 @@ export class Frequency2DQuery extends AggregateQuery {
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
 
     isRankAvailable = false;
-    isPowerLawAvailble = false;
+    isPowerLawAvailable = false;
     isNormalAvailable = false;
     isLinearAvailable = false;
 
@@ -722,6 +722,15 @@ export class Frequency2DQuery extends AggregateQuery {
 
     compatible(fields: FieldTrait[]) {
         return [];
+    }
+
+    getPredicateFromDatum(d: Datum) {
+        let field1 = this.groupBy.fields[0];
+        let field2 = this.groupBy.fields[1];
+        return new AndPredicate([
+            new EqualPredicate(field1, d.keys.list[0].value()),
+            new EqualPredicate(field2, d.keys.list[1].value())
+        ])
     }
 }
 
