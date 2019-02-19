@@ -79,7 +79,7 @@ export class AggregateQuery extends Query {
     updateAutomatically = true;
 
     isRankAvailable = true;
-    isPowerLawAvailble = true;
+    isPowerLawAvailable = true;
     isNormalAvailable = false;
     isLinearAvailable = false;
 
@@ -382,7 +382,7 @@ export class Histogram1DQuery extends AggregateQuery {
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
 
     isRankAvailable = false;
-    isPowerLawAvailble = true;
+    isPowerLawAvailable = true;
     isNormalAvailable = true;
     isLinearAvailable = false;
 
@@ -496,7 +496,7 @@ export class Histogram2DQuery extends AggregateQuery {
         d.keys.list[0].groupId[0] : d.keys.list[0].groupId;
 
     isRankAvailable = false;
-    isPowerLawAvailble = false;
+    isPowerLawAvailable = false;
     isNormalAvailable = false;
     isLinearAvailable = true;
 
@@ -636,7 +636,7 @@ export class Frequency1DQuery extends AggregateQuery {
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
 
     isRankAvailable = true;
-    isPowerLawAvailble = true;
+    isPowerLawAvailable = true;
     isNormalAvailable = false;
     isLinearAvailable = false;
 

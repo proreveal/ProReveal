@@ -74,11 +74,6 @@ export class AppComponent implements OnInit {
     useLinear = false;
     useNormal = true;
 
-    isRankAvailable = false;
-    isPowerLawAvailable = false;
-    isNormalAvailable = false;
-    isLinearAvailable = false;
-
     pointValueConstant: PointValueConstant = new PointValueConstant(0);
     pointRankConstant: PointRankConstant = new PointRankConstant(1);
 
@@ -361,11 +356,11 @@ export class AppComponent implements OnInit {
 
     createDistributiveSafeguard() {
         let sg: DistributiveSafeguard;
-        if(!this.useLinear && this.useNormal)
+        if(this.activeSafeguardPanel === SGT.Normal)
             sg = new NormalSafeguard(this.normalConstant, this.activeQuery);
-        else if(!this.useLinear && !this.useNormal)
+        else if(this.activeSafeguardPanel === SGT.PowerLaw)
             sg = new PowerLawSafeguard(this.powerLawConstant, this.activeQuery);
-        else if(this.useLinear)
+        else if(this.activeSafeguardPanel === SGT.Linear)
             sg = new LinearSafeguard(this.linearRegressionConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
