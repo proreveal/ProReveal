@@ -21,11 +21,16 @@ const PointMinMaxRankEstimate = new PointMinMaxRankValueEstimator().estimate;
 
 export enum SafeguardTypes {
     None = "None",
-    Point = "Point",
+    Value = "Value",
+    Rank = "Rank",
     Range = "Range",
     Comparative = "Comparative",
-    Distributive = "Distributive"
+    PowerLaw = "PowerLaw",
+    Normal = "Normal",
+    Linear = "Linear"
 }
+
+export const DistributiveSafeguardTypes = [SafeguardTypes.PowerLaw, SafeguardTypes.Normal, SafeguardTypes.Linear];
 
 export class Safeguard {
     static normal = new NormalDistribution();
@@ -52,25 +57,21 @@ export class Safeguard {
     }
 }
 
-export class PointSafeguard extends Safeguard {
+export abstract class DistributiveSafeguard extends Safeguard {
+    updateConstant() { };
+}
+
+export class ValueSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
 
     constructor(public variable: VariableTrait,
         public operator: Operators,
         public constant: ConstantTrait,
         public query: AggregateQuery) {
-        super(SafeguardTypes.Point, variable, operator, constant, query);
+        super(SafeguardTypes.Value, variable, operator, constant, query);
     }
 
     p() {
-        if (this.variable.isRank)
-            return PointRankEstimate(
-                this.query,
-                this.variable,
-                this.operator,
-                this.constant as PointRankConstant);
-
-
         return PointValueEstimate(
             this.query,
             this.variable,
@@ -79,18 +80,43 @@ export class PointSafeguard extends Safeguard {
     }
 
     t() {  // min or max
-        if (this.variable.isRank)
-            return PointMinMaxRankEstimate(
-                this.query,
-                this.variable,
-                this.operator,
-                this.constant as PointRankConstant);
-
         return PointMinMaxValueEstimate(
             this.query,
             this.variable,
             this.operator,
             this.constant as PointValueConstant);
+    }
+
+    validity() {
+        if (this.query.approximator.estimatable) return this.p();
+        return this.t();
+    }
+}
+
+export class RankSafeguard extends Safeguard {
+    readonly validityType = ValidityTypes.PValue;
+
+    constructor(public variable: VariableTrait,
+        public operator: Operators,
+        public constant: ConstantTrait,
+        public query: AggregateQuery) {
+        super(SafeguardTypes.Rank, variable, operator, constant, query);
+    }
+
+    p() {
+        return PointRankEstimate(
+            this.query,
+            this.variable,
+            this.operator,
+            this.constant as PointRankConstant);
+    }
+
+    t() {  // min or max
+        return PointMinMaxRankEstimate(
+            this.query,
+            this.variable,
+            this.operator,
+            this.constant as PointRankConstant);
     }
 
     validity() {
@@ -109,9 +135,6 @@ export class RangeSafeguard extends Safeguard {
     }
 
     p() {
-        if (this.variable.isRank)
-            throw new Error('Cannot estimate the p value for rank');
-
         return RangeValueEstimate(
             this.query,
             this.variable,
@@ -148,31 +171,68 @@ export class ComparativeSafeguard extends Safeguard {
     }
 }
 
-export class DistributiveSafeguard extends Safeguard {
-    get validityType() {
-        if (this.constant instanceof LinearRegressionConstant) return ValidityTypes.Error;
-        return ValidityTypes.Quality
-    };
+export class PowerLawSafeguard extends DistributiveSafeguard {
+    readonly validityType = ValidityTypes.Quality;
 
     constructor(public constant: ConstantTrait,
         public query: AggregateQuery) {
-        super(SafeguardTypes.Distributive,
+        super(SafeguardTypes.PowerLaw,
             new DistributiveVariable(),
             Operators.Follow,
             constant, query);
     }
 
     q() {
-        if (this.constant instanceof NormalConstant) {
-            return NormalEstimate(
-                this.query,
-                this.constant as NormalConstant);
-        }
-
         return PowerLawEstimate(
             this.query,
             this.constant as PowerLawConstant
         );
+    }
+
+    validity() {
+        return this.q();
+    }
+
+    updateConstant() {
+        this.constant = PowerLawConstant.FitFromVisData(this.query.getRecentData());
+    }
+}
+
+export class NormalSafeguard extends DistributiveSafeguard {
+    readonly validityType = ValidityTypes.Quality;
+
+    constructor(public constant: ConstantTrait,
+        public query: AggregateQuery) {
+        super(SafeguardTypes.Normal,
+            new DistributiveVariable(),
+            Operators.Follow,
+            constant, query);
+    }
+
+    q() {
+        return NormalEstimate(
+            this.query,
+            this.constant as NormalConstant);
+    }
+
+    validity() {
+        return this.q();
+    }
+
+    updateConstant() {
+        this.constant = NormalConstant.FitFromVisData(this.query.getRecentData());
+    }
+}
+
+export class LinearSafeguard extends DistributiveSafeguard {
+    readonly validityType = ValidityTypes.Error;
+
+    constructor(public constant: ConstantTrait,
+        public query: AggregateQuery) {
+        super(SafeguardTypes.Linear,
+            new DistributiveVariable(),
+            Operators.Follow,
+            constant, query);
     }
 
     e() {
@@ -183,22 +243,10 @@ export class DistributiveSafeguard extends Safeguard {
     }
 
     validity() {
-        if (this.constant instanceof LinearRegressionConstant) return this.e();
-        return this.q();
+        return this.e();
     }
 
     updateConstant() {
-        if (this.constant instanceof NormalConstant) {
-            this.constant = NormalConstant.FitFromVisData(this.query.getRecentData());
-        }
-        else if (this.constant instanceof PowerLawConstant) {
-            this.constant = PowerLawConstant.FitFromVisData(this.query.getRecentData());
-        }
-        else if (this.constant instanceof LinearRegressionConstant) {
-            this.constant = LinearRegressionConstant.FitFromVisData(this.query.getRecentData());
-        }
-        else {
-            throw new Error(`Unknown constant type: ${this.constant}`);
-        }
+        this.constant = LinearRegressionConstant.FitFromVisData(this.query.getRecentData());
     }
 }

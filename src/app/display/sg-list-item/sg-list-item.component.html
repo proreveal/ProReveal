@@ -5,14 +5,14 @@
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
-    <p-indicator *ngIf="sg.type == SGT.Point && sg.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
-    <truthiness-indicator *ngIf="sg.type == SGT.Point && !sg.query.approximator.estimatable" [t]="sg.t()"></truthiness-indicator>
+    <p-indicator *ngIf="(sg.type == SGT.Value || sg.type == SGT.Rank) && sg.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
+    <truthiness-indicator *ngIf="(sg.type == SGT.Value || sg.type == SGT.Rank) && !sg.query.approximator.estimatable" [t]="sg.t()"></truthiness-indicator>
 
-    <p-indicator *ngIf="sg.type == SGT.Range && !sg.variable.isRank" [p]="sg.p()"></p-indicator>
-    <p-indicator *ngIf="sg.type == SGT.Comparative && !sg.variable.isRank" [p]="sg.p()"></p-indicator>
+    <p-indicator *ngIf="sg.type == SGT.Range" [p]="sg.p()"></p-indicator>
+    <p-indicator *ngIf="sg.type == SGT.Comparative" [p]="sg.p()"></p-indicator>
 
-    <quality-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name != 'linear_regression'" [q]="sg.q()"></quality-indicator>
-    <error-indicator *ngIf="sg.type == SGT.Distributive && sg.constant.name == 'linear_regression'" [e]="sg.e()"></error-indicator>
+    <quality-indicator *ngIf="sg.type == SGT.PowerLaw || sg.type == SGT.Normal" [q]="sg.q()"></quality-indicator>
+    <error-indicator *ngIf="sg.type == SGT.Linear" [e]="sg.e()"></error-indicator>
 
     <!--<fa-icon [icon]="['far', 'clock']"></fa-icon>
     <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>

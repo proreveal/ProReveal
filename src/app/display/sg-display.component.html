@@ -1,4 +1,4 @@
-<sg-point *ngIf="sg.type === SGT.Point" [query]="sg.query"
+<sg-point *ngIf="sg.type === SGT.Value || sg.type === SGT.Rank" [query]="sg.query"
 [variable]="sg.variable" [isRank]="sg.variable.isRank"
 [operator]="sg.operator" [constant]="sg.constant"></sg-point>
 <sg-range *ngIf="sg.type === SGT.Range" [query]="sg.query"
@@ -6,5 +6,5 @@
 <sg-comparative *ngIf="sg.type === SGT.Comparative" [query]="sg.query"
 [variable1]="sg.variable.first" [variable2]="sg.variable.second"
 [operator]="sg.operator"></sg-comparative>
-<sg-distributive *ngIf="sg.type === SGT.Distributive" [query]="sg.query"
+<sg-distributive *ngIf="DSGT.includes(sg.type)" [query]="sg.query"
 [constant]="sg.constant" [groupBy]="sg.query.groupBy"></sg-distributive>

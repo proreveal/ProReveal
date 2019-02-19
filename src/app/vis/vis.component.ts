@@ -6,7 +6,7 @@ import { PunchcardRenderer } from './renderers/punchcard';
 import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
-import { ConstantTrait, FittingTypes } from '../safeguard/constant';
+import { ConstantTrait } from '../safeguard/constant';
 import { Constants as C } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
 import { Priority } from '../data/engine';
@@ -134,11 +134,6 @@ export class VisComponent implements DoCheck {
 
     setVariableType(type: VariableTypes) {
         this.renderer.setVariableType(type);
-        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
-    }
-
-    setFittingType(type: FittingTypes) {
-        this.renderer.setFittingType(type);
         this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
     }
 

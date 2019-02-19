@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
+import { Safeguard, SafeguardTypes, DistributiveSafeguardTypes } from '../safeguard/safeguard';
 
 @Component({
   selector: 'sg-display',
@@ -9,6 +9,7 @@ import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 export class SgDisplayComponent implements OnInit {
     @Input('safeguard') sg: Safeguard;
     SGT = SafeguardTypes;
+    DSGT = DistributiveSafeguardTypes;
 
     constructor() { }
 
