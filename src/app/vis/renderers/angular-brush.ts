@@ -18,6 +18,8 @@ export class AngularBrush<Datum> {
     brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     brushLine2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
     referenceLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    selectionArcPath: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+
     root: G;
     g: G;
     g1: G; // left
@@ -34,6 +36,7 @@ export class AngularBrush<Datum> {
     handlers: { brush?: (range: number | [number, number]) => void } = {};
     center: number = 600;
     lastSelection: [number, number];
+    selectionArc = d3.arc();
 
     constructor(public mode = AngularBrushMode.Point, public options: AngularBrushOptions = {}) {
         this.setMode(mode);
@@ -60,6 +63,9 @@ export class AngularBrush<Datum> {
         let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
         this.brushLine = brushLine;
 
+        let selectionArcPath = selectOrAppend(root as any, 'path', '.selection-arc')
+        this.selectionArcPath = selectionArcPath;
+
         brushLine
             .style('stroke', 'black')
             .attr('pointer-events', 'none')
@@ -68,6 +74,11 @@ export class AngularBrush<Datum> {
             .style('stroke', 'red')
             .style('stroke-width', 3)
             .style('stroke-linecap', 'round')
+            .attr('pointer-events', 'none')
+
+        selectionArcPath
+            .style('fill', 'black')
+            .style('opacity', .2)
             .attr('pointer-events', 'none')
     }
 
@@ -330,27 +341,36 @@ export class AngularBrush<Datum> {
 
             let adj = startY + 10;
 
-            handles
-                .attr('transform', (d, i: number) => {
-                    if (i == 0) {
-                        return `translate(${
+            d3.select(handles.nodes()[0])
+                .attr('transform', `translate(${
                             x + adj * Math.sin(angle) / 2
                             - brushSize * Math.cos(angle) + brushSize * (norm * 2 - 1) * 1.2
                             }, ${
                             y - adj * Math.cos(angle)
                             - brushSize * Math.sin(angle)
                             })rotate(${angle * 180 / Math.PI})`
-                    }
-                    else {
-                        return `translate(${
+                );
+
+            d3.select(handles.nodes()[1])
+                .attr('transform', `translate(${
                             x + adj * Math.sin(angle) / 2
                             + brushSize * Math.cos(angle) + brushSize * (norm * 2 - 1) * 1.2
                             }, ${
                             y - adj * Math.cos(angle)
                             + brushSize * Math.sin(angle)
                             })rotate(${angle * 180 / Math.PI})`
-                    }
-                });
+                );
+
+            this.selectionArc
+                .innerRadius(0)
+                .outerRadius(height)
+                .startAngle(angle - brushSize / height)
+                .endAngle(angle + brushSize / height)
+
+            this.selectionArcPath
+                .attr('d', this.selectionArc)
+                .attr('transform', translate(startX + width / 2, endY));
+
         }
         else if (this.mode == AngularBrushMode.SymmetricRange) {
             let handles1: any = this.handleG1.selectAll('.fb-handle');
