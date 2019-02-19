@@ -140,7 +140,7 @@ export class AppComponent implements OnInit {
             // this.testEqualWhere();
             // this.testCC();
 
-            // this.testN();
+            this.testNN();
             // this.testCN();
 
             // this.testNN();
