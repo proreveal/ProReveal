@@ -28,6 +28,7 @@ export class AngularBrush<Datum> {
     handleG1: G;
     handleG2: G;
     extent: Extent;
+    adjustedExtent: Extent;
     brush: d3.BrushBehavior<Datum> = d3.brushX();
     brush1: d3.BrushBehavior<Datum> = d3.brushX();
     brush2: d3.BrushBehavior<Datum> = d3.brushX();
@@ -120,12 +121,14 @@ export class AngularBrush<Datum> {
         this.center = center;
 
         let extent = this.extent;
+        let adjustedExtent = this.adjustedExtent;
 
         let x1 = extent[0][0], x2 = extent[1][0];
 
         let width = Math.min(center - x1, x2 - center);
-        this.brush1.extent([[this.center - width, extent[0][1]], [this.center, extent[1][1]]]);
-        this.brush2.extent([[this.center, extent[0][1]], [this.center + width, extent[1][1]]]);
+
+        this.brush1.extent([[this.center - width, adjustedExtent[0][1]], [this.center, adjustedExtent[1][1]]]);
+        this.brush2.extent([[this.center, adjustedExtent[0][1]], [this.center + width, adjustedExtent[1][1]]]);
     }
 
     getHandle(dir: string, size = 10) {
@@ -151,6 +154,7 @@ export class AngularBrush<Datum> {
         this.extent = extent;
         let adjustedExtent: Extent = [[extent[0][0] - brushSize, extent[0][1] - 2 * brushSize],
             [extent[1][0] + brushSize, (extent[1][1] - extent[0][1]) * (1 - Math.cos(Math.PI / 3))]];
+        this.adjustedExtent = adjustedExtent;
         this.brush.extent(adjustedExtent);
         this.brush1.extent(adjustedExtent);
         this.brush2.extent(adjustedExtent);
@@ -174,6 +178,7 @@ export class AngularBrush<Datum> {
             .attr('class', 'fb-handle')
             .merge(handles)
             .attr('d', this.getHandle)
+            .style('pointer-events', 'none')
 
         this.handleG1
             .selectAll('.fb-handle')
@@ -182,6 +187,7 @@ export class AngularBrush<Datum> {
             .style('stroke', '#666')
             .attr('class', 'fb-handle')
             .attr('d', this.getHandle)
+            .style('pointer-events', 'none')
 
         this.handleG2
             .selectAll('.fb-handle')
@@ -190,6 +196,7 @@ export class AngularBrush<Datum> {
             .style('stroke', '#666')
             .attr('class', 'fb-handle')
             .attr('d', this.getHandle)
+            .style('pointer-events', 'none')
 
         this.brush
             .on('brush', () => {
@@ -251,8 +258,8 @@ export class AngularBrush<Datum> {
             this.g.selectAll('rect.overlay').style('display', 'none');
         }
         else if (this.mode == AngularBrushMode.SymmetricRange) {
-            this.g1.selectAll('rect.selection').style('pointer-events', 'none').style('cursor', 'default');
-            this.g2.selectAll('rect.selection').style('pointer-events', 'none').style('cursor', 'default');
+            this.g1.selectAll('rect.selection').style('pointer-events', 'none').style('cursor', 'default').style('fill', 'transparent');
+            this.g2.selectAll('rect.selection').style('pointer-events', 'none').style('cursor', 'default').style('fill', 'transparent');
 
             this.g1.selectAll('.handle.handle--e').style('display', 'none').attr('display', 'none')
             this.g2.selectAll('.handle.handle--w').style('display', 'none').attr('display', 'none')
@@ -374,10 +381,51 @@ export class AngularBrush<Datum> {
             handles1 = transition ? handles1.transition() : handles1;
             handles2 = transition ? handles2.transition() : handles2;
 
+            const [[startX, startY], [endX, endY]] = this.extent;
+            let left = start, right = end;
+
+            let normLeft = (left - startX) / (endX - startX);
+            let angleLeft = (normLeft - 0.5) * Math.PI / 3;
+
+            let normRight = (right - startX) / (endX - startX);
+            let angleRight = (normRight - 0.5) * Math.PI / 3;
+
+            let xLeft = normLeft * (endX - startX) + startX;
+            let xRight = normRight * (endX - startX) + startX;
+
+            let width = endX - startX;
+            let height = endY - startY;
+
+            let yLeft = startY + height * (1 - Math.cos(angleLeft));
+            let yRight = startY + height * (1 - Math.cos(angleRight));
+
+            let adj = startY - 10;
+
             handles1
-                .attr('transform', this.getHandleTransform(start, end));
+                .attr('transform', `translate(${
+                            xLeft + adj * Math.sin(angleLeft)
+                            }, ${
+                            yLeft - adj * Math.cos(angleLeft)
+                            })rotate(${angleLeft * 180 / Math.PI})`
+                );
+
             handles2
-                .attr('transform', this.getHandleTransform(start, end));
+                .attr('transform', `translate(${
+                            xRight + adj * Math.sin(angleRight)
+                            }, ${
+                            yRight - adj * Math.cos(angleRight)
+                            })rotate(${angleRight * 180 / Math.PI})`
+                );
+
+            this.selectionArc
+                .innerRadius(0)
+                .outerRadius(height)
+                .startAngle(angleLeft)
+                .endAngle(angleRight)
+
+            this.selectionArcPath
+                .attr('d', this.selectionArc)
+                .attr('transform', translate(startX + width / 2, endY));
         }
     }
 
@@ -387,18 +435,6 @@ export class AngularBrush<Datum> {
 
     hide() {
         this.root.attr('display', 'none');
-    }
-
-    getHandleTransform(start: number, end: number) {
-        return (d, i) => {
-            let x = 0, y = 0;
-            if (d == 'w') x = start;
-            else if (d == 'e') x = end;
-            else if (d == 'n') y = start;
-            else if (d == 's') y = end;
-
-            return translate(x, y);
-        }
     }
 
     on(event, handler) {
