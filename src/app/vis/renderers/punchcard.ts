@@ -326,8 +326,6 @@ export class PunchcardRenderer {
 
         eventBoxes.exit().remove();
 
-        console.log(this.eventBoxes.nodes().length)
-
         const size = C.punchcard.legendSize;
         const padding = C.punchcard.legendPadding;
         let legend = vsup.legend.arcmapLegend()
@@ -568,7 +566,7 @@ export class PunchcardRenderer {
                 this.constantUserChanged(constant);
             }
         }
-        else if (this.safeguardType === SGT.Distributive && this.query instanceof Histogram2DQuery) {
+        else if (this.safeguardType === SGT.Linear) {
             let constant = LinearRegressionConstant.FitFromVisData(this.query.getVisibleData(), this.xKeyIndex, this.yKeyIndex);
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);

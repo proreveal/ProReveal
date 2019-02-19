@@ -321,10 +321,8 @@
                 <sg-distributive [highlighted]="highlighted" [query]="activeQuery"
                     [constant]="powerLawConstant" [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <div class="p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0">
-                <div class="guide flex-grow-1">
-                    <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
-                </div>
+            <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
+                <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
@@ -342,10 +340,8 @@
                 <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="normalConstant"
                     [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <div class="p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0">
-                <div class="guide flex-grow-1">
-                    <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
-                </div>
+            <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
+                <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
@@ -360,19 +356,11 @@
         <!-- Linear -->
         <div *ngIf="activeSafeguardPanel == SGT.Linear">
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
+                <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="linearRegressionConstant"
                     [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <div class="p-1" *ngIf="activeQuery && activeQuery && activeQuery.visibleProgress.processedRows > 0 && activeSafeguardPanel == SGT.Distributive">
-                <div class="guide flex-grow-1" *ngIf="!useNormal && !useLinear">
-                    <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
-                </div>
-                <div class="guide flex-grow-1" *ngIf="useNormal && !useLinear">
-                    <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
-                </div>
-                <div class="guide flex-grow-1" *ngIf="useLinear">
-                    <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
-                </div>
+            <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
+                <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
