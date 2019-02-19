@@ -81,6 +81,11 @@ header {
         vertical-align: middle;
     }
 
+    text {
+        font-family: 'Arial';
+        font-weight: bold;
+    }
+
     line {
         stroke: black;
         stroke-width: 3px;
@@ -104,8 +109,13 @@ header {
     }
 
     a:active {
-        circle, line, path {
+        line, path {
             stroke: white;
+        }
+
+        text, circle {
+            stroke: white;
+            fill: white;
         }
     }
 }
