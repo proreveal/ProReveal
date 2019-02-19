@@ -125,12 +125,13 @@
             </div>
         </section>
     </section>
-    <section id="main" class="styled-scroll" (click)="visBackgroundClick()">
+    <section id="main" class="styled-scroll p-1" (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery">
             <p>
                 Choose a query to inspect.
             </p>
         </div>
+
         <vis #vis
         [hidden]="!activeQuery"
         [query]="activeQuery"
@@ -143,10 +144,11 @@
         (dataViewerRequested)="dataViewerRequested($event)"
         ></vis>
 
-        <div id="floating-svg-wrapper" class="shadow border" #floatingSvg>
+        <div id="floating-svg-wrapper" class="border" #floatingSvg>
             <svg class="mr-2 mt-2 legend"></svg>
             <svg class="mr-2 mt-2 angular-brush"></svg>
         </div>
+
     </section>
 
     <section id="safeguard-view">
