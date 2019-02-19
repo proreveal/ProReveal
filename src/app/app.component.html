@@ -251,10 +251,10 @@
         </div>
 
         <!-- Range -->
-        <div [hidden]="activeSafeguardPanel != SGT.Range">
+        <div *ngIf="activeSafeguardPanel === SGT.Range">
             <div class="display text-center p-2">
-                <sg-range *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
-                    [constant]="useRank ? rangeRankConstant : rangeValueConstant" (highlight)="highlight($event)"
+                <sg-range [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
+                    [constant]="rangeValueConstant" (highlight)="highlight($event)"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
             <div class="alert guide p-2 m-1">
@@ -270,7 +270,7 @@
                     by dragging the edge of the range brush.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0 && activeSafeguardPanel === SGT.Range && (variable1 || combinedVariable1) && rangeValueConstant">
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeValueConstant">
                 <p-indicator [p]="RangeValueEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
@@ -284,9 +284,9 @@
         </div>
 
         <!-- Comparative -->
-        <div [hidden]="activeSafeguardPanel != SGT.Comparative">
+        <div *ngIf="activeSafeguardPanel === SGT.Comparative">
             <div class="display text-center p-2">
-                <sg-comparative *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
+                <sg-comparative [highlighted]="highlighted" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
                     [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div class="alert guide p-2 m-1">
@@ -302,7 +302,7 @@
                     by <strong>right-clicking</strong> on a category.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
                 <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
             <div class="p-1 text-right">
