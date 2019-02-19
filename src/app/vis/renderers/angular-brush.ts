@@ -31,7 +31,6 @@ export class AngularBrush<Datum> {
 
     handles: string[] = ['w', 'e'];
     handlers: { brush?: (range: number | [number, number]) => void } = {};
-    snap: (number) => number;
     center: number = 600;
     lastSelection: [number, number];
 
@@ -111,12 +110,11 @@ export class AngularBrush<Datum> {
 
     render(extent = [[1, 2], [3, 4]] as [[number, number], [number, number]]) {
         this.extent = extent;
-        this.brush.extent([[extent[0][0], extent[0][1] - 2 * brushSize],
-            [extent[1][0], (extent[1][1] - extent[0][1]) * (1 - Math.cos(Math.PI / 3))]]);
+        this.brush.extent([[extent[0][0] - brushSize, extent[0][1] - 2 * brushSize],
+            [extent[1][0] + brushSize, (extent[1][1] - extent[0][1]) * (1 - Math.cos(Math.PI / 3))]]);
         this.brush1.extent(extent);
         this.brush2.extent(extent);
 
-        console.log(extent);
         this.g.call(this.brush);
         this.g1.call(this.brush1);
         this.g2.call(this.brush2);
@@ -164,6 +162,8 @@ export class AngularBrush<Datum> {
                 if (!d3.event.sourceEvent) return;
                 let sel = d3.event.selection;
                 let center = (sel[0] + sel[1]) / 2;
+                let [[startX, startY], [endX, endY]] = extent;
+                let norm = (center - (startX + brushSize)) / (endX - startX - 2 * brushSize)
 
                 this.moveBrushLine(center, false);
                 this.moveHandles(sel[0], sel[1], false);
@@ -176,7 +176,7 @@ export class AngularBrush<Datum> {
                     handles.attr('display', 'none')
 
                 let center = (d3.event.selection[0] + d3.event.selection[1]) / 2;
-                this.move(center, true, true);
+                this.move(center, true);
             })
 
         let arr = [this.brush1, this.brush2];
@@ -211,7 +211,8 @@ export class AngularBrush<Datum> {
         })
 
         if (this.mode == AngularBrushMode.Point) {
-            this.g.selectAll('rect.selection').style('pointer-events', 'all').style('cursor', 'move');
+            this.g.selectAll('rect.selection').style('pointer-events', 'all').style('cursor', 'move')
+                .style('fill', 'transparent');
             this.g.selectAll('.handle').attr('display', 'none')
             this.g.selectAll('rect.overlay').style('display', 'none');
         }
@@ -227,10 +228,9 @@ export class AngularBrush<Datum> {
         }
     }
 
-    move(range: number | [number, number], transition = false, snap = false) {
+    move(range: number | [number, number], transition = false) {
         if (typeof range === 'number') {
             let center = range;
-            if (snap && this.snap) { center = this.snap(center); }
             this.moveBrush(center - brushSize, center + brushSize, transition);
             this.moveBrushLine(center, transition);
             this.moveHandles(center - brushSize, center + brushSize, transition);
@@ -274,7 +274,7 @@ export class AngularBrush<Datum> {
         let width = endX - startX;
         let height = endY - startY;
 
-        let norm = (at - (startX + brushSize)) / (endX - startX - 2 * brushSize)
+        let norm = (at - startX) / (endX - startX);
         let angle = (norm - 0.5) * Math.PI / 3;
 
         line
@@ -292,7 +292,7 @@ export class AngularBrush<Datum> {
 
             const [[startX, startY], [endX, endY]] = this.extent;
             let at = (start + end) / 2;
-            let norm = (at - (startX + brushSize)) / (endX - startX - 2 * brushSize)
+            let norm = (at - startX) / (endX - startX);
             let angle = (norm - 0.5) * Math.PI / 3;
 
             let x = norm * (endX - startX) + startX;
@@ -300,14 +300,14 @@ export class AngularBrush<Datum> {
             let height = endY - startY;
             let y = startY + height * (1 - Math.cos(angle));
 
-            let adj = 40;
+            let adj = startY + 10;
 
             handles
                 .attr('transform', (d, i: number) => {
                     if (i == 0) {
                         return `translate(${
-                            x + adj * Math.sin(angle)
-                            - brushSize * Math.cos(angle) + brushSize * Math.sin(angle) * 2 //(norm * 2 - 1)
+                            x + adj * Math.sin(angle) / 2
+                            - brushSize * Math.cos(angle) + brushSize * (norm * 2 - 1) * 1.2
                             }, ${
                             y - adj * Math.cos(angle)
                             - brushSize * Math.sin(angle)
@@ -315,8 +315,8 @@ export class AngularBrush<Datum> {
                     }
                     else {
                         return `translate(${
-                            x + adj * Math.sin(angle)
-                            + brushSize * Math.cos(angle) + brushSize * Math.sin(angle) * 2 // (norm * 2 - 1)
+                            x + adj * Math.sin(angle) / 2
+                            + brushSize * Math.cos(angle) + brushSize * (norm * 2 - 1) * 1.2
                             }, ${
                             y - adj * Math.cos(angle)
                             + brushSize * Math.sin(angle)

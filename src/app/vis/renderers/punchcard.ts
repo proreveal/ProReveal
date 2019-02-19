@@ -33,10 +33,8 @@ export class PunchcardRenderer {
     variable2: CombinedVariable;
     query: AggregateQuery;
     nativeSvg: SVGSVGElement;
-    swatchXScale: d3.ScaleLinear<number, number>;
-    flexBrush = new FlexBrush<Datum>(FlexBrushDirection.X, FlexBrushMode.Point, {
-        yResize: 0.8
-    });
+    legendXScale: d3.ScaleLinear<number, number>; // value -> pixel
+    angularBrush = new AngularBrush();
 
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
     variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
@@ -45,7 +43,6 @@ export class PunchcardRenderer {
     visG;
     interactionG;
     brushG;
-    ngb = new AngularBrush();
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
@@ -67,11 +64,11 @@ export class PunchcardRenderer {
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
         this.brushG = selectOrAppend(svg, 'g', 'brush-layer');
-        this.flexBrush.setup(this.brushG);
+        this.angularBrush.setup(this.brushG);
 
         let fsvgw = d3.select(floatingSvg);
         let fbrush = fsvgw.select('.angular-brush');
-        this.ngb.setup(fbrush);
+        this.angularBrush.setup(fbrush);
     }
 
     render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -342,16 +339,16 @@ export class PunchcardRenderer {
 
         let parentWidth = nativeSvg.parentElement.parentElement.offsetWidth;
 
-        this.ngb.setMode(AngularBrushMode.Point);
-        this.ngb.render([[padding, padding], [size + padding, size + padding]]);
-        this.ngb.move(100);
+        /*this.angularBrush.setMode(AngularBrushMode.Point);
+        this.angularBrush.render([[padding, padding], [size + padding, size + padding]]);
+        this.angularBrush.move(100);*/
 
         if(matrixWidth + size + padding * 2 > parentWidth) {
-            fsvg.attr('width', size + 2 * padding).attr('height', size + 2 * padding);
-            fbrush.attr('width', size + 2 * padding).attr('height', size + 2 * padding);
+            fsvg.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+            fbrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
             selectOrAppend(fsvg, 'g', '.z.legend').selectAll('*').remove();
             selectOrAppend(fsvg, 'g', '.z.legend')
-                .attr('transform', translate(padding, padding))
+                .attr('transform', translate(padding, 2 * padding))
                 .append('g')
                 .call(legend);
 
@@ -364,14 +361,12 @@ export class PunchcardRenderer {
         else {
             selectOrAppend(visG, 'g', '.z.legend').selectAll('*').remove();
             selectOrAppend(visG, 'g', '.z.legend')
-                .attr('transform', translate(matrixWidth, padding))
+                .attr('transform', translate(matrixWidth, 2 * padding))
                 .append('g')
                 .call(legend);
 
             fsvgw.style('display', 'none');
         }
-
-        this.updateSwatch();
 
         this.variableHighlight =
             selectOrAppend(visG, 'rect', '.variable1.highlighted')
@@ -389,44 +384,44 @@ export class PunchcardRenderer {
                 .attr('display', 'none')
                 .style('pointer-events', 'none')
 
-        this.flexBrush.on('brush', (center) => {
+        this.angularBrush.on('brush', (center) => {
             if (this.safeguardType === SGT.Point) {
-                let constant = new PointValueConstant(this.swatchXScale.invert(center));
+                let constant = new PointValueConstant(this.legendXScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range) {
                 let sel = center as [number, number];
-                let constant = new RangeValueConstant(this.swatchXScale.invert(sel[0]),
-                    this.swatchXScale.invert(sel[1]));
+                let constant = new RangeValueConstant(this.legendXScale.invert(sel[0]),
+                    this.legendXScale.invert(sel[1]));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
         })
 
-        if (this.variableType == VT.Value) {
-            this.flexBrush.snap = null;
+        let legendXScale = d3.scaleLinear().domain(quant.valueDomain())
+            .range([padding, size + padding]);
+        this.legendXScale = legendXScale;
 
-            this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[matrixWidth, C.punchcard.legendSize * 1.5],
-            [matrixWidth + C.punchcard.legendSize, C.punchcard.legendSize * 1.5 + C.punchcard.swatchHeight]]);
+        if (this.variableType == VT.Value) {
+            this.angularBrush.render([[padding, 2 * padding], [size + padding, size + 2 * padding]]);
         }
 
         if (!this.constant) this.setDefaultConstantFromVariable();
 
         if ([SGT.Point, SGT.Range].includes(this.safeguardType) && this.constant)
-            this.flexBrush.show();
+            this.angularBrush.show();
         else
-            this.flexBrush.hide();
+            this.angularBrush.hide();
 
         if (this.constant) {
             if (this.safeguardType === SGT.Point) {
-                let center = this.swatchXScale((this.constant as PointValueConstant).value);
-                this.flexBrush.move(center);
+                let center = this.legendXScale((this.constant as PointValueConstant).value);
+                this.angularBrush.move(center);
             }
             else if (this.safeguardType === SGT.Range) {
-                let range = (this.constant as RangeValueConstant).range.map(this.swatchXScale) as [number, number];
-                this.flexBrush.move(range);
+                let range = (this.constant as RangeValueConstant).range.map(this.legendXScale) as [number, number];
+                this.angularBrush.move(range);
             }
         }
     }
@@ -463,10 +458,10 @@ export class PunchcardRenderer {
         if (st == SGT.None) {
         }
         else if (st == SGT.Point) {
-            this.flexBrush.setMode(FlexBrushMode.Point);
+            this.angularBrush.setMode(AngularBrushMode.Point);
         }
         else if (st === SGT.Range) {
-            this.flexBrush.setMode(FlexBrushMode.SymmetricRange);
+            this.angularBrush.setMode(AngularBrushMode.SymmetricRange);
         }
         else if (st === SGT.Comparative) {
         }
@@ -503,14 +498,14 @@ export class PunchcardRenderer {
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
         if (this.safeguardType === SGT.Point) {
-            let center = this.swatchXScale((constant as PointValueConstant).value);
-            this.flexBrush.show();
-            this.flexBrush.move(center);
+            let center = this.legendXScale((constant as PointValueConstant).value);
+            this.angularBrush.show();
+            this.angularBrush.move(center);
         }
         else if (this.safeguardType === SGT.Range) {
-            let range = (constant as RangeValueConstant).range.map(this.swatchXScale) as [number, number];
-            this.flexBrush.show();
-            this.flexBrush.move(range);
+            let range = (constant as RangeValueConstant).range.map(this.legendXScale) as [number, number];
+            this.angularBrush.show();
+            this.angularBrush.move(range);
         }
     }
 
@@ -534,10 +529,8 @@ export class PunchcardRenderer {
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
-        this.updateSwatch();
-
         if (this.safeguardType === SGT.Range) {
-            this.flexBrush.setCenter(this.swatchXScale(d.ci3.center));
+            this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
         }
         this.updateHighlight();
 
@@ -609,91 +602,6 @@ export class PunchcardRenderer {
 
     hideTooltip() {
         this.tooltip.hide();
-    }
-
-    updateSwatch() {
-        let swatch = selectOrAppend(this.visG, 'g', '.swatch')
-            .attr('transform', translate(0, C.punchcard.legendSize * 1.5))
-
-        swatch.style('display', 'none');
-        if (!this.variable1) return;
-        if (this.safeguardType !== SGT.Point && this.safeguardType !== SGT.Range) return;
-        swatch.style('display', 'inline');
-
-        let swatchXScale = d3.scaleLinear<number>().domain([
-            this.query.domainStart,
-            this.query.domainEnd]).range([
-                this.matrixWidth,
-                this.matrixWidth + C.punchcard.legendSize
-            ])
-        this.swatchXScale = swatchXScale;
-
-        let datum = this.getDatum(this.variable1);
-
-        selectOrAppend(swatch, 'g', '.top.main.axis')
-            .call(d3.axisTop(swatchXScale))
-
-        selectOrAppend(swatch, 'g', '.bottom.main.axis')
-            .attr('transform', translate(0, C.punchcard.swatchHeight))
-            .call(d3.axisBottom(swatchXScale))
-
-        const leftBars = swatch
-            .selectAll('rect.left.bar')
-            .data([datum], (d: any) => d.id);
-
-        leftBars.merge(
-            leftBars.enter()
-                .append('rect')
-                .attr('class', 'left bar')
-        )
-            .attr('height', C.punchcard.swatchHeight)
-            .attr('width', d => swatchXScale(d.ci3.center) - swatchXScale(d.ci3.low))
-            .attr('transform', (d) => translate(swatchXScale(d.ci3.low), 0))
-            .attr('fill', this.gradient.leftUrl())
-
-        leftBars.exit().remove();
-
-        const rightBars = swatch
-            .selectAll('rect.right.bar')
-            .data([datum], (d: any) => d.id);
-
-        rightBars.merge(
-            rightBars.enter()
-                .append('rect')
-                .attr('class', 'right bar')
-        )
-            .attr('height', C.punchcard.swatchHeight)
-            .attr('width', d => swatchXScale(d.ci3.high) - swatchXScale(d.ci3.center))
-            .attr('transform', (d) => translate(swatchXScale(d.ci3.center), 0))
-            .attr('fill', this.gradient.rightUrl())
-
-        rightBars.exit().remove();
-
-        const centerLines = swatch
-            .selectAll('line.center')
-            .data([datum], (d: any) => d.id);
-
-        centerLines.merge(
-            centerLines.enter().append('line').attr('class', 'center')
-        )
-            .attr('x1', (d) => swatchXScale(d.ci3.center))
-            .attr('y1', 0)
-            .attr('x2', (d) => swatchXScale(d.ci3.center))
-            .attr('y2', C.punchcard.swatchHeight)
-            .style('stroke-width', 1)
-            .style('stroke', 'black')
-            .style('shape-rendering', 'crispEdges')
-
-        centerLines.exit().remove();
-
-        const majorTickLines = d3.axisTop(swatchXScale).tickSize(-C.punchcard.swatchHeight);
-
-        selectOrAppend(swatch, 'g', '.sub.axis')
-            .style('opacity', .2)
-            .call(majorTickLines)
-            .selectAll('text')
-            .style('display', 'none')
-
     }
 
     toggleDropdown(d: Datum, i: number) {
