@@ -4,6 +4,7 @@ import { translate, selectOrAppend, scale } from '../../d3-utils/d3-utils';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 type Extent = [[number, number], [number, number]];
+const brushSize = C.pointBrushSize;
 
 export enum AngularBrushMode {
     Point,
@@ -110,7 +111,8 @@ export class AngularBrush<Datum> {
 
     render(extent = [[1, 2], [3, 4]] as [[number, number], [number, number]]) {
         this.extent = extent;
-        this.brush.extent(extent);
+        this.brush.extent([[extent[0][0], extent[0][1] - 2 * brushSize],
+            [extent[1][0], (extent[1][1] - extent[0][1]) * (1 - Math.cos(Math.PI / 3))]]);
         this.brush1.extent(extent);
         this.brush2.extent(extent);
 
@@ -229,9 +231,9 @@ export class AngularBrush<Datum> {
         if (typeof range === 'number') {
             let center = range;
             if (snap && this.snap) { center = this.snap(center); }
-            this.moveBrush(center - C.pointBrushSize, center + C.pointBrushSize, transition);
+            this.moveBrush(center - brushSize, center + brushSize, transition);
             this.moveBrushLine(center, transition);
-            this.moveHandles(center - C.pointBrushSize, center + C.pointBrushSize, transition);
+            this.moveHandles(center - brushSize, center + brushSize, transition);
         }
         else {
             this.moveBrush(range[0], range[1], transition);
@@ -272,7 +274,7 @@ export class AngularBrush<Datum> {
         let width = endX - startX;
         let height = endY - startY;
 
-        let norm = (at - (startX + C.pointBrushSize)) / (endX - startX - 2 * C.pointBrushSize)
+        let norm = (at - (startX + brushSize)) / (endX - startX - 2 * brushSize)
         let angle = (norm - 0.5) * Math.PI / 3;
 
         line
@@ -288,9 +290,9 @@ export class AngularBrush<Datum> {
             let handles: any = this.handleG.selectAll('.fb-handle');
             handles = transition ? handles.transition() : handles;
 
-            let [[startX, startY], [endX, endY]] = this.extent;
+            const [[startX, startY], [endX, endY]] = this.extent;
             let at = (start + end) / 2;
-            let norm = (at - (startX + C.pointBrushSize)) / (endX - startX - 2 * C.pointBrushSize)
+            let norm = (at - (startX + brushSize)) / (endX - startX - 2 * brushSize)
             let angle = (norm - 0.5) * Math.PI / 3;
 
             let x = norm * (endX - startX) + startX;
@@ -298,10 +300,29 @@ export class AngularBrush<Datum> {
             let height = endY - startY;
             let y = startY + height * (1 - Math.cos(angle));
 
+            let adj = 40;
+
             handles
-            .attr('transform', (d, i:number) => {
-                return `translate(${x + i * C.pointBrushSize}, ${y})rotate(${angle * 180 / Math.PI})`
-            });
+                .attr('transform', (d, i: number) => {
+                    if (i == 0) {
+                        return `translate(${
+                            x + adj * Math.sin(angle)
+                            - brushSize * Math.cos(angle) + brushSize * Math.sin(angle) * 2 //(norm * 2 - 1)
+                            }, ${
+                            y - adj * Math.cos(angle)
+                            - brushSize * Math.sin(angle)
+                            })rotate(${angle * 180 / Math.PI})`
+                    }
+                    else {
+                        return `translate(${
+                            x + adj * Math.sin(angle)
+                            + brushSize * Math.cos(angle) + brushSize * Math.sin(angle) * 2 // (norm * 2 - 1)
+                            }, ${
+                            y - adj * Math.cos(angle)
+                            + brushSize * Math.sin(angle)
+                            })rotate(${angle * 180 / Math.PI})`
+                    }
+                });
         }
         else if (this.mode == AngularBrushMode.SymmetricRange) {
             let handles1: any = this.handleG1.selectAll('.fb-handle');
