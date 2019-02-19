@@ -338,36 +338,13 @@
 
         <!-- Normal -->
         <div *ngIf="activeSafeguardPanel == SGT.Normal">
-            <div class="p-1">
-                <div class="form-check-inline form-control-sm">
-                    Fitting Type:
-                </div>
-                <div class="form-check form-check-inline form-control-sm">
-                    <input class="form-check-input" type="radio" name="distributive"
-                        [checked]="!useNormal"
-                        id="inlineRadio2" value="option2" (click)="useNormal=false;useNormalToggled()">
-                    <label class="form-check-label" for="inlineRadio2">Power Law</label>
-                </div>
-                <div class="form-check form-check-inline form-control-sm">
-                    <input class="form-check-input" type="radio" name="distributive"
-                        [checked]="useNormal" [disabled]="!isNormalFittingAvailable"
-                        id="inlineRadio1" value="option1" (click)="useNormal=true;useNormalToggled()">
-                    <label class="form-check-label" for="inlineRadio1">Normal</label>
-                </div>
-            </div>
             <div class="display text-center p-2">
-                <sg-distributive *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
+                <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="normalConstant"
                     [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
-            <div class="p-1" *ngIf="activeQuery && activeQuery && activeQuery.visibleProgress.processedRows > 0 && activeSafeguardPanel == SGT.Distributive">
-                <div class="guide flex-grow-1" *ngIf="!useNormal && !useLinear">
-                    <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
-                </div>
-                <div class="guide flex-grow-1" *ngIf="useNormal && !useLinear">
+            <div class="p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0">
+                <div class="guide flex-grow-1">
                     <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
-                </div>
-                <div class="guide flex-grow-1" *ngIf="useLinear">
-                    <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
                 </div>
             </div>
             <div class="p-1 text-right">
@@ -382,23 +359,6 @@
 
         <!-- Linear -->
         <div *ngIf="activeSafeguardPanel == SGT.Linear">
-            <div class="p-1">
-                <div class="form-check-inline form-control-sm">
-                    Fitting Type:
-                </div>
-                <div class="form-check form-check-inline form-control-sm">
-                    <input class="form-check-input" type="radio" name="distributive"
-                        [checked]="!useNormal"
-                        id="inlineRadio2" value="option2" (click)="useNormal=false;useNormalToggled()">
-                    <label class="form-check-label" for="inlineRadio2">Power Law</label>
-                </div>
-                <div class="form-check form-check-inline form-control-sm">
-                    <input class="form-check-input" type="radio" name="distributive"
-                        [checked]="useNormal" [disabled]="!isNormalFittingAvailable"
-                        id="inlineRadio1" value="option1" (click)="useNormal=true;useNormalToggled()">
-                    <label class="form-check-label" for="inlineRadio1">Normal</label>
-                </div>
-            </div>
             <div class="display text-center p-2">
                 <sg-distributive *ngIf="activeQuery" [highlighted]="highlighted" [query]="activeQuery" [constant]="useLinear ? linearRegressionConstant : (useNormal ? normalConstant : powerLawConstant)"
                     [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
