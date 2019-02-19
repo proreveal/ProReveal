@@ -38,7 +38,7 @@ export class PunchcardRenderer {
 
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
     variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
-    eventRects: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
+    eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     swatch: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     visG;
     interactionG;
@@ -297,14 +297,14 @@ export class PunchcardRenderer {
 
         rects.exit().remove();
 
-        let eventRects = visG
-            .selectAll('rect.event.variable1')
-            .data(data, (d: any) => d.id);
+        let eventBoxes = visG
+            .selectAll('rect.event-box')
+            .data(data, (d: Datum) => d.id);
 
-        enter = eventRects
-            .enter().append('rect').attr('class', 'event variable1')
+        enter = eventBoxes
+            .enter().append('rect').attr('class', 'event-box variable1')
 
-        eventRects = eventRects.merge(enter)
+        this.eventBoxes = eventBoxes.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', xScale.bandwidth())
             .attr('transform', (d) => {
@@ -325,9 +325,9 @@ export class PunchcardRenderer {
             })
             .on('contextmenu', (d) => this.datumSelected2(d))
 
-        eventRects.exit().remove();
+        eventBoxes.exit().remove();
 
-        this.eventRects = eventRects;
+        console.log(this.eventBoxes.nodes().length)
 
         const size = C.punchcard.legendSize;
         const padding = C.punchcard.legendPadding;
@@ -474,7 +474,7 @@ export class PunchcardRenderer {
     }
 
     updateHighlight() {
-        this.eventRects
+        this.eventBoxes
             .classed('stroke-highlighted', false)
             .filter((d) =>
                 this.variable1 && this.variable1.hash === d.keys.hash ||
@@ -482,7 +482,7 @@ export class PunchcardRenderer {
             )
             .classed('stroke-highlighted', true)
 
-        this.eventRects
+        this.eventBoxes
             .classed('variable2', false)
             .filter((d) => this.variable2 && this.variable2.hash === d.keys.hash)
             .classed('variable2', true)
@@ -642,6 +642,6 @@ export class PunchcardRenderer {
     }
 
     emptySelectedDatum() {
-        this.eventRects.classed('menu-open-highlighted', false);
+        this.eventBoxes.classed('menu-open-highlighted', false);
     }
 }
