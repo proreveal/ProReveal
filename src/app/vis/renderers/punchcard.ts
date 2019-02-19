@@ -314,10 +314,11 @@ export class PunchcardRenderer {
                 return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
             })
             .attr('fill', 'transparent')
-            .style('cursor', 'pointer')
+            .style('cursor', (d) => d.ci3 === EmptyConfidenceInterval ? 'auto' : 'pointer')
             .on('mouseenter', (d, i) => { this.showTooltip(d); })
             .on('mouseleave', (d, i) => { this.hideTooltip(); })
             .on('click', (d, i, ele) => {
+                if(d.ci3 == EmptyConfidenceInterval) return;
                 this.datumSelected(d);
 
                 this.toggleDropdown(d, i);
