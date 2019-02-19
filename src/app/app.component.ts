@@ -6,7 +6,7 @@ import { Query, EmptyQuery, AggregateQuery, Histogram2DQuery, QueryState } from 
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, ComparativeSafeguard, SafeguardTypes, DistributiveSafeguard, DistributiveSafeguardTypes, NormalSafeguard, PowerLawSafeguard, LinearSafeguard } from './safeguard/safeguard';
+import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, ComparativeSafeguard, SafeguardTypes, DistributiveSafeguard, DistributiveSafeguardTypes, NormalSafeguard, PowerLawSafeguard, LinearSafeguard, RankSafeguard } from './safeguard/safeguard';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
@@ -71,7 +71,6 @@ export class AppComponent implements OnInit {
     combinedVariable2: CombinedVariable;
     combinedVariablePair: CombinedVariablePair;
 
-    useRank = false;
     useLinear = false;
     useNormal = true;
 
@@ -269,8 +268,6 @@ export class AppComponent implements OnInit {
         else {
             this.activeQuery = query;
         }
-
-        if (!this.rankAllowed()) this.useRank = false;
     }
 
     queryPauseClick(query: AggregateQuery, $event: UIEvent){
@@ -302,11 +299,24 @@ export class AppComponent implements OnInit {
         let variable = this.variable1 || this.combinedVariable1;
         if (!variable) return;
 
-        if (this.variable1) this.variable1.isRank = this.useRank;
-        let sg: ValueSafeguard;
+        let sg = new ValueSafeguard(variable, this.operator, this.pointValueConstant, this.activeQuery);
 
-        if (this.useRank) sg = new ValueSafeguard(variable, this.operator, this.pointRankConstant, this.activeQuery);
-        else sg = new ValueSafeguard(variable, this.operator, this.pointValueConstant, this.activeQuery);
+        sg.history.push(sg.validity());
+        this.safeguards.push(sg);
+        this.activeQuery.safeguards.push(sg);
+
+        this.variable1 = null;
+        this.pointRankConstant = null;
+        this.pointValueConstant = null;
+        this.toggle(SGT.None);
+    }
+
+    createRankSafeguard() {
+        let variable = this.variable1;
+        if (!variable) return;
+
+        variable.isRank = true;
+        let sg = new RankSafeguard(variable, this.operator, this.pointRankConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
@@ -322,10 +332,7 @@ export class AppComponent implements OnInit {
         let variable = this.variable1 || this.combinedVariable1;
         if (!variable) return;
 
-        if (this.variable1) this.variable1.isRank = this.useRank;
-        let sg: RangeSafeguard;
-        if (this.useRank) sg = new RangeSafeguard(variable, this.rangeRankConstant, this.activeQuery);
-        else sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeQuery);
+        let sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeQuery);
 
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
@@ -396,7 +403,6 @@ export class AppComponent implements OnInit {
             this.powerLawConstant = new PowerLawConstant();
             this.normalConstant = new NormalConstant();
 
-            this.useRank = false;
             this.useLinear = false;
 
             if (this.activeQuery instanceof Histogram2DQuery && DistributiveSafeguardTypes.includes(sgt)) {
@@ -409,17 +415,13 @@ export class AppComponent implements OnInit {
 
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
-            this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
+            this.vis.setVariableType(sgt === SGT.Rank ? VariableTypes.Rank : VariableTypes.Value);
         }
     }
 
     useNormalToggled() {
         (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
         this.vis.forceUpdate();
-    }
-
-    useRankToggled() {
-        this.vis.setVariableType(this.useRank ? VariableTypes.Rank : VariableTypes.Value);
     }
 
     checkOrder() {
@@ -432,7 +434,6 @@ export class AppComponent implements OnInit {
         if (isNaN(num)) num = 0;
         return num;
     }
-
 
     runMany(times: number) {
         for (let i = 0; i < times; i++)

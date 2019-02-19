@@ -213,6 +213,43 @@
             </div>
         </div>
 
+        <div *ngIf="activeSafeguardPanel === SGT.Rank">
+            <div class="display text-center p-2">
+                <sg-point [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
+                    [isRank]="true" [operator]="operator" [constant]="pointRankConstant"
+                    (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
+            </div>
+            <div class="alert guide p-2 m-1">
+                <span class="tip">TIP</span>
+                <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                    Please pick a
+                    <span class="variable1 font-weight-bold">variable</span>
+                    by clicking on a category on the vertial axis of the chart.
+                </span>
+                <span (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
+                    Once a variable is selected, choose a
+                    <span class="constant font-weight-bold">constant</span>
+                    by dragging the constant bar.
+                </span>
+            </div>
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
+                && variable1 && pointRankConstant && activeQuery.approximator.estimatable">
+                <p-indicator [p]="PointRankEstimate(activeQuery, variable1, operator, pointRankConstant)"></p-indicator>
+            </div>
+            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
+                && variable1 && pointRankConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="PointMinMaxRankEstimate(activeQuery, variable1, operator, pointRankConstant)"></truthiness-indicator>
+            </div>
+            <div class="p-1 text-right">
+                <button class="btn btn-success border-right-0 mr-1" (click)="createRankSafeguard()">
+                    Create a Safeguard
+                </button>
+                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
         <!-- Range -->
         <div [hidden]="activeSafeguardPanel != SGT.Range">
             <div class="display text-center p-2">
