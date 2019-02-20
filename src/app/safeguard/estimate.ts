@@ -32,7 +32,7 @@ export interface EstimatorTrait {
     estimate(...args: any[]): Validity;
 }
 
-export class PointValueEstimator implements EstimatorTrait {
+export class ValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointValueConstant): PValue {
 
@@ -57,7 +57,7 @@ export class PointValueEstimator implements EstimatorTrait {
     }
 }
 
-export class PointRankEstimator implements EstimatorTrait {
+export class RankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointRankConstant): PValue {
         const n = query.visibleProgress.processedRows;
@@ -111,7 +111,7 @@ export class PointRankEstimator implements EstimatorTrait {
     }
 }
 
-export class PointMinMaxValueEstimator implements EstimatorTrait {
+export class MinMaxValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointValueConstant): Truthiness {
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
@@ -134,7 +134,7 @@ export class PointMinMaxValueEstimator implements EstimatorTrait {
     }
 }
 
-export class PointMinMaxRankValueEstimator implements EstimatorTrait {
+export class MinMaxRankValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: PointRankConstant): Truthiness {
 
@@ -171,7 +171,7 @@ export class PointMinMaxRankValueEstimator implements EstimatorTrait {
     }
 }
 
-export class RangeValueEstimator implements EstimatorTrait {
+export class RangeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeValueConstant): PValue {
 

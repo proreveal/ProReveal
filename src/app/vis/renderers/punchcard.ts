@@ -339,7 +339,7 @@ export class PunchcardRenderer {
         let floatingBrush = floatingSvgWrapper.select('.angular-brush');
 
         let parentWidth = nativeSvg.parentElement.parentElement.offsetWidth;
-        let parentOffsetTop = nativeSvg.getBoundingClientRect().top;
+        let parentOffsetTop = 120; // nativeSvg.getBoundingClientRect().top; // TODO
         floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
         floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
 
@@ -353,6 +353,7 @@ export class PunchcardRenderer {
 
         selectOrAppend(visG, 'g', '.z.legend').remove();
 
+
         if(matrixWidth + size + padding * 2 > parentWidth) {
             floatingSvgWrapper
                 .style('position', 'sticky')
@@ -361,6 +362,7 @@ export class PunchcardRenderer {
                 .style('top', 'auto')
         }
         else {
+            // console.log(nativeSvg.getBoundingClientRect(), parentOffsetTop);
             floatingSvgWrapper
                 .style('position', 'absolute')
                 .style('left', `${matrixWidth}px`)

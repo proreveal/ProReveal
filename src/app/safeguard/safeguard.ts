@@ -3,21 +3,21 @@ import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstan
 import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
 import {
-    PointValueEstimator, PointRankEstimator, RangeValueEstimator, ComparativeEstimator,
-    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator
+    ValueEstimator, RankEstimator, RangeEstimator, ComparativeEstimator,
+    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator
 } from "./estimate";
 import { ValidityTypes, Validity } from "./validity";
 import { AggregateQuery } from "../data/query";
 
-const PointValueEstimate = new PointValueEstimator().estimate;
-const PointRankEstimate = new PointRankEstimator().estimate;
-const RangeValueEstimate = new RangeValueEstimator().estimate;
+const PointValueEstimate = new ValueEstimator().estimate;
+const PointRankEstimate = new RankEstimator().estimate;
+const RangeValueEstimate = new RangeEstimator().estimate;
 const ComparativeEstimate = new ComparativeEstimator().estimate;
 const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
 const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
-const PointMinMaxValueEstimate = new PointMinMaxValueEstimator().estimate
-const PointMinMaxRankEstimate = new PointMinMaxRankValueEstimator().estimate;
+const PointMinMaxValueEstimate = new MinMaxValueEstimator().estimate
+const PointMinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
 
 export enum SafeguardTypes {
     None = "None",
