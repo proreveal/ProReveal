@@ -8,7 +8,7 @@ import { FieldGroupedValue, QuantitativeField } from '../../data/field';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
-import { ConstantTrait, PointValueConstant, RangeValueConstant, LinearRegressionConstant } from '../../safeguard/constant';
+import { ConstantTrait, ValueConstant, RangeConstant, LinearRegressionConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { VariableTypes as VT, CombinedVariable, SingleVariable } from '../../safeguard/variable';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
@@ -397,13 +397,13 @@ export class PunchcardRenderer {
 
         this.angularBrush.on('brush', (center) => {
             if (this.safeguardType === SGT.Value) {
-                let constant = new PointValueConstant(this.legendXScale.invert(center));
+                let constant = new ValueConstant(this.legendXScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range) {
                 let sel = center as [number, number];
-                let constant = new RangeValueConstant(this.legendXScale.invert(sel[0]),
+                let constant = new RangeConstant(this.legendXScale.invert(sel[0]),
                     this.legendXScale.invert(sel[1]));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -427,11 +427,11 @@ export class PunchcardRenderer {
 
         if (this.constant) {
             if (this.safeguardType === SGT.Value) {
-                let center = this.legendXScale((this.constant as PointValueConstant).value);
+                let center = this.legendXScale((this.constant as ValueConstant).value);
                 this.angularBrush.move(center);
             }
             else if (this.safeguardType === SGT.Range) {
-                let range = (this.constant as RangeValueConstant).range.map(this.legendXScale) as [number, number];
+                let range = (this.constant as RangeConstant).range.map(this.legendXScale) as [number, number];
                 this.angularBrush.move(range);
             }
         }
@@ -517,12 +517,12 @@ export class PunchcardRenderer {
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
         if (this.safeguardType === SGT.Value) {
-            let center = this.legendXScale((constant as PointValueConstant).value);
+            let center = this.legendXScale((constant as ValueConstant).value);
             this.angularBrush.show();
             this.angularBrush.move(center);
         }
         else if (this.safeguardType === SGT.Range) {
-            let range = (constant as RangeValueConstant).range.map(this.legendXScale) as [number, number];
+            let range = (constant as RangeConstant).range.map(this.legendXScale) as [number, number];
             this.angularBrush.show();
             this.angularBrush.move(range);
         }
@@ -585,15 +585,15 @@ export class PunchcardRenderer {
         if (this.constant) return;
         if (this.variable1) {
             if (this.safeguardType === SGT.Value) {
-                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
+                let constant = new ValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
             else if (this.safeguardType === SGT.Range) {
                 let range = this.getDatum(this.variable1).ci3;
-                let constant = new RangeValueConstant(range.low, range.high);
+                let constant = new RangeConstant(range.low, range.high);
 
-                if (range.low < 0) constant = new RangeValueConstant(0, range.high + range.low);
+                if (range.low < 0) constant = new RangeConstant(0, range.high + range.low);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }

@@ -10,7 +10,7 @@ import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, Compa
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
+import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
@@ -74,11 +74,10 @@ export class AppComponent implements OnInit {
     useLinear = false;
     useNormal = true;
 
-    pointValueConstant: PointValueConstant = new PointValueConstant(0);
-    pointRankConstant: PointRankConstant = new PointRankConstant(1);
+    valueConstant: ValueConstant = new ValueConstant(0);
+    rankConstant: RankConstant = new RankConstant(1);
 
-    rangeValueConstant: RangeValueConstant = new RangeValueConstant(0, 1);
-    rangeRankConstant: RangeRankConstant = new RangeRankConstant(1, 2);
+    rangeConstant: RangeConstant = new RangeConstant(0, 1);
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     normalConstant: NormalConstant = new NormalConstant();
@@ -297,15 +296,15 @@ export class AppComponent implements OnInit {
         let variable = this.variable1 || this.combinedVariable1;
         if (!variable) return;
 
-        let sg = new ValueSafeguard(variable, this.operator, this.pointValueConstant, this.activeQuery);
+        let sg = new ValueSafeguard(variable, this.operator, this.valueConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
-        this.pointRankConstant = null;
-        this.pointValueConstant = null;
+        this.rankConstant = null;
+        this.valueConstant = null;
         this.toggle(SGT.None);
     }
 
@@ -314,15 +313,15 @@ export class AppComponent implements OnInit {
         if (!variable) return;
 
         variable.isRank = true;
-        let sg = new RankSafeguard(variable, this.operator, this.pointRankConstant, this.activeQuery);
+        let sg = new RankSafeguard(variable, this.operator, this.rankConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
-        this.pointRankConstant = null;
-        this.pointValueConstant = null;
+        this.rankConstant = null;
+        this.valueConstant = null;
         this.toggle(SGT.None);
     }
 
@@ -330,7 +329,7 @@ export class AppComponent implements OnInit {
         let variable = this.variable1 || this.combinedVariable1;
         if (!variable) return;
 
-        let sg = new RangeSafeguard(variable, this.rangeValueConstant, this.activeQuery);
+        let sg = new RangeSafeguard(variable, this.rangeConstant, this.activeQuery);
 
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
@@ -338,7 +337,7 @@ export class AppComponent implements OnInit {
 
         this.variable1 = null;
         this.rangeRankConstant = null;
-        this.rangeValueConstant = null;
+        this.rangeConstant = null;
         this.toggle(SGT.None);
     }
 
@@ -394,9 +393,9 @@ export class AppComponent implements OnInit {
             this.cancelSafeguard();
         }
         else {
-            this.pointValueConstant = new PointValueConstant(0);
-            this.pointRankConstant = new PointRankConstant(1);
-            this.rangeValueConstant = new RangeValueConstant(0, 1);
+            this.valueConstant = new ValueConstant(0);
+            this.rankConstant = new RankConstant(1);
+            this.rangeConstant = new RangeConstant(0, 1);
             this.rangeRankConstant = new RangeRankConstant(1, 2);
             this.powerLawConstant = new PowerLawConstant();
             this.normalConstant = new NormalConstant();
@@ -423,7 +422,7 @@ export class AppComponent implements OnInit {
     }
 
     checkOrder() {
-        this.rangeValueConstant.checkOrder();
+        this.rangeConstant.checkOrder();
         this.rangeRankConstant.checkOrder();
     }
 
@@ -489,9 +488,9 @@ export class AppComponent implements OnInit {
     }
 
     constantSelected(constant: ConstantTrait) {
-        if (constant instanceof PointValueConstant) {
+        if (constant instanceof ValueConstant) {
             let value;
-            this.pointValueConstant = constant;
+            this.valueConstant = constant;
 
             if (this.vis.renderer instanceof HorizontalBarsRenderer)
                 value = this.vis.renderer.getDatum(this.variable1)
@@ -503,15 +502,15 @@ export class AppComponent implements OnInit {
             else
                 this.operator = Operators.GreaterThanOrEqualTo;
         }
-        else if (constant instanceof PointRankConstant) {
-            this.pointRankConstant = constant;
+        else if (constant instanceof RankConstant) {
+            this.rankConstant = constant;
             // if (constant.rank >= value)
             this.operator = Operators.LessThanOrEqualTo;
             // else
             //     this.operator = Operators.GreaterThanOrEqualTo;
         }
-        else if (constant instanceof RangeValueConstant)
-            this.rangeValueConstant = constant;
+        else if (constant instanceof RangeConstant)
+            this.rangeConstant = constant;
         else if (constant instanceof RangeRankConstant)
             this.rangeRankConstant = constant;
         else if (constant instanceof PowerLawConstant)

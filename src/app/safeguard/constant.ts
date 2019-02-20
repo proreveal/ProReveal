@@ -10,7 +10,7 @@ export abstract class ConstantTrait {
     name: string;
 }
 
-export class PointValueConstant extends ConstantTrait {
+export class ValueConstant extends ConstantTrait {
     isRank = false;
 
     constructor(public value: number) {
@@ -18,7 +18,7 @@ export class PointValueConstant extends ConstantTrait {
     }
 }
 
-export class PointRankConstant extends ConstantTrait {
+export class RankConstant extends ConstantTrait {
     isRank = true;
 
     constructor(public rank: number) {
@@ -26,7 +26,7 @@ export class PointRankConstant extends ConstantTrait {
     }
 }
 
-export class RangeValueConstant extends ConstantTrait {
+export class RangeConstant extends ConstantTrait {
     constructor(public from: number, public to: number) {
         super();
         this.checkOrder();

@@ -10,7 +10,7 @@ import { SafeguardTypes as SGT, DistributiveSafeguardTypes } from '../../safegua
 import { SingleVariable, VariableTypes as VT } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { ConstantTrait, PointRankConstant, PointValueConstant, RangeRankConstant, RangeValueConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
+import { ConstantTrait, RankConstant, ValueConstant, RangeRankConstant, RangeConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
 import { AndPredicate } from '../../data/predicate';
@@ -451,20 +451,20 @@ export class HorizontalBarsRenderer {
 
         this.flexBrush.on('brush', (center) => {
             if (this.safeguardType === SGT.Value) {
-                let constant = new PointValueConstant(this.xScale.invert(center));
+                let constant = new ValueConstant(this.xScale.invert(center));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Rank) {
                 let index = Math.round((center - C.horizontalBars.axis.height - C.horizontalBars.label.height)
                     / C.horizontalBars.height)
-                let constant = new PointRankConstant(index);
+                let constant = new RankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range) {
                 let sel = center as [number, number];
-                let constant = new RangeValueConstant(this.xScale.invert(sel[0]), this.xScale.invert(sel[1]));
+                let constant = new RangeConstant(this.xScale.invert(sel[0]), this.xScale.invert(sel[1]));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
@@ -485,15 +485,15 @@ export class HorizontalBarsRenderer {
 
         if (this.constant) {
             if (this.safeguardType === SGT.Value) {
-                let center = xScale((this.constant as PointValueConstant).value);
+                let center = xScale((this.constant as ValueConstant).value);
                 this.flexBrush.move(center);
             }
             else if (this.safeguardType === SGT.Rank) {
-                let center = yScale((this.constant as PointRankConstant).rank.toString());
+                let center = yScale((this.constant as RankConstant).rank.toString());
                 this.flexBrush.move(center);
             }
             else if (this.safeguardType === SGT.Range) {
-                let oldRange = (this.constant as RangeValueConstant).range;
+                let oldRange = (this.constant as RangeConstant).range;
                 let half = (oldRange[1] - oldRange[0]) / 2;
                 let newCenter = this.getDatum(this.variable1).ci3.center;
                 let xDomain = xScale.domain();
@@ -502,7 +502,7 @@ export class HorizontalBarsRenderer {
 
                 let range = [newCenter - half, newCenter + half] as Range;
 
-                this.constant = new RangeValueConstant(range[0], range[1]);
+                this.constant = new RangeConstant(range[0], range[1]);
 
                 this.flexBrush.move(range.map(this.xScale) as Range);
                 this.constantUserChanged(this.constant);
@@ -650,17 +650,17 @@ export class HorizontalBarsRenderer {
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
         if (this.safeguardType === SGT.Value) {
-            let center = this.xScale((constant as PointValueConstant).value);
+            let center = this.xScale((constant as ValueConstant).value);
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
         else if (this.safeguardType === SGT.Rank) {
-            let center = this.yScale((constant as PointRankConstant).rank.toString());
+            let center = this.yScale((constant as RankConstant).rank.toString());
             this.flexBrush.show();
             this.flexBrush.move(center);
         }
         else if (this.safeguardType === SGT.Range) {
-            let range = (constant as RangeValueConstant).range.map(this.xScale) as [number, number];
+            let range = (constant as RangeConstant).range.map(this.xScale) as [number, number];
             this.flexBrush.setCenter((range[0] + range[1]) / 2);
             this.flexBrush.show();
             this.flexBrush.move(range);
@@ -724,19 +724,19 @@ export class HorizontalBarsRenderer {
 
         if (this.variable1) {
             if (this.safeguardType === SGT.Value) {
-                let constant = new PointValueConstant(this.getDatum(this.variable1).ci3.center);
+                let constant = new ValueConstant(this.getDatum(this.variable1).ci3.center);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
             else if (this.safeguardType === SGT.Rank) {
-                let constant = new PointRankConstant(this.getRank(this.variable1));
+                let constant = new RankConstant(this.getRank(this.variable1));
 
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
             else if (this.safeguardType === SGT.Range) {
                 let range = this.getDatum(this.variable1).ci3;
-                let constant = new RangeValueConstant(range.low, range.high);
+                let constant = new RangeConstant(range.low, range.high);
 
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
