@@ -1,5 +1,5 @@
 import { Operators } from "./operator";
-import { ConstantTrait, PointValueConstant, PointRankConstant, RangeValueConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
+import { ConstantTrait, ValueConstant, RankConstant, RangeConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
 import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
 import { NormalDistribution } from "./normal";
 import {
@@ -76,7 +76,7 @@ export class ValueSafeguard extends Safeguard {
             this.query,
             this.variable,
             this.operator,
-            this.constant as PointValueConstant);
+            this.constant as ValueConstant);
     }
 
     t() {  // min or max
@@ -84,7 +84,7 @@ export class ValueSafeguard extends Safeguard {
             this.query,
             this.variable,
             this.operator,
-            this.constant as PointValueConstant);
+            this.constant as ValueConstant);
     }
 
     validity() {
@@ -108,7 +108,7 @@ export class RankSafeguard extends Safeguard {
             this.query,
             this.variable,
             this.operator,
-            this.constant as PointRankConstant);
+            this.constant as RankConstant);
     }
 
     t() {  // min or max
@@ -116,7 +116,7 @@ export class RankSafeguard extends Safeguard {
             this.query,
             this.variable,
             this.operator,
-            this.constant as PointRankConstant);
+            this.constant as RankConstant);
     }
 
     validity() {
@@ -139,7 +139,7 @@ export class RangeSafeguard extends Safeguard {
             this.query,
             this.variable,
             this.operator,
-            this.constant as RangeValueConstant);
+            this.constant as RangeConstant);
     }
 
     validity() {

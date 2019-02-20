@@ -179,7 +179,7 @@
         <div *ngIf="activeSafeguardPanel === SGT.Value">
             <div class="display text-center p-2">
                 <sg-point [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
-                    [isRank]="false" [operator]="operator" [constant]="pointValueConstant"
+                    [isRank]="false" [operator]="operator" [constant]="valueConstant"
                     (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
             <div class="alert guide p-2 m-1">
@@ -197,13 +197,13 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
-                && pointValueConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="PointValueEstimate(activeQuery, variable1 || combinedVariable1, operator, pointValueConstant)"></p-indicator>
+                && valueConstant && activeQuery.approximator.estimatable">
+                <p-indicator [p]="PointValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                     && (variable1 || combinedVariable1)
-                    && pointValueConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="PointMinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, pointValueConstant)"></truthiness-indicator>
+                    && valueConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="PointMinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createValueSafeguard()">
@@ -218,7 +218,7 @@
         <div *ngIf="activeSafeguardPanel === SGT.Rank">
             <div class="display text-center p-2">
                 <sg-point [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
-                    [isRank]="true" [operator]="operator" [constant]="pointRankConstant"
+                    [isRank]="true" [operator]="operator" [constant]="rankConstant"
                     (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
             <div class="alert guide p-2 m-1">
@@ -235,12 +235,12 @@
                 </span>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
-                && variable1 && pointRankConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="PointRankEstimate(activeQuery, variable1, operator, pointRankConstant)"></p-indicator>
+                && variable1 && rankConstant && activeQuery.approximator.estimatable">
+                <p-indicator [p]="PointRankEstimate(activeQuery, variable1, operator, rankConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
-                && variable1 && pointRankConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="PointMinMaxRankEstimate(activeQuery, variable1, operator, pointRankConstant)"></truthiness-indicator>
+                && variable1 && rankConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="PointMinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRankSafeguard()">
@@ -256,7 +256,7 @@
         <div *ngIf="activeSafeguardPanel === SGT.Range">
             <div class="display text-center p-2">
                 <sg-range [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
-                    [constant]="rangeValueConstant" (highlight)="highlight($event)"
+                    [constant]="rangeConstant" (highlight)="highlight($event)"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
             <div class="alert guide p-2 m-1">
@@ -272,8 +272,8 @@
                     by dragging the edge of the range brush.
                 </span>
             </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeValueConstant">
-                <p-indicator [p]="RangeValueEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeValueConstant)"></p-indicator>
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeConstant">
+                <p-indicator [p]="RangeValueEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">

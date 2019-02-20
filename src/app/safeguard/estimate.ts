@@ -3,7 +3,7 @@ import { AggregateQuery } from "../data/query";
 import { SingleVariable, VariablePair, VariableTrait, CombinedVariablePair } from "./variable";
 import { Operators } from "./operator";
 import { ApproximatedInterval } from "../data/approx";
-import { PointValueConstant, PointRankConstant, RangeValueConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
+import { ValueConstant, RankConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { isNull } from "util";
 import { Validity, PValue, Truthiness, Quality, Error } from "./validity";
 import { isFulfilled } from "q";
@@ -34,7 +34,7 @@ export interface EstimatorTrait {
 
 export class ValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: PointValueConstant): PValue {
+        operator: Operators, constant: ValueConstant): PValue {
 
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
@@ -59,7 +59,7 @@ export class ValueEstimator implements EstimatorTrait {
 
 export class RankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: PointRankConstant): PValue {
+        operator: Operators, constant: RankConstant): PValue {
         const n = query.visibleProgress.processedRows;
         const N = query.visibleProgress.totalRows;
 
@@ -113,7 +113,7 @@ export class RankEstimator implements EstimatorTrait {
 
 export class MinMaxValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: PointValueConstant): Truthiness {
+        operator: Operators, constant: ValueConstant): Truthiness {
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
             result,
@@ -136,7 +136,7 @@ export class MinMaxValueEstimator implements EstimatorTrait {
 
 export class MinMaxRankValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: PointRankConstant): Truthiness {
+        operator: Operators, constant: RankConstant): Truthiness {
 
         let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult)
         .map((hash) => {
@@ -173,7 +173,7 @@ export class MinMaxRankValueEstimator implements EstimatorTrait {
 
 export class RangeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: RangeValueConstant): PValue {
+        operator: Operators, constant: RangeConstant): PValue {
 
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
