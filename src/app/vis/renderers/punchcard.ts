@@ -18,6 +18,7 @@ import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
 import { AngularBrush, AngularBrushMode } from './angular-brush';
 import { AndPredicate } from '../../data/predicate';
+import { LinearLine } from './linear-line';
 
 export class PunchcardRenderer {
     gradient = new Gradient();
@@ -35,6 +36,7 @@ export class PunchcardRenderer {
     nativeSvg: SVGSVGElement;
     legendXScale: d3.ScaleLinear<number, number>; // value -> pixel
     angularBrush = new AngularBrush();
+    linearLine = new LinearLine();
 
     variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
     variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
@@ -69,6 +71,7 @@ export class PunchcardRenderer {
         let fsvgw = d3.select(floatingSvg);
         let fbrush = fsvgw.select('.angular-brush');
         this.angularBrush.setup(fbrush);
+        this.linearLine.setup(this.interactionG);
     }
 
     render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -339,6 +342,7 @@ export class PunchcardRenderer {
         let parentOffsetTop = nativeSvg.getBoundingClientRect().top;
         floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
         floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+
         selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
         selectOrAppend(floatingLegend, 'g', '.z.legend')
             .attr('transform', translate(padding, 2 * padding))
@@ -417,6 +421,41 @@ export class PunchcardRenderer {
                 let range = (this.constant as RangeValueConstant).range.map(this.legendXScale) as [number, number];
                 this.angularBrush.move(range);
             }
+        }
+
+        if(this.safeguardType === SGT.Linear) {
+            this.linearLine.show();
+
+            console.log(this.constant);
+            console.log(xKeys);
+
+            this.linearLine.render(
+                this.constant as LinearRegressionConstant,
+                xKeys,
+                yKeys,
+                xScale,
+                yScale
+            );
+
+            // this.distributionLine.render(
+            //     this.constant as DistributionTrait,
+            //     data,
+            //     (d: Datum, i: number) => { return [i + 1, 0]; },
+            //     this.xScale, this.yScale
+            // )
+
+            // data,
+            //     (d: Datum) => {
+            //         let range = d.keys.list[0].value();
+            //         if (range == null) return null;
+            //         return range as [number, number];
+            //     },
+            //     this.xScale, this.yScale
+
+            // this.linearLine.render();
+        }
+        else  {
+            this.linearLine.hide();
         }
     }
 
@@ -644,7 +683,7 @@ export class PunchcardRenderer {
         let i = this.data.indexOf(d);
         let left = clientRect.left - parentRect.left
             + this.xScale(d.keys.list[this.xKeyIndex].hash) + this.xScale.bandwidth() / 2;
-        let top = clientRect.top - parentRect.top + this.yScale(d.keys.list[this.yKeyIndex].hash),
+        let top = clientRect.top - parentRect.top + this.yScale(d.keys.list[this.yKeyIndex].hash);
 
         this.vis.isQueryCreatorVisible = true;
         this.vis.queryCreatorTop = top;
