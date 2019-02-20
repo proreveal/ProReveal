@@ -42,8 +42,12 @@ export class PointValueEstimator implements EstimatorTrait {
             query.visibleProgress.processedPercent(),
             query.visibleProgress.processedRows,
             query.visibleProgress.totalRows);
+
+        if(ai.stdev === 0) return 0; // always true since we automatically set the direction of > and <
+
         let z = (constant.value - ai.center) / ai.stdev;
         let cp = normal.cdf(z);
+
         if (operator == Operators.GreaterThan || operator == Operators.GreaterThanOrEqualTo)
             return cp;
         else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
@@ -177,6 +181,8 @@ export class RangeValueEstimator implements EstimatorTrait {
             query.visibleProgress.processedPercent(),
             query.visibleProgress.processedRows,
             query.visibleProgress.totalRows);
+
+        if(ai.stdev == 0) return 0; // no uncertainty
 
         let zLeft = (constant.from - ai.center) / ai.stdev;
         let zRight = (constant.to - ai.center) / ai.stdev;

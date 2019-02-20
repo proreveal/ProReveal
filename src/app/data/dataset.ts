@@ -14,7 +14,7 @@ export class Dataset {
     }
 
     guess(schema: Schema, rows: Row[]): FieldTrait[] {
-        let n = Math.min(rows.length * 0.1, 200);
+        let n = rows.length; //Math.min(rows.length * 0.1, 200);
         let indices = util.arange(n);
         let fields: FieldTrait[] = [];
 
