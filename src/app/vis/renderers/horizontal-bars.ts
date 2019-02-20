@@ -18,6 +18,8 @@ import { Datum } from '../../data/datum';
 import { EmptyConfidenceInterval } from '../../data/approx';
 import { AggregateQuery } from '../../data/query';
 
+type Range = [number, number];
+
 export class HorizontalBarsRenderer {
     gradient = new Gradient();
     xScale: ScaleLinear<number, number>;
@@ -119,6 +121,8 @@ export class HorizontalBarsRenderer {
             height - C.horizontalBars.axis.height - C.horizontalBars.label.height])
             .padding(0.1);
 
+
+        this.xScale = xScale;
         this.yScale = yScale;
 
         const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * C.horizontalBars.axis.height - 2 * C.horizontalBars.label.height));
@@ -489,8 +493,19 @@ export class HorizontalBarsRenderer {
                 this.flexBrush.move(center);
             }
             else if (this.safeguardType === SGT.Range) {
-                let range = (this.constant as RangeValueConstant).range.map(this.xScale) as [number, number];
-                this.flexBrush.move(range);
+                let oldRange = (this.constant as RangeValueConstant).range;
+                let half = (oldRange[1] - oldRange[0]) / 2;
+                let newCenter = this.getDatum(this.variable1).ci3.center;
+                let xDomain = xScale.domain();
+                if(xDomain[0] > newCenter - half) { half = newCenter - xDomain[0]; }
+                if(xDomain[1] < newCenter + half) { half = xDomain[1] - newCenter; }
+
+                let range = [newCenter - half, newCenter + half] as Range;
+
+                this.constant = new RangeValueConstant(range[0], range[1]);
+
+                this.flexBrush.move(range.map(this.xScale) as Range);
+                this.constantUserChanged(this.constant);
             }
         }
 
@@ -516,8 +531,6 @@ export class HorizontalBarsRenderer {
         }
 
         // ADD CODE FOR SGS
-
-        this.xScale = xScale;
 
         this.updateHighlight();
     }
