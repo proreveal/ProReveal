@@ -336,7 +336,6 @@ export class AppComponent implements OnInit {
         sg.history.push(sg.validity());
 
         this.variable1 = null;
-        this.rangeRankConstant = null;
         this.rangeConstant = null;
         this.toggle(SGT.None);
     }
@@ -396,7 +395,6 @@ export class AppComponent implements OnInit {
             this.valueConstant = new ValueConstant(0);
             this.rankConstant = new RankConstant(1);
             this.rangeConstant = new RangeConstant(0, 1);
-            this.rangeRankConstant = new RangeRankConstant(1, 2);
             this.powerLawConstant = new PowerLawConstant();
             this.normalConstant = new NormalConstant();
 
@@ -423,7 +421,6 @@ export class AppComponent implements OnInit {
 
     checkOrder() {
         this.rangeConstant.checkOrder();
-        this.rangeRankConstant.checkOrder();
     }
 
     toNumber(s: string) {
@@ -511,8 +508,6 @@ export class AppComponent implements OnInit {
         }
         else if (constant instanceof RangeConstant)
             this.rangeConstant = constant;
-        else if (constant instanceof RangeRankConstant)
-            this.rangeRankConstant = constant;
         else if (constant instanceof PowerLawConstant)
             this.powerLawConstant = constant;
         else if (constant instanceof NormalConstant)
