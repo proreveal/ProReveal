@@ -14,7 +14,7 @@ import { ConstantTrait, PointRankConstant, PointValueConstant, RangeValueConstan
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
-import { PointValueEstimator, ComparativeEstimator, RangeValueEstimator, PointRankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, PointMinMaxValueEstimator, PointMinMaxRankValueEstimator } from './safeguard/estimate';
+import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
@@ -34,11 +34,11 @@ export class AppComponent implements OnInit {
     VT = VariableTypes;
     Operators = Operators;
     Priority = Priority;
-    PointValueEstimate = new PointValueEstimator().estimate;
-    PointMinMaxValueEstimate = new PointMinMaxValueEstimator().estimate;
-    PointRankEstimate = new PointRankEstimator().estimate;
-    PointMinMaxRankEstimate = new PointMinMaxRankValueEstimator().estimate;
-    RangeValueEstimate = new RangeValueEstimator().estimate;
+    PointValueEstimate = new ValueEstimator().estimate;
+    PointMinMaxValueEstimate = new MinMaxValueEstimator().estimate;
+    PointRankEstimate = new RankEstimator().estimate;
+    PointMinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
+    RangeValueEstimate = new RangeEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
     PowerLawEstimate = new PowerLawEstimator().estimate;
     NormalEstimate = new NormalEstimator().estimate;
@@ -97,7 +97,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.engine = new Engine('./assets/movies.json', './assets/movies.schema.json');
-        this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
+        // this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
         // this.engine = new Engine('./assets/SAT.json', './assets/SAT.schema.json');
 
         this.engine.queryDone = this.queryDone.bind(this);
@@ -109,7 +109,7 @@ export class AppComponent implements OnInit {
                 }
             });
 
-            // this.querySelected(this.engine.ongoingQueries[0]);
+            this.querySelected(this.engine.ongoingQueries[0]);
 
             // Just run 10 jobs.
             // this.runMany(10);
@@ -209,7 +209,7 @@ export class AppComponent implements OnInit {
         let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
         this.create(query, Priority.Highest)
 
-        this.runMany(10);
+        // this.runMany(10);
     }
 
     create(query: AggregateQuery, priority = Priority.Lowest) {
