@@ -21,6 +21,7 @@ import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
+import { LoggerService } from './logger.service';
 
 @Component({
     selector: 'app-root',
@@ -88,7 +89,7 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
-    constructor(private modalService: NgbModal) {
+    constructor(private modalService: NgbModal, private loggerService: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.queue.reschedule();
@@ -100,6 +101,8 @@ export class AppComponent implements OnInit {
         this.engine = new Engine('./assets/movies.json', './assets/movies.schema.json');
         // this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
         // this.engine = new Engine('./assets/SAT.json', './assets/SAT.schema.json');
+
+        this.loggerService.log('App Started');
 
         this.engine.queryDone = this.queryDone.bind(this);
 
