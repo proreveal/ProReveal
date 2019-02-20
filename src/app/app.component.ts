@@ -83,6 +83,8 @@ export class AppComponent implements OnInit {
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     normalConstant: NormalConstant = new NormalConstant();
     linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
+
+    dataViewerFilters: AndPredicate;
     filteredRows: any[] = [];
 
     operator = Operators.LessThanOrEqualTo;
@@ -112,7 +114,7 @@ export class AppComponent implements OnInit {
             this.querySelected(this.engine.ongoingQueries[0]);
 
             // Just run 10 jobs.
-            // this.runMany(10);
+            this.runMany(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])
@@ -538,10 +540,12 @@ export class AppComponent implements OnInit {
         console.log(this.activeQuery)
         let predicate = this.activeQuery.getPredicateFromDatum(d);
         let where = this.activeQuery.where.and(predicate);
+
+        this.dataViewerFilters = where;
         this.filteredRows = this.engine.select(where);
 
         this.modalService
-        .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })
+            .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })
     }
 
     // query remove
