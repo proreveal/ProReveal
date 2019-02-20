@@ -104,7 +104,7 @@ export class VisComponent implements DoCheck {
     showAllCategories() {
         if (this.limitNumCategories) {
             this.limitNumCategories = false;
-            (this.renderer as HorizontalBarsRenderer).limitNumCategories = false;
+            this.renderer.limitNumCategories = false;
             this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
         }
     }
@@ -118,6 +118,16 @@ export class VisComponent implements DoCheck {
                 this.renderer.data.length > C.horizontalBars.initiallyVisibleCategories) {
                 this.limitNumCategories = true;
                 this.numCategories = this.renderer.data.length;
+            }
+        }
+        else if (this.renderer instanceof PunchcardRenderer) {
+            const numCategories = Math.max(this.renderer.xValuesCount, this.renderer.yValuesCount);
+
+            console.log(numCategories)
+            if (this.renderer.limitNumCategories &&
+                numCategories > C.punchcard.initiallyVisibleCategories) {
+                this.limitNumCategories = true;
+                this.numCategories = numCategories;
             }
         }
     }
