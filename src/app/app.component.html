@@ -198,7 +198,7 @@
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
                 && valueConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="PointValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></p-indicator>
+                <p-indicator [p]="ValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                     && (variable1 || combinedVariable1)
@@ -236,7 +236,7 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="PointRankEstimate(activeQuery, variable1, operator, rankConstant)"></p-indicator>
+                <p-indicator [p]="RankEstimate(activeQuery, variable1, operator, rankConstant)"></p-indicator>
             </div>
             <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && !activeQuery.approximator.estimatable">
@@ -273,7 +273,7 @@
                 </span>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeConstant">
-                <p-indicator [p]="RangeValueEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
+                <p-indicator [p]="RangeEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">

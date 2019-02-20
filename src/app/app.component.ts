@@ -34,11 +34,11 @@ export class AppComponent implements OnInit {
     VT = VariableTypes;
     Operators = Operators;
     Priority = Priority;
-    PointValueEstimate = new ValueEstimator().estimate;
-    PointMinMaxValueEstimate = new MinMaxValueEstimator().estimate;
-    PointRankEstimate = new RankEstimator().estimate;
-    PointMinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
-    RangeValueEstimate = new RangeEstimator().estimate;
+    ValueEstimate = new ValueEstimator().estimate;
+    MinMaxValueEstimate = new MinMaxValueEstimator().estimate;
+    RankEstimate = new RankEstimator().estimate;
+    MinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
+    RangeEstimate = new RangeEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
     PowerLawEstimate = new PowerLawEstimator().estimate;
     NormalEstimate = new NormalEstimator().estimate;
