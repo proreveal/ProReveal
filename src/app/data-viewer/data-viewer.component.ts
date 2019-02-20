@@ -10,7 +10,7 @@ export class DataViewerComponent implements OnInit {
     @Input('dataset') dataset: Dataset;
     @Input('rows') rows: Row[];
     page: number = 1;
-    pageSize: number = 15;
+    pageSize: number = 25;
 
     constructor() { }
 
