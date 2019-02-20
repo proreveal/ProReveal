@@ -15,7 +15,7 @@
     },
     {
         "name": "US_DVD_Sales",
-        "type": "dozen"
+        "type": "quantitative"
     },
     {
         "name": "Production_Budget",
