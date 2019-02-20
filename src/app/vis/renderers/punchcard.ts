@@ -25,8 +25,6 @@ export class PunchcardRenderer {
     data: Datum[];
     xScale: d3.ScaleBand<string>;
     yScale: d3.ScaleBand<string>;
-    xKeyIndex: number;
-    yKeyIndex: number;
     matrixWidth: number;
     header: number;
 
@@ -45,6 +43,10 @@ export class PunchcardRenderer {
     visG;
     interactionG;
     brushG;
+    xValuesCount: number;
+    yValuesCount: number;
+
+    limitNumCategories = true;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
     }
@@ -81,28 +83,24 @@ export class PunchcardRenderer {
         this.data = data;
 
         let xKeys = {}, yKeys = {};
-        let xKeyIndex = 0, yKeyIndex = 1;
 
         data.forEach(row => {
             xKeys[row.keys.list[0].hash] = row.keys.list[0];
             yKeys[row.keys.list[1].hash] = row.keys.list[1];
         });
 
-        //if (d3.values(xKeys).length > d3.values(yKeys).length)
-        //[yKeyIndex, xKeyIndex] = [xKeyIndex, yKeyIndex];
+        let xValues: FieldGroupedValue[] = d3.values(xKeys);
+        let yValues: FieldGroupedValue[] = d3.values(yKeys);
 
-        this.xKeyIndex = xKeyIndex;
-        this.yKeyIndex = yKeyIndex;
-
-        let xValues: FieldGroupedValue[] = d3.values(xKeyIndex === 0 ? xKeys : yKeys);
-        let yValues: FieldGroupedValue[] = d3.values(yKeyIndex === 1 ? yKeys : xKeys);
+        this.xValuesCount = xValues.length;
+        this.yValuesCount = yValues.length;
 
         if (this.query instanceof Histogram2DQuery) {
             let sortFunc = (a: FieldGroupedValue, b: FieldGroupedValue) => {
                 let av = a.value(), bv = b.value();
 
-                if(a.groupId === NullGroupId) return 1;
-                if(b.groupId === NullGroupId) return -1;
+                if (a.groupId === NullGroupId) return 1;
+                if (b.groupId === NullGroupId) return -1;
 
                 let ap = av ? av[0] as number : (a.field as QuantitativeField).max;
                 let bp = bv ? bv[0] as number : (b.field as QuantitativeField).max;
@@ -131,13 +129,24 @@ export class PunchcardRenderer {
             for (let key in weight) { weight[key] /= count[key]; }
 
             let sortFunc = (a: FieldGroupedValue, b: FieldGroupedValue) => {
-                if(a.groupId === NullGroupId) return 1;
-                if(b.groupId === NullGroupId) return -1;
+                if (a.groupId === NullGroupId) return 1;
+                if (b.groupId === NullGroupId) return -1;
                 return weight[b.hash] - weight[a.hash];
             }
 
             xValues.sort(sortFunc);
             yValues.sort(sortFunc);
+        }
+
+        if (this.limitNumCategories) {
+            xValues = xValues.slice(0, C.punchcard.initiallyVisibleCategories);
+            yValues = yValues.slice(0, C.punchcard.initiallyVisibleCategories);
+
+            let xKeys = {}, yKeys = {};
+            xValues.forEach(v => xKeys[v.hash] = true);
+            yValues.forEach(v => yKeys[v.hash] = true);
+
+            data = data.filter(d => xKeys[d.keys.list[0].hash] && yKeys[d.keys.list[1].hash]);
         }
 
         let [, yLongest,] = util.amax(yValues, d => d.valueString().length);
@@ -175,7 +184,7 @@ export class PunchcardRenderer {
         {
             // x labels
             selectOrAppend(visG, 'text', '.x.field.label.top')
-                .text(query.groupBy.fields[this.xKeyIndex].name)
+                .text(query.groupBy.fields[0].name)
                 .attr('transform', translate(matrixWidth / 2, 0))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.2em')
@@ -183,7 +192,7 @@ export class PunchcardRenderer {
                 .style('font-style', 'italic')
 
             selectOrAppend(visG, 'text', '.x.field.label.bottom')
-                .text(query.groupBy.fields[this.xKeyIndex].name)
+                .text(query.groupBy.fields[0].name)
                 .attr('transform', translate(matrixWidth / 2, height - C.horizontalBars.axis.height))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.3em')
@@ -191,7 +200,7 @@ export class PunchcardRenderer {
                 .style('font-style', 'italic')
 
             selectOrAppend(visG, 'text', '.y.field.label')
-                .text(query.groupBy.fields[this.yKeyIndex].name)
+                .text(query.groupBy.fields[1].name)
                 .attr('transform',
                     translate(0, height / 2) + 'rotate(-90)')
                 .style('text-anchor', 'middle')
@@ -291,7 +300,7 @@ export class PunchcardRenderer {
             .style('stroke', 'black')
             .style('stroke-opacity', 0.1)
             .attr('transform', (d) => {
-                return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
+                return translate(xScale(d.keys.list[0].hash), yScale(d.keys.list[1].hash))
             })
             .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
                 'transparent' :
@@ -311,14 +320,14 @@ export class PunchcardRenderer {
             .attr('height', yScale.bandwidth())
             .attr('width', xScale.bandwidth())
             .attr('transform', (d) => {
-                return translate(xScale(d.keys.list[xKeyIndex].hash), yScale(d.keys.list[yKeyIndex].hash))
+                return translate(xScale(d.keys.list[0].hash), yScale(d.keys.list[1].hash))
             })
             .attr('fill', 'transparent')
             .style('cursor', (d) => d.ci3 === EmptyConfidenceInterval ? 'auto' : 'pointer')
             .on('mouseenter', (d, i) => { this.showTooltip(d); })
             .on('mouseleave', (d, i) => { this.hideTooltip(); })
             .on('click', (d, i, ele) => {
-                if(d.ci3 == EmptyConfidenceInterval) return;
+                if (d.ci3 == EmptyConfidenceInterval) return;
                 this.datumSelected(d);
 
                 this.toggleDropdown(d, i);
@@ -354,7 +363,7 @@ export class PunchcardRenderer {
         selectOrAppend(visG, 'g', '.z.legend').remove();
 
 
-        if(matrixWidth + size + padding * 2 > parentWidth) {
+        if (matrixWidth + size + padding * 2 > parentWidth) {
             floatingSvgWrapper
                 .style('position', 'sticky')
                 .style('left', `${parentWidth - size - padding * 3}px`)
@@ -427,7 +436,7 @@ export class PunchcardRenderer {
             }
         }
 
-        if(this.safeguardType === SGT.Linear) {
+        if (this.safeguardType === SGT.Linear) {
             this.linearLine.show();
             this.linearLine.render(
                 this.constant as LinearRegressionConstant,
@@ -437,7 +446,7 @@ export class PunchcardRenderer {
                 yScale
             );
         }
-        else  {
+        else {
             this.linearLine.hide();
         }
     }
@@ -539,7 +548,7 @@ export class PunchcardRenderer {
         if (this.variable2 && variable.hash === this.variable2.hash) return;
         this.variable1 = variable;
 
-        if(this.safeguardType === SGT.Value) {
+        if (this.safeguardType === SGT.Value) {
             this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
         }
         else if (this.safeguardType === SGT.Range) {
@@ -590,7 +599,7 @@ export class PunchcardRenderer {
             }
         }
         else if (this.safeguardType === SGT.Linear) {
-            let constant = LinearRegressionConstant.FitFromVisData(this.query.getVisibleData(), this.xKeyIndex, this.yKeyIndex);
+            let constant = LinearRegressionConstant.FitFromVisData(this.query.getVisibleData(), 0, 1);
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }
@@ -606,9 +615,9 @@ export class PunchcardRenderer {
         };
 
         this.tooltip.show(
-            clientRect.left - parentRect.left + this.xScale(d.keys.list[this.xKeyIndex].hash) +
+            clientRect.left - parentRect.left + this.xScale(d.keys.list[0].hash) +
             this.xScale.bandwidth() / 2,
-            clientRect.top - parentRect.top + this.yScale(d.keys.list[this.yKeyIndex].hash),
+            clientRect.top - parentRect.top + this.yScale(d.keys.list[1].hash),
             PunchcardTooltipComponent,
             data
         );
@@ -622,12 +631,12 @@ export class PunchcardRenderer {
         d3.event.stopPropagation();
 
         if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
-        if(this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
+        if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
             this.closeDropdown();
             return;
         }
 
-        if(d == this.vis.selectedDatum) { // double click the same item
+        if (d == this.vis.selectedDatum) { // double click the same item
             this.closeDropdown();
         }
         else {
@@ -636,7 +645,7 @@ export class PunchcardRenderer {
         }
     }
 
-    openDropdown(d:Datum) {
+    openDropdown(d: Datum) {
         this.vis.selectedDatum = d;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
@@ -665,8 +674,8 @@ export class PunchcardRenderer {
 
         let i = this.data.indexOf(d);
         let left = clientRect.left - parentRect.left
-            + this.xScale(d.keys.list[this.xKeyIndex].hash) + this.xScale.bandwidth() / 2;
-        let top = clientRect.top - parentRect.top + this.yScale(d.keys.list[this.yKeyIndex].hash);
+            + this.xScale(d.keys.list[0].hash) + this.xScale.bandwidth() / 2;
+        let top = clientRect.top - parentRect.top + this.yScale(d.keys.list[1].hash);
 
         this.vis.isQueryCreatorVisible = true;
         this.vis.queryCreatorTop = top;

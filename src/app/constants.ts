@@ -29,7 +29,8 @@ export const Constants = Object.freeze({
             y: {
                 width: 20
             }
-        }
+        },
+        initiallyVisibleCategories: 20
     },
     history: {
         height: 40,
