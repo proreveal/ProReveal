@@ -79,7 +79,7 @@ export class AggregateQuery extends Query {
     updateAutomatically = true;
 
     isRankAvailable = true;
-    isPowerLawAvailable = true;
+    isPowerLawAvailable = false;
     isNormalAvailable = false;
     isLinearAvailable = false;
 

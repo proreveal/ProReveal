@@ -97,7 +97,8 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.engine = new Engine('./assets/movies.json', './assets/movies.schema.json');
-        // this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
+        this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
+        // this.engine = new Engine('./assets/SAT.json', './assets/SAT.schema.json');
 
         this.engine.queryDone = this.queryDone.bind(this);
 
@@ -108,10 +109,10 @@ export class AppComponent implements OnInit {
                 }
             });
 
-            this.querySelected(this.engine.ongoingQueries[0]);
+            // this.querySelected(this.engine.ongoingQueries[0]);
 
             // Just run 10 jobs.
-            this.runMany(10);
+            // this.runMany(10);
 
             // C (Frequency histogram, Creative_Type)
             // this.nodeSelected(this.ongoingNodes[0])

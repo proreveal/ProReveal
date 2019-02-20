@@ -343,6 +343,8 @@ export class PunchcardRenderer {
         floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
         floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
 
+        d3.select(floatingSvg).style('display', 'block');
+
         selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
         selectOrAppend(floatingLegend, 'g', '.z.legend')
             .attr('transform', translate(padding, 2 * padding))
@@ -425,10 +427,6 @@ export class PunchcardRenderer {
 
         if(this.safeguardType === SGT.Linear) {
             this.linearLine.show();
-
-            console.log(this.constant);
-            console.log(xKeys);
-
             this.linearLine.render(
                 this.constant as LinearRegressionConstant,
                 xKeys,
@@ -436,23 +434,6 @@ export class PunchcardRenderer {
                 xScale,
                 yScale
             );
-
-            // this.distributionLine.render(
-            //     this.constant as DistributionTrait,
-            //     data,
-            //     (d: Datum, i: number) => { return [i + 1, 0]; },
-            //     this.xScale, this.yScale
-            // )
-
-            // data,
-            //     (d: Datum) => {
-            //         let range = d.keys.list[0].value();
-            //         if (range == null) return null;
-            //         return range as [number, number];
-            //     },
-            //     this.xScale, this.yScale
-
-            // this.linearLine.render();
         }
         else  {
             this.linearLine.hide();
