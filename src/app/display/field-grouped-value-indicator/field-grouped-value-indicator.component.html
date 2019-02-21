@@ -1,0 +1,13 @@
+<ng-container *ngIf="showName">
+    {{ fieldGroupedValue.field.name }}
+</ng-container>
+<ng-container *ngIf="!isQuantitative(fieldGroupedValue.field) || fieldGroupedValue.hasNullValue">
+    <ng-container *ngIf="showName">=</ng-container>
+    {{ fieldGroupedValue.valueString() }}
+</ng-container>
+<ng-container *ngIf="isQuantitative(fieldGroupedValue.field) && !fieldGroupedValue.hasNullValue">
+    <ng-container *ngIf="showName">∈</ng-container>
+[{{ fieldGroupedValue.value()[0] | smartNumber }}, {{ fieldGroupedValue.value()[1] | smartNumber }}<!--
+--><ng-container *ngIf="fieldGroupedValue.includeEnd">]</ng-container><!--
+--><ng-container *ngIf="!fieldGroupedValue.includeEnd">)</ng-container>
+</ng-container>

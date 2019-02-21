@@ -147,8 +147,11 @@ export class FieldGroupedValue {
     get includeEnd() {
         if(isString(this.value())) return false;
 
-        let range: [number, number] = this.value() as [number, number];
-        return range[1] == (this.field as QuantitativeField).grouper.max;
+        return this.groupId[1] >= (this.field as QuantitativeField).grouper.lastGroupId;
+    }
+
+    get hasNullValue() {
+        return this.groupId === NullGroupId;
     }
 
     value() {
@@ -175,7 +178,7 @@ export class FieldGroupedValueList {
 
     hasNullValue() {
         for(let i = 0; i < this.list.length; i++) {
-            if(this.list[i].groupId == NullGroupId) return true;
+            if(this.list[i].hasNullValue) return true;
         }
         return false;
     }

@@ -1,9 +1,7 @@
-<ng-container *ngIf="!isQuantitative(data.datum.keys.list[0].field)">
-    <strong>{{ data.datum.keys.list[0].valueString() }}</strong> <br />
-</ng-container>
-<ng-container *ngIf="isQuantitative(data.datum.keys.list[0].field)">
-    <strong>{{ data.datum.keys.list[0].value()[0] | smartNumber }} ~ {{ data.datum.keys.list[0].value()[1] | smartNumber }}</strong> <br />
-</ng-container>
+<strong>
+    <field-grouped-value-indicator [fieldGroupedValue]="data.datum.keys.list[0]"></field-grouped-value-indicator>
+</strong>
+<br />
 {{ data.datum.ci3.center | smartNumber }} ± {{ data.datum.ci3.stdev | smartNumber }} <br />
 <hr class="m-0 mt-1" style="border-color:white; opacity:0.5" />
 <small># of Rows = {{ data.datum.accumulatedValue.count }}</small>

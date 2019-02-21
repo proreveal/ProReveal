@@ -1,6 +1,6 @@
-<div>
-    <strong>{{ data.datum.keys.list[0].field.name }} = {{ data.datum.keys.list[0].valueString() }}</strong> <br />
-    <strong>{{ data.datum.keys.list[1].field.name }} = {{ data.datum.keys.list[1].valueString() }}</strong> <br />
-    value = {{ data.datum.ci3.center | smartNumber }} ± {{ (data.datum.ci3.center - data.datum.ci3.low) | smartNumber }} <br />
-    count = {{ data.datum.accumulatedValue.count }}
-</div>
+<field-grouped-value-indicator [fieldGroupedValue]="data.datum.keys.list[0]"></field-grouped-value-indicator> <br />
+<field-grouped-value-indicator [fieldGroupedValue]="data.datum.keys.list[1]"></field-grouped-value-indicator> <br />
+
+{{ data.datum.ci3.center | smartNumber }} ± {{ data.datum.ci3.stdev | smartNumber }} <br />
+<hr class="m-0 mt-1" style="border-color:white; opacity:0.5" />
+<small># of Rows = {{ data.datum.accumulatedValue.count }}</small>
