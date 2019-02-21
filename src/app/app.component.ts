@@ -90,6 +90,8 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
+    isStudyMenuVisible = false;
+
     constructor(private route: ActivatedRoute, private modalService: NgbModal, private loggerService: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
@@ -620,13 +622,42 @@ export class AppComponent implements OnInit {
         if (this.activeQuery != sg.query) this.querySelected(sg.query);
     }
 
+    // ongoing query list
     roundRobin = false;
-
     roundRobinChange() {
         let scheduler;
         if (this.roundRobin) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
         else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
 
         this.engine.reschedule(scheduler);
+    }
+
+    // user study
+    downloadCurrentUserLog() {
+        let userLog = this.loggerService.userLog;
+        let userLogString = JSON.stringify(userLog.toObject(), null, 2);
+        let dataString = `data:text/json;charset=utf-8,${encodeURIComponent(userLogString)}`;
+        let anchor = document.createElement("a");
+        anchor.setAttribute("href", dataString);
+        anchor.setAttribute("download", `${this.loggerService.uid}.json`);
+        document.body.appendChild(anchor); // required for firefox
+        anchor.click();
+        anchor.remove();
+    }
+
+    printAllLogs() {
+        console.log(this.loggerService.userLogs);
+    }
+
+    printCurrentUserLog() {
+        console.log(this.loggerService.userLog);
+    }
+
+    printCurrentSessionLog() {
+        console.log(this.loggerService.sessionLog);
+    }
+
+    removeAllLogs() {
+        this.loggerService.clear();
     }
 }
