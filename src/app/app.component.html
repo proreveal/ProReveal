@@ -97,13 +97,13 @@
                 </div>
             </ng-container>
         </section>
-        <h6 id="ongoing-query-view-header" class="section-header p-1 border-bottom">
+        <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
             Ongoing Queries
             <div class="form-check round-robin mr-2">
                 <input class="form-check-input" type="checkbox" id="roundrobin"
                     [(ngModel)]="roundRobin" (change)="roundRobinChange()">
-                <label class="form-check-label" for="roundrobin">
-                    Round Robin
+                <label class="form-check-label cursor-pointer" for="roundrobin">
+                    번갈아서 처리<!-- Round Robin -->
                 </label>
             </div>
         </h6>

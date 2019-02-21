@@ -10,6 +10,13 @@
     grid-template-columns: 420px 1fr 240px;
     width: 100vw;
     height: 100vh;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -o-user-select: none;
+    -moz-user-select: none;
 }
 
 #navbar {
@@ -111,6 +118,10 @@
     overflow-x: hidden;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 .round-robin {
     font-family: 'Roboto';
     position: absolute;
@@ -123,6 +134,7 @@
         margin-left: -1rem;
     }
 }
+
 .query {
     padding: 3px;
     background: #fefefe;
