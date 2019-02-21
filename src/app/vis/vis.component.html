@@ -7,12 +7,14 @@
     </header>
 
     <hr class="mt-1 mb-2">
+</div>
 
-    <p [hidden]="query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert">
+<div class="vis-content">
+    <p [hidden]="query && query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert">
         This query has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
     </p>
 
-    <div [hidden]="query.recentProgress.processedBlocks === 0" class="vis-content">
+    <div *ngIf="query" [hidden]="query.recentProgress.processedBlocks === 0">
         <div class="progress-control">
             <div class="progress mb-2">
                 <div class="progress-bar" role="progressbar"
@@ -127,103 +129,106 @@
             (click)="showAllCategories()">
             There are too many categories. Click here to see all {{ numCategories | number }} categories
         </button>
-
-        <svg class="mt-2" #svg></svg>
-
-        <div #dw class="dropdown-menu" id="dropdown"
-            [style.top.px]="dropdownTop"
-            [style.left.px]="dropdownLeft"
-            (click)="$event.stopPropagation()"
-            [hidden]="!isDropdownVisible">
-            <h6 class="dropdown-header px-3" *ngIf="selectedDatum">{{ selectedDatum.keys.list[0].valueString() }}</h6>
-            <a class="dropdown-item px-3" href="#" (click)="filterClick()">
-                <fa-icon class="mr-1" [icon]="['fas', 'filter']"></fa-icon>
-                See only these data items
-            </a>
-            <h6 class="dropdown-header px-3">Create a safeguard on this</h6>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Value)">
-                <svg class="mr-1">
-                    <circle cx="10" cy="12" r="3"></circle>
-                </svg>
-                Value
-                <small>V(A) ≥ C</small>
-            </a>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Rank)"
-                [hidden]="!query.isRankAvailable">
-                <svg class="mr-1">
-                    <text dy=".55em" text-anchor="middle" x="10" y="8">1</text>
-                </svg>
-                Rank
-                <small>Rank(A) ≤ C</small>
-            </a>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Range)">
-                <svg class="mr-1">
-                    <line x1="3" x2="17" y1="12" y2="12"></line>
-                    <line x1="2" x2="2" y1="8" y2="16"></line>
-                    <line x1="18" x2="18" y1="8" y2="16"></line>
-                </svg>
-                Range
-                <small>V(A) ∈ [a, b]</small>
-            </a>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Comparative)">
-                <svg class="mr-1">
-                    <line x1="6" x2="14" y1="12" y2="8"></line>
-                    <line x1="6" x2="14" y1="12" y2="16"></line>
-                </svg>
-                Comparative
-                <small>V(A) &lt; V(B)</small>
-            </a>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.PowerLaw)"
-                [hidden]="!query.isPowerLawAvailable">
-                <svg class="mr-1">
-                    <path d="M 18 16 C 10 16 4 16 2 5"/>
-                </svg>
-                Power Law
-                <small>V(x) ~ ax<sup>b</sup></small>
-            </a>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Normal)"
-                [hidden]="!query.isNormalAvailable">
-                <svg class="mr-1">
-                    <path d="M1.678 14.4c.517-.065 1.024-.173 1.511-.37.485-.196.913-.494 1.309-.842.385-.338.721-.753 1.018-1.176.305-.435.587-.886.85-1.35.27-.478.529-.963.785-1.45.252-.477.503-.953.765-1.424.256-.46.532-.918.855-1.33.168-.214.352-.404.559-.576.201-.167.444-.261.698-.281.258-.02.502 .112.71 .254.213 .146.39 .352.554 .552.339 .412.611 .882.878 1.347.258 .45.497 .913.739 1.372.255 .484.51 .968.779 1.445.261 .462.534 .918.838 1.351.311 .444.652 .862 1.043 1.231.385 .363.824 .646 1.3.857 .458.203 .961.314 1.454.376"/>
-                </svg>
-                Normal
-                <small>V(x) ~ N(μ, sigma)</small>
-            </a>
-            <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Linear)"
-                [hidden]="!query.isLinearAvailable">
-                <svg class="mr-1">
-                    <circle cx="17" cy="8" r="2"></circle>
-                    <circle cx="8" cy="8" r="2"></circle>
-                    <circle cx="5" cy="16" r="2"></circle>
-                    <line x1="2" y1="20" x2="20" y2="0" class="thin"></line>
-                </svg>
-                Linear
-                <small>y = ax + b</small>
-            </a>
-
-            <div class="dropdown-divider"></div>
-
-            <a class="dropdown-item px-3" href="#" (click)="detailClick()">
-                <fa-icon class="mr-1" [icon]="['fas', 'table']"></fa-icon>
-                Show data items
-            </a>
-        </div>
-
-
-        <div #qcw
-            id="query-creator-wrapper"
-            class="mt-1"
-            [style.top.px]="queryCreatorTop"
-            [style.left.px]="queryCreatorLeft"
-            [hidden]="!isQueryCreatorVisible"
-            (click)="$event.stopPropagation()">
-            <query-creator #qc id="query-creator" class="border rounded"
-                [dataset]="query.dataset"
-                (created)="queryCreatorCreated($event)"
-                (creationCancelled)="queryCreatorCreationCancelled($event)"
-            ></query-creator>
-        </div>
-
-        <tooltip #tooltip></tooltip>
     </div>
+
+    <svg #svg class="mt-2"
+        [class.hidden]="!query || (query.recentProgress.processedBlocks === 0)"></svg>
+
+    <div #dw class="dropdown-menu" id="dropdown"
+        *ngIf="query"
+        [style.top.px]="dropdownTop"
+        [style.left.px]="dropdownLeft"
+        (click)="$event.stopPropagation()"
+        [hidden]="!isDropdownVisible">
+        <h6 class="dropdown-header px-3" *ngIf="selectedDatum">{{ selectedDatum.keys.list[0].valueString() }}</h6>
+        <a class="dropdown-item px-3" href="#" (click)="filterClick()">
+            <fa-icon class="mr-1" [icon]="['fas', 'filter']"></fa-icon>
+            See only these data items
+        </a>
+        <h6 class="dropdown-header px-3">Create a safeguard on this</h6>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Value)">
+            <svg class="mr-1">
+                <circle cx="10" cy="12" r="3"></circle>
+            </svg>
+            Value
+            <small>V(A) ≥ C</small>
+        </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Rank)"
+            [hidden]="!query.isRankAvailable">
+            <svg class="mr-1">
+                <text dy=".55em" text-anchor="middle" x="10" y="8">1</text>
+            </svg>
+            Rank
+            <small>Rank(A) ≤ C</small>
+        </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Range)">
+            <svg class="mr-1">
+                <line x1="3" x2="17" y1="12" y2="12"></line>
+                <line x1="2" x2="2" y1="8" y2="16"></line>
+                <line x1="18" x2="18" y1="8" y2="16"></line>
+            </svg>
+            Range
+            <small>V(A) ∈ [a, b]</small>
+        </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Comparative)">
+            <svg class="mr-1">
+                <line x1="6" x2="14" y1="12" y2="8"></line>
+                <line x1="6" x2="14" y1="12" y2="16"></line>
+            </svg>
+            Comparative
+            <small>V(A) &lt; V(B)</small>
+        </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.PowerLaw)"
+            [hidden]="!query.isPowerLawAvailable">
+            <svg class="mr-1">
+                <path d="M 18 16 C 10 16 4 16 2 5"/>
+            </svg>
+            Power Law
+            <small>V(x) ~ ax<sup>b</sup></small>
+        </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Normal)"
+            [hidden]="!query.isNormalAvailable">
+            <svg class="mr-1">
+                <path d="M1.678 14.4c.517-.065 1.024-.173 1.511-.37.485-.196.913-.494 1.309-.842.385-.338.721-.753 1.018-1.176.305-.435.587-.886.85-1.35.27-.478.529-.963.785-1.45.252-.477.503-.953.765-1.424.256-.46.532-.918.855-1.33.168-.214.352-.404.559-.576.201-.167.444-.261.698-.281.258-.02.502 .112.71 .254.213 .146.39 .352.554 .552.339 .412.611 .882.878 1.347.258 .45.497 .913.739 1.372.255 .484.51 .968.779 1.445.261 .462.534 .918.838 1.351.311 .444.652 .862 1.043 1.231.385 .363.824 .646 1.3.857 .458.203 .961.314 1.454.376"/>
+            </svg>
+            Normal
+            <small>V(x) ~ N(μ, sigma)</small>
+        </a>
+        <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Linear)"
+            [hidden]="!query.isLinearAvailable">
+            <svg class="mr-1">
+                <circle cx="17" cy="8" r="2"></circle>
+                <circle cx="8" cy="8" r="2"></circle>
+                <circle cx="5" cy="16" r="2"></circle>
+                <line x1="2" y1="20" x2="20" y2="0" class="thin"></line>
+            </svg>
+            Linear
+            <small>y = ax + b</small>
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <a class="dropdown-item px-3" href="#" (click)="detailClick()">
+            <fa-icon class="mr-1" [icon]="['fas', 'table']"></fa-icon>
+            Show data items
+        </a>
+    </div>
+
+
+    <div #qcw
+        id="query-creator-wrapper"
+        class="mt-1"
+        *ngIf="query"
+        [style.top.px]="queryCreatorTop"
+        [style.left.px]="queryCreatorLeft"
+        [hidden]="!isQueryCreatorVisible"
+        (click)="$event.stopPropagation()">
+        <query-creator #qc id="query-creator" class="border rounded"
+            [dataset]="query.dataset"
+            (created)="queryCreatorCreated($event)"
+            (creationCancelled)="queryCreatorCreationCancelled($event)"
+        ></query-creator>
+    </div>
+
+    <tooltip #tooltip></tooltip>
 </div>
