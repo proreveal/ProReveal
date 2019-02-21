@@ -46,6 +46,7 @@ import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
 import { DataViewerComponent } from './data-viewer/data-viewer.component';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { FieldGroupedValueIndicatorComponent } from './display/field-grouped-value-indicator/field-grouped-value-indicator.component';
 
 library.add(fas, far);
 
@@ -78,7 +79,8 @@ library.add(fas, far);
         SmartNumberPipe,
         QueryCreatorComponent,
         PredicateIndicatorComponent,
-        DataViewerComponent
+        DataViewerComponent,
+        FieldGroupedValueIndicatorComponent
     ],
     imports: [
         NgbModule.forRoot(),

@@ -67,6 +67,10 @@ export class NumericalGrouper {
         this.base = this.min;
     }
 
+    get lastGroupId() {
+        return Math.floor((this.max - this.base) / this.step) - 1;
+    }
+
     group(value: number | null) {
         if (isNull(value)) return NullGroupId;
 
