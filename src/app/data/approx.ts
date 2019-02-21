@@ -12,7 +12,7 @@ export class ApproximatedInterval {
 
     range(factor: number) {
         if(this == EmptyApproximatedInterval) return EmptyConfidenceInterval;
-        return new ConfidenceInterval(this.center, this.center - factor * this.stdev, this.center + factor * this.stdev);
+        return new ConfidenceInterval(this.center, this.stdev, this.center - factor * this.stdev, this.center + factor * this.stdev);
     }
 
     desc() {
@@ -21,7 +21,7 @@ export class ApproximatedInterval {
 }
 
 export class ConfidenceInterval {
-    constructor(public center: number, public low: number, public high: number) {
+    constructor(public center: number, public stdev: number, public low: number, public high: number) {
 
     }
 
@@ -31,7 +31,7 @@ export class ConfidenceInterval {
 }
 
 export const EmptyApproximatedInterval = new ApproximatedInterval(0, 0, 0);
-export const EmptyConfidenceInterval = new ConfidenceInterval(0, 0, 0);
+export const EmptyConfidenceInterval = new ConfidenceInterval(0, 0, 0, 0);
 
 export interface ApproximatorTrait {
     readonly name: string;
