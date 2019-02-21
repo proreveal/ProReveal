@@ -45,6 +45,7 @@ import { SmartNumberPipe } from './smart-number.pipe';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
 import { DataViewerComponent } from './data-viewer/data-viewer.component';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 library.add(fas, far);
 
@@ -88,7 +89,8 @@ library.add(fas, far);
         FormsModule,
         BrowserAnimationsModule,
         ToastrModule.forRoot(),
-        MomentModule
+        MomentModule,
+        RouterModule.forRoot([])
     ],
     providers: [],
     bootstrap: [AppComponent],
