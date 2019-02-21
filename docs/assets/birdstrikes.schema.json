@@ -1,0 +1,64 @@
+[
+    {
+        "name": "Airport__Name",
+        "type": "nominal"
+    },
+    {
+        "name": "Aircraft__Make_Model",
+        "type": "nominal"
+    },
+    {
+        "name": "Effect__Amount_of_damage",
+        "type": "dozen"
+    },
+    {
+        "name": "Flight_Date",
+        "type": "key"
+    },
+    {
+        "name": "Aircraft__Airline_Operator",
+        "type": "nominal"
+    },
+    {
+        "name": "Origin_State",
+        "type": "nominal"
+    },
+    {
+        "name": "When__Phase_of_flight",
+        "type": "dozen"
+    },
+    {
+        "name": "Wildlife__Size",
+        "type": "dozen"
+    },
+    {
+        "name": "Wildlife__Species",
+        "type": "nominal"
+    },
+    {
+        "name": "When__Time_of_day",
+        "type": "dozen"
+    },
+    {
+        "name": "Cost__Other",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "Cost__Repair",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "Cost__Total_$",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "Speed_IAS_in_knots",
+        "type": "quantitative",
+        "min": 0,
+        "max": 350,
+        "numBins": 7
+    }
+]

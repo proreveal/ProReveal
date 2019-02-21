@@ -41,3 +41,5 @@ package-lock.json
 package-lock.json
 /src/assets/SAT.json
 /src/assets/SAT.schema.json
+docs/assets/SAT.schema.json
+docs/assets/SAT.json

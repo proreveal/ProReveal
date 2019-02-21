@@ -21,7 +21,8 @@ import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
-import { LoggerService } from './logger.service';
+import { LoggerService, EventType } from './logger.service';
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
     selector: 'app-root',
@@ -89,7 +90,7 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
-    constructor(private modalService: NgbModal, private loggerService: LoggerService) {
+    constructor(private route: ActivatedRoute, private modalService: NgbModal, private loggerService: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.queue.reschedule();
@@ -98,68 +99,96 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.engine = new Engine('./assets/movies.json', './assets/movies.schema.json');
-        // this.engine = new Engine('./assets/birdstrikes.json', './assets/birdstrikes.schema.json');
-        // this.engine = new Engine('./assets/SAT.json', './assets/SAT.schema.json');
+        this.route.queryParamMap.subscribe(params => {
+            let kv = (params as any).params;
 
-        this.loggerService.log('App Started');
+            const data = kv.data || "movies";
+            const uid = kv.uid || '0';
+            const sid = kv.sid || '0';
 
-        this.engine.queryDone = this.queryDone.bind(this);
+            this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
-        this.engine.load().then(([dataset]) => {
-            dataset.fields.forEach(field => {
-                if (field.vlType !== VlType.Key) {
-                    this.create(new EmptyQuery(dataset).combine(field));
-                }
-            });
+            this.engine.queryDone = this.queryDone.bind(this);
 
-            this.querySelected(this.engine.ongoingQueries[0]);
+            this.engine.load().then(([dataset]) => {
+                this.loggerService.setup(uid, sid);
 
-            // Just run 10 jobs.
-            this.runMany(10);
+                this.loggerService.log(EventType.AppStarted, {});
 
-            // C (Frequency histogram, Creative_Type)
-            // this.nodeSelected(this.ongoingNodes[0])
-            // this.run(5);
+                dataset.fields.forEach(field => {
+                    if (field.vlType !== VlType.Key)
+                        this.create(new EmptyQuery(dataset).combine(field));
+                });
 
-            // N (1D histogram, IMDB_Rating)
-            // this.nodeSelected(this.ongoingNodes[3]);
-            // this.run(105);
+                this.querySelected(this.engine.ongoingQueries[0]);
 
-            // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
-            // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-            // this.run(5);
+                this.runMany(10);
 
-            // NN (2D Histogram, IMDB_Rating vs Production_Budget)
-            // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
-            // this.run(10);
+                of(0).pipe(
+                    delay(1000)
+                ).subscribe(() => {
+                    // this.toggle(SGT.Point);
 
-            // CC (Creative_Type vs Major_Genre)
-            // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
-            // this.run(10);
-
-            // this.testC();
-
-            // this.toggleMetadataEditor();
-
-            // this.testEqualWhere();
-            // this.testCC();
-
-            // this.testNN();
-            // this.testCN();
-
-            // this.testNN();
-
-            of(0).pipe(
-                delay(1000)
-            ).subscribe(() => {
-
-                // this.toggle(SGT.Point);
-
-                // this.useRank = true;
-                // this.useRankToggled();
+                    // this.useRank = true;
+                    // this.useRankToggled();
+                })
             })
-        })
+        });
+
+        // this.engine.load().then(([dataset]) => {
+        //     dataset.fields.forEach(field => {
+        //         if (field.vlType !== VlType.Key) {
+        //             this.create(new EmptyQuery(dataset).combine(field));
+        //         }
+        //     });
+
+        //     this.querySelected(this.engine.ongoingQueries[0]);
+
+        //     // Just run 10 jobs.
+        //     this.runMany(10);
+
+        //     // C (Frequency histogram, Creative_Type)
+        //     // this.nodeSelected(this.ongoingNodes[0])
+        //     // this.run(5);
+
+        //     // N (1D histogram, IMDB_Rating)
+        //     // this.nodeSelected(this.ongoingNodes[3]);
+        //     // this.run(105);
+
+        //     // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
+        //     // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
+        //     // this.run(5);
+
+        //     // NN (2D Histogram, IMDB_Rating vs Production_Budget)
+        //     // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
+        //     // this.run(10);
+
+        //     // CC (Creative_Type vs Major_Genre)
+        //     // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
+        //     // this.run(10);
+
+        //     // this.testC();
+
+        //     // this.toggleMetadataEditor();
+
+        //     // this.testEqualWhere();
+        //     // this.testCC();
+
+        //     // this.testNN();
+        //     // this.testCN();
+
+        //     // this.testNN();
+
+        //     of(0).pipe(
+        //         delay(1000)
+        //     ).subscribe(() => {
+
+        //         // this.toggle(SGT.Point);
+
+        //         // this.useRank = true;
+        //         // this.useRankToggled();
+        //     })
+        // })
 
     }
 
@@ -246,7 +275,7 @@ export class AppComponent implements OnInit {
         })
 
 
-        if(DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
+        if (DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
             this.vis.renderer.setDefaultConstantFromVariable(true);
         }
     }
@@ -270,14 +299,14 @@ export class AppComponent implements OnInit {
         }
     }
 
-    queryPauseClick(query: AggregateQuery, $event: UIEvent){
+    queryPauseClick(query: AggregateQuery, $event: UIEvent) {
         query.pause();
         this.engine.reschedule();
         $event.stopPropagation();
         return false;
     }
 
-    queryRunClick(query: AggregateQuery, $event: UIEvent){
+    queryRunClick(query: AggregateQuery, $event: UIEvent) {
         query.run();
         this.engine.reschedule();
         $event.stopPropagation();
@@ -360,11 +389,11 @@ export class AppComponent implements OnInit {
 
     createDistributiveSafeguard() {
         let sg: DistributiveSafeguard;
-        if(this.activeSafeguardPanel === SGT.Normal)
+        if (this.activeSafeguardPanel === SGT.Normal)
             sg = new NormalSafeguard(this.normalConstant, this.activeQuery);
-        else if(this.activeSafeguardPanel === SGT.PowerLaw)
+        else if (this.activeSafeguardPanel === SGT.PowerLaw)
             sg = new PowerLawSafeguard(this.powerLawConstant, this.activeQuery);
-        else if(this.activeSafeguardPanel === SGT.Linear)
+        else if (this.activeSafeguardPanel === SGT.Linear)
             sg = new LinearSafeguard(this.linearRegressionConstant, this.activeQuery);
 
         sg.history.push(sg.validity());
@@ -523,7 +552,7 @@ export class AppComponent implements OnInit {
 
     numBinsChanged() {
         let prev = this.activeSafeguardPanel;
-        if(prev != SGT.None) {
+        if (prev != SGT.None) {
             this.toggle(SGT.None);
             this.toggle(prev);
         }
@@ -549,7 +578,7 @@ export class AppComponent implements OnInit {
     queryRemoveClicked(query: Query, confirm, reject, $event: UIEvent) {
         let sg = this.safeguards.find(sg => sg.query === query);
 
-        if(sg) {
+        if (sg) {
             this.modalService
                 .open(reject)
         }
@@ -558,10 +587,10 @@ export class AppComponent implements OnInit {
                 .open(confirm).result
                 .then(() => {
                     this.engine.remove(query);
-                    if(this.engine.ongoingQueries.length > 0) {
+                    if (this.engine.ongoingQueries.length > 0) {
                         this.querySelected(this.engine.ongoingQueries[0]);
                     }
-                    else if(this.engine.completedQueries.length > 0) {
+                    else if (this.engine.completedQueries.length > 0) {
                         this.querySelected(this.engine.completedQueries[0]);
                     }
                 }, () => {
@@ -573,8 +602,7 @@ export class AppComponent implements OnInit {
     }
 
     // safeguard remove
-    sgRemoveClicked(sg: Safeguard)
-    {
+    sgRemoveClicked(sg: Safeguard) {
         this.highlightedQuery = null;
         util.aremove(this.safeguards, sg);
         util.aremove(sg.query.safeguards, sg);
@@ -589,14 +617,14 @@ export class AppComponent implements OnInit {
     }
 
     sgClick(sg: Safeguard) {
-        if(this.activeQuery != sg.query) this.querySelected(sg.query);
+        if (this.activeQuery != sg.query) this.querySelected(sg.query);
     }
 
     roundRobin = false;
 
     roundRobinChange() {
         let scheduler;
-        if(this.roundRobin) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
+        if (this.roundRobin) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
         else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
 
         this.engine.reschedule(scheduler);
