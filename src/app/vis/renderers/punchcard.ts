@@ -347,7 +347,7 @@ export class PunchcardRenderer {
         let floatingLegend = floatingSvgWrapper.select('.legend');
         let floatingBrush = floatingSvgWrapper.select('.angular-brush');
 
-        let parentWidth = nativeSvg.parentElement.parentElement.offsetWidth;
+        let parentWidth = nativeSvg.parentElement.offsetWidth;
         let parentOffsetTop = 120; // nativeSvg.getBoundingClientRect().top; // TODO
         floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
         floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
@@ -364,6 +364,7 @@ export class PunchcardRenderer {
 
 
         if (matrixWidth + size + padding * 2 > parentWidth) {
+            console.log(parentWidth, size, padding);
             floatingSvgWrapper
                 .style('position', 'sticky')
                 .style('left', `${parentWidth - size - padding * 3}px`)
