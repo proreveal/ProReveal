@@ -8,8 +8,6 @@ import { FieldTrait } from '../../data/field';
     //   styleUrls: ['./horizontal-bars-tooltip.component.css']
 })
 export class PunchcardTooltipComponent extends TooltipRendererTrait {
-    isQuantitative(field: FieldTrait) { return field instanceof QuantitativeField; }
-
     constructor() {
         super();
     }
