@@ -1,0 +1,70 @@
+[
+    {
+        "name": "Airport Name",
+        "type": "nominal"
+    },
+    {
+        "name": "Aircraft Make Model",
+        "type": "nominal"
+    },
+    {
+        "name": "Amount of Damage",
+        "type": "dozen"
+    },
+    {
+        "name": "Flight Year",
+        "type": "dozen"
+    },
+    {
+        "name": "Flight Month",
+        "type": "dozen"
+    },
+    {
+        "name": "Aircraft Airline Operator",
+        "type": "nominal"
+    },
+    {
+        "name": "Origin State",
+        "type": "nominal"
+    },
+    {
+        "name": "Phase of Flight",
+        "type": "dozen"
+    },
+    {
+        "name": "Wildlife Size",
+        "type": "dozen"
+    },
+    {
+        "name": "Wildlife Species",
+        "type": "nominal"
+    },
+    {
+        "name": "Time of Day",
+        "type": "dozen"
+    },
+    {
+        "name": "Cost Other ($)",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "dollar"
+    },
+    {
+        "name": "Cost Repair ($)",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "dollar"
+    },
+    {
+        "name": "Cost Total ($)",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "dollar"
+    },
+    {
+        "name": "Speed (knots)",
+        "type": "quantitative",
+        "min": 0,
+        "max": 350
+    }
+]
