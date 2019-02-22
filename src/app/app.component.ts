@@ -104,10 +104,11 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
+        console.log(location.search)
         this.route.queryParamMap.subscribe(params => {
             let kv = (params as any).params;
 
-            const data = kv.data || "movies";
+            const data = kv.data || "weather";
             const uid = kv.uid || '0';
             const sid = kv.sid || '0';
 

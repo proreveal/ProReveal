@@ -23,24 +23,24 @@
         "type": "quantitative",
         "min": -10,
         "max": 40,
-        "numBins": 5
+        "numBins": 20
     },
     {
         "name":  "온도(최소)",
         "type": "quantitative",
         "min": -20,
         "max": 30,
-        "numBins": 5
+        "numBins": 20
     },
     {
         "name":  "바람세기(m/sec)",
         "type": "quantitative",
         "min": 0,
         "max": 18,
-        "numBins": 2
+        "numBins": 20
     },
     {
         "name":  "날씨",
-        "type": "dezen"
+        "type": "dozen"
     }
 ]
