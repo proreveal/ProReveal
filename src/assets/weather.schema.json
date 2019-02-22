@@ -1,0 +1,46 @@
+[
+    {
+        "name": "지역",
+        "type": "dozen"
+    },
+    {
+        "name": "년도",
+        "type": "dozen"
+    },
+    {
+        "name": "월",
+        "type": "dozen"
+    },
+    {
+        "name":  "강수량(mm/h)",
+        "type": "quantitative",
+        "min": 0,
+        "max": 120,
+        "numBins": 20
+    },
+    {
+        "name":  "온도(최대)",
+        "type": "quantitative",
+        "min": -10,
+        "max": 40,
+        "numBins": 5
+    },
+    {
+        "name":  "온도(최소)",
+        "type": "quantitative",
+        "min": -20,
+        "max": 30,
+        "numBins": 5
+    },
+    {
+        "name":  "바람세기(m/sec)",
+        "type": "quantitative",
+        "min": 0,
+        "max": 18,
+        "numBins": 2
+    },
+    {
+        "name":  "날씨",
+        "type": "dezen"
+    }
+]

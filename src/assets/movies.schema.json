@@ -1,77 +1,71 @@
 [
     {
-        "name": "Title",
-        "type": "key"
-    },
-    {
-        "name": "US_Gross",
+        "name": "예산",
         "type": "quantitative",
         "min": 0
     },
     {
-        "name": "Worldwide_Gross",
-        "type": "quantitative",
-        "min": 0
-    },
-    {
-        "name": "US_DVD_Sales",
-        "type": "quantitative"
-    },
-    {
-        "name": "Production_Budget",
-        "type": "quantitative",
-        "min": 0
-    },
-    {
-        "name": "Release_Date",
-        "type": "key"
-    },
-    {
-        "name": "MPAA_Rating",
-        "type": "dozen"
-    },
-    {
-        "name": "Running_Time_min",
-        "type": "quantitative",
-        "min": 60,
-        "numBins": 20
-    },
-    {
-        "name": "Distributor",
+        "name": "장르",
         "type": "nominal"
     },
     {
-        "name": "Source",
-        "type": "dozen"
-    },
-    {
-        "name": "Major_Genre",
-        "type": "dozen"
-    },
-    {
-        "name": "Creative_Type",
-        "type": "dozen"
-    },
-    {
-        "name": "Director",
+        "name": "언어",
         "type": "nominal"
     },
     {
-        "name": "Rotten_Tomatoes_Rating",
+        "name": "인기도",
         "type": "quantitative",
         "min": 0,
-        "max": 100
+        "max": 300
     },
     {
-        "name": "IMDB_Rating",
+        "name": "제작사",
+        "type": "key"
+    },
+    {
+        "name": "제작 국가",
+        "type": "nominal"
+    },
+    {
+        "name": "개봉 년도",
+        "type": "nominal",
+        "hidden": true
+    },
+    {
+        "name": "개봉 월",
+        "type": "dozen"
+    },
+    {
+        "name": "수익",
+        "type": "quantitative",
+        "min": 0
+    },
+    {
+        "name": "상영시간(분)",
+        "type": "quantitative",
+        "min": 0,
+        "max": 600
+    },
+    {
+        "name": "개봉 여부",
+        "type": "dozen"
+    },
+    {
+        "name": "제목",
+        "type": "key"
+    },
+    {
+        "name": "리뷰 점수",
         "type": "quantitative",
         "min": 0,
         "max": 10,
         "numBins": 20
     },
     {
-        "name": "IMDB_Votes",
+        "name": "리뷰 개수",
         "type": "quantitative",
-        "min": 0
+        "min": 0,
+        "max": 12000,
+        "numBins": 24
     }
 ]

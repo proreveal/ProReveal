@@ -23,6 +23,8 @@ import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
 import { LoggerService, EventType } from './logger.service';
 import { ActivatedRoute } from "@angular/router";
+import { UniformNumBlocksSampler } from './data/sampler';
+import { ExpConstants } from './exp-constants';
 
 @Component({
     selector: 'app-root',
@@ -91,6 +93,7 @@ export class AppComponent implements OnInit {
     operator = Operators.LessThanOrEqualTo;
 
     isStudyMenuVisible = false;
+    sampler = ExpConstants.sampler;
 
     constructor(private route: ActivatedRoute, private modalService: NgbModal, private loggerService: LoggerService) {
         this.sortablejsOptions = {
@@ -119,7 +122,7 @@ export class AppComponent implements OnInit {
 
                 dataset.fields.forEach(field => {
                     if (field.vlType !== VlType.Key)
-                        this.create(new EmptyQuery(dataset).combine(field));
+                        this.create(new EmptyQuery(dataset, this.sampler).combine(field));
                 });
 
                 this.querySelected(this.engine.ongoingQueries[0]);
@@ -200,7 +203,7 @@ export class AppComponent implements OnInit {
 
         let visField = this.engine.dataset.getFieldByName('IMDB_Rating');
 
-        let query = (new EmptyQuery(this.engine.dataset)).combine(visField);
+        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(visField);
         query.where = where;
 
         this.create(query, Priority.Highest);
@@ -221,7 +224,7 @@ export class AppComponent implements OnInit {
         let field1 = this.engine.dataset.getFieldByName('Creative_Type');
         let field2 = this.engine.dataset.getFieldByName('Production_Budget');
 
-        let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
+        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(field1).combine(field2);
         this.create(query, Priority.Highest);
 
         this.runMany(5);
@@ -231,7 +234,7 @@ export class AppComponent implements OnInit {
         let field1 = this.engine.dataset.getFieldByName('Production_Budget');
         let field2 = this.engine.dataset.getFieldByName('IMDB_Rating');
 
-        let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
+        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(field1).combine(field2);
         this.create(query, Priority.Highest);
 
         this.runMany(10);
@@ -241,7 +244,7 @@ export class AppComponent implements OnInit {
         let field1 = this.engine.dataset.getFieldByName('Creative_Type');
         let field2 = this.engine.dataset.getFieldByName('Major_Genre');
 
-        let query = (new EmptyQuery(this.engine.dataset)).combine(field1).combine(field2);
+        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(field1).combine(field2);
         this.create(query, Priority.Highest)
 
         // this.runMany(10);
@@ -565,12 +568,11 @@ export class AppComponent implements OnInit {
     }
 
     dataViewerRequested(d: Datum) {
-        console.log(this.activeQuery)
         let predicate = this.activeQuery.getPredicateFromDatum(d);
         let where = this.activeQuery.where.and(predicate);
 
         this.dataViewerFilters = where;
-        this.filteredRows = this.engine.select(where);
+        this.filteredRows = this.engine.select(where, this.activeQuery.processedIndices);
 
         this.modalService
             .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })

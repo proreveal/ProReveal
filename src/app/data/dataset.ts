@@ -31,6 +31,7 @@ export class Dataset {
             if(columnSchema) {
                 vlType = columnSchema.type;
                 if(!isUndefined(columnSchema.nullable)) nullable = columnSchema.nullable;
+                if(columnSchema.hidden) return;
             }
 
             if (vlType === VlType.Quantitative) {

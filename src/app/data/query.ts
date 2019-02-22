@@ -2,7 +2,7 @@ import { Dataset } from './dataset';
 import { FieldTrait, VlType, QuantitativeField, FieldGroupedValueList, FieldGroupedValue } from './field';
 import { assert, assertIn } from './assert';
 import { AccumulatorTrait, CountAccumulator, AllAccumulator, AccumulatedValue, PartialValue } from './accum';
-import { Sampler, UniformRandomSampler } from './sampler';
+import { Sampler } from './sampler';
 import { AggregateJob } from './job';
 import { GroupBy } from './groupby';
 import { Job } from './job';
@@ -47,6 +47,7 @@ export abstract class Query {
     maxUncertainty = 0;
 
     state: QueryState = QueryState.Running;
+    processedIndices: number[] = [];
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
         this.id = Query.Id++;
@@ -102,8 +103,7 @@ export class AggregateQuery extends Query {
         public dataset: Dataset,
         public groupBy: GroupBy,
         public where: AndPredicate,
-        public sampler: Sampler = new UniformRandomSampler(100)
-    ) {
+        public sampler: Sampler) {
         super(dataset, sampler);
 
         // create samples
@@ -338,7 +338,7 @@ export class EmptyQuery extends AggregateQuery {
     name = "EmptyQuery";
     hasAggregateFunction = false;
 
-    constructor(public dataset: Dataset, public sampler: Sampler = new UniformRandomSampler(100)) {
+    constructor(public dataset: Dataset, public sampler) {
         super(null, null, null, dataset, null, null, sampler);
     }
 
@@ -395,7 +395,7 @@ export class Histogram1DQuery extends AggregateQuery {
     constructor(public grouping: QuantitativeField,
         public dataset: Dataset,
         public where: AndPredicate,
-        public sampler: Sampler = new UniformRandomSampler(100)) {
+        public sampler: Sampler) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
@@ -515,7 +515,7 @@ export class Histogram2DQuery extends AggregateQuery {
         public grouping2: QuantitativeField,
         public dataset: Dataset,
         public where: AndPredicate,
-        public sampler: Sampler = new UniformRandomSampler(100)) {
+        public sampler: Sampler) {
         super(
             new AllAccumulator(),
             new CountApproximator(),
@@ -645,7 +645,7 @@ export class Frequency1DQuery extends AggregateQuery {
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
         public where: AndPredicate,
-        public sampler: Sampler = new UniformRandomSampler(100)) {
+        public sampler: Sampler) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
@@ -701,7 +701,7 @@ export class Frequency2DQuery extends AggregateQuery {
         public grouping2: FieldTrait,
         public dataset: Dataset,
         public where: AndPredicate,
-        public sampler: Sampler = new UniformRandomSampler(100)) {
+        public sampler: Sampler) {
 
         super(
             new AllAccumulator(),

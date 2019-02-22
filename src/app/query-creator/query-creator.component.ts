@@ -5,6 +5,8 @@ import { FieldTrait, VlType } from '../data/field';
 import * as util from '../util';
 import { AndPredicate } from '../data/predicate';
 import { MeanApproximator, SumApproximator, MinApproximator, MaxApproximator, ApproximatorTrait } from '../data/approx';
+import { UniformNumBlocksSampler } from '../data/sampler';
+import { ExpConstants } from '../exp-constants';
 
 @Component({
     selector: 'query-creator',
@@ -58,7 +60,7 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
             this.selectedFields.push(field);
         }
 
-        let newQuery: Query = new EmptyQuery(this.dataset);
+        let newQuery: Query = new EmptyQuery(this.dataset, ExpConstants.sampler);
         this.selectedFields.forEach(field => {
             newQuery = newQuery.combine(field);
         })
