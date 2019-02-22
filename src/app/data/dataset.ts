@@ -14,6 +14,8 @@ export class Dataset {
 
         Object.keys(rows[0]).forEach(name => {
             let columnSchema = schema.getColumnSchema(name);
+            if(!columnSchema) throw new Error(`${name} does not exist in the schema`);
+
             let unit = columnSchema.unit;
             if(unit === 'dollar' && Constants.lang == Languages.ko_KR) {
                 rows.forEach(row => {
