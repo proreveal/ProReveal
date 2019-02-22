@@ -104,42 +104,39 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log(location.search)
-        this.route.queryParamMap.subscribe(params => {
-            let kv = (params as any).params;
+        let parameters = util.parseQueryParameters(location.search);
 
-            const data = kv.data || "weather";
-            const uid = kv.uid || '0';
-            const sid = kv.sid || '0';
+        const data = parameters.data || "birdstrikes";
+        const uid = parameters.uid || '0';
+        const sid = parameters.sid || '0';
 
-            this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+        this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
-            this.engine.queryDone = this.queryDone.bind(this);
+        this.engine.queryDone = this.queryDone.bind(this);
 
-            this.engine.load().then(([dataset]) => {
-                this.loggerService.setup(uid, sid);
+        this.engine.load().then(([dataset]) => {
+            this.loggerService.setup(uid, sid);
 
-                this.loggerService.log(EventType.AppStarted, {});
+            this.loggerService.log(EventType.AppStarted, {});
 
-                dataset.fields.forEach(field => {
-                    if (field.vlType !== VlType.Key)
-                        this.create(new EmptyQuery(dataset, this.sampler).combine(field));
-                });
+            dataset.fields.forEach(field => {
+                if (field.vlType !== VlType.Key)
+                    this.create(new EmptyQuery(dataset, this.sampler).combine(field));
+            });
 
-                this.querySelected(this.engine.ongoingQueries[0]);
+            this.querySelected(this.engine.ongoingQueries[0]);
 
-                this.runMany(10);
+            this.runMany(10);
 
-                of(0).pipe(
-                    delay(1000)
-                ).subscribe(() => {
-                    // this.toggle(SGT.Point);
+            of(0).pipe(
+                delay(1000)
+            ).subscribe(() => {
+                // this.toggle(SGT.Point);
 
-                    // this.useRank = true;
-                    // this.useRankToggled();
-                })
+                // this.useRank = true;
+                // this.useRankToggled();
             })
-        });
+        })
 
         // this.engine.load().then(([dataset]) => {
         //     dataset.fields.forEach(field => {
