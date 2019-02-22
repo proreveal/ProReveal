@@ -149,8 +149,8 @@ export class PunchcardRenderer {
             data = data.filter(d => xKeys[d.keys.list[0].hash] && yKeys[d.keys.list[1].hash]);
         }
 
-        const yLabelWidth = d3.max(yValues, v => measure(v.valueString()).width);
-        const xLabelWidth = d3.max(xValues, v => measure(v.valueString()).width);
+        const yLabelWidth = d3.max(yValues, v => measure(v.valueString()).width) || 0;
+        const xLabelWidth = d3.max(xValues, v => measure(v.valueString()).width) || 0;
 
         const xFieldLabelHeight = C.punchcard.label.x.height;
         const yFieldLabelWidth = C.punchcard.label.y.width;

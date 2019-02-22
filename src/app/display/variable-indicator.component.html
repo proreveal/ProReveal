@@ -5,36 +5,13 @@
 --><span *ngIf="query.approximator.requireTargetField">{{ query.target.name }}</span><!--
 --><span *ngIf="!query.approximator.requireTargetField">*</span>)<!--
 --><span *ngIf="isRank">)</span><!--
---><ng-container *ngIf="!variable.isCombined"><span class="pl-1 where"></span>
-<ng-container *ngIf="isQuantitative(variable.fieldGroupedValue.field)">
-    {{ variable.fieldString() }} ∈ [{{ variable.fieldGroupedValue.value()[0] | smartNumber }},
-    {{ variable.fieldGroupedValue.value()[1] | smartNumber}}<!--
---><ng-container *ngIf="variable.fieldGroupedValue.includeEnd">]</ng-container><!--
---><ng-container *ngIf="!variable.fieldGroupedValue.includeEnd">)</ng-container>
-</ng-container>
-<ng-container *ngIf="!isQuantitative(variable.fieldGroupedValue.field)">
-    {{ variable.fieldString() }} = '{{ variable.valueString() }}'</ng-container>
-</ng-container>
-<!--
---><sub *ngIf="variable.isCombined"><span class="pl-1 where"></span><!--
---><ng-container *ngIf="isQuantitative(variable.first.fieldGroupedValue.field)">
-{{ variable.first.fieldString() }} ∈ [{{ variable.first.fieldGroupedValue.value()[0] | smartNumber }},
-{{ variable.first.fieldGroupedValue.value()[1] | smartNumber}}<!--
---><ng-container *ngIf="variable.first.fieldGroupedValue.includeEnd">]</ng-container><!--
---><ng-container *ngIf="!variable.first.fieldGroupedValue.includeEnd">)</ng-container></ng-container>
-<ng-container *ngIf="!isQuantitative(variable.first.fieldGroupedValue.field)">
-{{ variable.first.fieldString() }} = '{{ variable.first.valueString() }}'</ng-container>,<!--
---><ng-container *ngIf="isQuantitative(variable.second.fieldGroupedValue.field)">
-{{ variable.second.fieldString() }} ∈ [{{ variable.second.fieldGroupedValue.value()[0] | smartNumber }},
-{{ variable.second.fieldGroupedValue.value()[1] | smartNumber}}<!--
---><ng-container *ngIf="variable.second.fieldGroupedValue.includeEnd">]</ng-container><!--
---><ng-container *ngIf="!variable.second.fieldGroupedValue.includeEnd">)</ng-container></ng-container>
-<ng-container *ngIf="!isQuantitative(variable.second.fieldGroupedValue.field)">
-{{ variable.second.fieldString() }} = '{{ variable.second.valueString() }}'</ng-container></sub><!--
---><ng-container *ngIf="variable"><!--
+--><ng-container *ngIf="!variable.isCombined"><span class="pl-1 where"></span><!--
+--><field-grouped-value-indicator [showName]="true" [fieldGroupedValue]="variable.fieldGroupedValue"></field-grouped-value-indicator></ng-container><!--
+--><ng-container *ngIf="variable.isCombined"><span class="pl-1 where"></span><!--
+--><field-grouped-value-indicator [showName]="true" [fieldGroupedValue]="variable.first.fieldGroupedValue"></field-grouped-value-indicator><span class="and"></span><!--
+--><field-grouped-value-indicator [showName]="true" [fieldGroupedValue]="variable.second.fieldGroupedValue"></field-grouped-value-indicator></ng-container><!--
 --><ng-container *ngFor="let pred of query.where.predicates">
     <span class="px-1 and"></span><predicate-indicator [predicate]="pred"></predicate-indicator>
-</ng-container>
 </ng-container>
 </span>
 
