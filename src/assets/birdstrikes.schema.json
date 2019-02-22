@@ -24,6 +24,10 @@
         "type": "nominal"
     },
     {
+        "name": "사고 날짜",
+        "type": "key"
+    },
+    {
         "name": "사고 지역",
         "type": "nominal"
     },
@@ -44,25 +48,27 @@
         "type": "dozen"
     },
     {
-        "name": "기타 비용(달러)",
+        "name": "기타 비용(원)",
         "type": "quantitative",
-        "min": 0
+        "min": 0,
+        "unit": "dollar"
     },
     {
-        "name": "수리 비용(달러)",
+        "name": "수리 비용(원)",
         "type": "quantitative",
-        "min": 0
+        "min": 0,
+        "unit": "dollar"
     },
     {
-        "name": "총 비용(달러)",
+        "name": "총 비용(원)",
         "type": "quantitative",
-        "min": 0
+        "min": 0,
+        "unit": "dollar"
     },
     {
         "name": "비행 속도(노트)",
         "type": "quantitative",
         "min": 0,
-        "max": 350,
-        "numBins": 7
+        "max": 350
     }
 ]
