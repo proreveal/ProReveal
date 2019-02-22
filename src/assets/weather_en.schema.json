@@ -1,0 +1,46 @@
+[
+    {
+        "name": "Location",
+        "type": "dozen"
+    },
+    {
+        "name": "Year",
+        "type": "dozen"
+    },
+    {
+        "name": "Month",
+        "type": "dozen"
+    },
+    {
+        "name":  "Precipitation",
+        "type": "quantitative",
+        "min": 0,
+        "max": 120,
+        "numBins": 20
+    },
+    {
+        "name":  "Temperature(max)",
+        "type": "quantitative",
+        "min": -10,
+        "max": 40,
+        "numBins": 20
+    },
+    {
+        "name":  "Temperature(min)",
+        "type": "quantitative",
+        "min": -20,
+        "max": 30,
+        "numBins": 20
+    },
+    {
+        "name":  "Wind",
+        "type": "quantitative",
+        "min": 0,
+        "max": 18,
+        "numBins": 20
+    },
+    {
+        "name":  "Weather",
+        "type": "dozen"
+    }
+]

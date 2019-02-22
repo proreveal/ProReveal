@@ -1,0 +1,73 @@
+[
+    {
+        "name": "Budget",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "dollar"
+    },
+    {
+        "name": "Genre",
+        "type": "nominal"
+    },
+    {
+        "name": "Language",
+        "type": "nominal"
+    },
+    {
+        "name": "Popularity",
+        "type": "quantitative",
+        "min": 0,
+        "max": 300
+    },
+    {
+        "name": "Production Company",
+        "type": "key"
+    },
+    {
+        "name": "Production Country",
+        "type": "nominal"
+    },
+    {
+        "name": "Release Year",
+        "type": "nominal",
+        "hidden": true
+    },
+    {
+        "name": "Release Month",
+        "type": "dozen"
+    },
+    {
+        "name": "Revenue",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "dollar"
+    },
+    {
+        "name": "Runtime",
+        "type": "quantitative",
+        "min": 0,
+        "max": 600
+    },
+    {
+        "name": "Status",
+        "type": "dozen"
+    },
+    {
+        "name": "Title",
+        "type": "key"
+    },
+    {
+        "name": "Score Average",
+        "type": "quantitative",
+        "min": 0,
+        "max": 10,
+        "numBins": 20
+    },
+    {
+        "name": "Number of Votes",
+        "type": "quantitative",
+        "min": 0,
+        "max": 12000,
+        "numBins": 24
+    }
+]
