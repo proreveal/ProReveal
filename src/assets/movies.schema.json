@@ -2,7 +2,8 @@
     {
         "name": "예산",
         "type": "quantitative",
-        "min": 0
+        "min": 0,
+        "unit": "dollar"
     },
     {
         "name": "장르",
@@ -38,7 +39,8 @@
     {
         "name": "수익",
         "type": "quantitative",
-        "min": 0
+        "min": 0,
+        "unit": "dollar"
     },
     {
         "name": "상영시간(분)",

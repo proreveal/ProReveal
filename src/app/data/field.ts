@@ -44,7 +44,7 @@ export class QuantitativeField implements FieldTrait {
 
     constructor(public name: string, public dataType: DataType,
         public initialMin: number, public initialMax: number, public numBins: number = 40,
-        public nullable: boolean = false) {
+        public nullable: boolean = false, public unit: string) {
 
         this.grouper = new NumericalGrouper(initialMin, initialMax, numBins);
     }
@@ -57,8 +57,8 @@ export class QuantitativeField implements FieldTrait {
         return this.grouper.ungroup(id);
     }
 
-    ungroupString(id: GroupIdType, format?: string) {
-        return this.grouper.ungroupString(id, format);
+    ungroupString(id: GroupIdType) {
+        return this.grouper.ungroupString(id, '~s', this.unit);
     }
 
     get max() { return this.grouper.max; }

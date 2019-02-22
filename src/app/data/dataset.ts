@@ -3,14 +3,26 @@ import { FieldTrait, guess, VlType, QuantitativeField, NominalField, DozenField,
 import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
+import { Constants, Languages } from '../constants';
 
 export type Row = any;
 
 export class Dataset {
-    constructor(public schema: Schema, public rows: Row[], public fields?: FieldTrait[]) {
-        if (!fields) {
-            this.fields = this.guess(schema, rows);
-        }
+    fields: FieldTrait[]
+
+    constructor(public schema: Schema, public rows: Row[]) {
+
+        Object.keys(rows[0]).forEach(name => {
+            let columnSchema = schema.getColumnSchema(name);
+            let unit = columnSchema.unit;
+            if(unit === 'dollar' && Constants.lang == Languages.ko_KR) {
+                rows.forEach(row => {
+                    row[name] *= Constants.USD2KRW;
+                })
+            }
+        });
+
+        this.fields = this.guess(schema, rows);
     }
 
     guess(schema: Schema, rows: Row[]): FieldTrait[] {
@@ -19,14 +31,14 @@ export class Dataset {
         let fields: FieldTrait[] = [];
 
         Object.keys(rows[0]).forEach(name => {
-            let values = indices.map(i => {
-                return rows[i][name];
-            });
+            let columnSchema = schema.getColumnSchema(name);
+            let unit = columnSchema.unit;
+
+            let values = indices.map(i => rows[i][name]);
 
             let [dataType, vlType, nullable] = guess(values);
 
             let field: FieldTrait;
-            let columnSchema = schema.getColumnSchema(name);
 
             if(columnSchema) {
                 vlType = columnSchema.type;
@@ -38,7 +50,7 @@ export class Dataset {
                 let minValue = (columnSchema && !isUndefined(columnSchema.min)) ? columnSchema.min : d3.min(values);
                 let maxValue = (columnSchema && !isUndefined(columnSchema.max)) ? columnSchema.max : d3.max(values);
                 let numBins = (columnSchema && !isUndefined(columnSchema.numBins)) ? columnSchema.numBins : 40;
-                field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable);
+                field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable, unit);
             }
             else if (vlType === VlType.Nominal) {
                 field = new NominalField(name, dataType, nullable);
