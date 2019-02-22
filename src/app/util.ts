@@ -248,4 +248,4 @@ export function formatKRW(krw: number) {
 
 */
 
-console.log(formatKRW(12300000000)); // 123억
+// console.log(formatKRW(12300000000)); // 123억

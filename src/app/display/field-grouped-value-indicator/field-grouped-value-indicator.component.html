@@ -7,7 +7,7 @@
 </ng-container>
 <ng-container *ngIf="isQuantitative(fieldGroupedValue.field) && !fieldGroupedValue.hasNullValue">
     <ng-container *ngIf="showName">∈</ng-container>
-[{{ fieldGroupedValue.value()[0] | smartNumber }}, {{ fieldGroupedValue.value()[1] | smartNumber }}<!--
+[{{ fieldGroupedValue.value()[0] | smartNumber:fieldGroupedValue.field }}, {{ fieldGroupedValue.value()[1] | smartNumber:fieldGroupedValue.field }}<!--
 --><ng-container *ngIf="fieldGroupedValue.includeEnd">]</ng-container><!--
 --><ng-container *ngIf="!fieldGroupedValue.includeEnd">)</ng-container>
 </ng-container>
