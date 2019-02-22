@@ -3,7 +3,7 @@ import { VlType, getVlType } from "./field";
 export class ColumnSchema {
     constructor(public name: string, public type: VlType,
         public nullable: boolean, public min: number, public max: number,
-        public numBins: number, public hidden: boolean = false) {
+        public numBins: number, public hidden: boolean = false, public unit) {
 
     }
 }
@@ -22,7 +22,8 @@ export class Schema {
                 sch.min,
                 sch.max,
                 sch.numBins,
-                sch.hidden
+                sch.hidden,
+                sch.unit
             );
 
             this.columns.push(schema);

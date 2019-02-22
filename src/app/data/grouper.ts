@@ -2,10 +2,11 @@ import * as d3 from 'd3-array';
 import * as d3format from 'd3-format';
 
 import { isNull, isArray } from 'util';
+import { Constants, Languages } from '../constants';
 
 export type GroupIdType = number | [number, number];
 export const NullGroupId = Number.MAX_SAFE_INTEGER;
-export const NullString = '(empty)';
+export const NullString = Constants.nullValueString;
 
 /**
  * maps a string value to a number
@@ -88,9 +89,13 @@ export class NumericalGrouper {
         return [this.base + this.step * id, this.base + this.step * (id + 1)];
     }
 
-    ungroupString(id: GroupIdType, format: string = '~s'): string {
+    ungroupString(id: GroupIdType, format:string, unit:string): string {
         if (id === NullGroupId) return NullString;
         let ug = this.ungroup(id);
+
+        if(unit === 'dollar' && Constants.lang === Languages.ko_KR) {
+            return `~${Constants.currency(ug[1])}`;
+        }
         // return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
         return `~${d3format.format(format)(ug[1])}`;
     }

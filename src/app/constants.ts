@@ -1,3 +1,9 @@
+import * as util from './util';
+
+export enum Languages {
+    ko_KR
+};
+
 export const Constants = Object.freeze({
     usePlaceholder: true,
     progressRingColors: ['#007bff', '#a0ceff', '#ddd'],
@@ -40,5 +46,9 @@ export const Constants = Object.freeze({
     variableHighlightColor: '#f4511e',
     operatorHighlightColor: '#303f9f',
     constantHighlightColor: 'black',
-    pointBrushSize: 5
+    pointBrushSize: 5,
+    lang: Languages.ko_KR,
+    USD2KRW: 1125,
+    nullValueString: '(값 없음)',
+    currency: util.formatKRW
 });
