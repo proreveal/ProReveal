@@ -89,11 +89,14 @@ export class HorizontalBarsRenderer {
         svg.attr('width', width).attr('height', height)
             .on('contextmenu', () => d3.event.preventDefault());
 
-        let [, longest,] = util.amax(data, d => d.keys.list[0].valueString().length);
+        let labelStrings = data.map(d => d.keys.list[0].valueString());
+        let maxLabelWidth = labelStrings.length > 0 ? d3.max(labelStrings, l => measure(l, '.8rem').width) : 0;
+
+        // 30 = rank + space
+        // 10 = ~
         const labelWidth =
-            Math.max(longest ? (measure(longest.keys.list[0].valueString(), '.8rem').width
-                + (query.isRankAvailable ? 20 : 0)) : 0 + C.padding,
-                measure(query.groupBy.fields[0].name, '.8rem').width + (query.isRankAvailable ? 20 : 0)
+            Math.max(labelStrings.length > 0 ? (maxLabelWidth + (query.isRankAvailable ? 30 : 10)) : 0 + C.padding,
+                measure(query.groupBy.fields[0].name, '.8rem').width + (query.isRankAvailable ? 30 : 10)
                 + C.padding
             );
 

@@ -5,8 +5,9 @@ import { Queue } from './queue';
 import { Scheduler, QueryOrderScheduler } from './scheduler';
 import { timer, Subscription } from 'rxjs';
 import { Schema } from './schema';
-import { Job } from './job';
+import { Job, AggregateJob } from './job';
 import { AndPredicate } from './predicate';
+import { ExpConstants } from '../exp-constants';
 
 export enum Priority {
     Highest,
@@ -102,6 +103,7 @@ export class Engine {
             job.query.recentProgress.ongoingBlocks = 0;
 
             job.query.accumulate(job, partialKeyValues);
+            job.query.processedIndices = job.query.processedIndices.concat((job as AggregateJob).sample);
 
             if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
                 job.query.sync();
@@ -118,8 +120,8 @@ export class Engine {
 
         if(noDelay) body(); // no casecading
         else {
-            let latency = this.gaussianRandom(3000, 1000);
-            if(job.index === 0) latency = 300;
+            let latency = this.gaussianRandom(ExpConstants.latencyMean, ExpConstants.latencyStdev);
+            if(job.index === 0) latency = ExpConstants.initialLatency;
 
             console.log(`running Job(${job.id}, ${job.index}) with latency of ${latency}`);
 
@@ -159,7 +161,12 @@ export class Engine {
         return null;
     }
 
-    select(where: AndPredicate): Row[] {
+    select(where: AndPredicate, indices: number[]): Row[] {
+        if(indices) {
+            return indices.map(i => this.dataset.rows[i]).filter((row: Row) => {
+                return where.test(row);
+            })
+        }
         return this.dataset.rows.filter((row: Row) => {
             return where.test(row);
         })

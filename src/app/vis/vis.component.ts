@@ -123,7 +123,6 @@ export class VisComponent implements DoCheck {
         else if (this.renderer instanceof PunchcardRenderer) {
             const numCategories = Math.max(this.renderer.xValuesCount, this.renderer.yValuesCount);
 
-            console.log(numCategories)
             if (this.renderer.limitNumCategories &&
                 numCategories > C.punchcard.initiallyVisibleCategories) {
                 this.limitNumCategories = true;

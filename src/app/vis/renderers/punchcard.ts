@@ -364,7 +364,6 @@ export class PunchcardRenderer {
 
 
         if (matrixWidth + size + padding * 2 > parentWidth) {
-            console.log(parentWidth, size, padding);
             floatingSvgWrapper
                 .style('position', 'sticky')
                 .style('left', `${parentWidth - size - padding * 3}px`)
