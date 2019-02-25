@@ -1,4 +1,4 @@
-<div id="wrapper">
+<div id="wrapper" (window:beforeunload)="unload()">
     <section class="navbar navbar-dark bg-dark box-shadow" id="navbar">
         <a href="#" class="navbar-brand ml-2">
             <img src="assets/eye-white.png" width="24" height="24" class="d-inline-block align-text-bottom" alt="">
@@ -52,6 +52,7 @@
                 <div class="dropdown-divider"></div><div class="dropdown-divider"></div>
                 <div class="dropdown-divider"></div><div class="dropdown-divider"></div>
                 <div class="dropdown-divider"></div><div class="dropdown-divider"></div>
+                <div class="dropdown-item">{{ logger.size | bytes }}</div>
                 <button class="dropdown-item text-danger" type="button" (click)="removeAllLogs()">Remove All Logs</button>
             </div>
         </div>
@@ -417,6 +418,12 @@
     <metadata-editor [dataset]="engine.dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
 </div>
+
+<!-- <div [hidden]="!markComplete" id="mark-complete">
+    <button class="btn btn-lg btn-success mb-3 mr-4 p-4 px-6" (click)="done()">
+        탐색 종료
+    </button>
+</div> -->
 
 <ng-template #confirmRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">

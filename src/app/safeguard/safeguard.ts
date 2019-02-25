@@ -61,7 +61,8 @@ export class Safeguard {
             type: this.type,
             variable: this.variable.toLog(),
             constant: this.constant.toLog(),
-            query: this.query.toLog()
+            query: this.query.toLog(),
+            validty: this.validity()
         };
     }
 }

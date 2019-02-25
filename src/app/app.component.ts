@@ -95,6 +95,7 @@ export class AppComponent implements OnInit {
 
     isStudyMenuVisible = false;
     sampler = ExpConstants.sampler;
+    markComplete = false;
 
     constructor(private route: ActivatedRoute, private modalService: NgbModal, private logger: LoggerService) {
         this.sortablejsOptions = {
@@ -112,6 +113,8 @@ export class AppComponent implements OnInit {
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
         const logging = parameters.logging || 0;
+
+        this.markComplete = parameters.complete || 0;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
@@ -297,6 +300,8 @@ export class AppComponent implements OnInit {
 
     querySelected(q: Query) {
         let query = q as AggregateQuery;
+
+        this.logger.log(LogType.VisualizationSelected, query.toLog());
 
         if (this.activeQuery === query)
             this.activeQuery = null;
@@ -682,5 +687,18 @@ export class AppComponent implements OnInit {
 
     removeAllLogs() {
         this.logger.clear();
+    }
+
+    unload() {
+        let data: any;
+
+        if(this.vis && this.vis.renderer && this.vis.renderer.data) {
+            data = this.vis.renderer.data.map(d => d.toLog());
+        }
+
+        this.logger.log(LogType.Done, {
+            safegaurds: this.safeguards.map(sg => sg.toLog()),
+            data: data
+        })
     }
 }
