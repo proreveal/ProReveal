@@ -91,6 +91,7 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
+    data: string;
     isStudying = false;
 
     isStudyMenuVisible = false;
@@ -114,6 +115,7 @@ export class AppComponent implements OnInit {
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
 
+        this.data = data;
         this.isStudying = parameters.study || 0;
         this.testMenu = parameters.test || 0;
 
