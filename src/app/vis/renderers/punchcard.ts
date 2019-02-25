@@ -184,7 +184,7 @@ export class PunchcardRenderer {
                 .text(query.groupBy.fields[0].name)
                 .attr('transform', translate(matrixWidth / 2, 0))
                 .style('text-anchor', 'middle')
-                .attr('dy', '1.2em')
+                .attr('dy', '1.1em')
                 .style('font-size', '.8rem')
                 .style('font-style', 'italic')
 
@@ -345,7 +345,7 @@ export class PunchcardRenderer {
         let floatingBrush = floatingSvgWrapper.select('.angular-brush');
 
         let parentWidth = nativeSvg.parentElement.offsetWidth;
-        let parentOffsetTop = 120; // nativeSvg.getBoundingClientRect().top; // TODO
+        let parentOffsetTop = 100 + header; // nativeSvg.getBoundingClientRect().top; // TODO
         floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
         floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
 
