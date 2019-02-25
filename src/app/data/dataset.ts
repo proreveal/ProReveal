@@ -4,6 +4,7 @@ import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
 import { Constants, Languages } from '../constants';
+import { QuantitativeUnit } from './unit';
 
 export type Row = any;
 
@@ -17,7 +18,7 @@ export class Dataset {
             if(!columnSchema) throw new Error(`${name} does not exist in the schema`);
 
             let unit = columnSchema.unit;
-            if(unit === 'dollar' && Constants.lang == Languages.ko_KR) {
+            if(unit === QuantitativeUnit.USD && Constants.lang == Languages.ko_KR) {
                 rows.forEach(row => {
                     row[name] *= Constants.USD2KRW;
                 })

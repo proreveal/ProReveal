@@ -3,6 +3,7 @@ import * as d3format from 'd3-format';
 
 import { isNull, isArray } from 'util';
 import { Constants, Languages } from '../constants';
+import { QuantitativeUnit } from './unit';
 
 export type GroupIdType = number | [number, number];
 export const NullGroupId = Number.MAX_SAFE_INTEGER;
@@ -38,7 +39,7 @@ export class CategoricalGrouper {
     }
 
     ungroup(id: GroupIdType): null | string {
-        if(isArray(id)) throw new Error(`${id} is not a single integer!`);
+        if (isArray(id)) throw new Error(`${id} is not a single integer!`);
         return this.inverse[id as any];
     }
 
@@ -84,19 +85,19 @@ export class NumericalGrouper {
 
     ungroup(id: GroupIdType): null | [number, number] {
         if (id === NullGroupId) return null;
-        if(isArray(id)) return [this.base + this.step * id[0], this.base + this.step * (id[1] + 1)]
+        if (isArray(id)) return [this.base + this.step * id[0], this.base + this.step * (id[1] + 1)]
         id = <number>id;
         return [this.base + this.step * id, this.base + this.step * (id + 1)];
     }
 
-    ungroupString(id: GroupIdType, format:string, unit:string): string {
+    ungroupString(id: GroupIdType, format: string, unit: QuantitativeUnit): string {
         if (id === NullGroupId) return NullString;
         let ug = this.ungroup(id);
 
-        if(unit === 'dollar' && Constants.lang === Languages.ko_KR) {
+        if (unit === QuantitativeUnit.USD && Constants.lang === Languages.ko_KR) {
             return `~${Constants.currency(ug[1])}`;
         }
-        // return `${d3format.format(format)(ug[0])}-${d3format.format(format)(ug[1])}`;
+
         return `~${d3format.format(format)(ug[1])}`;
     }
 

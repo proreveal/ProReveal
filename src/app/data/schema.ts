@@ -1,18 +1,19 @@
 import { VlType, getVlType } from "./field";
+import { QuantitativeUnit } from "./unit";
 
 export class ColumnSchema {
     constructor(public name: string, public type: VlType,
         public nullable: boolean, public min: number, public max: number,
-        public numBins: number, public hidden: boolean = false, public unit) {
+        public numBins: number, public hidden: boolean = false, public unit: QuantitativeUnit) {
 
     }
 }
 
 export class Schema {
     columns: ColumnSchema[] = [];
-    dict: {[name: string] : ColumnSchema} = {};
+    dict: { [name: string]: ColumnSchema } = {};
 
-    constructor(schema:any[]) {
+    constructor(schema: any[]) {
 
         schema.forEach(sch => {
             const schema = new ColumnSchema(

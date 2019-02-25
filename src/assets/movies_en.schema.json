@@ -3,7 +3,7 @@
         "name": "Budget",
         "type": "quantitative",
         "min": 0,
-        "unit": "dollar"
+        "unit": "USD"
     },
     {
         "name": "Genre",
@@ -40,7 +40,7 @@
         "name": "Revenue",
         "type": "quantitative",
         "min": 0,
-        "unit": "dollar"
+        "unit": "USD"
     },
     {
         "name": "Runtime",
