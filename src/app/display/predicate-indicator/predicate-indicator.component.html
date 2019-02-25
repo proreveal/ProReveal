@@ -1,6 +1,6 @@
 <ng-container *ngIf="isEqualPredicate(predicate)">{{ predicate.target.name }} = '{{ predicate.expected }}'
 </ng-container><!--
---><ng-container *ngIf="isRangePredicate(predicate)">{{ predicate.target.name }} ∈ [{{ predicate.start | smartNumber}}, {{ predicate.end | smartNumber }}<!--
+--><ng-container *ngIf="isRangePredicate(predicate)">{{ predicate.target.name }} ∈ [{{ predicate.start | smartNumber: predicate.target}}, {{ predicate.end | smartNumber: predicate.target }}<!--
 --><ng-container *ngIf="predicate.includeEnd">]</ng-container><!--
 --><ng-container *ngIf="!predicate.includeEnd">)</ng-container><!--
 --></ng-container>
