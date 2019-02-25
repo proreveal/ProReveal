@@ -48,6 +48,7 @@ import { DataViewerComponent } from './data-viewer/data-viewer.component';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FieldGroupedValueIndicatorComponent } from './display/field-grouped-value-indicator/field-grouped-value-indicator.component';
 import { KeepHtmlPipe } from './keep-html.pipe';
+import { BytesPipe } from './bytes.pipe';
 
 library.add(fas, far);
 
@@ -82,7 +83,8 @@ library.add(fas, far);
         PredicateIndicatorComponent,
         DataViewerComponent,
         FieldGroupedValueIndicatorComponent,
-        KeepHtmlPipe
+        KeepHtmlPipe,
+        BytesPipe
     ],
     imports: [
         NgbModule.forRoot(),

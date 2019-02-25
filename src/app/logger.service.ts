@@ -11,7 +11,9 @@ export enum LogType {
     SchedulerChanged = 'SchedulerChanged',
     DatumSelected = 'DatumSelected',
     SafeguardSelected = 'SafeguardSelected',
-    SafeguardCreated = 'SafeguardCreated'
+    SafeguardCreated = 'SafeguardCreated',
+    VisualizationSelected = 'VisualizationSelected',
+    Done = 'Done'
 };
 
 export interface LogItemSpec {
@@ -162,9 +164,14 @@ export class LoggerService {
 
     clear() {
         window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+        this.userLogs = [];
     }
 
     mute() {
         this.muted = true;
+    }
+
+    get size() {
+        return window.localStorage[LOCAL_STORAGE_KEY] ? window.localStorage[LOCAL_STORAGE_KEY].length : 0;
     }
 }

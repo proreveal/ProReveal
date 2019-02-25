@@ -62,24 +62,6 @@
     }
 }
 
-#search {
-    grid-row: 1;
-    grid-column: 1 / 3;
-
-    .input-group-text, input {
-        border-radius: none;
-        border: none;
-    }
-
-    button {
-        border-radius: 0;
-    }
-
-    button:focus {
-        box-shadow: none;
-    }
-}
-
 .section-header {
     font-family: 'Roboto Condensed', 'Noto Sans KR';
     background: $ui-background-color;
@@ -327,6 +309,12 @@ vis {
     background: lighten($constant-highlight-color, 50%);
 }
 
+
+#mark-complete {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+}
 
 ::ng-deep .modal-xxl {
     .modal-lg {
