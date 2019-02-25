@@ -54,6 +54,13 @@ export const Locale_ko_KR = Object.freeze({
     CreateSG: '세이프가드 만들기',
     Tip: '도움말',
 
+    TruthinessTrue: '현재 시점에서 성립합니다!',
+    TruthinessFalse: '현재 시점에서 성립하지 않습니다.',
+
+    P5: '거의 확실한 세이프가드입니다.',
+    P50: '불확실한 세이프가드입니다.',
+    POther: '성립하지 않을 것 같은 세이프가드 입니다.',
+
     KSStatistics: 'KS 통계량',
     RMSE: '평균 제곱근 편차',
 
