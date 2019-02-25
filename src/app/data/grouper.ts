@@ -2,8 +2,9 @@ import * as d3 from 'd3-array';
 import * as d3format from 'd3-format';
 
 import { isNull, isArray } from 'util';
-import { Constants, Languages } from '../constants';
+import { Constants } from '../constants';
 import { QuantitativeUnit } from './unit';
+import { Locale } from '../locales/locale';
 
 export type GroupIdType = number | [number, number];
 export const NullGroupId = Number.MAX_SAFE_INTEGER;
@@ -94,8 +95,8 @@ export class NumericalGrouper {
         if (id === NullGroupId) return NullString;
         let ug = this.ungroup(id);
 
-        if (unit === QuantitativeUnit.USD && Constants.lang === Languages.ko_KR) {
-            return `~${Constants.currency(ug[1])}`;
+        if (unit === QuantitativeUnit.USD && Constants.locale.name === Locale.ko_KR) {
+            return `~${Constants.currencyFormatter(ug[1])}`;
         }
 
         return `~${d3format.format(format)(ug[1])}`;

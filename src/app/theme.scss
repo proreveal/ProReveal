@@ -8,7 +8,7 @@ $operator-highlight-color: #f4511e;
 $constant-highlight-color: #303f9f;
 
 @mixin serif {
-    font-family: 'Noto Serif', serif;
+    font-family: 'Noto Serif', 'Noto Sans KR', serif;
 }
 
 @mixin serif-italic {

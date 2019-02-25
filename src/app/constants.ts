@@ -1,8 +1,7 @@
 import * as util from './util';
+import { Locale_ko_KR } from './locales/ko_KR';
 
-export enum Languages {
-    ko_KR
-};
+let locale = Locale_ko_KR;
 
 export const Constants = Object.freeze({
     usePlaceholder: true,
@@ -47,8 +46,8 @@ export const Constants = Object.freeze({
     operatorHighlightColor: '#303f9f',
     constantHighlightColor: 'black',
     pointBrushSize: 5,
-    lang: Languages.ko_KR,
-    USD2KRW: 1125,
-    nullValueString: '(값 없음)',
-    currency: util.formatKRW
+    locale: locale,
+    exchangeRate: locale.exchangeRate,
+    nullValueString: locale.nullValueString,
+    currencyFormatter: locale.currencyFormatter
 });

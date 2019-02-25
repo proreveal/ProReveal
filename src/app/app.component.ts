@@ -48,6 +48,8 @@ export class AppComponent implements OnInit {
     NormalEstimate = new NormalEstimator().estimate;
     LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 
+    L = C.locale;
+
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('vis') vis: VisComponent;
 
@@ -107,6 +109,7 @@ export class AppComponent implements OnInit {
         let parameters = util.parseQueryParameters(location.search);
 
         const data = parameters.data || "birdstrikes";
+        const noinit = parameters.noinit || 0;
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
 
@@ -119,14 +122,16 @@ export class AppComponent implements OnInit {
 
             this.loggerService.log(EventType.AppStarted, {});
 
-            dataset.fields.forEach(field => {
-                if (field.vlType !== VlType.Key)
-                    this.create(new EmptyQuery(dataset, this.sampler).combine(field));
-            });
+            if(!noinit) {
+                dataset.fields.forEach(field => {
+                    if (field.vlType !== VlType.Key)
+                        this.create(new EmptyQuery(dataset, this.sampler).combine(field));
+                });
 
-            this.querySelected(this.engine.ongoingQueries[5]);
+                this.querySelected(this.engine.ongoingQueries[5]);
 
-            this.runMany(520);
+                this.runMany(520);
+            }
 
             of(0).pipe(
                 delay(1000)

@@ -10,8 +10,8 @@
 </div>
 
 <div class="vis-content">
-    <p [hidden]="query && query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert">
-        This query has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.
+    <p [hidden]="query && query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert"
+        [innerHTML]="L.VisualizationNotStarted">
     </p>
 
     <div *ngIf="query" [hidden]="query.recentProgress.processedBlocks === 0">
@@ -45,13 +45,13 @@
                     <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.totalRows | number }}</span> rows</ng-template>
                 </span>
 
-                (<span class="font-weight-bold text-primary">{{ query.recentProgress.processedBlocks | number }}</span>
+                (<!--<span class="font-weight-bold text-primary">{{ query.recentProgress.processedBlocks | number }}</span>
                 of
                 <span [ngPlural]="query.recentProgress.totalBlocks">
                     <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> block</ng-template>
                     <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.totalBlocks | number }}</span> blocks</ng-template>
                 </span>,
-                {{ query.recentProgress.processedPercent() | percent }})
+            -->{{ query.recentProgress.processedPercent() | percent }})
             </div>
 
             <!--<button type="button" class="btn btn-light btn-sm ml-1"
@@ -66,48 +66,54 @@
                 [hidden]="!query.aggregationLevelX"
                 [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
                 (click)="splitXBins()">
-                <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
-                Split X-axis bins
+                <fa-icon [icon]="['fas', 'angle-left']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                {{ L.SplitXAxisBins }}
             </button>
 
             <button type="button" class="btn btn-light btn-sm ml-1"
                 [hidden]="!query.aggregationLevelX"
                 [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
                 (click)="mergeXBins()">
-                <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
-                Merge X-axis bins
+                <fa-icon [icon]="['fas', 'angle-right']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                {{ L.MergeXAxisBins }}
             </button>
 
             <button type="button" class="btn btn-light btn-sm ml-1"
                 [hidden]="!query.aggregationLevelY"
                 [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
                 (click)="splitYBins()">
-                <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
-                Split Y-axis bins
+                <fa-icon [icon]="['fas', 'angle-left']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                {{ L.SplitYAxisBins }}
             </button>
 
             <button type="button" class="btn btn-light btn-sm ml-1"
                 [hidden]="!query.aggregationLevelY"
                 [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
                 (click)="mergeYBins()">
-                <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
-                Merge Y-axis bins
+                <fa-icon [icon]="['fas', 'angle-right']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                {{ L.MergeYAxisBins }}
             </button>
 
             <button type="button" class="btn btn-light btn-sm ml-1"
                 [hidden]="!query.aggregationLevel"
                 [disabled]="query.aggregationLevel == query.minLevel || query.safeguards.length > 0"
                 (click)="splitBins()">
-                <fa-icon [icon]="['fas', 'caret-up']"></fa-icon>
-                Split bins
+                <fa-icon [icon]="['fas', 'angle-left']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                {{ L.SplitBins }}
             </button>
 
             <button type="button" class="btn btn-light btn-sm ml-1"
                 [hidden]="!query.aggregationLevel"
                 [disabled]="query.aggregationLevel == query.maxLevel || query.safeguards.length > 0"
                 (click)="mergeBins()">
-                <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
-                Merge bins
+                <fa-icon [icon]="['fas', 'angle-right']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                {{ L.MergeBins }}
             </button>
 
             <!--

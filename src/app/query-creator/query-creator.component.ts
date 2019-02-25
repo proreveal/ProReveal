@@ -6,6 +6,7 @@ import * as util from '../util';
 import { AndPredicate } from '../data/predicate';
 import { MeanApproximator, SumApproximator, MinApproximator, MaxApproximator, ApproximatorTrait } from '../data/approx';
 import { ExpConstants } from '../exp-constants';
+import { Constants } from '../constants';
 
 @Component({
     selector: 'query-creator',
@@ -16,6 +17,8 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
     @Input('dataset') dataset: Dataset;
     @Output('created') created = new EventEmitter<{}>();
     @Output('creationCancelled') creationCancelled = new EventEmitter<{}>();
+
+    L = Constants.locale;
 
     approximators = [
         new MeanApproximator(),
