@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ApproximatorTrait, SumApproximator, MeanApproximator, MaxApproximator, MinApproximator, Approximator } from '../data/approx';
 import { AggregateQuery } from '../data/query';
+import { Constants } from '../constants';
 
 @Component({
     selector: 'query-indicator',
@@ -14,6 +15,8 @@ export class QueryIndicatorComponent implements OnInit {
         new MaxApproximator(),
         new MinApproximator()
     ];
+
+    L = Constants.locale;
 
     @Input('query') query: AggregateQuery;
     @Input('editable') editable: boolean;
