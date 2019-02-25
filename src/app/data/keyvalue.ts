@@ -1,5 +1,5 @@
-import { FieldGroupedValueList } from "./field";
 import { AccumulatedValue, PartialValue } from "./accum";
+import { FieldGroupedValueList } from "./field-grouped-value-list";
 
 /**
  * a single row of response (keys & value)

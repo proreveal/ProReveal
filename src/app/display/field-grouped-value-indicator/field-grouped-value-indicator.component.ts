@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FieldGroupedValue, FieldValue, FieldTrait, QuantitativeField } from '../../data/field';
+import { FieldTrait, QuantitativeField } from '../../data/field';
+import { FieldGroupedValue } from '../../data/field-grouped-value';
 
 @Component({
     selector: 'field-grouped-value-indicator',

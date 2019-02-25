@@ -58,7 +58,7 @@
     </section>
     <section id="query-view" class="border-right">
         <section id="new-query" class="border-bottom">
-            <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
+            <button class="btn btn-secondary w-100 rounded-0" (click)="toggleQueryCreator()">
                 <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
                 <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
                 {{ L.NewVisualization }}

@@ -15,8 +15,9 @@ import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
 import { AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
-import { EmptyConfidenceInterval } from '../../data/approx';
 import { AggregateQuery } from '../../data/query';
+import { LoggerService, LogType } from '../../logger.service';
+import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 
 type Range = [number, number];
 
@@ -48,7 +49,7 @@ export class HorizontalBarsRenderer {
     visG;
     interactionG;
 
-    constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService) {
     }
 
     setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -688,6 +689,11 @@ export class HorizontalBarsRenderer {
         if (d.ci3 === EmptyConfidenceInterval) return;
         if (d.keys.hasNullValue()) return;
 
+        this.logger.log(LogType.DatumSelected, {
+            datum: d.toLog(),
+            data: this.data.map(d => d.toLog())
+        });
+
         let variable = new SingleVariable(d.keys.list[0]);
         if (this.variable2 && variable.fieldGroupedValue.hash === this.variable2.fieldGroupedValue.hash) return;
 
@@ -706,7 +712,13 @@ export class HorizontalBarsRenderer {
         d3.event.preventDefault();
         if (this.safeguardType != SGT.Comparative) return;
         if (d.ci3 === EmptyConfidenceInterval) return;
+
         if (d.keys.hasNullValue()) return;
+
+        this.logger.log(LogType.DatumSelected, {
+            datum: d.toLog(),
+            data: this.data.map(d => d.toLog())
+        });
 
         let variable = new SingleVariable(d.keys.list[0]);
 

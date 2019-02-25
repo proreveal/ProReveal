@@ -21,9 +21,8 @@ import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
-import { LoggerService, EventType } from './logger.service';
+import { LoggerService, LogType } from './logger.service';
 import { ActivatedRoute } from "@angular/router";
-import { UniformNumBlocksSampler } from './data/sampler';
 import { ExpConstants } from './exp-constants';
 
 @Component({
@@ -97,7 +96,7 @@ export class AppComponent implements OnInit {
     isStudyMenuVisible = false;
     sampler = ExpConstants.sampler;
 
-    constructor(private route: ActivatedRoute, private modalService: NgbModal, private loggerService: LoggerService) {
+    constructor(private route: ActivatedRoute, private modalService: NgbModal, private logger: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.queue.reschedule();
@@ -109,20 +108,23 @@ export class AppComponent implements OnInit {
         let parameters = util.parseQueryParameters(location.search);
 
         const data = parameters.data || "birdstrikes";
-        const noinit = parameters.noinit || 0;
+        const init = parameters.init || 0;
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
+        const logging = parameters.logging || 0;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
         this.engine.queryDone = this.queryDone.bind(this);
 
         this.engine.load().then(([dataset]) => {
-            this.loggerService.setup(uid, sid);
+            this.logger.setup(uid, sid);
 
-            this.loggerService.log(EventType.AppStarted, {});
+            if(!logging) this.logger.mute();
 
-            if(!noinit) {
+            this.logger.log(LogType.AppStarted, {sid: sid, uid: uid});
+
+            if(init) {
                 dataset.fields.forEach(field => {
                     if (field.vlType !== VlType.Key)
                         this.create(new EmptyQuery(dataset, this.sampler).combine(field));
@@ -254,6 +256,7 @@ export class AppComponent implements OnInit {
     }
 
     create(query: AggregateQuery, priority = Priority.Lowest) {
+        this.logger.log(LogType.QueryCreated, query.toLog());
 
         this.queries.push(query);
 
@@ -338,6 +341,7 @@ export class AppComponent implements OnInit {
 
         let sg = new ValueSafeguard(variable, this.operator, this.valueConstant, this.activeQuery);
 
+        this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
@@ -355,6 +359,7 @@ export class AppComponent implements OnInit {
         variable.isRank = true;
         let sg = new RankSafeguard(variable, this.operator, this.rankConstant, this.activeQuery);
 
+        this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
@@ -371,6 +376,7 @@ export class AppComponent implements OnInit {
 
         let sg = new RangeSafeguard(variable, this.rangeConstant, this.activeQuery);
 
+        this.logger.log(LogType.SafeguardCreated, sg.toLog());
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
         sg.history.push(sg.validity());
@@ -386,6 +392,8 @@ export class AppComponent implements OnInit {
 
         let sg = new ComparativeSafeguard(
             variable, this.operator, this.activeQuery);
+
+        this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
         this.safeguards.push(sg);
         this.activeQuery.safeguards.push(sg);
@@ -404,6 +412,7 @@ export class AppComponent implements OnInit {
         else if (this.activeSafeguardPanel === SGT.Linear)
             sg = new LinearSafeguard(this.linearRegressionConstant, this.activeQuery);
 
+        this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
         this.safeguards.push(sg)
         this.activeQuery.safeguards.push(sg);
@@ -451,6 +460,8 @@ export class AppComponent implements OnInit {
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
             this.vis.setVariableType(sgt === SGT.Rank ? VariableTypes.Rank : VariableTypes.Value);
+
+            this.logger.log(LogType.SafeguardSelected, sgt);
         }
     }
 
@@ -472,6 +483,12 @@ export class AppComponent implements OnInit {
     runMany(times: number) {
         for (let i = 0; i < times; i++)
             this.engine.runOne(true);
+    }
+
+    toggleQueryCreator() {
+        this.creating=!this.creating
+
+        this.logger.log(LogType.QueryCreatorOpened, this.creating);
     }
 
     // from vis events
@@ -628,41 +645,42 @@ export class AppComponent implements OnInit {
     }
 
     // ongoing query list
-    roundRobin = false;
+    roundRobin = true;
     roundRobinChange() {
         let scheduler;
         if (this.roundRobin) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
         else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
 
+        this.logger.log(LogType.SchedulerChanged, scheduler.name);
         this.engine.reschedule(scheduler);
     }
 
     // user study
     downloadCurrentUserLog() {
-        let userLog = this.loggerService.userLog;
+        let userLog = this.logger.userLog;
         let userLogString = JSON.stringify(userLog.toObject(), null, 2);
         let dataString = `data:text/json;charset=utf-8,${encodeURIComponent(userLogString)}`;
         let anchor = document.createElement("a");
         anchor.setAttribute("href", dataString);
-        anchor.setAttribute("download", `${this.loggerService.uid}.json`);
+        anchor.setAttribute("download", `${this.logger.uid}.json`);
         document.body.appendChild(anchor); // required for firefox
         anchor.click();
         anchor.remove();
     }
 
     printAllLogs() {
-        console.log(this.loggerService.userLogs);
+        console.log(this.logger.userLogs);
     }
 
     printCurrentUserLog() {
-        console.log(this.loggerService.userLog);
+        console.log(this.logger.userLog);
     }
 
     printCurrentSessionLog() {
-        console.log(this.loggerService.sessionLog);
+        console.log(this.logger.sessionLog);
     }
 
     removeAllLogs() {
-        this.loggerService.clear();
+        this.logger.clear();
     }
 }

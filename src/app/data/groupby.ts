@@ -1,5 +1,6 @@
-import { FieldTrait, VlType, FieldGroupedValueList, FieldGroupedValue } from './field';
-import { assertIn } from './assert';
+import { FieldTrait } from './field';
+import { FieldGroupedValue } from './field-grouped-value';
+import { FieldGroupedValueList } from './field-grouped-value-list';
 
 /**
  * Represents a list of grouping columns.

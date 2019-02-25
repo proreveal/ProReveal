@@ -135,57 +135,6 @@ export class FieldValueList {
     }
 }
 
-/**
- * field & grouped value id (can be a negative integer)
- */
-export class FieldGroupedValue {
-    hash: string;
-
-    constructor(public field: FieldTrait, public groupId: GroupIdType) {
-        this.hash = `${field.name}:${groupId}`;
-    }
-
-    get includeEnd() {
-        if(isString(this.value())) return false;
-
-        return this.groupId[1] >= (this.field as QuantitativeField).grouper.lastGroupId;
-    }
-
-    get hasNullValue() {
-        return this.groupId === NullGroupId;
-    }
-
-    value() {
-        return this.field.ungroup(this.groupId);
-    }
-
-    valueString() {
-        return this.field.ungroupString(this.groupId);
-    }
-}
-
-export const HashSeparator = '_';
-
-export class FieldGroupedValueList {
-    hash: string;
-
-    constructor(public list: FieldGroupedValue[]) {
-        this.hash = list.map(d => d.hash).join(HashSeparator);
-    }
-
-    desc() {
-        return this.list.map(item => `${item.field.name}: ${item.field.ungroup(item.groupId)}`).join(', ');
-    }
-
-    hasNullValue() {
-        for(let i = 0; i < this.list.length; i++) {
-            if(this.list[i].hasNullValue) return true;
-        }
-        return false;
-    }
-}
-
-
 export function guess(values: any[]): [DataType, VlType, boolean] {
     let dataType = guessDataType(values);
     let unique = {};

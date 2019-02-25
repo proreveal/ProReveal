@@ -1,5 +1,4 @@
 import { isNull } from 'util';
-import { ApproximatedInterval, MinApproximator } from './approx';
 
 /**
  * indicates a unit value of a specific category.
@@ -33,6 +32,17 @@ export class AccumulatedValue {
 
     toPartial() {
         return new PartialValue(this.sum, this.ssum, this.count, this.min, this.max, this.nullCount);
+    }
+
+    toLog(){
+        return {
+            sum: this.sum,
+            ssum: this.ssum,
+            count: this.count,
+            min: this.min,
+            max: this.max,
+            nullCount: this.nullCount
+        }
     }
 }
 

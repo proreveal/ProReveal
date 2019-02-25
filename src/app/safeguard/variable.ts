@@ -1,4 +1,5 @@
-import { FieldGroupedValueList, FieldGroupedValue, HashSeparator } from "../data/field";
+import { FieldGroupedValue } from "../data/field-grouped-value";
+import { HashSeparator } from "../data/field-grouped-value-list";
 
 export enum VariableTypes {
     Value,
@@ -11,6 +12,8 @@ export abstract class VariableTrait {
     get hash(): string {
         throw new Error('Hash must be implemented for a variable');
     }
+
+    toLog() { };
 }
 
 export class SingleVariable extends VariableTrait {
@@ -30,6 +33,10 @@ export class SingleVariable extends VariableTrait {
 
     get hash() {
         return this.fieldGroupedValue.hash;
+    }
+
+    toLog() {
+        return this.fieldGroupedValue.toLog();
     }
 }
 
@@ -64,6 +71,10 @@ export class VariablePair extends VariableTrait { // (a = 1) < (a = 2)
     get hash() {
         return `${this.first.fieldGroupedValue.hash}${HashSeparator}${this.second.fieldGroupedValue.hash}`;
     }
+
+    toLog() {
+        return ['pair', this.first.toLog(), this.second.toLog()];
+    }
 }
 
 export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
@@ -97,6 +108,10 @@ export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
     get hash() {
         return `${this.first.fieldGroupedValue.hash}${HashSeparator}${this.second.fieldGroupedValue.hash}`;
     }
+
+    toLog() {
+        return ['combined', this.first.toLog(), this.second.toLog()];
+    }
 }
 
 export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a = 2, b = 3)
@@ -114,17 +129,12 @@ export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a =
     get hash() {
         return `${this.first.hash}${HashSeparator}${this.second.hash}`;
     }
+
+    toLog() {
+        return ['combined pair', this.first.toLog(), this.second.toLog()];
+    }
 }
 
 export class DistributiveVariable extends VariableTrait {
-
+    toLog() { return 'distributive variable'; }
 }
-
-export class LinearRegressionVariable extends VariableTrait {
-
-}
-
-export class GroupValueVariable extends VariableTrait { // g(*) > 3%
-
-}
-

@@ -1,37 +1,5 @@
 import { AccumulatedValue } from "./accum";
-
-const Z95 = 1.96;
-
-export class ApproximatedInterval {
-    constructor(public center: number, public stdev: number, public n: number) {
-    }
-
-    ci95() {
-        return this.range(Z95);
-    }
-
-    range(factor: number) {
-        if(this == EmptyApproximatedInterval) return EmptyConfidenceInterval;
-        return new ConfidenceInterval(this.center, this.stdev, this.center - factor * this.stdev, this.center + factor * this.stdev);
-    }
-
-    desc() {
-        return `${this.center} +- ${this.stdev}`;
-    }
-}
-
-export class ConfidenceInterval {
-    constructor(public center: number, public stdev: number, public low: number, public high: number) {
-
-    }
-
-    desc() {
-        return `[${this.low}, ${this.center}, ${this.high}]`;
-    }
-}
-
-export const EmptyApproximatedInterval = new ApproximatedInterval(0, 0, 0);
-export const EmptyConfidenceInterval = new ConfidenceInterval(0, 0, 0, 0);
+import { ApproximatedInterval, EmptyApproximatedInterval } from "./approximated-interval";
 
 export interface ApproximatorTrait {
     readonly name: string;

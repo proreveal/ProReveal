@@ -2,11 +2,11 @@ import { NormalDistribution } from "./normal";
 import { AggregateQuery } from "../data/query";
 import { SingleVariable, VariablePair, VariableTrait, CombinedVariablePair } from "./variable";
 import { Operators } from "./operator";
-import { ApproximatedInterval } from "../data/approx";
 import { ValueConstant, RankConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
 import { isNull } from "util";
 import { Validity, PValue, Truthiness, Quality, Error } from "./validity";
 import { isFulfilled } from "q";
+import { ApproximatedInterval } from "../data/approximated-interval";
 
 const normal = new NormalDistribution();
 
