@@ -1,6 +1,6 @@
 <ng-container *ngIf="query"><!--
---><ng-container *ngIf="query.target === null"><span class="approx-name">Count</span>(<small>*</small>)</ng-container><!--
---><ng-container *ngIf="query.target !== null"><span class="approx-name">{{ query.approximator.name }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})</ng-container><!--
+--><ng-container *ngIf="query.target === null"><span class="approx-name">{{ L.COUNT }}</span>(<small>*</small>)</ng-container><!--
+--><ng-container *ngIf="query.target !== null"><span class="approx-name">{{ L[query.approximator.name.toUpperCase()]\ }}</span>(<field-badge [field]="query.target" class="mr-1"></field-badge>{{ query.target.name }})</ng-container><!--
 --><span class="ml-2 by"></span>
     <ng-container *ngFor="let field of query.groupBy.fields; index as i">
         <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="i < query.groupBy.fields.length - 1" class="comma"></span>

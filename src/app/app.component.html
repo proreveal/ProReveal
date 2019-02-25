@@ -10,32 +10,34 @@
                 <fa-icon icon="folder-open"></fa-icon>
                 <small> (movies.json)</small>
             </button>
-            <span class="text-light navbar-text">
-                Dev menu
-            </span>
-            &nbsp;
-            <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.isRunning">
-                <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                Auto Run
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.isRunning">
-                <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                Pause
-            </button>
-            &nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="runMany(1)">Run a job</button>
-            &nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="runMany(10)">Run 10 jobs</button>
-            &nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="runMany(100)">Run 100 jobs</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testC()">C</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testN()">N</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testCN()">CN</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
+            <ng-container *ngIf="!isStudying">
+                <span class="text-light navbar-text">
+                    Test menu
+                </span>
+                &nbsp;
+                <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.isRunning">
+                    <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                    Auto Run
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.isRunning">
+                    <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                    Pause
+                </button>
+                &nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="runMany(1)">Run a job</button>
+                &nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="runMany(10)">Run 10 jobs</button>
+                &nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="runMany(100)">Run 100 jobs</button>&nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="testC()">C</button>&nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="testN()">N</button>&nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="testCN()">CN</button>&nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
+                <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
+            </ng-container>
         </div>
 
-        <div>
+        <div *ngIf="isStudying">
             <button type="button" class="btn btn-sm btn-dark" (click)="isStudyMenuVisible=!isStudyMenuVisible">
                 <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
             </button>
@@ -74,7 +76,7 @@
         <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">
             {{ L.CompletedVisualization }}
         </h3>
-        <section id="completed-query-view" class="styled-scroll">
+        <section id="completed-query-view" class="styled-scroll bg-light">
             <ng-container *ngFor="let query of engine.completedQueries">
                 <div class="query" (click)="querySelected(query)"
                     [class.selected]="activeQuery === query"
@@ -110,7 +112,7 @@
                 </label>
             </div>
         </h6>
-        <section id="ongoing-query-view" class="styled-scroll" [sortablejs]="engine.ongoingQueries"
+        <section id="ongoing-query-view" class="styled-scroll bg-light" [sortablejs]="engine.ongoingQueries"
             [sortablejsOptions]="sortablejsOptions">
             <div *ngFor="let query of engine.ongoingQueries">
                 <div class="query d-flex flex-row" (click)="querySelected(query)"
@@ -151,7 +153,7 @@
             </div>
         </section>
     </section>
-    <section id="main" class="styled-scroll p-2 px-3" (click)="visBackgroundClick()">
+    <section id="main" class="styled-scroll p-2 px-3 bg-light" (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary guide">
             {{ L.ChooseVisualizationToInspect }}
         </div>
@@ -182,7 +184,7 @@
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             {{ L.Safeguards }}
         </h3>
-        <section id="safeguard-list" class="styled-scroll">
+        <section id="safeguard-list" class="styled-scroll bg-light">
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
                 {{ L.SafeguardGuide }}
             </p>

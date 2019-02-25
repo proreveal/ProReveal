@@ -93,11 +93,13 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
+    isStudying = false;
+
     isStudyMenuVisible = false;
     sampler = ExpConstants.sampler;
     markComplete = false;
 
-    constructor(private route: ActivatedRoute, private modalService: NgbModal, private logger: LoggerService) {
+    constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.queue.reschedule();
@@ -112,7 +114,7 @@ export class AppComponent implements OnInit {
         const init = parameters.init || 0;
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
-        const logging = parameters.logging || 0;
+        this.isStudying = parameters.study || 0;
 
         this.markComplete = parameters.complete || 0;
 
@@ -123,7 +125,7 @@ export class AppComponent implements OnInit {
         this.engine.load().then(([dataset]) => {
             this.logger.setup(uid, sid);
 
-            if(!logging) this.logger.mute();
+            if(!this.isStudying) this.logger.mute();
 
             this.logger.log(LogType.AppStarted, {sid: sid, uid: uid});
 
@@ -138,71 +140,9 @@ export class AppComponent implements OnInit {
                 this.runMany(520);
             }
 
-            of(0).pipe(
-                delay(1000)
-            ).subscribe(() => {
-                // this.toggle(SGT.Point);
-
-                // this.useRank = true;
-                // this.useRankToggled();
-            })
+            if(this.isStudying)
+                this.engine.run();
         })
-
-        // this.engine.load().then(([dataset]) => {
-        //     dataset.fields.forEach(field => {
-        //         if (field.vlType !== VlType.Key) {
-        //             this.create(new EmptyQuery(dataset).combine(field));
-        //         }
-        //     });
-
-        //     this.querySelected(this.engine.ongoingQueries[0]);
-
-        //     // Just run 10 jobs.
-        //     this.runMany(10);
-
-        //     // C (Frequency histogram, Creative_Type)
-        //     // this.nodeSelected(this.ongoingNodes[0])
-        //     // this.run(5);
-
-        //     // N (1D histogram, IMDB_Rating)
-        //     // this.nodeSelected(this.ongoingNodes[3]);
-        //     // this.run(105);
-
-        //     // CN (Bar chart, Sum(Production_Budget) by Creative_Type)
-        //     // const [node, query] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Production_Budget'));
-        //     // this.run(5);
-
-        //     // NN (2D Histogram, IMDB_Rating vs Production_Budget)
-        //     // this.fieldSelected(this.ongoingNodes[3], dataset.getFieldByName('Production_Budget'));
-        //     // this.run(10);
-
-        //     // CC (Creative_Type vs Major_Genre)
-        //     // const [] = this.fieldSelected(this.ongoingNodes[0], dataset.getFieldByName('Major_Genre'));
-        //     // this.run(10);
-
-        //     // this.testC();
-
-        //     // this.toggleMetadataEditor();
-
-        //     // this.testEqualWhere();
-        //     // this.testCC();
-
-        //     // this.testNN();
-        //     // this.testCN();
-
-        //     // this.testNN();
-
-        //     of(0).pipe(
-        //         delay(1000)
-        //     ).subscribe(() => {
-
-        //         // this.toggle(SGT.Point);
-
-        //         // this.useRank = true;
-        //         // this.useRankToggled();
-        //     })
-        // })
-
     }
 
     testEqualWhere() {
@@ -292,10 +232,6 @@ export class AppComponent implements OnInit {
         if (DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
             this.vis.renderer.setDefaultConstantFromVariable(true);
         }
-    }
-
-    rankAllowed() {
-        return this.activeQuery && this.activeQuery.isRankAvailable;
     }
 
     querySelected(q: Query) {
