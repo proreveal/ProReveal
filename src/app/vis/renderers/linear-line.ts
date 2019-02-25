@@ -59,7 +59,7 @@ export class LinearLine {
             .y(d => d[1])
             .curve(d3.curveLinear);
 
-        let path = this.g.selectAll('path')
+        let path: any = this.g.selectAll('path')
             .data([points]);
 
         path.exit().remove();

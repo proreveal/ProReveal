@@ -156,7 +156,7 @@ export class FlexBrush<Datum> {
         this.handleG1.attr('transform', translation);
         this.handleG2.attr('transform', translation);
 
-        let handles = this.handleG.selectAll('.fb-handle')
+        let handles:any = this.handleG.selectAll('.fb-handle')
             .data(this.handles);
 
         handles.exit().remove();

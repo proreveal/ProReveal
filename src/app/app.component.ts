@@ -287,7 +287,7 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.push(sg);
+        this.safeguards.unshift(sg);
         this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
@@ -305,7 +305,7 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.push(sg);
+        this.safeguards.unshift(sg);
         this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
@@ -321,7 +321,7 @@ export class AppComponent implements OnInit {
         let sg = new RangeSafeguard(variable, this.rangeConstant, this.activeQuery);
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
-        this.safeguards.push(sg);
+        this.safeguards.unshift(sg);
         this.activeQuery.safeguards.push(sg);
         sg.history.push(sg.validity());
 
@@ -339,7 +339,7 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.push(sg);
+        this.safeguards.unshift(sg);
         this.activeQuery.safeguards.push(sg);
 
         this.variable1 = null;
@@ -358,7 +358,7 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.push(sg)
+        this.safeguards.unshift(sg)
         this.activeQuery.safeguards.push(sg);
 
         this.toggle(SGT.None);

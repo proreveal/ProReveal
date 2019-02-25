@@ -60,7 +60,7 @@ export class Safeguard {
         return {
             type: this.type,
             variable: this.variable.toLog(),
-            constant: this.constant.toLog(),
+            constant: this.constant ? this.constant.toLog() : null,
             query: this.query.toLog(),
             validty: this.validity()
         };
