@@ -50,9 +50,14 @@
     position: relative;
     font-size: 0.9rem;
 
+    button {
+        display: block;
+    }
+
     #query-creator {
         background:white;
         width: 100%;
+        position: absolute;
         z-index:100;
     }
 }
@@ -76,7 +81,7 @@
 }
 
 .section-header {
-    font-family: 'Roboto Condensed';
+    font-family: 'Roboto Condensed', 'Noto Sans KR';
     background: $ui-background-color;
     margin: 0;
     padding: 0;
@@ -84,7 +89,7 @@
 }
 
 .section-subheader {
-    font-family: 'Roboto Condensed';
+    font-family: 'Roboto Condensed', 'Noto Sans KR';
     background: lighten($ui-background-color, 4%);
     margin: 0;
     padding: 0;
@@ -95,12 +100,12 @@
 #completed-query-view-header {
     grid-row: 2;
     grid-column: 1;
+    position: relative;
 }
 
 #completed-query-view {
     grid-row: 3;
     grid-column: 1;
-    border-right: 1px solid $ui-border-color;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -123,7 +128,6 @@
 }
 
 .round-robin {
-    font-family: 'Roboto';
     position: absolute;
     top:.35rem;
     right:0;
@@ -164,7 +168,7 @@
 
     .filtered-by {
         opacity: .5;
-        font-family: 'Roboto Condensed';
+        font-family: 'Roboto Condensed', 'Noto Sans KR';
     }
 
     &:hover {
@@ -268,7 +272,7 @@ vis {
 
     .tip {
         font-family: #aaa;
-        font-family: 'Roboto Condensed';
+        font-family: 'Roboto Condensed', 'Noto Sans KR';
         font-weight: bold;
     }
 }

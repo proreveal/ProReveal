@@ -7,7 +7,7 @@ import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait, VariableTypes } from '../safeguard/variable';
 import { ConstantTrait } from '../safeguard/constant';
-import { Constants as C } from '../constants';
+import { Constants as C, Constants } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
 import { Priority } from '../data/engine';
 import { Datum } from '../data/datum';
@@ -41,6 +41,8 @@ export class VisComponent implements DoCheck {
 
     @ViewChild('qc') queryCreator: QueryCreatorComponent;
     @ViewChild('tooltip') tooltip: TooltipComponent;
+
+    L = Constants.locale;
 
     Priority = Priority;
     SGT = SafeguardTypes;
@@ -271,7 +273,8 @@ export class VisComponent implements DoCheck {
     }
 
     emptySelectedDatum() {
-        this.renderer.emptySelectedDatum();
+        if(this.renderer)
+            this.renderer.emptySelectedDatum();
         this.selectedDatum = null;
     }
 }

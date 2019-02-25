@@ -3,8 +3,9 @@ import { FieldTrait, guess, VlType, QuantitativeField, NominalField, DozenField,
 import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
-import { Constants, Languages } from '../constants';
+import { Constants } from '../constants';
 import { QuantitativeUnit } from './unit';
+import { Locale } from '../locales/locale';
 
 export type Row = any;
 
@@ -18,9 +19,9 @@ export class Dataset {
             if(!columnSchema) throw new Error(`${name} does not exist in the schema`);
 
             let unit = columnSchema.unit;
-            if(unit === QuantitativeUnit.USD && Constants.lang == Languages.ko_KR) {
+            if(unit === QuantitativeUnit.USD && Constants.locale.name == Locale.ko_KR) {
                 rows.forEach(row => {
-                    row[name] *= Constants.USD2KRW;
+                    row[name] *= Constants.exchangeRate;
                 })
             }
         });

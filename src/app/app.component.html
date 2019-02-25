@@ -61,7 +61,7 @@
             <button class="btn btn-secondary w-100 rounded-0" (click)="creating=!creating">
                 <fa-icon [icon]="['fas', 'caret-down']" [hidden]="!creating"></fa-icon>
                 <fa-icon [icon]="['fas', 'caret-right']" [hidden]="creating"></fa-icon>
-                New Visualization
+                {{ L.NewVisualization }}
             </button>
 
             <query-creator id="query-creator" [hidden]="!creating"
@@ -70,7 +70,9 @@
                 (creationCancelled)="creating=false"
                 ></query-creator>
         </section>
-        <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">Completed Queries</h3>
+        <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">
+            {{ L.CompletedVisualization }}
+        </h3>
         <section id="completed-query-view" class="styled-scroll">
             <ng-container *ngFor="let query of engine.completedQueries">
                 <div class="query" (click)="querySelected(query)"
@@ -98,12 +100,12 @@
             </ng-container>
         </section>
         <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
-            Ongoing Queries
+            {{ L.OngoingVisualization }}
             <div class="form-check round-robin mr-2">
                 <input class="form-check-input" type="checkbox" id="roundrobin"
                     [(ngModel)]="roundRobin" (change)="roundRobinChange()">
                 <label class="form-check-label cursor-pointer" for="roundrobin">
-                    번갈아서 처리<!-- Round Robin -->
+                    {{ L.Alternate }}
                 </label>
             </div>
         </h6>
@@ -149,10 +151,8 @@
         </section>
     </section>
     <section id="main" class="styled-scroll p-2 px-3" (click)="visBackgroundClick()">
-        <div *ngIf="!activeQuery">
-            <p>
-                Choose a query to inspect.
-            </p>
+        <div *ngIf="!activeQuery" class="alert alert-primary guide">
+            {{ L.ChooseVisualizationToInspect }}
         </div>
 
         <vis #vis
@@ -169,6 +169,7 @@
 
         <div id="floating-svg-wrapper" class="border" #floatingSvg
             [hidden]="activeQuery && activeQuery.recentProgress.processedBlocks == 0"
+            style="display:none"
         >
             <svg class="mr-2 mt-2 legend"></svg>
             <svg class="mr-2 mt-2 angular-brush"></svg>
@@ -178,11 +179,11 @@
 
     <section id="safeguard-view">
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
-            Safeguard List
+            {{ L.Safeguards }}
         </h3>
         <section id="safeguard-list" class="styled-scroll">
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-1">
-                The safeguard list is empty! Create a visualization and click on a label in it to make a safegaurd.
+                {{ L.SafeguardGuide }}
             </p>
 
             <sg-list-item *ngFor="let sg of safeguards.reverse()"
