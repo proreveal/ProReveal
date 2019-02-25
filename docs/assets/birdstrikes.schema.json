@@ -1,64 +1,74 @@
 [
     {
-        "name": "Airport__Name",
+        "name": "공항",
         "type": "nominal"
     },
     {
-        "name": "Aircraft__Make_Model",
+        "name": "항공기 모델",
         "type": "nominal"
     },
     {
-        "name": "Effect__Amount_of_damage",
+        "name": "피해 정도",
         "type": "dozen"
     },
     {
-        "name": "Flight_Date",
+        "name": "사고 년도",
+        "type": "dozen"
+    },
+    {
+        "name": "사고 월",
+        "type": "dozen"
+    },
+    {
+        "name": "항공사",
+        "type": "nominal"
+    },
+    {
+        "name": "사고 날짜",
         "type": "key"
     },
     {
-        "name": "Aircraft__Airline_Operator",
+        "name": "사고 지역",
         "type": "nominal"
     },
     {
-        "name": "Origin_State",
+        "name": "항공기 상태",
+        "type": "dozen"
+    },
+    {
+        "name": "야생동물 크기",
+        "type": "dozen"
+    },
+    {
+        "name": "야생동물 종류",
         "type": "nominal"
     },
     {
-        "name": "When__Phase_of_flight",
+        "name": "충돌 시각",
         "type": "dozen"
     },
     {
-        "name": "Wildlife__Size",
-        "type": "dozen"
-    },
-    {
-        "name": "Wildlife__Species",
-        "type": "nominal"
-    },
-    {
-        "name": "When__Time_of_day",
-        "type": "dozen"
-    },
-    {
-        "name": "Cost__Other",
-        "type": "quantitative",
-        "min": 0
-    },
-    {
-        "name": "Cost__Repair",
-        "type": "quantitative",
-        "min": 0
-    },
-    {
-        "name": "Cost__Total_$",
-        "type": "quantitative",
-        "min": 0
-    },
-    {
-        "name": "Speed_IAS_in_knots",
+        "name": "기타 비용(원)",
         "type": "quantitative",
         "min": 0,
-        "max": 350,
-        "numBins": 7
+        "unit": "USD"
+    },
+    {
+        "name": "수리 비용(원)",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "USD"
+    },
+    {
+        "name": "총 비용(원)",
+        "type": "quantitative",
+        "min": 0,
+        "unit": "USD"
+    },
+    {
+        "name": "비행 속도(노트)",
+        "type": "quantitative",
+        "min": 0,
+        "max": 350
     }
 ]
