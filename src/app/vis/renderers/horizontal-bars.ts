@@ -508,7 +508,9 @@ export class HorizontalBarsRenderer {
 
                 this.constant = new RangeConstant(range[0], range[1]);
 
+                this.flexBrush.setCenter(this.xScale(newCenter));
                 this.flexBrush.move(range.map(this.xScale) as Range);
+                this.vis.constantSelected.emit(this.constant);
                 this.constantUserChanged(this.constant);
             }
         }

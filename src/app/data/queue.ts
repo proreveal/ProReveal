@@ -1,7 +1,8 @@
 import { Job } from './job';
 import { Scheduler } from './scheduler';
 import { ServerError } from './exception';
-import { Query } from './query';
+import { Query, QueryState } from './query';
+import { aremove } from '../util';
 
 export class Queue {
     jobs: Job[] = [];
@@ -33,7 +34,17 @@ export class Queue {
         if(!this.size())
             throw new ServerError("the queue is empty");
 
-        return this.jobs.shift();
+        let job = this.jobs.find(j => j.query.state === QueryState.Running);
+
+        if(!job) return;
+
+        aremove(this.jobs, job);
+
+        return job;
+    }
+
+    peep() {
+        return this.jobs.find(j => j.query.state === QueryState.Running);
     }
 
     reschedule() {

@@ -25,6 +25,7 @@ export class Engine {
     queryDone: (query: Query) => void;
     runningJob: Job;
     isRunning = false;
+    autoRun = false;
 
     constructor(private url: string, private schemaUrl: string) {
 
@@ -61,7 +62,7 @@ export class Engine {
         query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
 
-        if(this.isRunning) this.runOne();
+        if(this.autoRun && !this.isRunning) this.runOne();
     }
 
     remove(query: Query) {
@@ -75,12 +76,12 @@ export class Engine {
     latencySubs: Subscription;
 
     run() {
-        this.isRunning = true;
-        this.runOne();
+        this.autoRun = true;
+        if(!this.isRunning) this.runOne();
     }
 
     pause() {
-        this.isRunning = false;
+        this.autoRun = false;
     }
 
     gaussianRandom(mean: number, sigma: number) {
@@ -92,6 +93,11 @@ export class Engine {
         if (this.queue.empty()) return;
 
         const job = this.queue.pop();
+
+        if(!job) {
+            this.isRunning = false;
+            return;
+        }
 
         this.runningJob = job;
         job.query.recentProgress.ongoingBlocks = 1;
@@ -129,8 +135,12 @@ export class Engine {
             this.latencySubs = latencyTimer.subscribe(() => {
                 body();
 
-                if(this.isRunning)
+                if(this.autoRun) {
                     this.runOne();
+                }
+                else {
+                    this.isRunning = false;
+                }
             });
         }
     }
@@ -157,8 +167,7 @@ export class Engine {
 
     get runningQuery() {
         if(this.runningJob) return this.runningJob.query;
-        if(this.queue.jobs.length > 0) return this.queue.jobs[0].query;
-        return null;
+        return this.queue.peep();
     }
 
     select(where: AndPredicate, indices: number[]): Row[] {
