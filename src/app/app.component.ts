@@ -122,6 +122,8 @@ export class AppComponent implements OnInit {
         this.markComplete = parameters.complete || 0;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+        if(this.roundRobin)
+            this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
         this.engine.queryDone = this.queryDone.bind(this);
 
@@ -264,6 +266,7 @@ export class AppComponent implements OnInit {
     queryRunClick(query: AggregateQuery, $event: UIEvent) {
         query.run();
         this.engine.reschedule();
+        if(this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
         $event.stopPropagation();
         return false;
     }

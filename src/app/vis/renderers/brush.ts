@@ -113,6 +113,8 @@ export class FlexBrush<Datum> {
         let width = Math.min(center - x1, x2 - center);
         this.brush1.extent([[this.center - width, extent[0][1]], [this.center, extent[1][1]]]);
         this.brush2.extent([[this.center, extent[0][1]], [this.center + width, extent[1][1]]]);
+        this.g1.call(this.brush1);
+        this.g2.call(this.brush2);
     }
 
     getHandle(dir: string, size = 10) {
@@ -278,7 +280,6 @@ export class FlexBrush<Datum> {
         else if (this.mode === FlexBrushMode.SymmetricRange) {
             let g1: any = transition ? this.g1.transition() : this.g1;
             let g2: any = transition ? this.g2.transition() : this.g2;
-
 
             if (!other || other == 1) g1.call(this.brush1).call(this.brush1.move as any, [start, this.center]);
             if (!other || other == 2) g2.call(this.brush2).call(this.brush2.move as any, [this.center, end]);
