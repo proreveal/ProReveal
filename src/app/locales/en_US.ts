@@ -69,5 +69,7 @@ export const Locale_en_US = Object.freeze({
     MEAN: 'MEAN',
     MIN: 'MIN',
     MAX: 'MAX',
+    COUNT: 'COUNT'
+
     //, currencyFormatter: formatKRW
 });
