@@ -167,7 +167,7 @@ export class AngularBrush<Datum> {
         this.g1.select('rect.selection').style('stroke-width', 0);
         this.g2.select('rect.selection').style('stroke-width', 0);
 
-        let handles = this.handleG.selectAll('.fb-handle')
+        let handles: any = this.handleG.selectAll('.fb-handle')
             .data(this.handles);
 
         handles.exit().remove();

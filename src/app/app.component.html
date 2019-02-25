@@ -189,7 +189,7 @@
                 {{ L.SafeguardGuide }}
             </p>
 
-            <sg-list-item *ngFor="let sg of safeguards.reverse()"
+            <sg-list-item *ngFor="let sg of safeguards"
                 [safeguard]="sg"
                 (removeClicked)="sgRemoveClicked($event)"
                 (mouseenter)="sgMouseEnter(sg)"

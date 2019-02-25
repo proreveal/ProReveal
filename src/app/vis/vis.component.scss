@@ -138,6 +138,22 @@ svg.hidden {
     display: none;
 }
 
+.icon-stack {
+    position: relative;
+    display: inline-block;
+
+    .top {
+        position: absolute;
+        left: .15em;
+        top: -.5em
+    }
+
+    .bottom {
+        position: absolute;
+        left: .15em;
+        bottom: -.5em
+    }
+}
 @import '../theme.scss';
 
 ::ng-deep .event-box {

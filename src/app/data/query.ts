@@ -344,7 +344,8 @@ export class AggregateQuery extends Query {
     }
 
     getPredicateFromDatum(d: Datum): Predicate {
-        throw new Error('not implemented!')
+        let field = this.groupBy.fields[0];
+        return new EqualPredicate(field, d.keys.list[0].value());
     }
 }
 

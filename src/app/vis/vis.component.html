@@ -66,7 +66,8 @@
                 [hidden]="!query.aggregationLevelX"
                 [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
                 (click)="splitXBins()">
-                <fa-icon [icon]="['fas', 'angle-left']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
                 <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
                 {{ L.SplitXAxisBins }}
             </button>
@@ -75,7 +76,8 @@
                 [hidden]="!query.aggregationLevelX"
                 [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
                 (click)="mergeXBins()">
-                <fa-icon [icon]="['fas', 'angle-right']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
                 <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
                 {{ L.MergeXAxisBins }}
             </button>
@@ -84,8 +86,11 @@
                 [hidden]="!query.aggregationLevelY"
                 [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
                 (click)="splitYBins()">
-                <fa-icon [icon]="['fas', 'angle-left']" class="mr-1"></fa-icon>
-                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                <div class="icon-stack">
+                    <fa-icon class="top" [icon]="['fas', 'angle-up']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
+                    <fa-icon class="bottom" [icon]="['fas', 'angle-down']"></fa-icon>
+                </div>
                 {{ L.SplitYAxisBins }}
             </button>
 
@@ -93,8 +98,11 @@
                 [hidden]="!query.aggregationLevelY"
                 [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
                 (click)="mergeYBins()">
-                <fa-icon [icon]="['fas', 'angle-right']" class="mr-1"></fa-icon>
-                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                <div class="icon-stack">
+                    <fa-icon class="top" [icon]="['fas', 'angle-down']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
+                    <fa-icon class="bottom" [icon]="['fas', 'angle-up']"></fa-icon>
+                </div>
                 {{ L.MergeYAxisBins }}
             </button>
 
@@ -102,7 +110,8 @@
                 [hidden]="!query.aggregationLevel"
                 [disabled]="query.aggregationLevel == query.minLevel || query.safeguards.length > 0"
                 (click)="splitBins()">
-                <fa-icon [icon]="['fas', 'angle-left']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
                 <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
                 {{ L.SplitBins }}
             </button>
@@ -111,7 +120,8 @@
                 [hidden]="!query.aggregationLevel"
                 [disabled]="query.aggregationLevel == query.maxLevel || query.safeguards.length > 0"
                 (click)="mergeBins()">
-                <fa-icon [icon]="['fas', 'angle-right']" class="mr-1"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
                 <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
                 {{ L.MergeBins }}
             </button>

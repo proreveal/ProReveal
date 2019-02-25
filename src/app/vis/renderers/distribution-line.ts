@@ -37,7 +37,7 @@ export class DistributionLine {
             .y(d => y(d[1].toString()) + y.bandwidth() / 2)
             .curve(d3.curveBasis);
 
-        let path = this.g.selectAll('path')
+        let path: any = this.g.selectAll('path')
             .data([filtered]);
 
         path.exit().remove();
