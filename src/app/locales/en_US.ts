@@ -61,6 +61,7 @@ export const Locale_en_US = Object.freeze({
     P5: 'It holds certainly!',
     P50: 'It holds probably.',
     POther: 'It holds unlikely.',
+
     KSStatistics: 'Kolmogorov-Smirnov Statistics',
     RMSE: 'RMSE',
 
