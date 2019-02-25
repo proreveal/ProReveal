@@ -864,7 +864,8 @@ export class HorizontalBarsRenderer {
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
 
-        let i = this.data.indexOf(d);
+        let i = this.data.findIndex(datum => datum.id === d.id);
+
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
             + C.horizontalBars.label.height + C.padding;
 

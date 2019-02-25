@@ -61,10 +61,14 @@ export class TooltipComponent implements OnInit {
         const width = this.inner.nativeElement.clientWidth;
         const height = this.inner.nativeElement.clientHeight;
 
-        this.arrowLeft = width / 2 - 5;
-
         this.left = left - width / 2 - 1;
+
+        let shift = 0;
+        if(this.left < 0) { shift = this.left; this.left = 0; }
         this.top = top - height - 5;
+        this.arrowLeft = width / 2 - 5 + shift;
+
+
     }
 
     hide() {
