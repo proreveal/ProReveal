@@ -47,19 +47,19 @@
         "name": "Cost Other ($)",
         "type": "quantitative",
         "min": 0,
-        "unit": "dollar"
+        "unit": "USD"
     },
     {
         "name": "Cost Repair ($)",
         "type": "quantitative",
         "min": 0,
-        "unit": "dollar"
+        "unit": "USD"
     },
     {
         "name": "Cost Total ($)",
         "type": "quantitative",
         "min": 0,
-        "unit": "dollar"
+        "unit": "USD"
     },
     {
         "name": "Speed (knots)",

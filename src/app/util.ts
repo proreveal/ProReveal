@@ -187,7 +187,7 @@ export function formatKRW(krw: number) {
 
         let nums = str.substring(length - sc, length - sc + 4);
 
-        if(nums) {
+        if(nums && +nums > 0) {
             if(nums.length === 4)
                 result += nums[0] + ',' + nums.substring(1, 4) + splitter[i];
             else

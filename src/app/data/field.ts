@@ -1,5 +1,6 @@
 import { isNull, isNumber, isString } from "util";
 import { NumericalGrouper, CategoricalGrouper, GroupIdType, NullGroupId } from './grouper';
+import { QuantitativeUnit } from "./unit";
 
 export enum DataType {
     String = "String",
@@ -44,7 +45,7 @@ export class QuantitativeField implements FieldTrait {
 
     constructor(public name: string, public dataType: DataType,
         public initialMin: number, public initialMax: number, public numBins: number = 40,
-        public nullable: boolean = false, public unit: string) {
+        public nullable: boolean = false, public unit: QuantitativeUnit) {
 
         this.grouper = new NumericalGrouper(initialMin, initialMax, numBins);
     }
