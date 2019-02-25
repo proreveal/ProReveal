@@ -11,6 +11,7 @@ import { Constants as C, Constants } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
 import { Priority } from '../data/engine';
 import { Datum } from '../data/datum';
+import { LoggerService, LogType } from '../logger.service';
 
 @Component({
     selector: 'vis',
@@ -62,19 +63,21 @@ export class VisComponent implements DoCheck {
     queryCreatorLeft = 500;
     selectedDatum: Datum = null;
 
-    constructor() { }
+    constructor(private logger: LoggerService) { }
 
     recommend(query: AggregateQuery) {
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
             return new HorizontalBarsRenderer(
                 this,
-                this.tooltip
+                this.tooltip,
+                this.logger
             );
 
         if (query.groupBy.fields.length === 2 || query instanceof Histogram2DQuery)
             return new PunchcardRenderer(
                 this,
-                this.tooltip
+                this.tooltip,
+                this.logger
             ) as any;
 
         return null;
@@ -240,6 +243,8 @@ export class VisComponent implements DoCheck {
         this.isDropdownVisible = false;
 
         this.renderer.openQueryCreator(this.selectedDatum);
+        this.logger.log(LogType.QueryCreatorOpened, true);
+
         return false;
     }
 

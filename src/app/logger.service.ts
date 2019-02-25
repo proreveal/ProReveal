@@ -4,18 +4,24 @@ type UId = string; // user id
 type SId = string; // session id
 const LOCAL_STORAGE_KEY = 'sg';
 
-export enum EventType {
-    AppStarted = "AppStarted"
+export enum LogType {
+    AppStarted = 'AppStarted',
+    QueryCreatorOpened = 'QueryCreatorOpened',
+    QueryCreated = 'QueryCreated',
+    SchedulerChanged = 'SchedulerChanged',
+    DatumSelected = 'DatumSelected',
+    SafeguardSelected = 'SafeguardSelected',
+    SafeguardCreated = 'SafeguardCreated'
 };
 
 export interface LogItemSpec {
-    type: EventType;
+    type: LogType;
     data: Object,
     at: number;
 }
 
 export class LogItem {
-    constructor(public type: EventType, public data: Object, public at: number) {
+    constructor(public type: LogType, public data: Object, public at: number) {
 
     }
 
@@ -105,6 +111,8 @@ export class LoggerService {
     userLog: UserLog; // user log of the current user
     sessionLog: SessionLog; // user log of the current session
 
+    muted = false;
+
     constructor() {
         let previousLog = window.localStorage.getItem(LOCAL_STORAGE_KEY);
         if (previousLog && previousLog.length >= 1) {
@@ -131,7 +139,9 @@ export class LoggerService {
         this.sessionLog = this.userLog.sessionLogs.filter(slog => slog.sid === sid)[0];
     }
 
-    log(type: EventType, data: Object) {
+    log(type: LogType, data: Object) {
+        if(this.muted) return;
+
         let now = Date.now();
         let item = new LogItem(type, data, now);
 
@@ -152,5 +162,9 @@ export class LoggerService {
 
     clear() {
         window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+
+    mute() {
+        this.muted = true;
     }
 }

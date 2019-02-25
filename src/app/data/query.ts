@@ -1,5 +1,5 @@
 import { Dataset } from './dataset';
-import { FieldTrait, VlType, QuantitativeField, FieldGroupedValueList, FieldGroupedValue } from './field';
+import { FieldTrait, VlType, QuantitativeField } from './field';
 import { assert, assertIn } from './assert';
 import { AccumulatorTrait, CountAccumulator, AllAccumulator, AccumulatedValue, PartialValue } from './accum';
 import { Sampler } from './sampler';
@@ -9,7 +9,7 @@ import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
-import { ConfidenceInterval, ApproximatorTrait, CountApproximator, MeanApproximator, EmptyConfidenceInterval } from './approx';
+import { ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
 import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { AndPredicate, EqualPredicate, RangePredicate, Predicate } from './predicate';
 import { Datum } from './datum';
@@ -17,6 +17,9 @@ import { NullGroupId, GroupIdType } from './grouper';
 import { isArray } from 'util';
 import * as d3 from 'd3';
 import { Safeguard } from '../safeguard/safeguard';
+import { FieldGroupedValue } from './field-grouped-value';
+import { FieldGroupedValueList } from './field-grouped-value-list';
+import { ConfidenceInterval, EmptyConfidenceInterval } from './confidence-interval';
 
 export enum QueryState {
     Running = "Running",
@@ -111,6 +114,17 @@ export class AggregateQuery extends Query {
 
         this.recentProgress.totalBlocks = samples.length;
         this.recentProgress.totalRows = dataset.length;
+    }
+
+    toLog() {
+        return {
+            name: this.name,
+            accumulator: this.accumulator.name,
+            approximator: this.approximator.name,
+            target: this.target ? this.target.name : null,
+            groupBy: this.groupBy.fields.map(d => d.name),
+            where: this.where.predicates.map(d => d.toLog())
+        };
     }
 
     get fields() {

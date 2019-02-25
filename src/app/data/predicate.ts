@@ -8,10 +8,18 @@ export abstract class Predicate {
     and(predicate: Predicate): Predicate {
         return new AndPredicate([this, predicate]);
     }
+
+    toLog() {
+
+    }
 }
 
 export class TruePredicate extends Predicate {
     test(): boolean {
+        return true;
+    }
+
+    toLog() {
         return true;
     }
 }
@@ -24,6 +32,13 @@ export class EqualPredicate extends Predicate {
     test(row: any): boolean {
         return row[this.target.name] === this.expected;
     }
+
+    toLog() {
+        return {
+            target: this.target.name,
+            expected: this.expected
+        };
+    }
 }
 
 export class RangePredicate extends Predicate {
@@ -35,6 +50,14 @@ export class RangePredicate extends Predicate {
         const value = row[this.target.name];
         if (this.includeEnd) return this.start <= value && value <= this.end;
         return this.start <= value && value < this.end;
+    }
+
+    toLog() {
+        return {
+            target: this.target.name,
+            start: this.start,
+            end: this.end
+        };
     }
 }
 
@@ -65,5 +88,9 @@ export class AndPredicate extends Predicate {
 
     clone() {
         return new AndPredicate(this.predicates.slice());
+    }
+
+    toLog() {
+        return this.predicates.map(p => p.toLog());
     }
 }

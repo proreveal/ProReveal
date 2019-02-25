@@ -3,10 +3,14 @@ import { Job } from './job';
 import { isUndefined } from 'util';
 
 export abstract class Scheduler {
+    name: string;
+
     abstract schedule(jobs: Job[]): Job[];
 }
 
 export class FIFOScheduler extends Scheduler {
+    name = 'FIFOScheduler';
+
     schedule(jobs: Job[]): Job[] {
         jobs.sort((a, b) => {
             if (a.id < b.id) return -1;
@@ -23,6 +27,8 @@ export class FIFOScheduler extends Scheduler {
 }
 
 export class RoundRobinScheduler extends Scheduler {
+    name = 'RoundRobinScheduler';
+
     constructor(public queries: Query[]) {
         super();
     }
@@ -64,6 +70,8 @@ export class RoundRobinScheduler extends Scheduler {
 }
 
 export class QueryOrderScheduler extends Scheduler {
+    name: 'QueryOrderScheduler';
+
     constructor(public queries: Query[]) {
         super();
     }

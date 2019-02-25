@@ -55,6 +55,15 @@ export class Safeguard {
     validity(): Validity {
         throw new Error('validity() must be implemented');
     }
+
+    toLog() {
+        return {
+            type: this.type,
+            variable: this.variable.toLog(),
+            constant: this.constant.toLog(),
+            query: this.query.toLog()
+        };
+    }
 }
 
 export abstract class DistributiveSafeguard extends Safeguard {

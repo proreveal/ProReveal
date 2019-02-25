@@ -8,6 +8,7 @@ export type NumberTriplet = [number, number, number];
 
 export abstract class ConstantTrait {
     name: string;
+    toLog() { };
 }
 
 export class ValueConstant extends ConstantTrait {
@@ -16,6 +17,10 @@ export class ValueConstant extends ConstantTrait {
     constructor(public value: number) {
         super();
     }
+
+    toLog() {
+        return ['value', this.value];
+    }
 }
 
 export class RankConstant extends ConstantTrait {
@@ -23,6 +28,10 @@ export class RankConstant extends ConstantTrait {
 
     constructor(public rank: number) {
         super();
+    }
+
+    toLog() {
+        return ['rank', this.rank];
     }
 }
 
@@ -42,6 +51,10 @@ export class RangeConstant extends ConstantTrait {
             this.from = this.to;
             this.to = temp;
         }
+    }
+
+    toLog() {
+        return ['range', this.from, this.to];
     }
 }
 
@@ -72,6 +85,7 @@ export interface DistributionTrait {
     readonly normalized: boolean;
 
     compute(left: number, right: number): number;
+    toLog(): Object;
 }
 
 export class PowerLawConstant extends ConstantTrait implements DistributionTrait {
@@ -108,6 +122,10 @@ export class PowerLawConstant extends ConstantTrait implements DistributionTrait
      */
     compute(x: number) {
         return this.a * Math.pow(x, this.b);
+    }
+
+    toLog() {
+        return ['power law', this.a, this.b];
     }
 }
 
@@ -166,6 +184,10 @@ export class NormalConstant extends ConstantTrait implements DistributionTrait {
         let between = (this.normal.cdf(right) - this.normal.cdf(left));
         // console.info(between);
         return between;
+    }
+
+    toLog() {
+        return ['normal', this.mean, this.stdev];
     }
 }
 
@@ -230,5 +252,9 @@ export class LinearRegressionConstant extends ConstantTrait {
      */
     compute(x: number) {
         return this.a * x + this.b;
+    }
+
+    toLog() {
+        return ['linear', this.a, this.b];
     }
 }

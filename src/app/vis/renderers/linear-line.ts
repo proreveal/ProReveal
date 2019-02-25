@@ -1,9 +1,8 @@
 import * as d3 from 'd3';
 import { selectOrAppend } from '../../d3-utils/d3-utils';
-import { DistributionTrait, ConstantTrait, LinearRegressionConstant } from '../../safeguard/constant';
-import { Datum } from '../../data/datum';
-import { FieldGroupedValue } from '../../data/field';
+import {  LinearRegressionConstant } from '../../safeguard/constant';
 import { NullGroupId } from '../../data/grouper';
+import { FieldGroupedValue } from '../../data/field-grouped-value';
 
 type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 type Point = [number, number];

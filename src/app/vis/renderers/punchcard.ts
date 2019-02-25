@@ -4,7 +4,7 @@ import * as util from '../../util';
 import { AggregateQuery, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
-import { FieldGroupedValue, QuantitativeField } from '../../data/field';
+import { QuantitativeField } from '../../data/field';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
@@ -15,10 +15,12 @@ import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
-import { EmptyConfidenceInterval } from '../../data/approx';
 import { AngularBrush, AngularBrushMode } from './angular-brush';
 import { AndPredicate } from '../../data/predicate';
 import { LinearLine } from './linear-line';
+import { LoggerService, LogType } from '../../logger.service';
+import { FieldGroupedValue } from '../../data/field-grouped-value';
+import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 
 export class PunchcardRenderer {
     gradient = new Gradient();
@@ -48,7 +50,7 @@ export class PunchcardRenderer {
 
     limitNumCategories = true;
 
-    constructor(public vis: VisComponent, public tooltip: TooltipComponent) {
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService) {
     }
 
     setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -539,6 +541,11 @@ export class PunchcardRenderer {
     datumSelected(d: Datum) {
         if (![SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
 
+        this.logger.log(LogType.DatumSelected, {
+            datum: d.toLog(),
+            data: this.data.map(d => d.toLog())
+        });this.logger.log(LogType.DatumSelected, d.toLog());
+
         let variable = new CombinedVariable(
             new SingleVariable(d.keys.list[0]),
             new SingleVariable(d.keys.list[1]));
@@ -561,6 +568,11 @@ export class PunchcardRenderer {
     datumSelected2(d: Datum) {
         if (this.safeguardType != SGT.Comparative) return;
         d3.event.preventDefault();
+
+        this.logger.log(LogType.DatumSelected, {
+            datum: d.toLog(),
+            data: this.data.map(d => d.toLog())
+        });
 
         let variable = new CombinedVariable(
             new SingleVariable(d.keys.list[0]),
