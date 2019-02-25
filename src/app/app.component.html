@@ -207,17 +207,18 @@
                     (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
             <div class="alert guide p-2 m-1">
-                <span class="tip">TIP</span>
-                <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <span class="tip">{{ L.Tip }}</span>
+                시각화 상의 세로 막대를 끌어서 검정하려는 값을 선택하세요.
+                <!-- <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                     Please pick a
-                    <span class="variable1 font-weight-bold">variable</span>
+                    <strong class="variable1">variable</strong>
                     by clicking on a category on the vertial axis of the chart.
                 </span>
                 <span (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
                     Once a variable is selected, choose a
-                    <span class="constant font-weight-bold">constant</span>
+                    <strong class="constant">constant</strong>
                     by dragging the constant bar.
-                </span>
+                </span> -->
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
@@ -231,10 +232,10 @@
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createValueSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -246,8 +247,9 @@
                     (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
             <div class="alert guide p-2 m-1">
-                <span class="tip">TIP</span>
-                <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <span class="tip">{{ L.Tip }}</span>
+                시각화 상의 가로 막대를 끌어서 검정하려는 순위를 선택하세요.
+                <!-- <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                     Please pick a
                     <span class="variable1 font-weight-bold">variable</span>
                     by clicking on a category on the vertial axis of the chart.
@@ -256,7 +258,7 @@
                     Once a variable is selected, choose a
                     <span class="constant font-weight-bold">constant</span>
                     by dragging the constant bar.
-                </span>
+                </span>-->
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && activeQuery.approximator.estimatable">
@@ -268,10 +270,10 @@
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRankSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -284,8 +286,9 @@
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
             <div class="alert guide p-2 m-1">
-                <span class="tip">TIP</span>
-                <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <span class="tip">{{ L.Tip }}</span>
+                시각화 상의 범위 막대를 끌어서 검정하려는 범위를 선택하세요.
+                <!--<span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                     Please pick a
                     <span class="variable1 font-weight-bold">variable</span>
                     by clicking on a category on the vertial axis of the chart.
@@ -294,17 +297,17 @@
                     Once a variable is selected, choose a
                     <span class="constant font-weight-bold">range</span>
                     by dragging the edge of the range brush.
-                </span>
+                </span>-->
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeConstant">
                 <p-indicator [p]="RangeEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -316,8 +319,9 @@
                     [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
             </div>
             <div class="alert guide p-2 m-1">
-                <span class="tip">TIP</span>
-                <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
+                <span class="tip">{{ L.Tip }}</span>
+                시각화 상의 범주를 <strong>오른쪽 클릭</strong>하여 비교하려는 두 번째 범주를 선택하세요.
+                <!--<span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                     Please pick the
                     <span class="variable1 font-weight-bold">first variable</span>
                     by clicking on a category on the vertial axis of the chart.
@@ -326,17 +330,17 @@
                     Then, pick the
                     <span class="variable2 font-weight-bold">second variable</span>
                     by <strong>right-clicking</strong> on a category.
-                </span>
+                </span>-->
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
                 <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createComparativeSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -347,15 +351,19 @@
                 <sg-distributive [highlighted]="highlighted" [query]="activeQuery"
                     [constant]="powerLawConstant" [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
+            <div class="alert guide p-2 m-1">
+                <span class="tip">{{ L.Tip }}</span>
+                세이프가드를 만들어 데이터의 분포가 어느 정도 Power Law를 따르는지 확인해 보세요.
+            </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -366,15 +374,19 @@
                 <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="normalConstant"
                     [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
+            <div class="alert guide p-2 m-1">
+                <span class="tip">{{ L.Tip }}</span>
+                세이프가드를 만들어 데이터의 분포가 어느 정도 정규 분포를 따르는지 확인해 보세요.
+            </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -385,15 +397,19 @@
                 <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="linearRegressionConstant"
                     [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
             </div>
+            <div class="alert guide p-2 m-1">
+                <span class="tip">{{ L.Tip }}</span>
+                세이프가드를 만들어 얼마나 두 축이 선형 관계에 있는지 확인해 보세요.
+            </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
-                    Create a Safeguard
+                    {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    Cancel
+                    {{ L.Cancel }}
                 </button>
             </div>
         </div>
@@ -404,19 +420,19 @@
 
 <ng-template #confirmRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title">Removing a query</h4>
+        <h4 class="modal-title">{{ L.RemovingVis }}</h4>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <div class="modal-body">
         <p>
-            Are you sure?
+            {{ L.RemovingVisAlert }}
         </p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="c()">Delete</button>
-        <button type="button" class="btn btn-outline-secondary" (click)="d()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="c()">{{ L.Remove }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="d()">{{ L.Cancel }}</button>
     </div>
 </ng-template>
 
@@ -429,14 +445,14 @@
     </div>
     <div class="modal-body">
         <p>
-            You cannot remove a query that has a safeguard on it.
+            {{ L.CannotRemoveSafeguardedVis }}
         </p>
     </div>
 </ng-template>
 
 <ng-template #dataViewerModal let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title">Data Viewer
+        <h4 class="modal-title"> {{ L.DataViewer }}
             <small>
                 (<ng-container *ngFor="let pred of dataViewerFilters.predicates index as i">
                     <field-badge [field]="pred.target" class="mr-1"></field-badge>
