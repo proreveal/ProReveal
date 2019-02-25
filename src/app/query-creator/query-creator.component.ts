@@ -5,7 +5,6 @@ import { FieldTrait, VlType } from '../data/field';
 import * as util from '../util';
 import { AndPredicate } from '../data/predicate';
 import { MeanApproximator, SumApproximator, MinApproximator, MaxApproximator, ApproximatorTrait } from '../data/approx';
-import { UniformNumBlocksSampler } from '../data/sampler';
 import { ExpConstants } from '../exp-constants';
 
 @Component({
