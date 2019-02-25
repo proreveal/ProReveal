@@ -11,8 +11,6 @@ import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator } from './safeguard/estimate';
 import { PunchcardRenderer } from './vis/renderers/punchcard';
@@ -97,6 +95,7 @@ export class AppComponent implements OnInit {
 
     isStudyMenuVisible = false;
     sampler = ExpConstants.sampler;
+    testMenu = false;
     markComplete = false;
 
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
@@ -114,7 +113,9 @@ export class AppComponent implements OnInit {
         const init = parameters.init || 0;
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
+
         this.isStudying = parameters.study || 0;
+        this.testMenu = parameters.test || 0;
 
         this.markComplete = parameters.complete || 0;
 
