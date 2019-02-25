@@ -8,7 +8,7 @@
         <div class="mr-auto">
             <button (click)="toggleMetadataEditor()" class="btn btn-sm btn-dark" id="open-metadata-editor">
                 <fa-icon icon="folder-open"></fa-icon>
-                <small> (movies.json)</small>
+                <small> ({{ this.data }}.json)</small>
             </button>
             <ng-container *ngIf="!isStudying || testMenu">
                 <span class="text-light navbar-text">
