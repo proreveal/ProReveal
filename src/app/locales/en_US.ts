@@ -30,6 +30,40 @@ export const Locale_en_US = Object.freeze({
     SplitBins: 'Split Bins',
     MergeBins: 'Merge Bins',
 
+    TooManyCategories1: 'There are too many categories. Click here to see all',
+    TooManyCategories2: 'categories.',
+
+    SeeOnlyTheseItems: 'See only these data items',
+    CreateASafeguard: 'Create a safeguard on this',
+
+    Value: 'Value',
+    Rank: 'Rank',
+    Range: 'Range',
+    Comparative: 'Comparative',
+    Normal: 'Normal',
+    Linear: 'Linear',
+
+    ShowDataItems: 'Show data items',
+
+    DataViewer: 'Data Viewer',
+
+    CannotRemoveSafeguardedVis: 'You cannot remove a query that has a safeguard on it.',
+    RemovingVis: 'Removing the visualization',
+    RemovingVisAlert: 'You are removing a visualization. Are you sure?',
+    Remove: 'Remove',
+
+    CreateSG: 'Create',
+    Tip: 'TIP',
+
+    TruthinessTrue: 'It holds at this moment!',
+    TruthinessFalse: 'It does not hold at this moment.',
+
+    P5: 'It holds certainly!',
+    P50: 'It holds probably.',
+    POther: 'It holds unlikely.',
+    KSStatistics: 'Kolmogorov-Smirnov Statistics',
+    RMSE: 'RMSE',
+
     SUM: 'SUM',
     MEAN: 'MEAN',
     MIN: 'MIN',

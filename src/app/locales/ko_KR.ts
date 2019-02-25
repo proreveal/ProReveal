@@ -29,6 +29,34 @@ export const Locale_ko_KR = Object.freeze({
     SplitBins: '구간 나누기',
     MergeBins: '구간 합치기',
 
+    TooManyCategories1: '한 축에 너무 많은 범주가 있습니다. 여기를 눌러',
+    TooManyCategories2: '개의 모든 범주를 확인해 보세요.',
+
+    SeeOnlyTheseItems: '이 데이터로만 시각화 만들기',
+    CreateSafeguardOnThis: '세이프가드 만들기',
+
+    Value: '값',
+    Rank: '순위',
+    Range: '범위',
+    Comparative: '비교',
+    Normal: '정규분포',
+    Linear: '선형 회귀',
+
+    ShowDataItems: '원본 데이터 보기',
+
+    DataViewer: '원본 데이터 보기',
+
+    CannotRemoveSafeguardedVis: '세이프가드가 있는 시각화는 지울 수 없습니다.',
+    RemovingVis: '시각화를 삭제합니다.',
+    RemovingVisAlert: '이 시각화를 삭제하려고 합니다. 삭제 하시겠습니까?',
+    Remove: '삭제',
+
+    CreateSG: '세이프가드 만들기',
+    Tip: '도움말',
+
+    KSStatistics: 'KS 통계량',
+    RMSE: '평균 제곱근 편차',
+
     SUM: '합',
     MEAN: '평균',
     MIN: '최소',
