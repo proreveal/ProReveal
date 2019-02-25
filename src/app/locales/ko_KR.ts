@@ -67,5 +67,6 @@ export const Locale_ko_KR = Object.freeze({
     SUM: '합',
     MEAN: '평균',
     MIN: '최소',
-    MAX: '최대'
+    MAX: '최대',
+    COUNT: '개수'
 });
