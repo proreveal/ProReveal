@@ -505,10 +505,12 @@ export class AppComponent implements OnInit {
         }
         else if (constant instanceof RankConstant) {
             this.rankConstant = constant;
-            // if (constant.rank >= value)
-            this.operator = Operators.LessThanOrEqualTo;
-            // else
-            //     this.operator = Operators.GreaterThanOrEqualTo;
+            let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1);
+
+            if (constant.rank >= value)
+                this.operator = Operators.LessThanOrEqualTo;
+            else
+                this.operator = Operators.GreaterThan;
         }
         else if (constant instanceof RangeConstant)
             this.rangeConstant = constant;
