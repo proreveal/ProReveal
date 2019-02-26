@@ -90,14 +90,10 @@ export class Engine {
     }
 
     runOne(noDelay = false) {
-        if (this.queue.empty()) return;
+        if (!this.queue.peep()) { this.isRunning = false; return; }
 
+        this.isRunning = true;
         const job = this.queue.pop();
-
-        if(!job) {
-            this.isRunning = false;
-            return;
-        }
 
         this.runningJob = job;
         job.query.recentProgress.ongoingBlocks = 1;
@@ -124,7 +120,15 @@ export class Engine {
                 this.queryDone(job.query);
         }
 
-        if(noDelay) body(); // no casecading
+        if(noDelay) {
+            body(); // no casecading
+            if(this.autoRun && this.queue.peep()) {
+                this.runOne();
+            }
+            else {
+                this.isRunning = false;
+            }
+        }
         else {
             let latency = this.gaussianRandom(ExpConstants.latencyMean, ExpConstants.latencyStdev);
             if(job.index === 0) latency = ExpConstants.initialLatency;
@@ -135,7 +139,7 @@ export class Engine {
             this.latencySubs = latencyTimer.subscribe(() => {
                 body();
 
-                if(this.autoRun) {
+                if(this.autoRun && this.queue.peep()) {
                     this.runOne();
                 }
                 else {
