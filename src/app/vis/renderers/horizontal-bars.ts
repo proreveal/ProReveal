@@ -258,18 +258,18 @@ export class HorizontalBarsRenderer {
                 .style('cursor', 'pointer')
                 .on('mouseenter', (d, i, ele) => {
                     this.showTooltip(d, i);
-                    d3.select(ele[i]).classed('hover-highlighted', true);
+                    d3.select(ele[i]).classed('hover', true);
                 })
                 .on('mouseleave', (d, i, ele) => {
                     this.hideTooltip(d, i);
-                    d3.select(ele[i]).classed('hover-highlighted', false);
+                    d3.select(ele[i]).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
                     this.datumSelected(d);
                     this.toggleDropdown(d, i);
 
                     let d3ele = d3.select(ele[i]);
-                    d3ele.classed('menu-open-highlighted', this.vis.selectedDatum === d);
+                    d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
                 .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -405,17 +405,18 @@ export class HorizontalBarsRenderer {
                 .style('fill', 'transparent')
                 .on('mouseenter', (d, i) => {
                     this.showTooltip(d, i);
-                    this.labels.filter(datum => datum == d).classed('hover-highlighted', true);
+                    this.labels.filter(datum => datum == d).classed('hover', true);
                 })
                 .on('mouseleave', (d, i) => {
                     this.hideTooltip(d, i);
-                    this.labels.filter(datum => datum == d).classed('hover-highlighted', false);
+                    this.labels.filter(datum => datum == d).classed('hover', false);
                 })
                 .on('click', (d, i) => {
+                    if(d.ci3 == EmptyConfidenceInterval) return;
                     this.datumSelected(d);
                     this.toggleDropdown(d, i);
 
-                    this.labels.filter(datum => datum == d).classed('menu-open-highlighted', this.vis.selectedDatum === d);
+                    this.labels.filter(datum => datum == d).classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
                 .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -649,12 +650,11 @@ export class HorizontalBarsRenderer {
             .classed('highlighted', true)
 
         this.labels
-            .classed('sg-highlighted', false)
-            .filter((d) =>
-                this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
+            .classed('highlighted', false)
+            .filter((d) => this.variable1 && this.variable1.fieldGroupedValue.hash === d.keys.list[0].hash ||
                 this.variable2 && this.variable2.fieldGroupedValue.hash === d.keys.list[0].hash
             )
-            .classed('sg-highlighted', true)
+            .classed('highlighted', true)
 
         this.eventBoxes
             .classed('variable2', false)
@@ -902,6 +902,6 @@ export class HorizontalBarsRenderer {
     }
 
     emptySelectedDatum() {
-        this.labels.classed('menu-open-highlighted', false);
+        this.labels.classed('menu-highlighted', false);
     }
 }

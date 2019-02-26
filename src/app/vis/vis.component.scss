@@ -160,41 +160,41 @@ svg.hidden {
     fill: transparent;
 }
 
-::ng-deep vis .hover-highlighted {
+::ng-deep vis text.hover {
     fill: $variable1-highlight-color;
     stroke: $variable1-highlight-color;
     stroke-width: .5px;
 }
 
-::ng-deep vis .horizontal-bars .menu-open-highlighted {
+::ng-deep vis .horizontal-bars text.highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep vis .variable1.highlighted {
+::ng-deep vis .horizontal-bars text.menu-highlighted {
+    fill: darken($variable1-highlight-color, 3%);
+    stroke: darken($variable1-highlight-color, 3%);
+    stroke-width: .5px;
+    font-weight: bold;
+}
+
+::ng-deep vis .horizontal-bars text.variable2.highlighted {
+    fill: darken($variable2-highlight-color, 3%);
+    stroke: darken($variable2-highlight-color, 3%);
+    stroke-width: .5px;
+    font-weight: bold;
+}
+
+::ng-deep vis .horizontal-bars rect.highlighted {
     fill: lighten($variable1-highlight-color, 0%);
     opacity: 0.2;
 }
 
-::ng-deep vis .variable2.highlighted {
+::ng-deep vis .horizontal-bars rect.variable2.highlighted {
     fill: lighten($variable2-highlight-color, 0%);
     opacity: 0.2;
-}
-
-::ng-deep vis .variable1.sg-highlighted {
-    fill: darken($variable1-highlight-color, 10%);
-    stroke: darken($variable1-highlight-color, 10%);
-    stroke-width: .5px;
-    font-weight: bold;
-}
-
-::ng-deep vis .variable2.sg-highlighted {
-    fill: darken($variable2-highlight-color, 10%);
-    stroke: darken($variable2-highlight-color, 10%);
-    stroke-width: .5px;
-    font-weight: bold;
 }
 
 ::ng-deep vis .constant.highlighted {
@@ -207,9 +207,30 @@ svg.hidden {
     stroke-width: 1px;
 }
 
-::ng-deep vis .punchcard .menu-open-highlighted {
+::ng-deep vis .punchcard rect.menu-highlighted {
     stroke: lighten($variable1-highlight-color, 3%);
     stroke-width: 3px;
+}
+
+::ng-deep vis .punchcard text.menu-highlighted {
+    fill: darken($variable1-highlight-color, 3%);
+    stroke: darken($variable1-highlight-color, 3%);
+    stroke-width: .5px;
+    font-weight: bold;
+}
+
+::ng-deep vis .punchcard text.highlighted {
+    fill: darken($variable1-highlight-color, 3%);
+    stroke: darken($variable1-highlight-color, 3%);
+    stroke-width: .5px;
+    font-weight: bold;
+}
+
+::ng-deep vis .punchcard text.variable2.highlighted {
+    fill: darken($variable2-highlight-color, 3%);
+    stroke: darken($variable2-highlight-color, 3%);
+    stroke-width: .5px;
+    font-weight: bold;
 }
 
 ::ng-deep vis .punchcard .variable1.stroke-highlighted {

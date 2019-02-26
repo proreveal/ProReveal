@@ -48,6 +48,10 @@ export class PunchcardRenderer {
     xValuesCount: number;
     yValuesCount: number;
 
+    xTopLabels: d3.Selection<d3.BaseType, FieldGroupedValue, d3.BaseType, {}>;
+    xBottomLabels: d3.Selection<d3.BaseType, FieldGroupedValue, d3.BaseType, {}>;
+    yLabels: d3.Selection<d3.BaseType, FieldGroupedValue, d3.BaseType, {}>;
+
     limitNumCategories = true;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService) {
@@ -220,7 +224,7 @@ export class PunchcardRenderer {
                 .attr('font-size', '.8rem')
                 .attr('dy', '.8rem')
 
-            yLabels.merge(enter)
+            this.yLabels = yLabels.merge(enter)
                 .attr('transform', (d) => translate(yFieldLabelWidth + yLabelWidth - C.padding, yScale(d.hash)))
                 .text(d => d.valueString())
 
@@ -237,7 +241,7 @@ export class PunchcardRenderer {
                 .style('text-anchor', 'start')
                 .attr('font-size', '.8rem')
 
-            xTopLabels.merge(enter)
+            this.xTopLabels = xTopLabels.merge(enter)
                 .attr('transform', (d) =>
                     translate(xScale(d.hash) + xScale.bandwidth() / 2, header - C.padding) + 'rotate(-45)')
                 .text(d => d.valueString())
@@ -252,7 +256,7 @@ export class PunchcardRenderer {
                 .style('text-anchor', 'start')
                 .attr('font-size', '.8rem')
 
-            xBottomLabels.merge(enter)
+            this.xBottomLabels = xBottomLabels.merge(enter)
                 .attr('transform', (d) =>
                     translate(xScale(d.hash) + xScale.bandwidth() / 2, height - header + yScale.bandwidth() / 2) + 'rotate(45)')
                 .text(d => d.valueString())
@@ -323,16 +327,31 @@ export class PunchcardRenderer {
             })
             .attr('fill', 'transparent')
             .style('cursor', (d) => d.ci3 === EmptyConfidenceInterval ? 'auto' : 'pointer')
-            .on('mouseenter', (d, i) => { this.showTooltip(d); })
-            .on('mouseleave', (d, i) => { this.hideTooltip(); })
+            .on('mouseenter', (d, i) => {
+                this.showTooltip(d);
+
+                this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
+                this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
+                this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', true);
+            })
+            .on('mouseleave', (d, i) => {
+                this.hideTooltip();
+
+                this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
+                this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
+                this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', false);
+            })
             .on('click', (d, i, ele) => {
                 if (d.ci3 == EmptyConfidenceInterval) return;
                 this.datumSelected(d);
-
                 this.toggleDropdown(d, i);
 
                 let d3ele = d3.select(ele[i]);
-                d3ele.classed('menu-open-highlighted', this.vis.selectedDatum === d);
+                d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
+
+                this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
             })
             .on('contextmenu', (d) => this.datumSelected2(d))
 
@@ -370,7 +389,6 @@ export class PunchcardRenderer {
                 .style('top', 'auto')
         }
         else {
-            // console.log(nativeSvg.getBoundingClientRect(), parentOffsetTop);
             floatingSvgWrapper
                 .style('position', 'absolute')
                 .style('left', `${matrixWidth}px`)
@@ -506,9 +524,45 @@ export class PunchcardRenderer {
             )
             .classed('stroke-highlighted', true)
 
+        this.xTopLabels
+            .classed('highlighted', false)
+            .filter((d) => (this.variable1 && this.variable1.first.fieldGroupedValue.hash === d.hash) ||
+                    (this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
+            )
+            .classed('highlighted', true)
+
+        this.xBottomLabels
+            .classed('highlighted', false)
+            .filter((d) => (this.variable1 && this.variable1.first.fieldGroupedValue.hash === d.hash) ||
+                    (this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
+            )
+            .classed('highlighted', true)
+
+        this.yLabels
+            .classed('highlighted', false)
+            .filter((d) => (this.variable1 && this.variable1.second.fieldGroupedValue.hash === d.hash) ||
+                    (this.variable2 && this.variable2.second.fieldGroupedValue.hash === d.hash)
+            )
+            .classed('highlighted', true)
+
         this.eventBoxes
             .classed('variable2', false)
             .filter((d) => this.variable2 && this.variable2.hash === d.keys.hash)
+            .classed('variable2', true)
+
+        this.xTopLabels
+            .classed('variable2', false)
+            .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
+            .classed('variable2', true)
+
+        this.xBottomLabels
+            .classed('variable2', false)
+            .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
+            .classed('variable2', true)
+
+        this.yLabels
+            .classed('variable2', false)
+            .filter((d) => this.variable2 && this.variable2.second.fieldGroupedValue.hash === d.hash)
             .classed('variable2', true)
     }
 
@@ -544,7 +598,7 @@ export class PunchcardRenderer {
         this.logger.log(LogType.DatumSelected, {
             datum: d.toLog(),
             data: this.data.map(d => d.toLog())
-        });this.logger.log(LogType.DatumSelected, d.toLog());
+        });
 
         let variable = new CombinedVariable(
             new SingleVariable(d.keys.list[0]),
@@ -703,6 +757,9 @@ export class PunchcardRenderer {
     }
 
     emptySelectedDatum() {
-        this.eventBoxes.classed('menu-open-highlighted', false);
+        this.eventBoxes.classed('menu-highlighted', false);
+        this.xTopLabels.classed('menu-highlighted', false);
+        this.xBottomLabels.classed('menu-highlighted', false);
+        this.yLabels.classed('menu-highlighted', false);
     }
 }
