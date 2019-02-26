@@ -104,6 +104,7 @@
         </section>
         <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
             {{ L.OngoingVisualization }}
+
             <div class="form-check round-robin mr-2">
                 <input class="form-check-input" type="checkbox" id="roundrobin"
                     [(ngModel)]="roundRobin" (change)="roundRobinChange()">
@@ -112,42 +113,55 @@
                 </label>
             </div>
         </h6>
-        <section id="ongoing-query-view" class="styled-scroll bg-light" [sortablejs]="engine.ongoingQueries"
-            [sortablejsOptions]="sortablejsOptions">
-            <div *ngFor="let query of engine.ongoingQueries">
-                <div class="query d-flex flex-row" (click)="querySelected(query)"
-                    [class.selected]="activeQuery === query"
-                    [class.highlighted]="highlightedQuery === query">
-                    <progress-ring
-                        [processed]="query.recentProgress.processedPercent()"
-                        [ongoing]="query.recentProgress.ongoingPercent()"
-                        [style.opacity]="query.state === QS.Paused ? 0.2 : 1"></progress-ring>
-                    <div class="field-names m-0 p-0 ml-2">
-                        <div *ngFor="let field of query.fields">
-                            <field-badge [field]="field"></field-badge>
-                            {{ field.name }}
-                        </div>
-                        <div *ngIf="query.where.length > 0" class="filtered-by">
-                            FILTERED BY
-                        </div>
-                        <div *ngFor="let pred of query.where.predicates">
-                            <field-badge [field]="pred.target" class="mr-1"></field-badge>
-                            <predicate-indicator [predicate]="pred"></predicate-indicator>
-                        </div>
-                    </div>
-                    <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
-                    <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
 
-                    <div class="actions">
-                        <button class="px-2 py-1" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
-                            <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                        </button>
-                        <button class="px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
-                            <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                        </button>
-                        <button class="px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
-                            <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                        </button>
+        <section id="ongoing-query-view">
+            <div class="btn-group w-100 rounded-0" role="group">
+                <button type="button" class="btn btn-sm btn-light w-50 border-right" (click)="runAll()">
+                    <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                    모두 시작
+                </button>
+                <button type="button" class="btn btn-sm btn-light w-50" (click)="pauseAll()">
+                    <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                    모두 중단
+                </button>
+            </div>
+            <div id="queries" class="styled-scroll bg-light" [sortablejs]="engine.ongoingQueries"
+                [sortablejsOptions]="sortablejsOptions">
+                <div *ngFor="let query of engine.ongoingQueries">
+                    <div class="query d-flex flex-row" (click)="querySelected(query)"
+                        [class.selected]="activeQuery === query"
+                        [class.highlighted]="highlightedQuery === query">
+                        <progress-ring
+                            [processed]="query.recentProgress.processedPercent()"
+                            [ongoing]="query.recentProgress.ongoingPercent()"
+                            [style.opacity]="query.state === QS.Paused ? 0.2 : 1"></progress-ring>
+                        <div class="field-names m-0 p-0 ml-2">
+                            <div *ngFor="let field of query.fields">
+                                <field-badge [field]="field"></field-badge>
+                                {{ field.name }}
+                            </div>
+                            <div *ngIf="query.where.length > 0" class="filtered-by">
+                                FILTERED BY
+                            </div>
+                            <div *ngFor="let pred of query.where.predicates">
+                                <field-badge [field]="pred.target" class="mr-1"></field-badge>
+                                <predicate-indicator [predicate]="pred"></predicate-indicator>
+                            </div>
+                        </div>
+                        <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
+                        <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
+
+                        <div class="actions">
+                            <button class="px-2 py-1" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
+                                <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                            </button>
+                            <button class="px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
+                                <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                            </button>
+                            <button class="px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
+                                <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

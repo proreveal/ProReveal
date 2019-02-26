@@ -271,6 +271,21 @@ export class AppComponent implements OnInit {
         return false;
     }
 
+    runAll() {
+        this.queries.forEach(query => {
+            query.run();
+        });
+        this.engine.reschedule();
+        if(this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
+    }
+
+    pauseAll() {
+        this.queries.forEach(query => {
+            query.pause();
+        });
+        this.engine.reschedule();
+    }
+
     highlighted = 0;
     highlight(highlighted: number) {
         this.highlighted = highlighted;

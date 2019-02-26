@@ -101,6 +101,13 @@
 #ongoing-query-view {
     grid-row: 3;
     grid-column: 2;
+
+    display: grid;
+    grid-template-rows: 30px 1fr;
+}
+
+#queries {
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
 }
