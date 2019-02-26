@@ -66,7 +66,7 @@
         "unit": "USD"
     },
     {
-        "name": "비행 속도(노트)",
+        "name": "비행 속도",
         "type": "quantitative",
         "min": 0,
         "max": 350

@@ -140,9 +140,9 @@ export class AppComponent implements OnInit {
                         this.create(new EmptyQuery(dataset, this.sampler).combine(field));
                 });
 
-                this.querySelected(this.engine.ongoingQueries[5]);
+                this.querySelected(this.engine.ongoingQueries[0]);
 
-                this.runMany(520);
+                //this.runMany(520);
             }
 
             if(this.isStudying)

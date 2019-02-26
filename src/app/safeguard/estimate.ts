@@ -23,6 +23,7 @@ export function estimateTwoConfidenceIntervals(ai1: ApproximatedInterval, ai2: A
     const diff = ai1.center - ai2.center;
 
     let z = diff / s_star;
+    if(n == N) return diff > 0 ? 1 : 0;
     let cp = normal.cdf(z);
 
     return cp;

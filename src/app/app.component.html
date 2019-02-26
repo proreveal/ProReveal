@@ -15,11 +15,11 @@
                     Test menu
                 </span>
                 &nbsp;
-                <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.isRunning">
+                <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.autoRun">
                     <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     Auto Run
                 </button>
-                <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.isRunning">
+                <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.autoRun">
                     <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     Pause
                 </button>
