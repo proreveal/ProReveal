@@ -337,7 +337,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                시각화 상의 범주를 <strong>오른쪽 클릭</strong>하여 비교하려는 두 번째 범주를 선택하세요.
+                시각화 상의 범주를 <strong class="variable2">오른쪽 클릭</strong>하여 비교하려는 두 번째 범주를 선택하세요.
                 <!--<span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
                     Please pick the
                     <span class="variable1 font-weight-bold">first variable</span>
@@ -353,7 +353,9 @@
                 <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
             <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createComparativeSafeguard()">
+                <button class="btn btn-success border-right-0 mr-1"
+                    [disabled]="!variablePair && !combinedVariablePair"
+                (click)="createComparativeSafeguard()">
                     {{ L.CreateSG }}
                 </button>
                 <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
