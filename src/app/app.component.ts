@@ -656,7 +656,7 @@ export class AppComponent implements OnInit {
         }
 
         this.logger.log(LogType.Done, {
-            safegaurds: this.safeguards.map(sg => sg.toLog()),
+            safeguards: this.safeguards.map(sg => sg.toLog()),
             data: data
         })
     }

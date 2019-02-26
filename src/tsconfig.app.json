@@ -9,6 +9,7 @@
   },
   "exclude": [
     "src/test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "analyze/*.ts"
   ]
 }
