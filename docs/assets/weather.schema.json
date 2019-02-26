@@ -19,14 +19,14 @@
         "numBins": 20
     },
     {
-        "name":  "온도(최대)",
+        "name":  "최대 온도",
         "type": "quantitative",
         "min": -10,
         "max": 40,
         "numBins": 20
     },
     {
-        "name":  "온도(최소)",
+        "name":  "최소 온도",
         "type": "quantitative",
         "min": -20,
         "max": 30,
