@@ -398,12 +398,27 @@ export class HorizontalBarsRenderer {
                 .enter().append('rect').attr('class', 'bar-event-box');
 
             barEventBoxes.merge(enter)
+                .style('cursor', 'pointer')
                 .attr('height', yScale.bandwidth())
                 .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.low))
                 .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
                 .style('fill', 'transparent')
-                .on('mouseenter', (d, i) => { this.showTooltip(d, i); })
-                .on('mouseleave', (d, i) => { this.hideTooltip(d, i); })
+                .on('mouseenter', (d, i) => {
+                    this.showTooltip(d, i);
+                    this.labels.filter(datum => datum == d).classed('hover-highlighted', true);
+                })
+                .on('mouseleave', (d, i) => {
+                    this.hideTooltip(d, i);
+                    this.labels.filter(datum => datum == d).classed('hover-highlighted', false);
+                })
+                .on('click', (d, i) => {
+                    this.datumSelected(d);
+                    this.toggleDropdown(d, i);
+
+                    this.labels.filter(datum => datum == d).classed('menu-open-highlighted', this.vis.selectedDatum === d);
+                })
+                .on('contextmenu', (d) => this.datumSelected2(d))
+
 
             barEventBoxes.exit().remove();
         }
