@@ -64,7 +64,7 @@ export const Locale_ko_KR = Object.freeze({
     KSStatistics: 'KS 통계량',
     RMSE: '평균 제곱근 편차',
 
-    SUM: '합',
+    SUM: '합계',
     MEAN: '평균',
     MIN: '최소',
     MAX: '최대',

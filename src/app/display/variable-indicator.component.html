@@ -1,7 +1,7 @@
 <span class="{{ className }} pr-1" [class.highlighted]="highlighted"
-    *ngIf="!variable"><span *ngIf="isRank">Rank(</span>V(<span class="placeholder {{ className }}"></span>)<span *ngIf="isRank">)</span></span>
+    *ngIf="!variable"><span *ngIf="isRank">{{ L['Rank'] }}</span>V(<span class="placeholder {{ className }}"></span>)<span *ngIf="isRank">)</span></span>
 <span *ngIf="variable" class="{{ className }} pr-1" [class.highlighted]="highlighted">
-    <span *ngIf="isRank">Rank(</span>{{ query.approximator.name }}(<!--
+    <span *ngIf="isRank">{{ L['Rank'] }}(</span>{{ L[query.approximator.name.toUpperCase()] }}(<!--
 --><span *ngIf="query.approximator.requireTargetField">{{ query.target.name }}</span><!--
 --><span *ngIf="!query.approximator.requireTargetField">*</span>)<!--
 --><span *ngIf="isRank">)</span><!--

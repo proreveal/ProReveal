@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AggregateQuery } from '../data/query';
 import { FieldTrait, QuantitativeField } from '../data/field';
+import { Constants } from '../constants';
 
 @Component({
     selector: 'variable-indicator',
@@ -13,6 +14,8 @@ export class VariableIndicatorComponent implements OnInit {
     @Input('isRank') isRank: boolean;
     @Input('highlighted') highlighted:boolean;
     @Input('query') query: AggregateQuery;
+
+    L = Constants.locale;
 
     constructor() { }
 
