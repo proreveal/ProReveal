@@ -462,6 +462,7 @@ export class HorizontalBarsRenderer {
             else if (this.safeguardType === SGT.Rank) {
                 let index = Math.round((center - C.horizontalBars.axis.height - C.horizontalBars.label.height)
                     / C.horizontalBars.height)
+                if(index <= 0) index = 1;
                 let constant = new RankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
@@ -474,7 +475,6 @@ export class HorizontalBarsRenderer {
             }
         })
 
-        // update this.variableType = VT.Value or VT.Rank
         this.updateBrushWithVariableType();
 
         if (!this.constant) this.setDefaultConstantFromVariable();
