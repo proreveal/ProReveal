@@ -110,6 +110,7 @@ export class AppComponent implements OnInit {
 
         const data = parameters.data || "birdstrikes";
         const init = parameters.init || 0;
+        const run = parameters.run || 0;
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
 
@@ -140,65 +141,12 @@ export class AppComponent implements OnInit {
 
                 this.querySelected(this.engine.ongoingQueries[0]);
 
-                this.runMany(5);
+                if(run > 0) this.runMany(run);
             }
 
             if(this.isStudying)
                 this.engine.run();
         })
-    }
-
-    testEqualWhere() {
-        let whereField = this.engine.dataset.getFieldByName('Creative_Type');
-        let where = new AndPredicate([new EqualPredicate(whereField, 'Contemporary Fiction')]);
-
-        let visField = this.engine.dataset.getFieldByName('IMDB_Rating');
-
-        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(visField);
-        query.where = where;
-
-        this.create(query, Priority.Highest);
-
-        this.runMany(10);
-    }
-
-    testC() {
-        this.runMany(5);
-    }
-
-    testN() {
-        this.querySelected(this.engine.ongoingQueries[4]);
-        this.runMany(145);
-    }
-
-    testCN() {
-        let field1 = this.engine.dataset.getFieldByName('Creative_Type');
-        let field2 = this.engine.dataset.getFieldByName('Production_Budget');
-
-        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(field1).combine(field2);
-        this.create(query, Priority.Highest);
-
-        this.runMany(5);
-    }
-
-    testNN() {
-        let field1 = this.engine.dataset.getFieldByName('Production_Budget');
-        let field2 = this.engine.dataset.getFieldByName('IMDB_Rating');
-
-        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(field1).combine(field2);
-        this.create(query, Priority.Highest);
-
-        this.runMany(10);
-    }
-
-    testCC() {
-        let field1 = this.engine.dataset.getFieldByName('Creative_Type');
-        let field2 = this.engine.dataset.getFieldByName('Major_Genre');
-
-        let query = (new EmptyQuery(this.engine.dataset, this.sampler)).combine(field1).combine(field2);
-        this.create(query, Priority.Highest)
-
-        // this.runMany(10);
     }
 
     create(query: AggregateQuery, priority = Priority.Lowest) {
