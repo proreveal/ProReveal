@@ -197,7 +197,7 @@ svg.hidden {
     opacity: 0.2;
 }
 
-::ng-deep vis .constant.highlighted {
+::ng-deep vis .horizontal-bars .constant.highlighted {
     fill: lighten($constant-highlight-color, 0%);
     opacity: 0.2;
 }

@@ -456,15 +456,15 @@ export class HorizontalBarsRenderer {
 
             this.constantHighlight1 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-top')
                 .attr('width', width - C.padding - labelWidth)
-                .attr('height', C.horizontalBars.axis.height)
+                .attr('height', C.horizontalBars.axis.height - C.padding)
                 .attr('transform', translate(labelWidth, 0))
                 .style('display', 'none')
                 .style('pointer-events', 'none')
 
             this.constantHighlight2 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-bottom')
                 .attr('width', width - C.padding - labelWidth)
-                .attr('height', C.horizontalBars.axis.height)
-                .attr('transform', translate(labelWidth, height - C.horizontalBars.axis.height))
+                .attr('height', C.horizontalBars.axis.height - C.padding)
+                .attr('transform', translate(labelWidth, height - C.horizontalBars.axis.height + C.padding))
                 .style('display', 'none')
                 .style('pointer-events', 'none')
         }

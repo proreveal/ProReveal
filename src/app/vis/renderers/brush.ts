@@ -236,7 +236,12 @@ export class FlexBrush<Datum> {
         })
 
         if (this.mode == FlexBrushMode.Point) {
-            this.g.selectAll('rect.selection').style('pointer-events', 'all').style('cursor', 'move');
+            this.g.selectAll('rect.selection')
+                .style('pointer-events', 'all')
+                .style('cursor', 'move')
+                .style('fill', '#FF6F00')
+                .style('fill-opacity', .5)
+                ;
             this.g.selectAll('.handle').attr('display', 'none')
             this.g.selectAll('rect.overlay').style('display', 'none');
         }
@@ -273,7 +278,7 @@ export class FlexBrush<Datum> {
 
             g.call(this.brush.move as any, [start, end]);
 
-            this.handleG.style('display', 'inline');
+            this.handleG.style('display', 'none');
             this.handleG1.style('display', 'none');
             this.handleG2.style('display', 'none');
         }
