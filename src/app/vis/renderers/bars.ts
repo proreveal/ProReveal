@@ -454,7 +454,27 @@ export class BarsRenderer {
             }
         })
 
-        this.updateBrushWithVariableType();
+        if (this.safeguardType == SGT.Value || this.safeguardType == SGT.Range) {
+            this.brush.snap = null;
+
+            this.brush.setDirection(BrushDirection.X);
+            this.brush.render([[labelWidth, C.bars.axis.height - C.padding],
+            [width - C.padding, height - C.bars.axis.height + C.padding]]);
+        }
+        else if(this.safeguardType === SGT.Rank) {
+            let start = C.bars.axis.height + C.bars.label.height;
+            let step = C.bars.height;
+
+            this.brush.setDirection(BrushDirection.Y);
+            this.brush.hideReferenceLine();
+            this.brush.snap = d => {
+                let index = Math.round((d - start) / step);
+                return Math.max(1, index) * step + start;
+            };
+
+            this.brush.render([[0, C.bars.axis.height],
+            [width, height - C.bars.axis.height]]);
+        }
 
         if (!this.constant) this.setDefaultConstantFromVariable();
 
@@ -466,42 +486,42 @@ export class BarsRenderer {
         if (DistributiveSafeguardTypes.includes(this.safeguardType)) this.distributionLine.show();
         else this.distributionLine.hide();
 
-        if (this.constant) {
-            if (this.safeguardType === SGT.Value) {
+        if(this.variable1 && this.safeguardType === SGT.Value) {
+            let d = this.getDatum(this.variable1);
+            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+
+            if(this.constant) {
                 let center = xScale((this.constant as ValueConstant).value);
                 this.brush.move(center);
             }
-            else if (this.safeguardType === SGT.Rank) {
+        }
+        else if (this.variable1 && this.safeguardType === SGT.Rank) {
+            if(this.constant) {
                 let center = yScale((this.constant as RankConstant).rank.toString());
                 this.brush.move(center);
             }
-            else if (this.safeguardType === SGT.Range) {
+        }
+        else if(this.variable1 && this.safeguardType === SGT.Range) {
+            let d = this.getDatum(this.variable1);
+            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+            this.brush.setCenter(this.xScale(d.ci3.center));
+
+            if(this.constant) {
                 let oldRange = (this.constant as RangeConstant).range;
                 let half = (oldRange[1] - oldRange[0]) / 2;
                 let newCenter = this.getDatum(this.variable1).ci3.center;
                 let xDomain = xScale.domain();
+
                 if(xDomain[0] > newCenter - half) { half = newCenter - xDomain[0]; }
-                if(xDomain[1] < newCenter + half) { half = xDomain[1] - newCenter; }
+                if(xDomain[1] < newCenter + half) { half = Math.min(half, xDomain[1] - newCenter); }
 
                 let range = [newCenter - half, newCenter + half] as Range;
 
-                this.constant = new RangeConstant(range[0], range[1]);
+                let constant = new RangeConstant(range[0], range[1]);
 
-                this.brush.setCenter(this.xScale(newCenter));
-                this.brush.move(range.map(this.xScale) as Range);
-                this.vis.constantSelected.emit(this.constant);
-                this.constantUserChanged(this.constant);
+                this.vis.constantSelected.emit(constant);
+                this.constantUserChanged(constant);
             }
-        }
-
-        if(this.safeguardType === SGT.Value) {
-
-        }
-        else if (this.safeguardType === SGT.Rank) {
-
-        }
-        else if(this.safeguardType === SGT.Range) {
-
         }
         else if (this.safeguardType === SGT.PowerLaw) {
             this.distributionLine.render(
@@ -557,32 +577,6 @@ export class BarsRenderer {
         }
     }
 
-    updateBrushWithVariableType() {
-        const labelWidth = this.labelWidth;
-        const width = this.width, height = this.height;
-
-        if (this.safeguardType == SGT.Value || this.safeguardType == SGT.Range) {
-            this.brush.snap = null;
-
-            this.brush.setDirection(BrushDirection.X);
-            this.brush.render([[labelWidth, C.bars.axis.height - C.padding],
-            [width - C.padding, height - C.bars.axis.height + C.padding]]);
-        }
-        else if(this.safeguardType === SGT.Rank) {
-            let start = C.bars.axis.height + C.bars.label.height;
-            let step = C.bars.height;
-
-            this.brush.setDirection(BrushDirection.Y);
-            this.brush.snap = d => {
-                let index = Math.round((d - start) / step);
-                return Math.max(1, index) * step + start;
-            };
-
-            this.brush.render([[0, C.bars.axis.height],
-            [width, height - C.bars.axis.height]]);
-        }
-    }
-
     updateHighlight() {
         this.eventBoxes
             .classed('highlighted', false)
@@ -624,7 +618,7 @@ export class BarsRenderer {
             this.brush.move(center);
         }
         else if (this.safeguardType === SGT.Range) {
-            let range = (constant as RangeConstant).range.map(this.xScale) as [number, number];
+            let range = (constant as RangeConstant).range.map(this.xScale) as Range;
             this.brush.setCenter((range[0] + range[1]) / 2);
             this.brush.show();
             this.brush.move(range);
