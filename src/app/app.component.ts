@@ -73,9 +73,6 @@ export class AppComponent implements OnInit {
     combinedVariable2: CombinedVariable;
     combinedVariablePair: CombinedVariablePair;
 
-    useLinear = false;
-    useNormal = true;
-
     valueConstant: ValueConstant = new ValueConstant(0);
     rankConstant: RankConstant = new RankConstant(1);
 
@@ -87,6 +84,8 @@ export class AppComponent implements OnInit {
 
     dataViewerFilters: AndPredicate;
     filteredRows: any[] = [];
+
+    alternate = false;
 
     operator = Operators.LessThanOrEqualTo;
 
@@ -121,7 +120,7 @@ export class AppComponent implements OnInit {
         this.markComplete = parameters.complete || 0;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
-        if(this.roundRobin)
+        if(this.alternate)
             this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
         this.engine.queryDone = this.queryDone.bind(this);
@@ -141,7 +140,7 @@ export class AppComponent implements OnInit {
 
                 this.querySelected(this.engine.ongoingQueries[0]);
 
-                this.runMany(50);
+                this.runMany(5);
             }
 
             if(this.isStudying)
@@ -402,13 +401,9 @@ export class AppComponent implements OnInit {
             this.powerLawConstant = new PowerLawConstant();
             this.normalConstant = new NormalConstant();
 
-            this.useLinear = false;
 
-            if (this.activeQuery instanceof Histogram2DQuery && DistributiveSafeguardTypes.includes(sgt)) {
-                this.useLinear = true;
-            }
-            else if (DistributiveSafeguardTypes.includes(sgt)) {
-                (this.vis.renderer as BarsRenderer).setDefaultConstantFromVariable(true);
+            if (DistributiveSafeguardTypes.includes(sgt)) {
+                this.vis.renderer.setDefaultConstantFromVariable(true);
                 this.vis.forceUpdate();
             }
 
@@ -417,11 +412,6 @@ export class AppComponent implements OnInit {
 
             this.logger.log(LogType.SafeguardSelected, sgt);
         }
-    }
-
-    useNormalToggled() {
-        (this.vis.renderer as BarsRenderer).setDefaultConstantFromVariable(true);
-        this.vis.forceUpdate();
     }
 
     checkOrder() {
@@ -601,10 +591,9 @@ export class AppComponent implements OnInit {
     }
 
     // ongoing query list
-    roundRobin = true;
-    roundRobinChange() {
+    alternateChange() {
         let scheduler;
-        if (this.roundRobin) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
+        if (this.alternate) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
         else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
 
         this.logger.log(LogType.SchedulerChanged, scheduler.name);
