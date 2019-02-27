@@ -11,7 +11,7 @@ import { VisComponent } from '../vis.component';
 import { ConstantTrait, ValueConstant, RangeConstant, LinearRegressionConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { CombinedVariable, SingleVariable } from '../../safeguard/variable';
-import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
+import { HeatmapTooltipComponent } from './heatmap-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
@@ -24,7 +24,7 @@ import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 
 type Range = [number, number];
 
-export class PunchcardRenderer {
+export class HeatmapRenderer {
     gradient = new Gradient();
     data: Datum[];
     xScale: d3.ScaleBand<string>;
@@ -59,7 +59,7 @@ export class PunchcardRenderer {
 
     setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
         if (query.groupBy.fields.length !== 2) {
-            throw 'Punchcards can be used for 2 categories!';
+            throw 'Heatmaps can be used for 2 categories!';
         }
 
         let svg = d3.select(nativeSvg);
@@ -67,7 +67,7 @@ export class PunchcardRenderer {
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
-        this.visG.classed('punchcard', true);
+        this.visG.classed('heatmap', true);
 
         this.query = query;
         this.nativeSvg = nativeSvg;
@@ -145,8 +145,8 @@ export class PunchcardRenderer {
         }
 
         if (this.limitNumCategories) {
-            xValues = xValues.slice(0, C.punchcard.initiallyVisibleCategories);
-            yValues = yValues.slice(0, C.punchcard.initiallyVisibleCategories);
+            xValues = xValues.slice(0, C.heatmap.initiallyVisibleCategories);
+            yValues = yValues.slice(0, C.heatmap.initiallyVisibleCategories);
 
             let xKeys = {}, yKeys = {};
             xValues.forEach(v => xKeys[v.hash] = true);
@@ -158,20 +158,20 @@ export class PunchcardRenderer {
         const yLabelWidth = d3.max(yValues, v => measure('~' + v.valueString()).width) || 0;
         const xLabelWidth = d3.max(xValues, v => measure('~' + v.valueString()).width) || 0;
 
-        const xFieldLabelHeight = C.punchcard.label.x.height;
-        const yFieldLabelWidth = C.punchcard.label.y.width;
+        const xFieldLabelHeight = C.heatmap.label.x.height;
+        const yFieldLabelWidth = C.heatmap.label.y.width;
 
-        const header = 1.414 / 2 * (C.punchcard.columnWidth + xLabelWidth) + xFieldLabelHeight
-        const height = C.punchcard.rowHeight * yValues.length + header * 2;
+        const header = 1.414 / 2 * (C.heatmap.columnWidth + xLabelWidth) + xFieldLabelHeight
+        const height = C.heatmap.rowHeight * yValues.length + header * 2;
 
         const matrixWidth = xValues.length > 0 ?
-            (yFieldLabelWidth + yLabelWidth + C.punchcard.columnWidth * (xValues.length - 1) + header) : 0;
-        const width = matrixWidth + C.punchcard.legendSize * 1.2;
+            (yFieldLabelWidth + yLabelWidth + C.heatmap.columnWidth * (xValues.length - 1) + header) : 0;
+        const width = matrixWidth + C.heatmap.legendSize * 1.2;
 
         this.matrixWidth = matrixWidth;
 
         d3.select(nativeSvg).attr('width', width)
-            .attr('height', Math.max(height, C.punchcard.legendSize + C.punchcard.legendPadding * 2));
+            .attr('height', Math.max(height, C.heatmap.legendSize + C.heatmap.legendPadding * 2));
 
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
             .range([yFieldLabelWidth + yLabelWidth, matrixWidth - header]);
@@ -357,8 +357,8 @@ export class PunchcardRenderer {
 
         eventBoxes.exit().remove();
 
-        const size = C.punchcard.legendSize;
-        const padding = C.punchcard.legendPadding;
+        const size = C.heatmap.legendSize;
+        const padding = C.heatmap.legendPadding;
         let legend = vsup.legend.arcmapLegend()
             .scale(zScale).size(size);
         let floatingSvgWrapper = d3.select(floatingSvg);
@@ -660,7 +660,7 @@ export class PunchcardRenderer {
             clientRect.left - parentRect.left + this.xScale(d.keys.list[0].hash) +
             this.xScale.bandwidth() / 2,
             clientRect.top - parentRect.top + this.yScale(d.keys.list[1].hash),
-            PunchcardTooltipComponent,
+            HeatmapTooltipComponent,
             data
         );
     }

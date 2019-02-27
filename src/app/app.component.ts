@@ -13,7 +13,7 @@ import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, Combined
 import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator } from './safeguard/estimate';
-import { PunchcardRenderer } from './vis/renderers/punchcard';
+import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
@@ -484,8 +484,8 @@ export class AppComponent implements OnInit {
         }
 
         if (this.activeSafeguardPanel === SGT.Comparative && this.combinedVariable1 && this.combinedVariable2) {
-            let value1 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable1)
-            let value2 = (this.vis.renderer as PunchcardRenderer).getDatum(this.combinedVariable2)
+            let value1 = (this.vis.renderer as HeatmapRenderer).getDatum(this.combinedVariable1)
+            let value2 = (this.vis.renderer as HeatmapRenderer).getDatum(this.combinedVariable2)
 
             if (value1.ci3.center < value2.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
@@ -502,7 +502,7 @@ export class AppComponent implements OnInit {
 
             if (this.vis.renderer instanceof HorizontalBarsRenderer)
                 value = this.vis.renderer.getDatum(this.variable1)
-            else if (this.vis.renderer instanceof PunchcardRenderer)
+            else if (this.vis.renderer instanceof HeatmapRenderer)
                 value = this.vis.renderer.getDatum(this.combinedVariable1);
 
             if (constant.value >= value.ci3.center)

@@ -3,10 +3,10 @@ import { TooltipRendererTrait } from '../../tooltip/tooltip-renderer-trait';
 import { Constants } from '../../constants';
 
 @Component({
-    selector: 'app-punchcard-tooltip',
-    templateUrl: './punchcard-tooltip.component.html'
+    selector: 'app-heatmap-tooltip',
+    templateUrl: './heatmap-tooltip.component.html'
 })
-export class PunchcardTooltipComponent extends TooltipRendererTrait {
+export class HeatmapTooltipComponent extends TooltipRendererTrait {
     L = Constants.locale;
 
     constructor() {

@@ -18,7 +18,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { TooltipComponent } from './tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './vis/renderers/horizontal-bars-tooltip.component';
-import { PunchcardTooltipComponent } from './vis/renderers/punchcard-tooltip.component';
+import { HeatmapTooltipComponent } from './vis/renderers/heatmap-tooltip.component';
 import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
 import { SortablejsModule } from 'angular-sortablejs';
@@ -76,7 +76,7 @@ library.add(fas, far);
         QualityIndicatorComponent,
         ErrorIndicatorComponent,
         SgHistoryComponent,
-        PunchcardTooltipComponent,
+        HeatmapTooltipComponent,
         QueryIndicatorComponent,
         SmartNumberPipe,
         QueryCreatorComponent,
@@ -100,6 +100,6 @@ library.add(fas, far);
     ],
     providers: [],
     bootstrap: [AppComponent],
-    entryComponents: [ HorizontalBarsTooltipComponent, PunchcardTooltipComponent ]
+    entryComponents: [ HorizontalBarsTooltipComponent, HeatmapTooltipComponent ]
 })
 export class AppModule { }
