@@ -61,18 +61,20 @@ export class AngularBrush<Datum> {
         let referenceLine = selectOrAppend(root as any, 'line', '.reference-line')
         this.referenceLine = referenceLine;
 
-        let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
-        this.brushLine = brushLine;
-
         let selectionArcPath = selectOrAppend(root as any, 'path', '.selection-arc')
         this.selectionArcPath = selectionArcPath;
 
+        let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
+        this.brushLine = brushLine;
+
         brushLine
-            .style('stroke', 'black')
+            .style('stroke', 'red')
+            .style('stroke-width', 3)
             .attr('pointer-events', 'none')
 
+
         referenceLine
-            .style('stroke', 'red')
+            .style('stroke', 'black')
             .style('stroke-width', 3)
             .style('stroke-linecap', 'round')
             .attr('pointer-events', 'none')
@@ -90,11 +92,17 @@ export class AngularBrush<Datum> {
             this.g.style('display', 'inline');
             this.g1.style('display', 'none');
             this.g2.style('display', 'none');
+            this.selectionArcPath
+                .style('fill', '#FF6F00')
+                .style('opacity', .5)
         }
         else if (this.mode == AngularBrushMode.SymmetricRange) {
             this.g.style('display', 'none');
             this.g1.style('display', 'inline');
             this.g2.style('display', 'inline');
+            this.selectionArcPath
+                .style('fill', 'black')
+                .style('opacity', .2)
         }
         this.brushLine.style('display', 'none')
     }
@@ -109,10 +117,11 @@ export class AngularBrush<Datum> {
         let norm = (ref - startX) / (endX - startX);
         let angle = (norm - 0.5) * Math.PI / 3;
 
+        const r = 10;
         this.referenceLine
             .style('display', 'inline')
-            .attr('x1', norm * (endX - startX) + startX)
-            .attr('y1', startY + height * (1 - Math.cos(angle)))
+            .attr('x1', norm * (endX - startX) + startX + r * Math.sin(angle))
+            .attr('y1', startY + height * (1 - Math.cos(angle)) - r * Math.cos(angle))
             .attr('x2', startX + width / 2)
             .attr('y2', endY)
     }
@@ -289,7 +298,7 @@ export class AngularBrush<Datum> {
 
             g.call(this.brush.move as any, [start, end]);
 
-            this.handleG.style('display', 'inline');
+            this.handleG.style('display', 'none');
             this.handleG1.style('display', 'none');
             this.handleG2.style('display', 'none');
         }
@@ -371,7 +380,8 @@ export class AngularBrush<Datum> {
 
             this.selectionArcPath
                 .attr('d', this.selectionArc)
-                .attr('transform', translate(startX + width / 2, endY));
+                .attr('transform', translate(startX + width / 2, endY))
+                ;
 
         }
         else if (this.mode == AngularBrushMode.SymmetricRange) {

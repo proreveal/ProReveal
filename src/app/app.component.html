@@ -115,12 +115,12 @@
         </h6>
 
         <section id="ongoing-query-view">
-            <div class="btn-group w-100 rounded-0" role="group">
-                <button type="button" class="btn btn-sm btn-light w-50 border-right" (click)="runAll()">
+            <div class="btn-group w-100 rounded-0 border-bottom" role="group">
+                <button type="button" class="btn btn-sm btn-light w-50" (click)="runAll()">
                     <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     모두 시작
                 </button>
-                <button type="button" class="btn btn-sm btn-light w-50" (click)="pauseAll()">
+                <button type="button" class="btn btn-sm btn-light w-50 border-left" (click)="pauseAll()">
                     <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                     모두 중단
                 </button>

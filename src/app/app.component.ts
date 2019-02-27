@@ -142,7 +142,7 @@ export class AppComponent implements OnInit {
 
                 this.querySelected(this.engine.ongoingQueries[0]);
 
-                //this.runMany(520);
+                this.runMany(50);
             }
 
             if(this.isStudying)
