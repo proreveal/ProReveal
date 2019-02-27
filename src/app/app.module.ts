@@ -17,7 +17,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { TooltipComponent } from './tooltip/tooltip.component';
-import { HorizontalBarsTooltipComponent } from './vis/renderers/horizontal-bars-tooltip.component';
+import { BarsTooltipComponent } from './vis/renderers/bars-tooltip.component';
 import { HeatmapTooltipComponent } from './vis/renderers/heatmap-tooltip.component';
 import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
@@ -60,7 +60,7 @@ library.add(fas, far);
         QueueViewComponent,
         VisComponent,
         TooltipComponent,
-        HorizontalBarsTooltipComponent,
+        BarsTooltipComponent,
         TooltipHostDirective,
         FieldBadgeComponent,
         ProgressMiniRingComponent,
@@ -100,6 +100,6 @@ library.add(fas, far);
     ],
     providers: [],
     bootstrap: [AppComponent],
-    entryComponents: [ HorizontalBarsTooltipComponent, HeatmapTooltipComponent ]
+    entryComponents: [ BarsTooltipComponent, HeatmapTooltipComponent ]
 })
 export class AppModule { }

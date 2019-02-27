@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ComponentFactoryResolver, ElementRef } from '@angular/core';
-import { HorizontalBarsTooltipComponent } from '../vis/renderers/horizontal-bars-tooltip.component';
+import { BarsTooltipComponent } from '../vis/renderers/bars-tooltip.component';
 import { TooltipHostDirective } from './tooltip-host.directive';
 import { TooltipRendererTrait } from './tooltip-renderer-trait';
 import { map, catchError, timeout, delay} from 'rxjs/operators';

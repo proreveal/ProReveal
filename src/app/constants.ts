@@ -10,7 +10,7 @@ export const Constants = Object.freeze({
     numberFormat: '1.1-1',
     rankFormat: '1.0-0',
 
-    horizontalBars: {
+    bars: {
         height: 20,
         axis: {
             height: 20
