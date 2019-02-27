@@ -11,7 +11,7 @@ import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
-import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
+import { BarsRenderer } from './vis/renderers/bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
@@ -408,7 +408,7 @@ export class AppComponent implements OnInit {
                 this.useLinear = true;
             }
             else if (DistributiveSafeguardTypes.includes(sgt)) {
-                (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+                (this.vis.renderer as BarsRenderer).setDefaultConstantFromVariable(true);
                 this.vis.forceUpdate();
             }
 
@@ -420,7 +420,7 @@ export class AppComponent implements OnInit {
     }
 
     useNormalToggled() {
-        (this.vis.renderer as HorizontalBarsRenderer).setDefaultConstantFromVariable(true);
+        (this.vis.renderer as BarsRenderer).setDefaultConstantFromVariable(true);
         this.vis.forceUpdate();
     }
 
@@ -473,8 +473,8 @@ export class AppComponent implements OnInit {
         }
 
         if (this.activeSafeguardPanel === SGT.Comparative && this.variable1 && this.variable2) {
-            let value1 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable1)
-            let value2 = (this.vis.renderer as HorizontalBarsRenderer).getDatum(this.variable2)
+            let value1 = (this.vis.renderer as BarsRenderer).getDatum(this.variable1)
+            let value2 = (this.vis.renderer as BarsRenderer).getDatum(this.variable2)
 
             if (value1.ci3.center < value2.ci3.center)
                 this.operator = Operators.LessThanOrEqualTo;
@@ -500,7 +500,7 @@ export class AppComponent implements OnInit {
             let value;
             this.valueConstant = constant;
 
-            if (this.vis.renderer instanceof HorizontalBarsRenderer)
+            if (this.vis.renderer instanceof BarsRenderer)
                 value = this.vis.renderer.getDatum(this.variable1)
             else if (this.vis.renderer instanceof HeatmapRenderer)
                 value = this.vis.renderer.getDatum(this.combinedVariable1);
@@ -512,7 +512,7 @@ export class AppComponent implements OnInit {
         }
         else if (constant instanceof RankConstant) {
             this.rankConstant = constant;
-            let value = (this.vis.renderer as HorizontalBarsRenderer).getRank(this.variable1);
+            let value = (this.vis.renderer as BarsRenderer).getRank(this.variable1);
 
             if (constant.rank >= value)
                 this.operator = Operators.LessThanOrEqualTo;

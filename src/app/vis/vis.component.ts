@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter } from '@angular/core';
-import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
+import { BarsRenderer } from './renderers/bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
 import { HeatmapRenderer } from './renderers/heatmap';
@@ -50,7 +50,7 @@ export class VisComponent implements DoCheck {
 
     lastUpdated: number = 0;
     lastQuery: AggregateQuery;
-    renderer: HorizontalBarsRenderer | HeatmapRenderer;
+    renderer: BarsRenderer | HeatmapRenderer;
     limitNumCategories = false;
     numCategories = 0;
 
@@ -67,7 +67,7 @@ export class VisComponent implements DoCheck {
 
     recommend(query: AggregateQuery) {
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
-            return new HorizontalBarsRenderer(
+            return new BarsRenderer(
                 this,
                 this.tooltip,
                 this.logger
@@ -118,9 +118,9 @@ export class VisComponent implements DoCheck {
         this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
         this.limitNumCategories = false;
 
-        if (this.renderer instanceof HorizontalBarsRenderer) {
+        if (this.renderer instanceof BarsRenderer) {
             if (this.renderer.limitNumCategories &&
-                this.renderer.data.length > C.horizontalBars.initiallyVisibleCategories) {
+                this.renderer.data.length > C.bars.initiallyVisibleCategories) {
                 this.limitNumCategories = true;
                 this.numCategories = this.renderer.data.length;
             }

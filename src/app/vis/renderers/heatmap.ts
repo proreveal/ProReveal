@@ -196,7 +196,7 @@ export class HeatmapRenderer {
 
             selectOrAppend(visG, 'text', '.x.field.label.bottom')
                 .text(query.groupBy.fields[0].name)
-                .attr('transform', translate(matrixWidth / 2, height - C.horizontalBars.axis.height))
+                .attr('transform', translate(matrixWidth / 2, height - C.bars.axis.height))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.3em')
                 .style('font-size', '.8rem')
