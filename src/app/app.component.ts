@@ -286,12 +286,6 @@ export class AppComponent implements OnInit {
         this.engine.reschedule();
     }
 
-    highlighted = 0;
-    highlight(highlighted: number) {
-        this.highlighted = highlighted;
-        this.vis.highlight(highlighted);
-    }
-
     constantUserChanged(constant: ConstantTrait) {
         this.constantSelected(constant); // set the operator automatically
         this.vis.constantUserChanged(constant);
