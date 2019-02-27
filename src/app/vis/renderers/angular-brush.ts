@@ -68,7 +68,7 @@ export class AngularBrush<Datum> {
         this.brushLine = brushLine;
 
         brushLine
-            .style('stroke', 'red')
+            .style('stroke', '#DD2C00')
             .style('stroke-width', 3)
             .attr('pointer-events', 'none')
 
@@ -95,6 +95,7 @@ export class AngularBrush<Datum> {
             this.selectionArcPath
                 .style('fill', '#FF6F00')
                 .style('opacity', .5)
+            this.brushLine.style('display', 'inline')
         }
         else if (this.mode == AngularBrushMode.SymmetricRange) {
             this.g.style('display', 'none');
@@ -103,8 +104,8 @@ export class AngularBrush<Datum> {
             this.selectionArcPath
                 .style('fill', 'black')
                 .style('opacity', .2)
+            this.brushLine.style('display', 'none')
         }
-        this.brushLine.style('display', 'none')
     }
 
     setReferenceValue(ref: number) {
@@ -328,7 +329,6 @@ export class AngularBrush<Datum> {
         let angle = (norm - 0.5) * Math.PI / 3;
 
         line
-            .style('display', 'inline')
             .attr('x1', norm * (endX - startX) + startX)
             .attr('y1', startY + height * (1 - Math.cos(angle)))
             .attr('x2', startX + width / 2)

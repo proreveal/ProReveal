@@ -5,7 +5,7 @@ import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/quer
 import { PunchcardRenderer } from './renderers/punchcard';
 import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
-import { VariableTrait, VariableTypes } from '../safeguard/variable';
+import { VariableTrait } from '../safeguard/variable';
 import { ConstantTrait } from '../safeguard/constant';
 import { Constants as C, Constants } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
@@ -139,11 +139,6 @@ export class VisComponent implements DoCheck {
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
-        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
-    }
-
-    setVariableType(type: VariableTypes) {
-        this.renderer.setVariableType(type);
         this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
     }
 

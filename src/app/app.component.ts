@@ -9,7 +9,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, ComparativeSafeguard, SafeguardTypes, DistributiveSafeguard, DistributiveSafeguardTypes, NormalSafeguard, PowerLawSafeguard, LinearSafeguard, RankSafeguard } from './safeguard/safeguard';
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
-import { VariablePair, SingleVariable, VariableTypes, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
+import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
 import { HorizontalBarsRenderer } from './vis/renderers/horizontal-bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator } from './safeguard/estimate';
@@ -32,7 +32,6 @@ export class AppComponent implements OnInit {
     SGT = SGT;
     QS = QueryState;
     C = C;
-    VT = VariableTypes;
     Operators = Operators;
     Priority = Priority;
     ValueEstimate = new ValueEstimator().estimate;
@@ -415,7 +414,6 @@ export class AppComponent implements OnInit {
 
             this.activeSafeguardPanel = sgt;
             this.vis.setSafeguardType(sgt);
-            this.vis.setVariableType(sgt === SGT.Rank ? VariableTypes.Rank : VariableTypes.Value);
 
             this.logger.log(LogType.SafeguardSelected, sgt);
         }
