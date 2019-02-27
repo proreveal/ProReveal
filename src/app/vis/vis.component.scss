@@ -207,38 +207,38 @@ svg.hidden {
     stroke-width: 1px;
 }
 
-::ng-deep vis .punchcard rect.menu-highlighted {
+::ng-deep vis .heatmap rect.menu-highlighted {
     stroke: lighten($variable1-highlight-color, 3%);
     stroke-width: 3px;
 }
 
-::ng-deep vis .punchcard text.menu-highlighted {
+::ng-deep vis .heatmap text.menu-highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep vis .punchcard text.highlighted {
+::ng-deep vis .heatmap text.highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep vis .punchcard text.variable2.highlighted {
+::ng-deep vis .heatmap text.variable2.highlighted {
     fill: darken($variable2-highlight-color, 3%);
     stroke: darken($variable2-highlight-color, 3%);
     stroke-width: .5px;
     font-weight: bold;
 }
 
-::ng-deep vis .punchcard .variable1.stroke-highlighted {
+::ng-deep vis .heatmap .variable1.stroke-highlighted {
     stroke: darken($variable1-highlight-color, 10%);
     stroke-width: 3px;
 }
 
-::ng-deep vis .punchcard .variable2.stroke-highlighted {
+::ng-deep vis .heatmap .variable2.stroke-highlighted {
     stroke: darken($variable2-highlight-color, 10%);
     stroke-width: 3px;
 }

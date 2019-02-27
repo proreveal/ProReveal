@@ -21,7 +21,7 @@ export const Constants = Object.freeze({
         circleRadius: 3,
         initiallyVisibleCategories: 50
     },
-    punchcard: {
+    heatmap: {
         rowHeight: 20,
         columnWidth: 30,
         legendSize: 200,

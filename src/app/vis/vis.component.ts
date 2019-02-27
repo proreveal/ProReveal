@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, Event
 import { HorizontalBarsRenderer } from './renderers/horizontal-bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
-import { PunchcardRenderer } from './renderers/punchcard';
+import { HeatmapRenderer } from './renderers/heatmap';
 import * as d3 from 'd3';
 import { Safeguard, SafeguardTypes } from '../safeguard/safeguard';
 import { VariableTrait } from '../safeguard/variable';
@@ -50,7 +50,7 @@ export class VisComponent implements DoCheck {
 
     lastUpdated: number = 0;
     lastQuery: AggregateQuery;
-    renderer: HorizontalBarsRenderer | PunchcardRenderer;
+    renderer: HorizontalBarsRenderer | HeatmapRenderer;
     limitNumCategories = false;
     numCategories = 0;
 
@@ -74,7 +74,7 @@ export class VisComponent implements DoCheck {
             );
 
         if (query.groupBy.fields.length === 2 || query instanceof Histogram2DQuery)
-            return new PunchcardRenderer(
+            return new HeatmapRenderer(
                 this,
                 this.tooltip,
                 this.logger
@@ -125,11 +125,11 @@ export class VisComponent implements DoCheck {
                 this.numCategories = this.renderer.data.length;
             }
         }
-        else if (this.renderer instanceof PunchcardRenderer) {
+        else if (this.renderer instanceof HeatmapRenderer) {
             const numCategories = Math.max(this.renderer.xValuesCount, this.renderer.yValuesCount);
 
             if (this.renderer.limitNumCategories &&
-                numCategories > C.punchcard.initiallyVisibleCategories) {
+                numCategories > C.heatmap.initiallyVisibleCategories) {
                 this.limitNumCategories = true;
                 this.numCategories = numCategories;
             }
