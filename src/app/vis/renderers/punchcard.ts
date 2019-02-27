@@ -10,7 +10,7 @@ import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
 import { ConstantTrait, ValueConstant, RangeConstant, LinearRegressionConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
-import { VariableTypes as VT, CombinedVariable, SingleVariable } from '../../safeguard/variable';
+import { CombinedVariable, SingleVariable } from '../../safeguard/variable';
 import { PunchcardTooltipComponent } from './punchcard-tooltip.component';
 import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
@@ -21,6 +21,8 @@ import { LinearLine } from './linear-line';
 import { LoggerService, LogType } from '../../logger.service';
 import { FieldGroupedValue } from '../../data/field-grouped-value';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
+
+type Range = [number, number];
 
 export class PunchcardRenderer {
     gradient = new Gradient();
@@ -413,7 +415,7 @@ export class PunchcardRenderer {
             .range([padding, size + padding]);
         this.legendXScale = legendXScale;
 
-        if (this.variableType == VT.Value) {
+        if (this.safeguardType == SGT.Value || this.safeguardType === SGT.Range) {
             this.angularBrush.render([[padding, 2 * padding], [size + padding, size + 2 * padding]]);
         }
 
@@ -424,14 +426,33 @@ export class PunchcardRenderer {
         else
             this.angularBrush.hide();
 
-        if (this.constant) {
-            if (this.safeguardType === SGT.Value) {
+
+        if(this.variable1 && this.safeguardType === SGT.Value) {
+            let d = this.getDatum(this.variable1);
+            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+
+            if(this.constant) {
                 let center = this.legendXScale((this.constant as ValueConstant).value);
                 this.angularBrush.move(center);
             }
-            else if (this.safeguardType === SGT.Range) {
-                let range = (this.constant as RangeConstant).range.map(this.legendXScale) as [number, number];
-                this.angularBrush.move(range);
+        }
+        else if(this.variable1 && this.safeguardType == SGT.Range) {
+            let d = this.getDatum(this.variable1);
+            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+            this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
+
+            if(this.constant) {
+                let oldRange: Range = (this.constant as RangeConstant).range;
+                let half = (oldRange[1] - oldRange[0]) / 2;
+                let newCenter = this.getDatum(this.variable1).ci3.center;
+                let domain = this.legendXScale.domain();
+
+                if(newCenter - half < domain[0]) { half = newCenter - domain[0]; }
+                if(newCenter + half > domain[1]) { half = Math.min(half, domain[1] - newCenter); }
+
+                let constant = new RangeConstant(newCenter - half, newCenter + half);
+                this.vis.constantSelected.emit(constant);
+                this.constantUserChanged(constant); // calls brush.move
             }
         }
 
@@ -471,13 +492,6 @@ export class PunchcardRenderer {
         }
         else if (st === SGT.Comparative) {
         }
-    }
-
-    variableType: VT;
-    setVariableType(vt: VT) {
-        this.variableType = vt;
-
-        this.constant = null;
     }
 
     updateHighlight() {

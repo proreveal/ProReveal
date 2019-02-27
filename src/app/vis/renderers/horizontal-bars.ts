@@ -7,11 +7,11 @@ import { Gradient } from '../errorbars/gradient';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import { HorizontalBarsTooltipComponent } from './horizontal-bars-tooltip.component';
 import { SafeguardTypes as SGT, DistributiveSafeguardTypes } from '../../safeguard/safeguard';
-import { SingleVariable, VariableTypes as VT } from '../../safeguard/variable';
+import { SingleVariable } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
 import { ConstantTrait, RankConstant, ValueConstant, RangeRankConstant, RangeConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
-import { FlexBrush, FlexBrushDirection, FlexBrushMode } from './brush';
+import { Brush, BrushDirection, BrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
 import { AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
@@ -33,7 +33,7 @@ export class HorizontalBarsRenderer {
     labelWidth: number;
     width: number;
     height: number;
-    flexBrush = new FlexBrush<Datum>();
+    brush = new Brush<Datum>();
     distributionLine = new DistributionLine();
 
     labels: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
@@ -63,7 +63,7 @@ export class HorizontalBarsRenderer {
         this.nativeSvg = nativeSvg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
-        this.flexBrush.setup(this.interactionG);
+        this.brush.setup(this.interactionG);
         this.distributionLine.setup(this.interactionG);
     }
 
@@ -432,7 +432,7 @@ export class HorizontalBarsRenderer {
 
         d3.select(floatingSvg).style('display', 'none');
 
-        this.flexBrush.on('brush', (center) => {
+        this.brush.on('brush', (center) => {
             if (this.safeguardType === SGT.Value) {
                 let constant = new ValueConstant(this.xScale.invert(center));
                 this.constant = constant;
@@ -459,9 +459,9 @@ export class HorizontalBarsRenderer {
         if (!this.constant) this.setDefaultConstantFromVariable();
 
         if ([SGT.Value, SGT.Rank, SGT.Range].includes(this.safeguardType) && this.constant)
-            this.flexBrush.show();
+            this.brush.show();
         else
-            this.flexBrush.hide();
+            this.brush.hide();
 
         if (DistributiveSafeguardTypes.includes(this.safeguardType)) this.distributionLine.show();
         else this.distributionLine.hide();
@@ -469,11 +469,11 @@ export class HorizontalBarsRenderer {
         if (this.constant) {
             if (this.safeguardType === SGT.Value) {
                 let center = xScale((this.constant as ValueConstant).value);
-                this.flexBrush.move(center);
+                this.brush.move(center);
             }
             else if (this.safeguardType === SGT.Rank) {
                 let center = yScale((this.constant as RankConstant).rank.toString());
-                this.flexBrush.move(center);
+                this.brush.move(center);
             }
             else if (this.safeguardType === SGT.Range) {
                 let oldRange = (this.constant as RangeConstant).range;
@@ -487,14 +487,23 @@ export class HorizontalBarsRenderer {
 
                 this.constant = new RangeConstant(range[0], range[1]);
 
-                this.flexBrush.setCenter(this.xScale(newCenter));
-                this.flexBrush.move(range.map(this.xScale) as Range);
+                this.brush.setCenter(this.xScale(newCenter));
+                this.brush.move(range.map(this.xScale) as Range);
                 this.vis.constantSelected.emit(this.constant);
                 this.constantUserChanged(this.constant);
             }
         }
 
-        if (this.safeguardType === SGT.PowerLaw) {
+        if(this.safeguardType === SGT.Value) {
+
+        }
+        else if (this.safeguardType === SGT.Rank) {
+
+        }
+        else if(this.safeguardType === SGT.Range) {
+
+        }
+        else if (this.safeguardType === SGT.PowerLaw) {
             this.distributionLine.render(
                 this.constant as DistributionTrait,
                 data,
@@ -533,51 +542,43 @@ export class HorizontalBarsRenderer {
 
         if (st == SGT.None) {
             this.labels.style('cursor', 'auto');
-            this.flexBrush.hide();
+            this.brush.hide();
         }
         else if (st == SGT.Value || st === SGT.Rank) {
             this.labels.style('cursor', 'pointer');
-            this.flexBrush.setMode(FlexBrushMode.Point);
+            this.brush.setMode(BrushMode.Point);
         }
         else if (st === SGT.Range) {
             this.labels.style('cursor', 'pointer');
-            this.flexBrush.setMode(FlexBrushMode.SymmetricRange);
+            this.brush.setMode(BrushMode.SymmetricRange);
         }
         else if (st === SGT.Comparative) {
             this.labels.style('cursor', 'pointer');
         }
     }
 
-    variableType: VT;
-    setVariableType(vt: VT) {
-        this.variableType = vt;
-        this.constant = null;
-
-        this.updateBrushWithVariableType();
-    }
-
     updateBrushWithVariableType() {
         const labelWidth = this.labelWidth;
         const width = this.width, height = this.height;
 
-        if (this.variableType == VT.Value || this.safeguardType == SGT.Range) {
-            this.flexBrush.snap = null;
+        if (this.safeguardType == SGT.Value || this.safeguardType == SGT.Range) {
+            this.brush.snap = null;
 
-            this.flexBrush.setDirection(FlexBrushDirection.X);
-            this.flexBrush.render([[labelWidth, C.horizontalBars.axis.height - C.padding],
+            this.brush.setDirection(BrushDirection.X);
+            this.brush.render([[labelWidth, C.horizontalBars.axis.height - C.padding],
             [width - C.padding, height - C.horizontalBars.axis.height + C.padding]]);
         }
-        else {
+        else if(this.safeguardType === SGT.Rank) {
             let start = C.horizontalBars.axis.height + C.horizontalBars.label.height;
             let step = C.horizontalBars.height;
 
-            this.flexBrush.setDirection(FlexBrushDirection.Y);
-            this.flexBrush.snap = d => {
+            this.brush.setDirection(BrushDirection.Y);
+            this.brush.snap = d => {
                 let index = Math.round((d - start) / step);
                 return Math.max(1, index) * step + start;
             };
 
-            this.flexBrush.render([[0, C.horizontalBars.axis.height],
+            this.brush.render([[0, C.horizontalBars.axis.height],
             [width, height - C.horizontalBars.axis.height]]);
         }
     }
@@ -614,19 +615,19 @@ export class HorizontalBarsRenderer {
         this.constant = constant;
         if (this.safeguardType === SGT.Value) {
             let center = this.xScale((constant as ValueConstant).value);
-            this.flexBrush.show();
-            this.flexBrush.move(center);
+            this.brush.show();
+            this.brush.move(center);
         }
         else if (this.safeguardType === SGT.Rank) {
             let center = this.yScale((constant as RankConstant).rank.toString());
-            this.flexBrush.show();
-            this.flexBrush.move(center);
+            this.brush.show();
+            this.brush.move(center);
         }
         else if (this.safeguardType === SGT.Range) {
             let range = (constant as RangeConstant).range.map(this.xScale) as [number, number];
-            this.flexBrush.setCenter((range[0] + range[1]) / 2);
-            this.flexBrush.show();
-            this.flexBrush.move(range);
+            this.brush.setCenter((range[0] + range[1]) / 2);
+            this.brush.show();
+            this.brush.move(range);
         }
 
         // ADD CODE FOR SGS
@@ -658,8 +659,12 @@ export class HorizontalBarsRenderer {
 
         this.variable1 = variable;
 
+        if(this.safeguardType === SGT.Value) {
+            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+        }
         if (this.safeguardType === SGT.Range) {
-            this.flexBrush.setCenter(this.xScale(d.ci3.center));
+            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+            this.brush.setCenter(this.xScale(d.ci3.center));
         }
         this.updateHighlight();
 

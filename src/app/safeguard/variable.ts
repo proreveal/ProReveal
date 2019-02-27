@@ -1,11 +1,6 @@
 import { FieldGroupedValue } from "../data/field-grouped-value";
 import { HashSeparator } from "../data/field-grouped-value-list";
 
-export enum VariableTypes {
-    Value,
-    Rank
-}
-
 export abstract class VariableTrait {
     isRank;
 
