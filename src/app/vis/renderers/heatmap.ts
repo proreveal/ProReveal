@@ -300,8 +300,6 @@ export class HeatmapRenderer {
         rects.merge(enter)
             .attr('height', yScale.bandwidth())
             .attr('width', xScale.bandwidth())
-            .style('stroke', 'black')
-            .style('stroke-opacity', 0.1)
             .attr('transform', (d) => {
                 return translate(xScale(d.keys.list[0].hash), yScale(d.keys.list[1].hash))
             })
@@ -311,6 +309,43 @@ export class HeatmapRenderer {
             );
 
         rects.exit().remove();
+
+
+        // horizontal lines (grid)
+
+        let hls = visG.selectAll('line.horizontal')
+            .data(d3.range(yValues.length + 1))
+
+        enter = hls.enter().append('line').attr('class', 'horizontal')
+            .style('stroke', 'black')
+            .style('stroke-opacity', 0.1)
+            .style('pointer-events', 'none')
+
+        hls.merge(enter)
+            .attr('x1', yFieldLabelWidth + yLabelWidth)
+            .attr('y1', (d, i) => header + C.heatmap.rowHeight * i)
+            .attr('x2', matrixWidth - header)
+            .attr('y2', (d, i) => header + C.heatmap.rowHeight * i)
+
+        hls.exit().remove();
+
+        // vertical lines (grid)
+        let vls = visG.selectAll('line.vertical')
+            .data(d3.range(xValues.length + 1))
+
+        enter = vls.enter().append('line').attr('class', 'vertical')
+            .style('stroke', 'black')
+            .style('stroke-opacity', 0.1)
+            .style('pointer-events', 'none')
+
+        let xbw = this.xScale.bandwidth();
+        vls.merge(enter)
+            .attr('x1', (d, i) => yFieldLabelWidth + yLabelWidth + xbw * i)
+            .attr('y1', (d, i) => header)
+            .attr('x2', (d, i) => yFieldLabelWidth + yLabelWidth + xbw * i)
+            .attr('y2', (d, i) => height - header)
+
+        vls.exit().remove();
 
         let eventBoxes = visG
             .selectAll('rect.event-box')
@@ -357,6 +392,7 @@ export class HeatmapRenderer {
 
         eventBoxes.exit().remove();
 
+        // vertical lines (grid)
         const size = C.heatmap.legendSize;
         const padding = C.heatmap.legendPadding;
         let legend = vsup.legend.arcmapLegend()
