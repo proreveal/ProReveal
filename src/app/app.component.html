@@ -219,9 +219,9 @@
         <!-- Value -->
         <div *ngIf="activeSafeguardPanel === SGT.Value">
             <div class="display text-center p-2">
-                <sg-point [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
+                <sg-point [highlighted]="false" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [isRank]="false" [operator]="operator" [constant]="valueConstant"
-                    (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
+                    (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
@@ -259,9 +259,9 @@
 
         <div *ngIf="activeSafeguardPanel === SGT.Rank">
             <div class="display text-center p-2">
-                <sg-point [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
+                <sg-point [highlighted]="false" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [isRank]="true" [operator]="operator" [constant]="rankConstant"
-                    (highlight)="highlight($event)" (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
+                    (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
@@ -298,8 +298,8 @@
         <!-- Range -->
         <div *ngIf="activeSafeguardPanel === SGT.Range">
             <div class="display text-center p-2">
-                <sg-range [highlighted]="highlighted" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
-                    [constant]="rangeConstant" (highlight)="highlight($event)"
+                <sg-range [highlighted]="false" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
+                    [constant]="rangeConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
             <div class="alert guide p-2 m-1">
@@ -332,8 +332,8 @@
         <!-- Comparative -->
         <div *ngIf="activeSafeguardPanel === SGT.Comparative">
             <div class="display text-center p-2">
-                <sg-comparative [highlighted]="highlighted" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
-                    [variable2]="variable2 || combinedVariable2" [operator]="operator" (highlight)="highlight($event)"></sg-comparative>
+                <sg-comparative [highlighted]="false" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
+                    [variable2]="variable2 || combinedVariable2" [operator]="operator"></sg-comparative>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
@@ -367,8 +367,8 @@
         <!-- PowerLaw -->
         <div *ngIf="activeSafeguardPanel == SGT.PowerLaw">
             <div class="display text-center p-2">
-                <sg-distributive [highlighted]="highlighted" [query]="activeQuery"
-                    [constant]="powerLawConstant" [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
+                <sg-distributive [highlighted]="false" [query]="activeQuery"
+                    [constant]="powerLawConstant" [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
@@ -390,8 +390,8 @@
         <!-- Normal -->
         <div *ngIf="activeSafeguardPanel == SGT.Normal">
             <div class="display text-center p-2">
-                <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="normalConstant"
-                    [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
+                <sg-distributive [highlighted]="false" [query]="activeQuery" [constant]="normalConstant"
+                    [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
@@ -413,8 +413,8 @@
         <!-- Linear -->
         <div *ngIf="activeSafeguardPanel == SGT.Linear">
             <div class="display text-center p-2">
-                <sg-distributive [highlighted]="highlighted" [query]="activeQuery" [constant]="linearRegressionConstant"
-                    [groupBy]="activeQuery.groupBy" (highlight)="highlight($event)"></sg-distributive>
+                <sg-distributive [highlighted]="false" [query]="activeQuery" [constant]="linearRegressionConstant"
+                    [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>

@@ -39,10 +39,6 @@ export class HorizontalBarsRenderer {
     labels: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     ranks: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
-    variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
-    variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
-    constantHighlight1: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    constantHighlight2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
 
     limitNumCategories = true;
 
@@ -436,39 +432,6 @@ export class HorizontalBarsRenderer {
 
         d3.select(floatingSvg).style('display', 'none');
 
-        // highlights
-        {
-            this.variableHighlight =
-                selectOrAppend(visG, 'rect', '.variable1.highlighted')
-                    .attr('width', labelWidth)
-                    .attr('height', height - C.horizontalBars.axis.height * 2)
-                    .attr('transform', translate(0, C.horizontalBars.height))
-                    .style('display', 'none')
-                    .style('pointer-events', 'none')
-
-            this.variableHighlight2 =
-                selectOrAppend(visG, 'rect', '.variable2.highlighted')
-                    .attr('width', labelWidth)
-                    .attr('height', height - C.horizontalBars.axis.height * 2)
-                    .attr('transform', translate(0, C.horizontalBars.height))
-                    .style('display', 'none')
-                    .style('pointer-events', 'none')
-
-            this.constantHighlight1 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-top')
-                .attr('width', width - C.padding - labelWidth)
-                .attr('height', C.horizontalBars.axis.height - C.padding)
-                .attr('transform', translate(labelWidth, 0))
-                .style('display', 'none')
-                .style('pointer-events', 'none')
-
-            this.constantHighlight2 = selectOrAppend(visG, 'rect', '.constant.highlighted.highlight-bottom')
-                .attr('width', width - C.padding - labelWidth)
-                .attr('height', C.horizontalBars.axis.height - C.padding)
-                .attr('transform', translate(labelWidth, height - C.horizontalBars.axis.height + C.padding))
-                .style('display', 'none')
-                .style('pointer-events', 'none')
-        }
-
         this.flexBrush.on('brush', (center) => {
             if (this.safeguardType === SGT.Value) {
                 let constant = new ValueConstant(this.xScale.invert(center));
@@ -555,27 +518,6 @@ export class HorizontalBarsRenderer {
         // ADD CODE FOR SGS
 
         this.updateHighlight();
-    }
-
-    highlight(highlighted: number) {
-        this.variableHighlight.style('display', 'none')
-        this.variableHighlight2.style('display', 'none')
-        this.constantHighlight1.style('display', 'none')
-        this.constantHighlight2.style('display', 'none')
-
-        if (highlighted == 1) {
-            this.variableHighlight.style('display', 'inline')
-        }
-        else if (highlighted == 2) {
-
-        }
-        else if (highlighted == 3) {
-            this.constantHighlight1.style('display', 'inline')
-            this.constantHighlight2.style('display', 'inline')
-        }
-        else if (highlighted == 4) {
-            this.variableHighlight2.style('display', 'inline')
-        }
     }
 
     constant: ConstantTrait;

@@ -38,8 +38,6 @@ export class PunchcardRenderer {
     angularBrush = new AngularBrush();
     linearLine = new LinearLine();
 
-    variableHighlight: d3.Selection<d3.BaseType, {}, null, undefined>;
-    variableHighlight2: d3.Selection<d3.BaseType, {}, null, undefined>;
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     swatch: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     visG;
@@ -396,22 +394,6 @@ export class PunchcardRenderer {
                 .style('bottom', 'auto')
         }
 
-        this.variableHighlight =
-            selectOrAppend(visG, 'rect', '.variable1.highlighted')
-                .attr('width', Math.max(0, matrixWidth - header - yLabelWidth))
-                .attr('height', height - header)
-                .attr('transform', translate(yLabelWidth, header))
-                .attr('display', 'none')
-                .style('pointer-events', 'none')
-
-        this.variableHighlight2 =
-            selectOrAppend(visG, 'rect', '.variable2.highlighted')
-                .attr('width', Math.max(0, matrixWidth - header - yLabelWidth))
-                .attr('height', height - header)
-                .attr('transform', translate(yLabelWidth, header))
-                .attr('display', 'none')
-                .style('pointer-events', 'none')
-
         this.angularBrush.on('brush', (center) => {
             if (this.safeguardType === SGT.Value) {
                 let constant = new ValueConstant(this.legendXScale.invert(center));
@@ -465,23 +447,6 @@ export class PunchcardRenderer {
         }
         else {
             this.linearLine.hide();
-        }
-    }
-
-    highlight(highlighted: number) {
-        this.variableHighlight.attr('display', 'none')
-        this.variableHighlight2.attr('display', 'none')
-
-        if (highlighted == 1) {
-            this.variableHighlight.attr('display', 'inline')
-        }
-        else if (highlighted == 2) {
-
-        }
-        else if (highlighted == 3) {
-        }
-        else if (highlighted == 4) {
-            this.variableHighlight2.attr('display', 'inline')
         }
     }
 

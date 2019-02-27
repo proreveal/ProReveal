@@ -136,10 +136,6 @@ export class VisComponent implements DoCheck {
         }
     }
 
-    highlight(highlighted: number) {
-        if (this.renderer) this.renderer.highlight(highlighted);
-    }
-
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
