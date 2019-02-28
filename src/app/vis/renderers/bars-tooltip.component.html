@@ -1,7 +1,9 @@
-<strong>
+<div style="min-width:120px">
+    <strong>
     <field-grouped-value-indicator [fieldGroupedValue]="data.datum.keys.list[0]"></field-grouped-value-indicator>
 </strong>
 <br />
 {{ data.datum.ci3.center | smartNumber }} ± {{ data.datum.ci3.stdev | smartNumber }} <br />
 <hr class="m-0 mt-1" style="border-color:white; opacity:0.5" />
 <small>{{ L.NumRows }} = {{ data.datum.accumulatedValue.count | number }}</small>
+</div>
