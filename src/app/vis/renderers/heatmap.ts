@@ -72,7 +72,8 @@ export class HeatmapRenderer {
         this.query = query;
         this.nativeSvg = nativeSvg;
 
-        this.interactionG = selectOrAppend(svg, 'g', 'interaction');
+        this.interactionG = selectOrAppend(svg, 'g', 'interaction').classed('heatmap', true);
+
         this.brushG = selectOrAppend(svg, 'g', 'brush-layer');
         this.angularBrush.setup(this.brushG);
 
@@ -347,7 +348,7 @@ export class HeatmapRenderer {
 
         vls.exit().remove();
 
-        let eventBoxes = visG
+        let eventBoxes = this.interactionG
             .selectAll('rect.event-box')
             .data(data, (d: Datum) => d.id);
 
@@ -684,8 +685,11 @@ export class HeatmapRenderer {
     }
 
     showTooltip(d: Datum) {
+        if(d.ci3 === EmptyConfidenceInterval) return;
+
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+
 
         let data = {
             query: this.query,
