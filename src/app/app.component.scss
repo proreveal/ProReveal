@@ -20,7 +20,6 @@
 #navbar {
     grid-row: 1;
     grid-column: 1 / 4;
-    padding-left: 0;
 }
 
 #metadata-editor {
@@ -102,10 +101,19 @@
 
     display: grid;
     grid-template-rows: 30px 1fr;
+    overflow-y: auto;
+    position: relative;
+}
+
+#all {
+    /*position: -webkit-sticky;
+    position: sticky;
+    z-index: 10;
+    top:0;*/
 }
 
 #queries {
-    height: 100%;
+    // height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
 }

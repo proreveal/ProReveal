@@ -135,14 +135,14 @@ export class LoggerService {
 
         this.userLog = this.userLogs.filter(ulog => ulog.uid === uid)[0];
 
-        if(!this.userLog.sessionLogs.find(slog => slog.sid === sid))
+        if (!this.userLog.sessionLogs.find(slog => slog.sid === sid))
             this.userLog.sessionLogs.push(new SessionLog(uid, sid));
 
         this.sessionLog = this.userLog.sessionLogs.filter(slog => slog.sid === sid)[0];
     }
 
     log(type: LogType, data: Object) {
-        if(this.muted) return;
+        if (this.muted) return;
 
         let now = Date.now();
         let item = new LogItem(type, data, now);

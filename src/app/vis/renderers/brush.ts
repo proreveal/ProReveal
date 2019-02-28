@@ -21,10 +21,10 @@ export interface BrushOptions {
 };
 
 export class Brush<Datum> {
-    selection: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    brushLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    brushLine2: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-    referenceLine: d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+    selection: G;
+    brushLine: G;
+    brushLine2: G;
+    referenceLine: G;
 
     root: G;
     g: G;
