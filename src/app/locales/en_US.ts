@@ -1,5 +1,6 @@
 import { formatKRW } from "../util";
 import { Locale } from "./locale";
+import { AggregateQuery } from "../data/query";
 
 export const Locale_en_US = Object.freeze({
     name: Locale.en_US,
@@ -69,7 +70,8 @@ export const Locale_en_US = Object.freeze({
     MEAN: 'MEAN',
     MIN: 'MIN',
     MAX: 'MAX',
-    COUNT: 'COUNT'
+    COUNT: 'COUNT',
 
+    XLabelTitleFormatter: (q: AggregateQuery) => `${Locale_en_US[q.approximator.name.toUpperCase()]} of ${q.target.name}`
     //, currencyFormatter: formatKRW
 });
