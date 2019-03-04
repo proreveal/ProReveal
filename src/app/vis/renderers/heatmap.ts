@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { Constants as C } from '../../constants';
+import { Constants as C, Constants } from '../../constants';
 import * as util from '../../util';
 import { AggregateQuery, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
@@ -397,7 +397,10 @@ export class HeatmapRenderer {
         const size = C.heatmap.legendSize;
         const padding = C.heatmap.legendPadding;
         let legend = vsup.legend.arcmapLegend()
-            .scale(zScale).size(size);
+            .scale(zScale).size(size)
+                .utitle(Constants.locale.HeatmapLegendUncertainty)
+                .vtitle(Constants.locale.HeatmapLedgendValue)
+
         let floatingSvgWrapper = d3.select(floatingSvg);
         let floatingLegend = floatingSvgWrapper.select('.legend');
         let floatingBrush = floatingSvgWrapper.select('.angular-brush');

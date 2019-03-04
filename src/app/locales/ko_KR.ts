@@ -71,5 +71,8 @@ export const Locale_ko_KR = Object.freeze({
     MAX: '최대',
     COUNT: '개수',
 
+    HeatmapLegendUncertainty: '표준 오차',
+    HeatmapLedgendValue: '개수',
+
     XLabelTitleFormatter: (q: AggregateQuery) => `${q.target.name}의 ${Locale_ko_KR[q.approximator.name.toUpperCase()]}`
 });

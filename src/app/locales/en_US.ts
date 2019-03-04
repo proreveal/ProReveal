@@ -72,6 +72,9 @@ export const Locale_en_US = Object.freeze({
     MAX: 'MAX',
     COUNT: 'COUNT',
 
+    HeatmapLegendUncertainty: 'Standard Error',
+    HeatmapLedgendValue: 'COUNT',
+
     XLabelTitleFormatter: (q: AggregateQuery) => `${Locale_en_US[q.approximator.name.toUpperCase()]} of ${q.target.name}`
     //, currencyFormatter: formatKRW
 });
