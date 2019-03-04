@@ -276,7 +276,7 @@ export class HeatmapRenderer {
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
-        let maxUncertainty = d3.max(data, d => d.ci3.high - d.ci3.center);
+        let maxUncertainty = d3.max(data, d => d.ci3.stdev);
 
         if (query.maxUncertainty < maxUncertainty) query.maxUncertainty = maxUncertainty;
 
