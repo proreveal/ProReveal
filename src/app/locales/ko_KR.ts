@@ -1,5 +1,6 @@
 import { formatKRW } from "../util";
 import { Locale } from "./locale";
+import { AggregateQuery } from "../data/query";
 
 export const Locale_ko_KR = Object.freeze({
     name: Locale.ko_KR,
@@ -68,5 +69,7 @@ export const Locale_ko_KR = Object.freeze({
     MEAN: '평균',
     MIN: '최소',
     MAX: '최대',
-    COUNT: '개수'
+    COUNT: '개수',
+
+    XLabelTitleFormatter: (q: AggregateQuery) => `${q.target.name}의 ${Locale_ko_KR[q.approximator.name.toUpperCase()]}`
 });

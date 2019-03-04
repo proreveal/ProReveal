@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { Constants as C } from '../../constants';
+import { Constants as C, Constants } from '../../constants';
 import * as util from '../../util';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
@@ -129,9 +129,12 @@ export class BarsRenderer {
 
         // render top and bottom labels
         {
+            let xLabelTitle = Constants.locale.COUNT;
+            if(query.target) xLabelTitle = Constants.locale.XLabelTitleFormatter(query);
+
             // x labels
             selectOrAppend(visG, 'text', '.x.field.label.top')
-                .text(query.target ? query.target.name : 'Count')
+                .text(xLabelTitle)
                 .attr('transform', translate((width - labelWidth - C.padding) / 2 + labelWidth, 0))
                 .style('text-anchor', 'middle')
                 .attr('dy', '.8em')
@@ -139,7 +142,7 @@ export class BarsRenderer {
                 .style('font-style', 'italic')
 
             selectOrAppend(visG, 'text', '.x.field.label.bottom')
-                .text(query.target ? query.target.name : 'Count')
+                .text(xLabelTitle)
                 .attr('transform', translate((width - labelWidth - C.padding) / 2 + labelWidth, height - C.bars.axis.height))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.3em')
