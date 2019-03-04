@@ -29,8 +29,7 @@
     },
     {
         "name": "개봉 년도",
-        "type": "nominal",
-        "hidden": true
+        "type": "nominal"
     },
     {
         "name": "개봉 월",
