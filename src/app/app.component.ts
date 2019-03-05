@@ -97,6 +97,10 @@ export class AppComponent implements OnInit {
     testMenu = false;
     markComplete = false;
 
+    dataViewerQuery: AggregateQuery = null;
+    dataViewerWhere: AndPredicate = null;
+
+
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
@@ -182,6 +186,11 @@ export class AppComponent implements OnInit {
 
         if (DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
             this.vis.renderer.setDefaultConstantFromVariable(true);
+        }
+
+        if(this.dataViewerQuery == query) {
+            this.filteredRows = this.engine.select(
+                this.dataViewerWhere, query.processedIndices);
         }
     }
 
@@ -488,8 +497,19 @@ export class AppComponent implements OnInit {
         this.dataViewerFilters = where;
         this.filteredRows = this.engine.select(where, this.activeQuery.processedIndices);
 
+        this.dataViewerQuery = this.activeQuery;
+        this.dataViewerWhere = where;
+
         this.modalService
             .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })
+            .result
+            .then(() => {
+                this.dataViewerQuery = null;
+                this.dataViewerWhere = null;
+            }, () => {
+                this.dataViewerQuery = null;
+                this.dataViewerWhere = null;
+            })
     }
 
     // query remove
