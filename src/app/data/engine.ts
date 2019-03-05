@@ -14,6 +14,8 @@ export enum Priority {
     Lowest
 }
 
+let TId = 0;
+
 export class Engine {
     rows: Row[];
     dataset: Dataset;
@@ -26,6 +28,7 @@ export class Engine {
     runningJob: Job;
     isRunning = false;
     autoRun = false;
+    activeTId: number;
 
     constructor(private url: string, private schemaUrl: string) {
 
@@ -136,7 +139,10 @@ export class Engine {
             console.log(`running Job(${job.id}, ${job.index}) with latency of ${latency}`);
 
             let latencyTimer = timer(latency);
+            let tid = TId++;
+            this.activeTId = tid;
             this.latencySubs = latencyTimer.subscribe(() => {
+                if(tid != this.activeTId) return;
                 body();
 
                 if(this.autoRun && this.queue.peep()) {
