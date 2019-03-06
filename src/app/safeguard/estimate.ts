@@ -16,9 +16,9 @@ const normal = new NormalDistribution();
  * @param ai2
  */
 export function estimateTwoConfidenceIntervals(ai1: ApproximatedInterval, ai2: ApproximatedInterval, n: number, N: number): PValue {
-    const s_star_sqaured = ai1.stdev * ai1.stdev / ai1.n + ai2.stdev * ai2.stdev / ai2.n;
+    const s_star_squared = ai1.stdev * ai1.stdev / ai1.n + ai2.stdev * ai2.stdev / ai2.n;
     // TODO n == N
-    const s_star = Math.sqrt(1 - n / N) * Math.sqrt(s_star_sqaured);
+    const s_star = Math.sqrt(1 - n / N) * Math.sqrt(s_star_squared);
 
     const diff = ai1.center - ai2.center;
 
