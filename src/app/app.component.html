@@ -185,7 +185,7 @@
         ></vis>
 
         <div id="floating-svg-wrapper" class="border" #floatingSvg
-            [hidden]="activeQuery && activeQuery.recentProgress.processedBlocks == 0"
+            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)"
             style="display:none"
         >
             <svg class="mr-2 mt-2 legend"></svg>
@@ -436,12 +436,6 @@
     <metadata-editor [dataset]="engine.dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
     </metadata-editor>
 </div>
-
-<!-- <div [hidden]="!markComplete" id="mark-complete">
-    <button class="btn btn-lg btn-success mb-3 mr-4 p-4 px-6" (click)="done()">
-        탐색 종료
-    </button>
-</div> -->
 
 <ng-template #confirmRemoval let-c="close" let-d="dismiss">
     <div class="modal-header">

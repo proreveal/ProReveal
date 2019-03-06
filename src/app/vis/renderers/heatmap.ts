@@ -44,7 +44,6 @@ export class HeatmapRenderer {
     swatch: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     visG;
     interactionG;
-    brushG;
     xValuesCount: number;
     yValuesCount: number;
 
@@ -73,9 +72,6 @@ export class HeatmapRenderer {
         this.nativeSvg = nativeSvg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction').classed('heatmap', true);
-
-        this.brushG = selectOrAppend(svg, 'g', 'brush-layer');
-        this.angularBrush.setup(this.brushG);
 
         let fsvgw = d3.select(floatingSvg);
         let fbrush = fsvgw.select('.angular-brush');

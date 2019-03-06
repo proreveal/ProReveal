@@ -95,7 +95,6 @@ export class AppComponent implements OnInit {
     isStudyMenuVisible = false;
     sampler = ExpConstants.sampler;
     testMenu = false;
-    markComplete = false;
 
     dataViewerQuery: AggregateQuery = null;
     dataViewerWhere: AndPredicate = null;
@@ -113,18 +112,22 @@ export class AppComponent implements OnInit {
         let parameters = util.parseQueryParameters(location.search);
 
         const data = parameters.data || "birdstrikes";
-        const init = parameters.init || 0;
-        const run = parameters.run || 0;
+        const init = +parameters.init || 0;
+        const run = +parameters.run || 0;
         const uid = parameters.uid || '0';
         const sid = parameters.sid || '0';
+        const alternate = parameters.alternate || this.alternate;
 
         this.data = data;
         this.isStudying = parameters.study || 0;
         this.testMenu = parameters.test || 0;
+        this.alternate = alternate;
 
-        this.markComplete = parameters.complete || 0;
+        const tutorial = parameters.tutorial || 0;
+        if(tutorial) this.alternate = true;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+
         if(this.alternate)
             this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
@@ -146,6 +149,12 @@ export class AppComponent implements OnInit {
                 this.querySelected(this.engine.ongoingQueries[0]);
 
                 if(run > 0) this.runMany(run);
+            }
+
+            if(tutorial) {
+                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('날씨')));
+                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('지역')));
+                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
             }
 
             if(this.isStudying)
@@ -182,7 +191,6 @@ export class AppComponent implements OnInit {
                 sg.updateConstant();
             }
         })
-
 
         if (DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
             this.vis.renderer.setDefaultConstantFromVariable(true);
@@ -530,6 +538,9 @@ export class AppComponent implements OnInit {
                     }
                     else if (this.engine.completedQueries.length > 0) {
                         this.querySelected(this.engine.completedQueries[0]);
+                    }
+                    else {
+                        this.activeQuery = null;
                     }
                 }, () => {
                 });
