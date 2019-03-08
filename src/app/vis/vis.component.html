@@ -158,7 +158,11 @@
         [style.left.px]="dropdownLeft"
         (click)="$event.stopPropagation()"
         [hidden]="!isDropdownVisible">
-        <h6 class="dropdown-header px-3" *ngIf="selectedDatum">{{ selectedDatum.keys.list[0].valueString() }}</h6>
+        <h6 class="dropdown-header px-3" *ngIf="selectedDatum">
+            {{ selectedDatum.keys.list[0].valueString() }}<ng-container *ngIf="selectedDatum.keys.list.length > 1"><!--
+            -->, {{ selectedDatum.keys.list[1].valueString() }}
+            </ng-container>
+        </h6>
         <a class="dropdown-item px-3" href="#" (click)="filterClick()">
             <fa-icon class="mr-1" [icon]="['fas', 'filter']"></fa-icon>
             {{ L.SeeOnlyTheseItems }}
