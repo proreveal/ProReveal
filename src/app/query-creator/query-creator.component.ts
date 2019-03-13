@@ -43,8 +43,13 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
             this.candidateFields = this.dataset.fields!
                 .filter(field => field.vlType != VlType.Key)
                 .sort((a, b) => {
+                    if (a.order && b.order) return a.order - b.order;
+                    if (a.order) return -1;
+                    if (b.order) return 1;
+
                     if (a.vlType > b.vlType) return 1;
                     if (a.vlType < b.vlType) return -1;
+
                     if (a.name > b.name) return 1;
                     if (a.name < b.name) return -1;
                     return 0;

@@ -33,6 +33,7 @@ export interface FieldTrait {
     dataType: DataType;
     vlType: VlType;
     nullable: boolean;
+    order: number;
 
     group(value: any): number;
     ungroup(id: GroupIdType): null | string | [number, number];
@@ -45,7 +46,7 @@ export class QuantitativeField implements FieldTrait {
 
     constructor(public name: string, public dataType: DataType,
         public initialMin: number, public initialMax: number, public numBins: number = 40,
-        public nullable: boolean = false, public unit: QuantitativeUnit) {
+        public nullable: boolean = false, public unit: QuantitativeUnit, public order: number = 0) {
 
         this.grouper = new NumericalGrouper(initialMin, initialMax, numBins);
     }
@@ -71,7 +72,7 @@ export class CategoricalField implements FieldTrait {
     private grouper: CategoricalGrouper = new CategoricalGrouper();
 
     constructor(public name: string, public dataType: DataType,
-        public nullable: boolean = false) {
+        public nullable: boolean = false, public order: number = 0) {
     }
 
     group(value: any) {

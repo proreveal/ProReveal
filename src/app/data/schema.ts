@@ -4,7 +4,7 @@ import { QuantitativeUnit } from "./unit";
 export class ColumnSchema {
     constructor(public name: string, public type: VlType,
         public nullable: boolean, public min: number, public max: number,
-        public numBins: number, public hidden: boolean = false, public unit: QuantitativeUnit) {
+        public numBins: number, public hidden: boolean = false, public unit: QuantitativeUnit, public order: number) {
 
     }
 }
@@ -24,7 +24,8 @@ export class Schema {
                 sch.max,
                 sch.numBins,
                 sch.hidden,
-                sch.unit
+                sch.unit,
+                sch.order
             );
 
             this.columns.push(schema);
