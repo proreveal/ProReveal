@@ -141,7 +141,20 @@ export class AppComponent implements OnInit {
             this.logger.log(LogType.AppStarted, {sid: sid, uid: uid});
 
             if(init) {
-                dataset.fields.forEach(field => {
+                dataset.fields
+                    .sort((a, b) => {
+                        if (a.order && b.order) return a.order - b.order;
+                        if (a.order) return -1;
+                        if (b.order) return 1;
+
+                        if (a.vlType > b.vlType) return 1;
+                        if (a.vlType < b.vlType) return -1;
+
+                        if (a.name > b.name) return 1;
+                        if (a.name < b.name) return -1;
+                        return 0;
+                    })
+                    .forEach(field => {
                     if (field.vlType !== VlType.Key)
                         this.create(new EmptyQuery(dataset, this.sampler).combine(field));
                 });

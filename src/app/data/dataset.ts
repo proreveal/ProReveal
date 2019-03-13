@@ -37,6 +37,7 @@ export class Dataset {
         Object.keys(rows[0]).forEach(name => {
             let columnSchema = schema.getColumnSchema(name);
             let unit = columnSchema.unit;
+            let order = columnSchema.order;
 
             let values = indices.map(i => rows[i][name]);
 
@@ -54,16 +55,16 @@ export class Dataset {
                 let minValue = (columnSchema && !isUndefined(columnSchema.min)) ? columnSchema.min : d3.min(values);
                 let maxValue = (columnSchema && !isUndefined(columnSchema.max)) ? columnSchema.max : d3.max(values);
                 let numBins = (columnSchema && !isUndefined(columnSchema.numBins)) ? columnSchema.numBins : 40;
-                field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable, unit);
+                field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable, unit, order);
             }
             else if (vlType === VlType.Nominal) {
-                field = new NominalField(name, dataType, nullable);
+                field = new NominalField(name, dataType, nullable, order);
             }
             else if (vlType === VlType.Dozen) {
-                field = new DozenField(name, dataType, nullable);
+                field = new DozenField(name, dataType, nullable, order);
             }
             else {
-                field = new KeyField(name, dataType, nullable);
+                field = new KeyField(name, dataType, nullable, order);
             }
 
             fields.push(field);
