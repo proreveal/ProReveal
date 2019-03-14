@@ -35,7 +35,7 @@ export const Constants = Object.freeze({
                 width: 20
             }
         },
-        initiallyVisibleCategories: 20
+        initiallyVisibleCategories: 40
     },
     history: {
         height: 40,
