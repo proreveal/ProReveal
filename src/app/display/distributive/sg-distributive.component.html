@@ -3,15 +3,19 @@
 <span class="variable1">{{ groupBy.fields[0].name }}</span>
 <span *ngIf="constant.b > 0"> + </span>{{ constant.b | smartNumber }}
 </span>
-<span *ngIf="constant.name !== 'linear_regression'">
-<span class="variable1 pr-1">{{ query.groupBy.fields[0].name }}</span>
+<ng-container *ngIf="constant.name == 'power'">
+<span class="variable1 pr-1">Count({{ query.groupBy.fields[0].name }})</span>
 <span class="operator pr-1">~</span>
-<span class="constant pr-1" *ngIf="constant.name == 'power'"
+<span class="constant pr-1"
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
->{{ constant.a | smartNumber }} * x<sup>{{ constant.b | smartNumber }}</sup> </span>
+>{{ constant.a | smartNumber }} * Rank({{ query.groupBy.fields[0].name }})<sup>{{ constant.b | smartNumber }}</sup> </span>
+</ng-container>
+<ng-container *ngIf="constant.name == 'normal'">
+<span class="variable1 pr-1">{{ query.groupBy.fields[0].name }}</span>
+<span class="operator pr-1">~</span>
 <span class="constant pr-1" *ngIf="constant.name == 'normal'"
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
 >N({{ constant.mean | smartNumber }}, {{ constant.stdev | smartNumber }})</span>
-</span>
+</ng-container>

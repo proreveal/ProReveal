@@ -55,6 +55,8 @@ export const Locale_ko_KR = Object.freeze({
     CreateSG: '세이프가드 만들기',
     Tip: '도움말',
 
+    PowerLawTip: '세이프가드를 만들어 데이터의 분포가 어느 정도 Power Law를 따르는지 확인해 보세요.',
+
     TruthinessTrue: '현재 시점에서 성립합니다!',
     TruthinessFalse: '현재 시점에서 성립하지 않습니다.',
 
@@ -70,6 +72,9 @@ export const Locale_ko_KR = Object.freeze({
     MIN: '최소',
     MAX: '최대',
     COUNT: '개수',
+
+    PauseAll: '모두 중단',
+    ResumeAll: '모두 재개',
 
     HeatmapLegendUncertainty: '표준 오차',
     HeatmapLedgendValue: '개수',

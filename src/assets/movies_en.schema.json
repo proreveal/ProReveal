@@ -24,16 +24,15 @@
         "type": "key"
     },
     {
-        "name": "Production Country",
+        "name": "Country",
         "type": "nominal"
     },
     {
-        "name": "Release Year",
-        "type": "nominal",
-        "hidden": true
+        "name": "Year",
+        "type": "nominal"
     },
     {
-        "name": "Release Month",
+        "name": "Month",
         "type": "dozen"
     },
     {
@@ -57,14 +56,14 @@
         "type": "key"
     },
     {
-        "name": "Score Average",
+        "name": "Score",
         "type": "quantitative",
         "min": 0,
         "max": 10,
         "numBins": 20
     },
     {
-        "name": "Number of Votes",
+        "name": "Votes",
         "type": "quantitative",
         "min": 0,
         "max": 12000,

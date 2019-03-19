@@ -1,7 +1,8 @@
 import * as util from './util';
 import { Locale_ko_KR } from './locales/ko_KR';
+import { Locale_en_US } from './locales/en_US';
 
-let locale = Locale_ko_KR;
+let locale = Locale_en_US;
 
 export const Constants = Object.freeze({
     usePlaceholder: true,

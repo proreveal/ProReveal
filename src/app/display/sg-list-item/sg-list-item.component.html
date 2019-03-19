@@ -1,5 +1,6 @@
 <div class="wrapper border-bottom p-1">
     <span class="badge badge-primary">{{ L[sg.type] }}</span>
+    <span class="badge badge-light">{{ sg.query.recentProgress.processedPercent() * 100 }}%</span>
     <div class="display mb-1">
         <sg-display [safeguard]="sg"></sg-display>
     </div>
