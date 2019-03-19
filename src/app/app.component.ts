@@ -22,6 +22,8 @@ import { Datum } from './data/datum';
 import { LoggerService, LogType } from './logger.service';
 import { ActivatedRoute } from "@angular/router";
 import { ExpConstants } from './exp-constants';
+import { FieldGroupedValue } from './data/field-grouped-value';
+import { timer } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -99,6 +101,7 @@ export class AppComponent implements OnInit {
     dataViewerQuery: AggregateQuery = null;
     dataViewerWhere: AndPredicate = null;
 
+    fig: number;
 
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
@@ -127,6 +130,8 @@ export class AppComponent implements OnInit {
         if(tutorial) this.alternate = true;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+
+        this.fig = +parameters.fig || 0;
 
         if(this.alternate)
             this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
@@ -172,7 +177,109 @@ export class AppComponent implements OnInit {
 
             if(this.isStudying)
                 this.engine.run();
+
+            if(this.fig) this.setupFigures();
         })
+    }
+
+    createVisByNames(vis1: string, vis2:string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {
+        let q: any = new EmptyQuery(this.engine.dataset, this.sampler);
+        q = q.combine(this.engine.dataset.getFieldByName(vis1));
+        if(vis2) {
+            q = q.combine(this.engine.dataset.getFieldByName(vis2));
+        }
+
+        if(where)
+            q.where = where;
+
+        this.create(q, priority);
+
+        return q;
+    }
+
+    createRankSafeguardFig(query: AggregateQuery, variable: SingleVariable, operator: Operators, constant: RankConstant) {
+        variable.isRank = true;
+
+        let sg = new RankSafeguard(variable, operator, constant, query);
+        this.safeguards.unshift(sg);
+        query.safeguards.push(sg);
+    }
+
+    createComparativeSafeguardFig(query: AggregateQuery, variable: VariablePair, operator: Operators) {
+        let sg = new ComparativeSafeguard(variable, operator, query);
+
+        this.safeguards.unshift(sg);
+        query.safeguards.push(sg);
+    }
+
+    createLinearSafeguardFig(query: AggregateQuery) {
+        let sg = new LinearSafeguard(new LinearRegressionConstant(1, 1), query);
+
+        this.safeguards.unshift(sg)
+        query.safeguards.push(sg);
+    }
+
+    setupFigures() {
+        let dataset = this.engine.dataset;
+
+        if(this.fig === 1) {
+            let country = this.createVisByNames('Country');
+            this.runMany(10);
+            country.getVisibleData();
+            this.runMany(90);
+            this.createComparativeSafeguardFig(
+                country,
+                new VariablePair(
+                    new SingleVariable(new FieldGroupedValue(
+                        dataset.getFieldByName('Country'),
+                        dataset.getFieldByName('Country').group('United States')
+                    )),
+                    new SingleVariable(new FieldGroupedValue(
+                        dataset.getFieldByName('Country'),
+                        dataset.getFieldByName('Country').group('United Kingdom')
+                    )),
+                ),
+                Operators.GreaterThanOrEqualTo
+            );
+            this.createVisByNames('Runtime')
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+
+            let month = this.createVisByNames('Month');
+            this.createRankSafeguardFig(month,
+                new SingleVariable(new FieldGroupedValue(
+                    dataset.getFieldByName('Month'),
+                    dataset.getFieldByName('Month').group('September')
+                )),
+                Operators.LessThanOrEqualTo,
+                new RankConstant(1));
+
+            this.runMany(45);
+            let rs = this.createVisByNames('Budget', 'Revenue', Priority.Highest);
+            this.createLinearSafeguardFig(rs);
+
+            this.runMany(27);
+
+            this.createVisByNames('Genre', '', Priority.Highest,
+            new AndPredicate([
+                new EqualPredicate(dataset.getFieldByName('Month'), 'September')
+            ]));
+            this.runMany(14);
+
+            timer(1000).subscribe(() =>{
+                this.toggle(SafeguardTypes.PowerLaw);
+                this.vis.renderer.showTooltip(
+                    (this.vis.renderer as BarsRenderer).getDatum(new SingleVariable(
+                        new FieldGroupedValue(
+                            dataset.getFieldByName('Genre'),
+                            dataset.getFieldByName('Genre').group('Action')
+                        )
+                    )),
+                    2
+                );
+            })
+        }
     }
 
     create(query: AggregateQuery, priority = Priority.Lowest) {

@@ -154,6 +154,13 @@ svg.hidden {
         bottom: -.5em
     }
 }
+
+button.border:hover {
+    color: #212529;
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
+}
+
 @import '../theme.scss';
 
 ::ng-deep .event-box {

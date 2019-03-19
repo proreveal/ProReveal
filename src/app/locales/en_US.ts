@@ -1,6 +1,7 @@
 import { formatKRW } from "../util";
 import { Locale } from "./locale";
 import { AggregateQuery } from "../data/query";
+import * as d3format from 'd3-format';
 
 export const Locale_en_US = Object.freeze({
     name: Locale.en_US,
@@ -9,7 +10,7 @@ export const Locale_en_US = Object.freeze({
     NewVisualization: 'New Visualization',
     CompletedVisualization: 'Completed Visualization',
     OngoingVisualization: 'Ongoing Visualization',
-    Alternate: 'Alaternate',
+    Alternate: 'Alternate',
     Filters: 'Filters',
     Fields: 'Fields',
     Aggregate: 'Aggregate',
@@ -22,12 +23,12 @@ export const Locale_en_US = Object.freeze({
     SafeguardGuide: 'The safeguard list is empty! Create a visualization and click on a label in it to make a safegaurd.',
 
     ChooseVisualizationToInspect: 'Choose a visualization to inspect.',
-    VisulizationNotStarted: 'This visualization has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.',
+    VisualizationNotStarted: 'This visualization has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.',
 
-    SplitXAxisBins: 'Split horizontal bins',
-    MergeXAxisBins: 'Merge horizontal bins',
-    SplitYAxisBins: 'Split vertical bins',
-    MergeYAxisBins: 'Merge vertical bins',
+    SplitXAxisBins: 'Split horizontally',
+    MergeXAxisBins: 'Merge horizontally',
+    SplitYAxisBins: 'Split vertically',
+    MergeYAxisBins: 'Merge vertically',
     SplitBins: 'Split Bins',
     MergeBins: 'Merge Bins',
 
@@ -35,7 +36,6 @@ export const Locale_en_US = Object.freeze({
     TooManyCategories2: 'categories.',
 
     SeeOnlyTheseItems: 'See only these data items',
-    CreateASafeguard: 'Create a safeguard on this',
 
     Value: 'Value',
     Rank: 'Rank',
@@ -55,6 +55,7 @@ export const Locale_en_US = Object.freeze({
 
     CreateSG: 'Create',
     Tip: 'TIP',
+    PowerLawTip: 'Create a Power Law safeguard to check how much the data values follows a power law distribution.',
 
     TruthinessTrue: 'It holds at this moment!',
     TruthinessFalse: 'It does not hold at this moment.',
@@ -77,6 +78,11 @@ export const Locale_en_US = Object.freeze({
 
     P: 'p',
 
-    XLabelTitleFormatter: (q: AggregateQuery) => `${Locale_en_US[q.approximator.name.toUpperCase()]} of ${q.target.name}`
-    //, currencyFormatter: formatKRW
+    PauseAll: 'Pause All',
+    ResumeAll: 'Resume All',
+
+    XLabelTitleFormatter: (q: AggregateQuery) => `${Locale_en_US[q.approximator.name.toUpperCase()]} of ${q.target.name}`,
+    currencyFormatter: (usd: number) => {
+        return '$' + d3format.format('2s')(usd);
+    }
 });

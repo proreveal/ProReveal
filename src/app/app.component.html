@@ -10,7 +10,7 @@
                 <fa-icon icon="folder-open"></fa-icon>
                 <small> ({{ this.data }}.json)</small>
             </button>
-            <ng-container *ngIf="!isStudying || testMenu">
+            <ng-container *ngIf="(!isStudying || testMenu) && !fig">
                 <span class="text-light navbar-text">
                     Test menu
                 </span>
@@ -118,11 +118,11 @@
             <div class="btn-group w-100 rounded-0 border-bottom" role="group" id="all">
                 <button type="button" class="btn btn-sm btn-light w-50" (click)="runAll()">
                     <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                    모두 시작
+                    {{ L.ResumeAll }}
                 </button>
                 <button type="button" class="btn btn-sm btn-light w-50 border-left" (click)="pauseAll()">
                     <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                    모두 중단
+                    {{ L.PauseAll }}
                 </button>
             </div>
             <div id="queries" class="styled-scroll bg-light" [sortablejs]="engine.ongoingQueries"
@@ -372,7 +372,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                세이프가드를 만들어 데이터의 분포가 어느 정도 Power Law를 따르는지 확인해 보세요.
+                {{ L.PowerLawTip }}
             </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
