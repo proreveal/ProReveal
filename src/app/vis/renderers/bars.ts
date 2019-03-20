@@ -642,10 +642,14 @@ export class BarsRenderer {
     }
 
     datumSelected(d: Datum) {
+        console.log('df');
         if (![SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
+        console.log('df');
         if (d.ci3 === EmptyConfidenceInterval) return;
+        console.log('df');
         if (d.keys.hasNullValue()) return;
 
+        console.log(d);
         this.logger.log(LogType.DatumSelected, {
             datum: d.toLog(),
             data: this.data.map(d => d.toLog())

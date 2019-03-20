@@ -329,6 +329,12 @@ vis {
     bottom: 0;
 }
 
+
+.cursor {
+    position: absolute;
+    transform: scale(2);
+}
+
 ::ng-deep .modal-xxl {
     .modal-lg {
         max-width: 90% !important;

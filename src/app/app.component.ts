@@ -127,13 +127,13 @@ export class AppComponent implements OnInit {
         this.alternate = alternate;
 
         const tutorial = parameters.tutorial || 0;
-        if(tutorial) this.alternate = true;
+        if (tutorial) this.alternate = true;
 
         this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
         this.fig = +parameters.fig || 0;
 
-        if(this.alternate)
+        if (this.alternate)
             this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
         this.engine.queryDone = this.queryDone.bind(this);
@@ -141,11 +141,11 @@ export class AppComponent implements OnInit {
         this.engine.load().then(([dataset]) => {
             this.logger.setup(uid, sid);
 
-            if(!this.isStudying) this.logger.mute();
+            if (!this.isStudying) this.logger.mute();
 
-            this.logger.log(LogType.AppStarted, {sid: sid, uid: uid});
+            this.logger.log(LogType.AppStarted, { sid: sid, uid: uid });
 
-            if(init) {
+            if (init) {
                 dataset.fields
                     .sort((a, b) => {
                         if (a.order && b.order) return a.order - b.order;
@@ -160,41 +160,48 @@ export class AppComponent implements OnInit {
                         return 0;
                     })
                     .forEach(field => {
-                    if (field.vlType !== VlType.Key)
-                        this.create(new EmptyQuery(dataset, this.sampler).combine(field));
-                });
+                        if (field.vlType !== VlType.Key)
+                            this.create(new EmptyQuery(dataset, this.sampler).combine(field));
+                    });
 
                 this.querySelected(this.engine.ongoingQueries[0]);
 
-                if(run > 0) this.runMany(run);
+                if (run > 0) this.runMany(run);
             }
 
-            if(tutorial) {
+            if (tutorial) {
                 this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('날씨')));
                 this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('지역')));
                 this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
             }
 
-            if(this.isStudying)
+            if (this.isStudying)
                 this.engine.run();
 
-            if(this.fig) this.setupFigures();
+            if (this.fig) this.setupFigures();
         })
     }
 
-    createVisByNames(vis1: string, vis2:string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {
+    createVisByNames(vis1: string, vis2: string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {
         let q: any = new EmptyQuery(this.engine.dataset, this.sampler);
         q = q.combine(this.engine.dataset.getFieldByName(vis1));
-        if(vis2) {
+        if (vis2) {
             q = q.combine(this.engine.dataset.getFieldByName(vis2));
         }
 
-        if(where)
+        if (where)
             q.where = where;
 
         this.create(q, priority);
 
         return q;
+    }
+
+
+    createValueSafeguardFig(query: AggregateQuery, variable: SingleVariable, operator: Operators, constant: ValueConstant) {
+        let sg = new ValueSafeguard(variable, operator, constant, query);
+        this.safeguards.unshift(sg);
+        query.safeguards.push(sg);
     }
 
     createRankSafeguardFig(query: AggregateQuery, variable: SingleVariable, operator: Operators, constant: RankConstant) {
@@ -212,6 +219,16 @@ export class AppComponent implements OnInit {
         query.safeguards.push(sg);
     }
 
+
+    createPowerLawSafeguardFig(query: AggregateQuery) {
+        let sg = new PowerLawSafeguard(
+            new PowerLawConstant(),
+            query);
+
+        this.safeguards.unshift(sg)
+        this.activeQuery.safeguards.push(sg);
+    }
+
     createLinearSafeguardFig(query: AggregateQuery) {
         let sg = new LinearSafeguard(new LinearRegressionConstant(1, 1), query);
 
@@ -219,10 +236,15 @@ export class AppComponent implements OnInit {
         query.safeguards.push(sg);
     }
 
+    cursorLeft: number;
+    cursorTop: number;
     setupFigures() {
         let dataset = this.engine.dataset;
 
-        if(this.fig === 1) {
+        if (this.fig === 1) {
+            this.cursorLeft = 740;
+            this.cursorTop = 250;
+
             let country = this.createVisByNames('Country');
             this.runMany(10);
             country.getVisibleData();
@@ -262,12 +284,12 @@ export class AppComponent implements OnInit {
             this.runMany(27);
 
             this.createVisByNames('Genre', '', Priority.Highest,
-            new AndPredicate([
-                new EqualPredicate(dataset.getFieldByName('Month'), 'September')
-            ]));
+                new AndPredicate([
+                    new EqualPredicate(dataset.getFieldByName('Month'), 'September')
+                ]));
             this.runMany(14);
 
-            timer(1000).subscribe(() =>{
+            timer(1000).subscribe(() => {
                 this.toggle(SafeguardTypes.PowerLaw);
                 this.vis.renderer.showTooltip(
                     (this.vis.renderer as BarsRenderer).getDatum(new SingleVariable(
@@ -278,6 +300,70 @@ export class AppComponent implements OnInit {
                     )),
                     2
                 );
+            })
+        }
+        else if (this.fig === 3) {
+            this.cursorLeft = 580;
+            this.cursorTop = 230;
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+
+            let month = this.createVisByNames('Month');
+            this.runMany(100);
+            let rs = this.createVisByNames('Budget', 'Revenue', Priority.Highest);
+
+            this.runMany(100);
+
+            let genre = this.createVisByNames('Genre', '', Priority.Highest,
+                new AndPredicate([
+                    new EqualPredicate(dataset.getFieldByName('Month'), 'September')
+                ]));
+            this.createPowerLawSafeguardFig(genre);
+            this.runMany(100);
+
+            let pop = this.createVisByNames('Popularity', '', Priority.Highest);
+            this.runMany(23);
+            pop.getVisibleData();
+            this.runMany(10)
+            this.createValueSafeguardFig(pop, new SingleVariable(
+                new FieldGroupedValue(
+                    dataset.getFieldByName('Popularity'),
+                    [2, 3]
+                )), Operators.LessThanOrEqualTo,
+                new ValueConstant(42));
+
+            let heatmap = this.createVisByNames('Runtime', 'Revenue', Priority.Highest);
+            this.runMany(15);
+
+            this.alternate = true;
+
+            timer(1000).subscribe(() => {
+                this.querySelected(pop);
+
+                timer(500).subscribe(() => {
+                    this.querySelected(heatmap);
+                    timer(500).subscribe(() => {
+                        this.toggle(SafeguardTypes.Range);
+                        let datum = (this.vis.renderer as HeatmapRenderer).getDatum(
+                            new CombinedVariable(
+                                new SingleVariable(
+                                    new FieldGroupedValue(
+                                        dataset.getFieldByName('Runtime'),
+                                        [4, 5]
+                                    )
+                                ),
+                                new SingleVariable(
+                                    new FieldGroupedValue(
+                                        dataset.getFieldByName('Revenue'),
+                                        [0, 1]
+                                    )
+                                )
+                            )
+                        );
+                        (this.vis.renderer as HeatmapRenderer).datumSelected(datum);
+                        (this.vis.renderer as HeatmapRenderer).showTooltip(datum);
+                    });
+                });
             })
         }
     }
@@ -316,7 +402,7 @@ export class AppComponent implements OnInit {
             this.vis.renderer.setDefaultConstantFromVariable(true);
         }
 
-        if(this.dataViewerQuery == query) {
+        if (this.dataViewerQuery == query) {
             this.filteredRows = this.engine.select(
                 this.dataViewerWhere, query.processedIndices);
         }
@@ -349,7 +435,7 @@ export class AppComponent implements OnInit {
     queryRunClick(query: AggregateQuery, $event: UIEvent) {
         query.run();
         this.engine.reschedule();
-        if(this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
+        if (this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
         $event.stopPropagation();
         return false;
     }
@@ -359,7 +445,7 @@ export class AppComponent implements OnInit {
             query.run();
         });
         this.engine.reschedule();
-        if(this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
+        if (this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
     }
 
     pauseAll() {
@@ -515,7 +601,7 @@ export class AppComponent implements OnInit {
     }
 
     toggleQueryCreator() {
-        this.creating=!this.creating
+        this.creating = !this.creating
 
         this.logger.log(LogType.QueryCreatorOpened, this.creating);
     }
@@ -731,7 +817,7 @@ export class AppComponent implements OnInit {
     unload() {
         let data: any;
 
-        if(this.vis && this.vis.renderer && this.vis.renderer.data) {
+        if (this.vis && this.vis.renderer && this.vis.renderer.data) {
             data = this.vis.renderer.data.map(d => d.toLog());
         }
 

@@ -285,7 +285,7 @@ export class HeatmapRenderer {
         let viridis = d3.interpolateViridis;
         let zScale = vsup.scale()
             .quantize(quant)
-            .range(t => viridis(1 - t));
+            // .range(t => viridis(1 - t));
 
         const rects = visG
             .selectAll('rect.area')

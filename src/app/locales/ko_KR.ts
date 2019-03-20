@@ -55,6 +55,7 @@ export const Locale_ko_KR = Object.freeze({
     CreateSG: '세이프가드 만들기',
     Tip: '도움말',
 
+    RangeTip: '시각화 상의 범위 막대를 끌어서 검정하려는 범위를 선택하세요.',
     PowerLawTip: '세이프가드를 만들어 데이터의 분포가 어느 정도 Power Law를 따르는지 확인해 보세요.',
 
     TruthinessTrue: '현재 시점에서 성립합니다!',
