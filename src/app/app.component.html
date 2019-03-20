@@ -197,6 +197,13 @@
     <section id="safeguard-view">
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             {{ L.Safeguards }}
+
+            <a href="#" class="export-safeguards mr-1 text-dark"
+                (click)="exportSafeguards()">
+                <small>
+                    <fa-icon [icon]="['fas', 'download']"></fa-icon> Export
+                </small>
+            </a>
         </h3>
         <section id="safeguard-list" class="styled-scroll bg-light">
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-1" style="word-break:keep-all;">
