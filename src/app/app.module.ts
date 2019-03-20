@@ -49,6 +49,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FieldGroupedValueIndicatorComponent } from './display/field-grouped-value-indicator/field-grouped-value-indicator.component';
 import { KeepHtmlPipe } from './keep-html.pipe';
 import { BytesPipe } from './bytes.pipe';
+import { DropdownComponent } from './figure/dropdown/dropdown.component';
 
 library.add(fas, far);
 
@@ -84,7 +85,8 @@ library.add(fas, far);
         DataViewerComponent,
         FieldGroupedValueIndicatorComponent,
         KeepHtmlPipe,
-        BytesPipe
+        BytesPipe,
+        DropdownComponent
     ],
     imports: [
         NgbModule.forRoot(),

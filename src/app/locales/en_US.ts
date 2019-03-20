@@ -18,30 +18,32 @@ export const Locale_en_US = Object.freeze({
     CreateVisualization: 'Create this visualization',
     Cancel: 'Cancel',
     ChooseFields: 'Choose fields that should be included in the visualization.',
-    NumRows: '# of Rows',
+    NumRows: '# of Rows Found',
     Safeguards: 'Safeguards',
     SafeguardGuide: 'The safeguard list is empty! Create a visualization and click on a label in it to make a safegaurd.',
 
     ChooseVisualizationToInspect: 'Choose a visualization to inspect.',
     VisualizationNotStarted: 'This visualization has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.',
 
-    SplitXAxisBins: 'Split horizontally',
-    MergeXAxisBins: 'Merge horizontally',
-    SplitYAxisBins: 'Split vertically',
-    MergeYAxisBins: 'Merge vertically',
+    SplitXAxisBins: 'Split X',
+    MergeXAxisBins: 'Merge X',
+    SplitYAxisBins: 'Split Y',
+    MergeYAxisBins: 'Merge Y',
     SplitBins: 'Split Bins',
     MergeBins: 'Merge Bins',
 
     TooManyCategories1: 'There are too many categories. Click here to see all',
     TooManyCategories2: 'categories.',
 
-    SeeOnlyTheseItems: 'See only these data items',
+    SeeOnlyTheseItems: 'Keep these data items only',
+    CreateSafeguardOnThis: 'Create a safeguard on this element',
 
     Value: 'Value',
     Rank: 'Rank',
     Range: 'Range',
     Comparative: 'Comparative',
     Normal: 'Normal',
+    PowerLaw: 'Power Law',
     Linear: 'Linear',
 
     ShowDataItems: 'Show data items',
@@ -55,6 +57,7 @@ export const Locale_en_US = Object.freeze({
 
     CreateSG: 'Create',
     Tip: 'TIP',
+    RangeTip: 'Drag the two edges of the brush on the legend to set a range.',
     PowerLawTip: 'Create a Power Law safeguard to check how much the data values follows a power law distribution.',
 
     TruthinessTrue: 'It holds at this moment!',
@@ -64,7 +67,7 @@ export const Locale_en_US = Object.freeze({
     P50: 'It holds probably.',
     POther: 'It holds unlikely.',
 
-    KSStatistics: 'Kolmogorov-Smirnov Statistics',
+    KSStatistics: 'KS Statistics',
     RMSE: 'RMSE',
 
     SUM: 'SUM',

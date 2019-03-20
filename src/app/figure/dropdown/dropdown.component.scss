@@ -1,0 +1,64 @@
+
+#dropdown {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+    fa-icon {
+        display: inline-block;
+        width: 20px;
+        height: 16px;
+        text-align: center;
+    }
+
+    svg{
+        width: 20px;
+        height: 24px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    text {
+        font-family: 'Arial';
+        font-weight: bold;
+    }
+
+    line {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+
+        &.thin {
+            stroke-width: 2px;
+        }
+    }
+
+    path {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+        fill: none;
+    }
+
+    small {
+        opacity: .8;
+        font-family: 'Roboto Condensed';
+    }
+
+    a:active {
+        line, path {
+            stroke: white;
+        }
+
+        text, circle {
+            stroke: white;
+            fill: white;
+        }
+    }
+}
+
+#dropdown-safeguard-header {
+    opacity: .8;
+    pointer-events: none;
+}
