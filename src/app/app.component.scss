@@ -335,6 +335,10 @@ vis {
     transform: scale(2);
 }
 
+.export-safeguards {
+    float:right;
+}
+
 ::ng-deep .modal-xxl {
     .modal-lg {
         max-width: 90% !important;

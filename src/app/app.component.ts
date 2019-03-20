@@ -785,6 +785,20 @@ export class AppComponent implements OnInit {
         this.engine.reschedule(scheduler);
     }
 
+    exportSafeguards() {
+        let safeguards = this.safeguards.map(s => s.toLog());
+        let safeguardsString = JSON.stringify(safeguards, null, 2);
+        let dataString = `data:text/json;charset=utf-8,${encodeURIComponent(safeguardsString)}`;
+        let anchor = document.createElement("a");
+        anchor.setAttribute("href", dataString);
+        anchor.setAttribute("download", `safeguards.json`);
+        document.body.appendChild(anchor); // required for firefox
+        anchor.click();
+        anchor.remove();
+
+        return false;
+    }
+
     // user study
     downloadCurrentUserLog() {
         let userLog = this.logger.userLog;
