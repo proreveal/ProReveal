@@ -22,9 +22,9 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
 
     approximators = [
         new MeanApproximator(),
-        new SumApproximator()
-        // new MinApproximator(),
-        // new MaxApproximator()
+        new SumApproximator(),
+        new MinApproximator(),
+        new MaxApproximator()
     ];
 
     candidateFields: FieldTrait[] = [];
