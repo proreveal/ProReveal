@@ -333,6 +333,7 @@ vis {
 .cursor {
     position: absolute;
     transform: scale(2);
+    z-index:10001;
 }
 
 .export-safeguards {

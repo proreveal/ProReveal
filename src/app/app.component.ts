@@ -24,6 +24,7 @@ import { ActivatedRoute } from "@angular/router";
 import { ExpConstants } from './exp-constants';
 import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
+import { QueryCreatorComponent } from './query-creator/query-creator.component';
 
 @Component({
     selector: 'app-root',
@@ -50,7 +51,7 @@ export class AppComponent implements OnInit {
 
     @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
     @ViewChild('vis') vis: VisComponent;
-
+    @ViewChild('queryCreator') queryCreator: QueryCreatorComponent;
     @ViewChild('dataViewerModal') dataViewerModal: TemplateRef<ElementRef>;
 
     engine: Engine;
@@ -283,11 +284,13 @@ export class AppComponent implements OnInit {
 
             this.runMany(27);
 
-            this.createVisByNames('Genre', '', Priority.Highest,
+            let genre = this.createVisByNames('Genre', '', Priority.Highest,
                 new AndPredicate([
                     new EqualPredicate(dataset.getFieldByName('Month'), 'September')
                 ]));
             this.runMany(14);
+
+            this.engine.runningJob = genre.jobs()[0];
 
             timer(1000).subscribe(() => {
                 this.toggle(SafeguardTypes.PowerLaw);
@@ -303,8 +306,22 @@ export class AppComponent implements OnInit {
             })
         }
         else if (this.fig === 3) {
-            this.cursorLeft = 580;
-            this.cursorTop = 230;
+            this.cursorLeft = 565;
+            this.cursorTop = 222;
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
+            this.createVisByNames('Year', 'Month');
+            this.runMany(100);
             this.createVisByNames('Year', 'Month');
             this.runMany(100);
 
@@ -332,36 +349,51 @@ export class AppComponent implements OnInit {
                 )), Operators.LessThanOrEqualTo,
                 new ValueConstant(42));
 
-            let heatmap = this.createVisByNames('Runtime', 'Revenue', Priority.Highest);
+            let heatmap = this.createVisByNames('Score', 'Votes', Priority.Highest);
             this.runMany(15);
 
+            this.createVisByNames('Popularity', '', Priority.Highest)
+            this.createVisByNames('Popularity', '', Priority.Highest)
+
+            this.createVisByNames('Popularity', '', Priority.Highest)
+            this.createVisByNames('Popularity', '', Priority.Highest)
+            this.createVisByNames('Popularity', '', Priority.Highest)
+
             this.alternate = true;
+            this.toggleQueryCreator();
 
             timer(1000).subscribe(() => {
+                this.queryCreator.fieldSelected(dataset.getFieldByName('Genre'));
+                this.queryCreator.fieldSelected(dataset.getFieldByName('Score'));
+
                 this.querySelected(pop);
 
                 timer(500).subscribe(() => {
                     this.querySelected(heatmap);
                     timer(500).subscribe(() => {
-                        this.toggle(SafeguardTypes.Range);
+                        // this.toggle(SafeguardTypes.Range);
                         let datum = (this.vis.renderer as HeatmapRenderer).getDatum(
                             new CombinedVariable(
                                 new SingleVariable(
                                     new FieldGroupedValue(
-                                        dataset.getFieldByName('Runtime'),
+                                        dataset.getFieldByName('Score'),
                                         [4, 5]
                                     )
                                 ),
                                 new SingleVariable(
                                     new FieldGroupedValue(
-                                        dataset.getFieldByName('Revenue'),
+                                        dataset.getFieldByName('Votes'),
                                         [0, 1]
                                     )
                                 )
                             )
                         );
-                        (this.vis.renderer as HeatmapRenderer).datumSelected(datum);
+                        if(typeof (this.vis.renderer.eventBoxes as any)._groups[0][24].dispatchEvent == 'function') {
+                            (this.vis.renderer.eventBoxes as any)._groups[0][24].dispatchEvent(new Event('click'))
+                            //this.vis.renderer(this.vis.renderer.eventBoxes as any)._groups[0][24].dispatchEvent(new Event('mouseover'))
+                        }
                         (this.vis.renderer as HeatmapRenderer).showTooltip(datum);
+
                     });
                 });
             })

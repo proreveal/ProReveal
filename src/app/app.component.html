@@ -67,7 +67,9 @@
                 {{ L.NewVisualization }}
             </button>
 
-            <query-creator id="query-creator" [hidden]="!creating"
+            <query-creator
+                #queryCreator
+                id="query-creator" [hidden]="!creating"
                 [dataset]="engine.dataset"
                 (created)="create($event.query, Priority.Highest)"
                 (creationCancelled)="creating=false"
