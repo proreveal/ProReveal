@@ -10,7 +10,7 @@
                 <fa-icon icon="folder-open"></fa-icon>
                 <small> ({{ this.data }}.json)</small>
             </button>
-            <ng-container *ngIf="(!isStudying || testMenu) && !fig">
+            <ng-container *ngIf="!isStudying && testMenu && !fig">
                 <span class="text-light navbar-text">
                     Test menu
                 </span>
@@ -170,8 +170,13 @@
         </section>
     </section>
     <section id="main" class="styled-scroll p-2 px-3 bg-light" (click)="visBackgroundClick()">
-        <div *ngIf="!activeQuery" class="alert alert-primary guide">
-            {{ L.ChooseVisualizationToInspect }}
+        <div *ngIf="!activeQuery" class="alert alert-primary">
+            <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
+                [innerHTML]="L.CreateANewVisualization">
+            </span>
+            <ng-container *ngIf="engine.ongoingQueries.length || engine.completedQueries.length">
+                {{ L.ChooseVisualizationToInspect }}
+            </ng-container>
         </div>
 
         <vis #vis
@@ -208,7 +213,7 @@
             </a>
         </h3>
         <section id="safeguard-list" class="styled-scroll bg-light">
-            <p *ngIf="safeguards.length === 0" class="m-0 guide p-1" style="word-break:keep-all;">
+            <p *ngIf="safeguards.length === 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
                 {{ L.SafeguardGuide }}
             </p>
 
@@ -234,17 +239,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                시각화 상의 세로 막대를 끌어서 검정하려는 값을 선택하세요.
-                <!-- <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    Please pick a
-                    <strong class="variable1">variable</strong>
-                    by clicking on a category on the vertial axis of the chart.
-                </span>
-                <span (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
-                    Once a variable is selected, choose a
-                    <strong class="constant">constant</strong>
-                    by dragging the constant bar.
-                </span> -->
+                <span class="ml-2 sg-tip" [innerHTML]="L.ValueTip"></span>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
@@ -274,17 +269,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                시각화 상의 가로 막대를 끌어서 검정하려는 순위를 선택하세요.
-                <!-- <span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    Please pick a
-                    <span class="variable1 font-weight-bold">variable</span>
-                    by clicking on a category on the vertial axis of the chart.
-                </span>
-                <span (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
-                    Once a variable is selected, choose a
-                    <span class="constant font-weight-bold">constant</span>
-                    by dragging the constant bar.
-                </span>-->
+                <span class="ml-2 sg-tip" [innerHTML]="L.RankTip"></span>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && activeQuery.approximator.estimatable">
@@ -313,18 +298,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                {{ L.RangeTip }}
-
-                <!--<span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    Please pick a
-                    <span class="variable1 font-weight-bold">variable</span>
-                    by clicking on a category on the vertial axis of the chart.
-                </span>
-                <span (mouseenter)="highlight(3)" (mouseleave)="highlight(0)">
-                    Once a variable is selected, choose a
-                    <span class="constant font-weight-bold">range</span>
-                    by dragging the edge of the range brush.
-                </span>-->
+                <span class="ml-2 sg-tip" [innerHTML]="L.RangeTip"></span>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeConstant">
                 <p-indicator [p]="RangeEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
@@ -347,17 +321,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                시각화 상의 범주를 <strong class="variable2">오른쪽 클릭</strong>하여 비교하려는 두 번째 범주를 선택하세요.
-                <!--<span (mouseenter)="highlight(1)" (mouseleave)="highlight(0)">
-                    Please pick the
-                    <span class="variable1 font-weight-bold">first variable</span>
-                    by clicking on a category on the vertial axis of the chart.
-                </span>
-                <span (mouseenter)="highlight(4)" (mouseleave)="highlight(0)">
-                    Then, pick the
-                    <span class="variable2 font-weight-bold">second variable</span>
-                    by <strong>right-clicking</strong> on a category.
-                </span>-->
+                <span class="ml-2 sg-tip" [innerHTML]="L.ComparativeTip"></span>
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
                 <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
@@ -382,7 +346,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                {{ L.PowerLawTip }}
+                <span class="ml-2 sg-tip" [innerHTML]="L.PowerLawTip"></span>
             </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
@@ -405,7 +369,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                세이프가드를 만들어 데이터의 분포가 어느 정도 정규 분포를 따르는지 확인해 보세요.
+                <span class="ml-2 sg-tip" [innerHTML]="L.NormalTip"></span>
             </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
@@ -428,7 +392,7 @@
             </div>
             <div class="alert guide p-2 m-1">
                 <span class="tip">{{ L.Tip }}</span>
-                세이프가드를 만들어 얼마나 두 축이 선형 관계에 있는지 확인해 보세요.
+                <span class="ml-2 sg-tip" [innerHTML]="L.LinearTip"></span>
             </div>
             <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
                 <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>

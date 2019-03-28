@@ -115,7 +115,7 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         let parameters = util.parseQueryParameters(location.search);
 
-        const data = parameters.data || "birdstrikes";
+        const data = parameters.data || "movies_en";
         const init = +parameters.init || 0;
         const run = +parameters.run || 0;
         const uid = parameters.uid || '0';
@@ -176,8 +176,7 @@ export class AppComponent implements OnInit {
                 this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
             }
 
-            if (this.isStudying)
-                this.engine.run();
+            this.engine.run();
 
             if (this.fig) this.setupFigures();
         })

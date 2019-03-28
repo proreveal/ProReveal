@@ -15,15 +15,17 @@ export const Locale_en_US = Object.freeze({
     Fields: 'Fields',
     Aggregate: 'Aggregate',
     QueryPreview: 'Query Preview',
-    CreateVisualization: 'Create this visualization',
+    CreateVisualization: 'Create visualization',
     Cancel: 'Cancel',
-    ChooseFields: 'Choose fields that should be included in the visualization.',
-    NumRows: '# of Rows Found',
-    Safeguards: 'Safeguards',
-    SafeguardGuide: 'The safeguard list is empty! Create a visualization and click on a label in it to make a safegaurd.',
+    ChooseFields: 'Choose fields that you want to include in a visualization.',
+    NumRows: '# of rows found',
+    Safeguards: 'PVA-Guards',
+    SafeguardGuide: 'The PVA-Guard list is empty! Create a visualization and click on a label to leave a PVA-Guard on it.',
 
-    ChooseVisualizationToInspect: 'Choose a visualization to inspect.',
-    VisualizationNotStarted: 'This visualization has not been started yet. Reorder <strong>the ongoing list</strong> to give a high priority to this query.',
+    CreateANewVisualization: 'You haven\'t created any visualization! Create one by clicking on the <strong>"New Visualization"</strong> button.',
+    ChooseVisualizationToInspect: 'Choose a visualization from the lists on the left to inspect.',
+
+    VisualizationNotStarted: 'This visualization has not been started yet. Reorder <strong>the ongoing visualization list</strong> to give a high priority to this query.',
 
     SplitXAxisBins: 'Split X',
     MergeXAxisBins: 'Merge X',
@@ -36,7 +38,7 @@ export const Locale_en_US = Object.freeze({
     TooManyCategories2: 'categories.',
 
     SeeOnlyTheseItems: 'Keep these data items only',
-    CreateSafeguardOnThis: 'Create a safeguard on this element',
+    CreateSafeguardOnThis: 'Create a PVA-Guard on this element',
 
     Value: 'Value',
     Rank: 'Rank',
@@ -50,24 +52,28 @@ export const Locale_en_US = Object.freeze({
 
     DataViewer: 'Data Viewer',
 
-    CannotRemoveSafeguardedVis: 'You cannot remove a query that has a safeguard on it.',
-    RemovingVis: 'Removing the visualization',
-    RemovingVisAlert: 'You are removing a visualization. Are you sure?',
+    CannotRemoveSafeguardedVis: 'You cannot remove a visualization that has a PVA-Guard on it.',
+    RemovingVis: 'Removing a visualization',
+    RemovingVisAlert: 'You are removing this visualization. Are you sure?',
     Remove: 'Remove',
 
     CreateSG: 'Create',
     Tip: 'TIP',
-    RangeTip: 'Drag the two edges of the brush on the legend to set a range.',
-    PowerLawTip: 'Create a Power Law safeguard to check how much the data values follow a power law distribution.',
+
+    // <span class="constant font-weight-bold">range</span>
+
+    ValueTip: 'Drag <span class="constant">the constant bar</span> left or right to select the target value.',
+    RankTip: 'Drag <span class="constant">the rank bar</span> left or right to select the target rank.',
+    RangeTip: 'Drag the two edges of <span class="brush">the brush</span> to set the target range.',
+    ComparativeTip: 'Right-click on <span class="variable2">the second element</span> that you want to compare with.',
+    PowerLawTip: 'Click on <span class="create">the create button</span> to leave a Power Law PVA-Guard on the current visualization.',
+    NormalTip: 'Click on <span class="create">the create button</span> to leave a Normal PVA-Guard on the current visualization.',
+    LinearTip: 'Click on <span class="create">the create button</span> to leave a Linear PVA-Guard on the current visualization.',
 
     TruthinessTrue: 'It holds at this moment!',
     TruthinessFalse: 'It does not hold at this moment.',
 
-    P5: 'It holds certainly!',
-    P50: 'It holds probably.',
-    POther: 'It holds unlikely.',
-
-    KSStatistics: 'KS Statistics',
+    KSStatistic: 'KS Statistic',
     RMSE: 'RMSE',
 
     SUM: 'SUM',

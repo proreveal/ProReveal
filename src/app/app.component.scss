@@ -354,3 +354,25 @@ vis {
         padding: 0;
     }
 }
+
+::ng-deep .sg-tip {
+    .constant {
+        color: $constant-highlight-color;
+        font-weight: bold;
+    }
+
+    .brush {
+        color: #333;
+        font-weight: bold;
+    }
+
+    .variable2 {
+        color: $variable2-highlight-color;
+        font-weight: bold;
+    }
+
+    .create {
+        color: var(--success);
+        font-weight: bold;
+    }
+}

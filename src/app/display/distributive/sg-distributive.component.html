@@ -4,7 +4,10 @@
 <span *ngIf="constant.b > 0"> + </span>{{ constant.b | smartNumber }}
 </span>
 <ng-container *ngIf="constant.name == 'power'">
-<span class="variable1 pr-1">Count({{ query.groupBy.fields[0].name }})</span>
+<span class="variable1 pr-1">
+    <ng-container *ngIf="isQuantitative(query.groupBy.fields[0])">{{ query.groupBy.fields[0].name }}</ng-container>
+    <ng-container *ngIf="!isQuantitative(query.groupBy.fields[0])">Count({{ query.groupBy.fields[0].name }})</ng-container>
+</span>
 <span class="operator pr-1">~</span>
 <span class="constant pr-1"
     [class.highlighted]="highlighted == 3"
