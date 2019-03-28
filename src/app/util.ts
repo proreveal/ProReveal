@@ -199,57 +199,5 @@ export function formatKRW(krw: number) {
         }
     }
 
-    // return result;
-
-    // for(let i = 0; i < 3; i++) {
-    //     let num = +str[i];
-    //     let pos = length - i;
-    //     let group4;
-
-    //     console.log(str);
-    //     if(pos >= 12) group4 = '조';
-    //     else if(pos >= 8) group4 = '억';
-    //     else if(pos >= 4) group4 = '만';
-
-    //     if(num > 0) {
-    //         numFlag = true;
-    //         if(pos % 4 === 0) result += num;
-    //         if(pos % 4 === 1) result += `${num}`
-    //         if(pos % 4 === 2) result += `${num}`
-    //         if(pos % 4 === 3) result += `${num}`
-    //     }
-
-    //     if(!prevGroup4) prevGroup4 = group4;
-    //     if(prevGroup4 != group4 && result[result.length - 1]) {
-    //         result += prevGroup4;
-    //         numFlag = false;
-    //     }
-    //     prevGroup4 = group4;
-    // }
-
-    // if(numFlag) result += prevGroup4;
-
     return result;
 }
-
-/*
-10,000 10K 만
-1,000,000
-5천2백만
-5천2백5십만
-
-
-10,000 만
-100,000,000 억
-1,000,000,000,000 조
-
-5억2천3백만
-
-천 백 십
-
-만 억 조
-
-
-*/
-
-// console.log(formatKRW(12300000000)); // 123억
