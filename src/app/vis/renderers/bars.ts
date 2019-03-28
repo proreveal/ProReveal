@@ -17,7 +17,7 @@ import { AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
 import { AggregateQuery } from '../../data/query';
 import { LoggerService, LogType } from '../../services/logger.service';
-import { EmptyConfidenceInterval, MinMaxConfidencePoint } from '../../data/confidence-interval';
+import { EmptyConfidenceInterval, ConfidencePoint } from '../../data/confidence-interval';
 
 type Range = [number, number];
 
@@ -359,7 +359,7 @@ export class BarsRenderer {
                     if (d.keys.hasNullValue()) return 0.3;
                     return 1;
                 })
-                .style('stroke-dasharray', (d) => d.ci3 instanceof MinMaxConfidencePoint ? 2 : 0)
+                .style('stroke-dasharray', (d) => d.ci3 instanceof ConfidencePoint ? 2 : 0)
 
             centerLines.exit().remove();
         }
@@ -720,7 +720,7 @@ export class BarsRenderer {
                 let center = range.center;
                 let high = range.high;
 
-                if(range instanceof MinMaxConfidencePoint) {
+                if(range instanceof ConfidencePoint) {
                     let width = this.xScale.invert(300) - this.xScale.invert(290);
                     low = center - width;
                     high = center + width;

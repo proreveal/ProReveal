@@ -17,7 +17,7 @@ export class ConfidenceInterval {
     }
 }
 
-export class MinMaxConfidencePoint extends ConfidenceInterval {
+export class ConfidencePoint extends ConfidenceInterval {
     constructor(public center: number) {
         super(center, 0, center, center);
     }

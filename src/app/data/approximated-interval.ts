@@ -1,4 +1,4 @@
-import { ConfidenceInterval, EmptyConfidenceInterval, MinMaxConfidencePoint } from "./confidence-interval";
+import { ConfidenceInterval, EmptyConfidenceInterval, ConfidencePoint } from "./confidence-interval";
 
 const Z95 = 1.96;
 
@@ -20,13 +20,13 @@ export class ApproximatedInterval {
     }
 }
 
-export class MinMaxApproximatePoint extends ApproximatedInterval {
+export class ApproximatedPoint extends ApproximatedInterval {
     constructor(public center: number, public n: number) {
         super(center, 0, n);
     }
 
     range(factor: number) {
-        return new MinMaxConfidencePoint(this.center);
+        return new ConfidencePoint(this.center);
     }
 }
 
