@@ -13,9 +13,9 @@ const ValueEstimate = new ValueEstimator().estimate;
 const MinMaxValueEstimate = new MinMaxValueEstimator().estimate
 const RankEstimate = new RankEstimator().estimate;
 const MinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
-const RangeValueEstimate = new RangeEstimator().estimate;
-const MinMaxRangeValueEstimate = new RangeEstimator().estimate;
-const ComparativeEstimate = new MinMaxComparativeEstimator().estimate;
+const RangeEstimate = new RangeEstimator().estimate;
+const MinMaxRangeEstimate = new RangeEstimator().estimate;
+const ComparativeEstimate = new ComparativeEstimator().estimate;
 const MinMaxComparativeEstimate = new MinMaxComparativeEstimator().estimate;
 const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
@@ -149,7 +149,15 @@ export class RangeSafeguard extends Safeguard {
     }
 
     p() {
-        return RangeValueEstimate(
+        return RangeEstimate(
+            this.query,
+            this.variable,
+            this.operator,
+            this.constant as RangeConstant);
+    }
+
+    t() {  // min or max
+        return MinMaxRangeEstimate(
             this.query,
             this.variable,
             this.operator,
@@ -157,7 +165,8 @@ export class RangeSafeguard extends Safeguard {
     }
 
     validity() {
-        return this.p();
+        if (this.query.approximator.estimatable) return this.p();
+        return this.t();
     }
 }
 
@@ -185,7 +194,8 @@ export class ComparativeSafeguard extends Safeguard {
     }
 
     validity() {
-        return this.p();
+        if (this.query.approximator.estimatable) return this.p();
+        return this.t();
     }
 }
 

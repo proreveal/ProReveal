@@ -38,7 +38,7 @@ export class Brush<Datum> {
     brush1: d3.BrushBehavior<Datum>;
     brush2: d3.BrushBehavior<Datum>;
     handles: string[];
-    handlers: { brush?: (range: number | [number, number]) => void } = {};
+    handlers: { brush?: (range: number | [number, number, number]) => void } = {};
     snap: (number) => number;
     center: number = 600;
     range: Range;
@@ -275,7 +275,7 @@ export class Brush<Datum> {
                 this.moveHandles(range[0], range[1], false);
                 this.moveSelection(range[0], range[1]);
 
-                if (this.handlers.brush) this.handlers.brush(range);
+                if (this.handlers.brush) this.handlers.brush([center, range[0], range[1]]);
             })
             .on('end', () => {
                 if (!d3.event.sourceEvent) return;

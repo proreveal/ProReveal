@@ -34,7 +34,7 @@ export class AngularBrush<Datum> {
     brush2: d3.BrushBehavior<Datum> = d3.brushX();
 
     handles: string[] = ['w', 'e'];
-    handlers: { brush?: (range: number | [number, number]) => void } = {};
+    handlers: { brush?: (range: number | [number, number, number]) => void } = {};
     center: number = 600;
     lastSelection: [number, number];
     selectionArc = d3.arc();
@@ -257,7 +257,7 @@ export class AngularBrush<Datum> {
                 this.moveBrushLine(this.center, false);
                 this.moveHandles(start, end, false);
 
-                if (this.handlers.brush) this.handlers.brush([start, end]);
+                if (this.handlers.brush) this.handlers.brush([center, start, end]);
             })
         })
 

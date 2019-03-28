@@ -300,8 +300,13 @@
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.RangeTip"></span>
             </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1) && rangeConstant">
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
+                && rangeConstant && activeQuery.approximator.estimatable">
                 <p-indicator [p]="RangeEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
+            </div>
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
+                && rangeConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></truthiness-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">
@@ -329,7 +334,7 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
                     && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></truthiness-indicator>
+                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></truthiness-indicator>
             </div>
 
             <div class="p-1 text-right">

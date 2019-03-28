@@ -200,7 +200,7 @@ export class RangeEstimator implements EstimatorTrait {
     }
 }
 
-export class MinMxRangeEstimator implements EstimatorTrait {
+export class MinMaxRangeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RangeConstant): Truthiness {
 

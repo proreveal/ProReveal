@@ -432,16 +432,18 @@ export class HeatmapRenderer {
                 .style('bottom', 'auto')
         }
 
-        this.angularBrush.on('brush', (center) => {
+        this.angularBrush.on('brush', (centerOrRange) => {
             if (this.safeguardType === SGT.Value) {
-                let constant = new ValueConstant(this.legendXScale.invert(center));
+                let constant = new ValueConstant(this.legendXScale.invert(centerOrRange));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range) {
-                let sel = center as [number, number];
-                let constant = new RangeConstant(this.legendXScale.invert(sel[0]),
-                    this.legendXScale.invert(sel[1]));
+                let [center, from, to] = centerOrRange as [number, number, number];
+                let constant = new RangeConstant(
+                    this.legendXScale.invert(center),
+                    this.legendXScale.invert(from),
+                    this.legendXScale.invert(to));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
@@ -486,7 +488,7 @@ export class HeatmapRenderer {
                 if(newCenter - half < domain[0]) { half = newCenter - domain[0]; }
                 if(newCenter + half > domain[1]) { half = Math.min(half, domain[1] - newCenter); }
 
-                let constant = new RangeConstant(newCenter - half, newCenter + half);
+                let constant = new RangeConstant(newCenter, newCenter - half, newCenter + half);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant); // calls brush.move
             }
@@ -669,9 +671,9 @@ export class HeatmapRenderer {
             }
             else if (this.safeguardType === SGT.Range) {
                 let range = this.getDatum(this.variable1).ci3;
-                let constant = new RangeConstant(range.low, range.high);
+                let constant = new RangeConstant(range.center, range.low, range.high);
 
-                if (range.low < 0) constant = new RangeConstant(0, range.high + range.low);
+                if (range.low < 0) constant = new RangeConstant(range.center, 0, range.high + range.low);
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
             }
@@ -765,7 +767,6 @@ export class HeatmapRenderer {
         let where: AndPredicate = this.vis.query.where;
         // where + datum
 
-        console.log(this.query.getPredicateFromDatum(d));
         where = where.and(this.query.getPredicateFromDatum(d));
         this.vis.queryCreator.where = where;
     }

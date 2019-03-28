@@ -36,7 +36,7 @@ export class RankConstant extends ConstantTrait {
 }
 
 export class RangeConstant extends ConstantTrait {
-    constructor(public from: number, public to: number) {
+    constructor(public center: number, public from: number, public to: number) {
         super();
         this.checkOrder();
     }

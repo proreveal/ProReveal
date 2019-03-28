@@ -436,14 +436,14 @@ export class BarsRenderer {
 
         d3.select(floatingSvg).style('display', 'none');
 
-        this.brush.on('brush', (center) => {
+        this.brush.on('brush', (centerOrRange) => {
             if (this.safeguardType === SGT.Value) {
-                let constant = new ValueConstant(this.xScale.invert(center));
+                let constant = new ValueConstant(this.xScale.invert(centerOrRange));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Rank) {
-                let index = Math.round((center - C.bars.axis.height - C.bars.label.height)
+                let index = Math.round((centerOrRange - C.bars.axis.height - C.bars.label.height)
                     / C.bars.height)
                 if(index <= 0) index = 1;
                 let constant = new RankConstant(index);
@@ -451,8 +451,11 @@ export class BarsRenderer {
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Range) {
-                let sel = center as [number, number];
-                let constant = new RangeConstant(this.xScale.invert(sel[0]), this.xScale.invert(sel[1]));
+                let [center, from, to] = centerOrRange as [number, number, number];
+                let constant = new RangeConstant(
+                    this.xScale.invert(center),
+                    this.xScale.invert(from),
+                    this.xScale.invert(to));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
             }
@@ -521,7 +524,7 @@ export class BarsRenderer {
 
                 let range = [newCenter - half, newCenter + half] as Range;
 
-                let constant = new RangeConstant(range[0], range[1]);
+                let constant = new RangeConstant(newCenter, range[0], range[1]);
 
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
@@ -623,7 +626,7 @@ export class BarsRenderer {
         }
         else if (this.safeguardType === SGT.Range) {
             let range = (constant as RangeConstant).range.map(this.xScale) as Range;
-            this.brush.setCenter((range[0] + range[1]) / 2);
+            this.brush.setCenter(this.xScale((constant as RangeConstant).center));
             this.brush.show();
             this.brush.move(range);
         }
@@ -713,7 +716,24 @@ export class BarsRenderer {
             }
             else if (this.safeguardType === SGT.Range) {
                 let range = this.getDatum(this.variable1).ci3;
-                let constant = new RangeConstant(range.low, range.high);
+                let low = range.low;
+                let center = range.center;
+                let high = range.high;
+
+                if(range instanceof MinMaxConfidencePoint) {
+                    let width = this.xScale.invert(300) - this.xScale.invert(290);
+                    low = center - width;
+                    high = center + width;
+                }
+
+                let domain = this.xScale.domain();
+
+                if(low < domain[0]) { high -= (domain[0] - low); low = domain[0]; }
+                if(high > domain[1]) { low -= (high - domain[1]); high = domain[1]; }
+
+                let constant: RangeConstant;
+
+                constant = new RangeConstant(center, low, high);
 
                 this.vis.constantSelected.emit(constant);
                 this.constantUserChanged(constant);
