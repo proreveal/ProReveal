@@ -57,7 +57,7 @@ export const Locale_en_US = Object.freeze({
     RemovingVisAlert: 'You are removing this visualization. Are you sure?',
     Remove: 'Remove',
 
-    CreateSG: 'Create',
+    CreateSG: 'Leave a PVA-Guard',
     Tip: 'TIP',
 
     // <span class="constant font-weight-bold">range</span>
@@ -66,9 +66,9 @@ export const Locale_en_US = Object.freeze({
     RankTip: 'Drag <span class="constant">the rank bar</span> left or right to select the target rank.',
     RangeTip: 'Drag the two edges of <span class="brush">the brush</span> to set the target range.',
     ComparativeTip: 'Right-click on <span class="variable2">the second element</span> that you want to compare with.',
-    PowerLawTip: 'Click on <span class="create">the create button</span> to leave a Power Law PVA-Guard on the current visualization.',
-    NormalTip: 'Click on <span class="create">the create button</span> to leave a Normal PVA-Guard on the current visualization.',
-    LinearTip: 'Click on <span class="create">the create button</span> to leave a Linear PVA-Guard on the current visualization.',
+    PowerLawTip: 'Click on <span class="create">the "Leave a PVA-Guard" button</span> to leave a Power Law PVA-Guard on the current visualization.',
+    NormalTip: 'Click on <span class="create">the "Leave a PVA-Guard" button</span> to leave a Normal PVA-Guard on the current visualization.',
+    LinearTip: 'Click on <span class="create">the "Leave a PVA-Guard" button</span> to leave a Linear PVA-Guard on the current visualization.',
 
     TruthinessTrue: 'It holds at this moment!',
     TruthinessFalse: 'It does not hold at this moment.',

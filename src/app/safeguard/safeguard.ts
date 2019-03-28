@@ -4,20 +4,24 @@ import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair
 import { NormalDistribution } from "./normal";
 import {
     ValueEstimator, RankEstimator, RangeEstimator, ComparativeEstimator,
-    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator
+    NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator
 } from "./estimate";
 import { ValidityTypes, Validity } from "./validity";
 import { AggregateQuery } from "../data/query";
 
-const PointValueEstimate = new ValueEstimator().estimate;
-const PointRankEstimate = new RankEstimator().estimate;
+const ValueEstimate = new ValueEstimator().estimate;
+const MinMaxValueEstimate = new MinMaxValueEstimator().estimate
+const RankEstimate = new RankEstimator().estimate;
+const MinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
 const RangeValueEstimate = new RangeEstimator().estimate;
-const ComparativeEstimate = new ComparativeEstimator().estimate;
+const MinMaxRangeValueEstimate = new RangeEstimator().estimate;
+const ComparativeEstimate = new MinMaxComparativeEstimator().estimate;
+const MinMaxComparativeEstimate = new MinMaxComparativeEstimator().estimate;
 const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
 const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
-const PointMinMaxValueEstimate = new MinMaxValueEstimator().estimate
-const PointMinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
+
+
 
 export enum SafeguardTypes {
     None = "None",
@@ -82,7 +86,7 @@ export class ValueSafeguard extends Safeguard {
     }
 
     p() {
-        return PointValueEstimate(
+        return ValueEstimate(
             this.query,
             this.variable,
             this.operator,
@@ -90,7 +94,7 @@ export class ValueSafeguard extends Safeguard {
     }
 
     t() {  // min or max
-        return PointMinMaxValueEstimate(
+        return MinMaxValueEstimate(
             this.query,
             this.variable,
             this.operator,
@@ -114,7 +118,7 @@ export class RankSafeguard extends Safeguard {
     }
 
     p() {
-        return PointRankEstimate(
+        return RankEstimate(
             this.query,
             this.variable,
             this.operator,
@@ -122,7 +126,7 @@ export class RankSafeguard extends Safeguard {
     }
 
     t() {  // min or max
-        return PointMinMaxRankEstimate(
+        return MinMaxRankEstimate(
             this.query,
             this.variable,
             this.operator,
@@ -174,6 +178,10 @@ export class ComparativeSafeguard extends Safeguard {
             this.query,
             this.variable,
             this.operator);
+    }
+
+    t() {
+        return MinMaxComparativeEstimate(this.query, this.variable, this.operator);
     }
 
     validity() {

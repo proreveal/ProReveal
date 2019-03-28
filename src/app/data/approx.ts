@@ -1,5 +1,5 @@
 import { AccumulatedValue } from "./accum";
-import { ApproximatedInterval, EmptyApproximatedInterval } from "./approximated-interval";
+import { ApproximatedInterval, EmptyApproximatedInterval, MinMaxApproximatePoint } from "./approximated-interval";
 
 export interface ApproximatorTrait {
     readonly name: string;
@@ -34,8 +34,8 @@ export class MinApproximator implements ApproximatorTrait {
     estimatable = false;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
-        if(value.min === Number.MAX_VALUE) return new ApproximatedInterval(0, 0, 0);
-        return new ApproximatedInterval(value.min, 0, value.count);
+        if(value.min === Number.MAX_VALUE) return EmptyApproximatedInterval;
+        return new MinMaxApproximatePoint(value.min, value.count);
     }
 }
 
@@ -46,8 +46,8 @@ export class MaxApproximator implements ApproximatorTrait {
     estimatable = false;
 
     approximate(value: AccumulatedValue, p: number, n: number, N: number) {
-        if(value.max === -Number.MAX_VALUE) return new ApproximatedInterval(0, 0, 0);
-        return new ApproximatedInterval(value.max, 0, value.count);
+        if(value.max === -Number.MAX_VALUE) return EmptyApproximatedInterval;
+        return new MinMaxApproximatePoint(value.max, value.count);
     }
 }
 

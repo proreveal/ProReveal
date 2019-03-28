@@ -249,7 +249,7 @@
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                     && (variable1 || combinedVariable1)
                     && valueConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="PointMinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
+                <truthiness-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createValueSafeguard()">
@@ -277,7 +277,7 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="PointMinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
+                <truthiness-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRankSafeguard()">
@@ -323,9 +323,15 @@
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.ComparativeTip"></span>
             </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)">
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
+                    && activeQuery.approximator.estimatable">
                 <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
             </div>
+            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
+                    && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></truthiness-indicator>
+            </div>
+
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1"
                     [disabled]="!variablePair && !combinedVariablePair"

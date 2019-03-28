@@ -17,4 +17,10 @@ export class ConfidenceInterval {
     }
 }
 
+export class MinMaxConfidencePoint extends ConfidenceInterval {
+    constructor(public center: number) {
+        super(center, 0, center, center);
+    }
+}
+
 export const EmptyConfidenceInterval = new ConfidenceInterval(0, 0, 0, 0);
