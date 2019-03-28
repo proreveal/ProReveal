@@ -16,7 +16,7 @@ import { DistributionLine } from './distribution-line';
 import { AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
 import { AggregateQuery } from '../../data/query';
-import { LoggerService, LogType } from '../../logger.service';
+import { LoggerService, LogType } from '../../services/logger.service';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 
 type Range = [number, number];

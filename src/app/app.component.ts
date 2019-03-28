@@ -19,7 +19,7 @@ import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
-import { LoggerService, LogType } from './logger.service';
+import { LoggerService, LogType } from './services/logger.service';
 import { ActivatedRoute } from "@angular/router";
 import { ExpConstants } from './exp-constants';
 import { FieldGroupedValue } from './data/field-grouped-value';

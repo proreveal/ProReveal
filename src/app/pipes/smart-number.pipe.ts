@@ -1,10 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import * as d3 from 'd3';
-import { FieldTrait, QuantitativeField } from './data/field';
-import { Constants } from './constants';
-import { formatKRW } from './util';
-import { QuantitativeUnit } from './data/unit';
-import { Locale } from './locales/locale';
+import { FieldTrait, QuantitativeField } from '../data/field';
+import { Constants } from '../constants';
+import { formatKRW } from '../util';
+import { QuantitativeUnit } from '../data/unit';
+import { Locale } from '../locales/locale';
 
 const siFormat = d3.format('.3s')
 const gFormat = d3.format(',.3r');

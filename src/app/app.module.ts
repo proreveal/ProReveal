@@ -25,7 +25,6 @@ import { SortablejsModule } from 'angular-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ToastrModule } from 'ngx-toastr';
 import { PIndicatorComponent } from './display/p-indicator/p-indicator.component';
 import { VariableIndicatorComponent } from './display/variable-indicator.component';
 import { SgPointComponent } from './display/point/sg-point.component';
@@ -41,14 +40,14 @@ import { QualityIndicatorComponent } from './display/quality-indicator/quality-i
 import { ErrorIndicatorComponent } from './display/error-indicator/error-indicator.component';
 import { SgHistoryComponent } from './display/history/sg-history.component';
 import { QueryIndicatorComponent } from './query-indicator/query-indicator.component';
-import { SmartNumberPipe } from './smart-number.pipe';
+import { SmartNumberPipe } from './pipes/smart-number.pipe';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
 import { DataViewerComponent } from './data-viewer/data-viewer.component';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FieldGroupedValueIndicatorComponent } from './display/field-grouped-value-indicator/field-grouped-value-indicator.component';
-import { KeepHtmlPipe } from './keep-html.pipe';
-import { BytesPipe } from './bytes.pipe';
+import { KeepHtmlPipe } from './pipes/keep-html.pipe';
+import { BytesPipe } from './pipes/bytes.pipe';
 import { DropdownComponent } from './figure/dropdown/dropdown.component';
 
 library.add(fas, far);
@@ -96,7 +95,6 @@ library.add(fas, far);
         FontAwesomeModule,
         FormsModule,
         BrowserAnimationsModule,
-        ToastrModule.forRoot(),
         MomentModule,
         RouterModule.forRoot([])
     ],

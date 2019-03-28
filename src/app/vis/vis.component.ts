@@ -11,7 +11,7 @@ import { Constants as C, Constants } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
 import { Priority } from '../data/engine';
 import { Datum } from '../data/datum';
-import { LoggerService, LogType } from '../logger.service';
+import { LoggerService, LogType } from '../services/logger.service';
 
 @Component({
     selector: 'vis',

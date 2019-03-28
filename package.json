@@ -1,6 +1,6 @@
 {
-  "name": "safeguard",
-  "version": "0.0.0",
+  "name": "ProReveal",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0",
@@ -27,12 +27,10 @@
     "@ng-bootstrap/ng-bootstrap": "^4.0.4",
     "angular-sortablejs": "^2.7.0",
     "bootstrap": "^4.3.1",
-    "chi-squared-test": "^1.1.0",
     "core-js": "^2.6.5",
     "d3": "^5.9.1",
     "moment": "^2.24.0",
     "ngx-moment": "^3.3.0",
-    "ngx-toastr": "^9.1.2",
     "regression": "^2.0.1",
     "roboto-fontface": "^0.9.0",
     "sortablejs": "^1.8.3",

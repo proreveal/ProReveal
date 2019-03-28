@@ -18,7 +18,7 @@ import { Datum } from '../../data/datum';
 import { AngularBrush, AngularBrushMode } from './angular-brush';
 import { AndPredicate } from '../../data/predicate';
 import { LinearLine } from './linear-line';
-import { LoggerService, LogType } from '../../logger.service';
+import { LoggerService, LogType } from '../../services/logger.service';
 import { FieldGroupedValue } from '../../data/field-grouped-value';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 
