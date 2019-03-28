@@ -12,7 +12,7 @@ import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
 import { BarsRenderer } from './vis/renderers/bars';
-import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator } from './safeguard/estimate';
+import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator, MinMaxRangeEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
@@ -43,6 +43,7 @@ export class AppComponent implements OnInit {
     RankEstimate = new RankEstimator().estimate;
     MinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
     RangeEstimate = new RangeEstimator().estimate;
+    MinMaxRangeEstimate = new MinMaxRangeEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
     MinMaxComparativeEstimate = new MinMaxComparativeEstimator().estimate;
     PowerLawEstimate = new PowerLawEstimator().estimate;
@@ -81,7 +82,7 @@ export class AppComponent implements OnInit {
     valueConstant: ValueConstant = new ValueConstant(0);
     rankConstant: RankConstant = new RankConstant(1);
 
-    rangeConstant: RangeConstant = new RangeConstant(0, 1);
+    rangeConstant: RangeConstant = new RangeConstant(0.5, 0, 1);
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     normalConstant: NormalConstant = new NormalConstant();
@@ -185,8 +186,8 @@ export class AppComponent implements OnInit {
             }
 
             if(this.testMenu) {
-                let q = new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')).combine(dataset.getFieldByName('Score'));
-                q.approximator = new MaxApproximator();
+                let q = new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
+                // q.approximator = new MaxApproximator();
                 this.create(q, Priority.Highest);
             }
 
@@ -611,7 +612,7 @@ export class AppComponent implements OnInit {
         else {
             this.valueConstant = new ValueConstant(0);
             this.rankConstant = new RankConstant(1);
-            this.rangeConstant = new RangeConstant(0, 1);
+            this.rangeConstant = new RangeConstant(0.5, 0, 1);
             this.powerLawConstant = new PowerLawConstant();
             this.normalConstant = new NormalConstant();
 
