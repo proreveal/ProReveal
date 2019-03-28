@@ -151,11 +151,16 @@ export class MinMaxRankValueEstimator implements EstimatorTrait {
             return [hash, ai] as [string, ApproximatedInterval];
         })
 
-        results.sort((a, b) => b[1].center - a[1].center);
-        let rank = results.findIndex(d => d[0] === variable.hash);
+        results = results.filter(d => !query.visibleResult[d[0]].key.hasNullValue());
 
+        results.sort((a, b) => b[1].center - a[1].center);
+        let index = results.findIndex(d => d[0] === variable.hash);
+        let rank = index;
+        //for(; rank > 0 && results[rank-1][1].center == results[index][1].center; rank--);
 
         rank += 1; // 1 ~ N
+
+        // console.log(results, rank, constant.rank);
         if (rank <= 0) return false;
 
         if (operator == Operators.GreaterThan)
@@ -195,31 +200,23 @@ export class RangeEstimator implements EstimatorTrait {
     }
 }
 
-export class RangeRankEstimator implements EstimatorTrait {
+export class MinMxRangeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: RangeRankConstant): Truthiness {
+        operator: Operators, constant: RangeConstant): Truthiness {
 
-        let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult).map((hash) => {
-            let result = query.visibleResult[hash];
-            let ai = query.approximator.approximate(
-                result.value,
-                query.visibleProgress.processedPercent(),
-                query.visibleProgress.processedRows,
-                query.visibleProgress.totalRows
-            );
+        let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
+        let ai = query.approximator.approximate(
+            result,
+            query.visibleProgress.processedPercent(),
+            query.visibleProgress.processedRows,
+            query.visibleProgress.totalRows);
 
-            return [hash, ai] as [string, ApproximatedInterval];
-        })
-
-        results.sort((a, b) => a[1].center - b[1].center);
-        let rank = results.findIndex(d => d[0] === variable.hash);
-
-        rank += 1; // 1 ~ N
-
-        if (rank <= 0) return false;
-
-        if (operator == Operators.InRange) return constant.from <= rank && rank <= constant.to;
-        else throw new Error(`Invalid operator ${operator}`);
+        if(operator == Operators.InRange)
+            return constant.from <= ai.center && ai.center <= constant.to;
+        else if(operator == Operators.NotInRange)
+            return !(constant.from <= ai.center && ai.center <= constant.to);
+        else
+            throw new Error(`Invalid operator ${operator}`);
     }
 }
 
@@ -250,6 +247,40 @@ export class ComparativeEstimator implements EstimatorTrait {
             return 1 - cp;
         else if (operator == Operators.LessThan || operator == Operators.LessThanOrEqualTo)
             return cp;
+        else
+            throw new Error(`Invalid operator ${operator}`);
+    }
+}
+
+export class MinMaxComparativeEstimator implements EstimatorTrait {
+    estimate(query: AggregateQuery, variable: VariablePair | CombinedVariablePair,
+        operator: Operators): Truthiness {
+        const n = query.visibleProgress.processedRows;
+        const N = query.visibleProgress.totalRows;
+
+        let result1 = query.visibleData.find(d => d.keys.hash == variable.first.hash).accumulatedValue;
+        let result2 = query.visibleData.find(d => d.keys.hash == variable.second.hash).accumulatedValue;
+
+        let ai1 = query.approximator.approximate(
+            result1,
+            query.visibleProgress.processedPercent(),
+            n,
+            N);
+
+        let ai2 = query.approximator.approximate(
+            result2,
+            query.visibleProgress.processedPercent(),
+            n,
+            N);
+
+        if(operator == Operators.GreaterThan)
+            return ai1.center > ai2.center;
+        else if(operator == Operators.GreaterThanOrEqualTo)
+            return ai1.center >= ai2.center;
+        else if(operator == Operators.LessThan)
+            return ai1.center < ai2.center;
+        else if(operator == Operators.LessThanOrEqualTo)
+            return ai1.center <= ai2.center;
         else
             throw new Error(`Invalid operator ${operator}`);
     }

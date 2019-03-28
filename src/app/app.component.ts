@@ -12,7 +12,7 @@ import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
 import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
 import { BarsRenderer } from './vis/renderers/bars';
-import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator } from './safeguard/estimate';
+import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
@@ -25,6 +25,7 @@ import { ExpConstants } from './exp-constants';
 import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
+import { MaxApproximator } from './data/approx';
 
 @Component({
     selector: 'app-root',
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit {
     MinMaxRankEstimate = new MinMaxRankValueEstimator().estimate;
     RangeEstimate = new RangeEstimator().estimate;
     ComparativeEstimate = new ComparativeEstimator().estimate;
+    MinMaxComparativeEstimate = new MinMaxComparativeEstimator().estimate;
     PowerLawEstimate = new PowerLawEstimator().estimate;
     NormalEstimate = new NormalEstimator().estimate;
     LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
@@ -177,6 +179,16 @@ export class AppComponent implements OnInit {
             }
 
             this.engine.run();
+
+            if(data === 'movies_en') {
+                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')));
+            }
+
+            if(this.testMenu) {
+                let q = new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')).combine(dataset.getFieldByName('Score'));
+                q.approximator = new MaxApproximator();
+                this.create(q, Priority.Highest);
+            }
 
             if (this.fig) this.setupFigures();
         })

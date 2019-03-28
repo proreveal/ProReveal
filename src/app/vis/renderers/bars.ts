@@ -17,7 +17,7 @@ import { AndPredicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
 import { AggregateQuery } from '../../data/query';
 import { LoggerService, LogType } from '../../services/logger.service';
-import { EmptyConfidenceInterval } from '../../data/confidence-interval';
+import { EmptyConfidenceInterval, MinMaxConfidencePoint } from '../../data/confidence-interval';
 
 type Range = [number, number];
 
@@ -359,6 +359,7 @@ export class BarsRenderer {
                     if (d.keys.hasNullValue()) return 0.3;
                     return 1;
                 })
+                .style('stroke-dasharray', (d) => d.ci3 instanceof MinMaxConfidencePoint ? 2 : 0)
 
             centerLines.exit().remove();
         }
@@ -465,7 +466,7 @@ export class BarsRenderer {
             [width - C.padding, height - C.bars.axis.height + C.padding]]);
         }
         else if(this.safeguardType === SGT.Rank) {
-            let start = C.bars.axis.height + C.bars.label.height;
+            let start = yScale.range()[0];
             let step = C.bars.height;
 
             this.brush.setDirection(BrushDirection.Y);
@@ -475,8 +476,8 @@ export class BarsRenderer {
                 return Math.max(1, index) * step + start;
             };
 
-            this.brush.render([[0, C.bars.axis.height],
-            [width, height - C.bars.axis.height]]);
+            this.brush.render([[0, yScale.range()[0]],
+            [width, yScale.range()[1]]]);
         }
 
         if (!this.constant) this.setDefaultConstantFromVariable();
@@ -618,7 +619,7 @@ export class BarsRenderer {
         else if (this.safeguardType === SGT.Rank) {
             let center = this.yScale((constant as RankConstant).rank.toString());
             this.brush.show();
-            this.brush.move(center);
+            this.brush.move(center, false, true);
         }
         else if (this.safeguardType === SGT.Range) {
             let range = (constant as RangeConstant).range.map(this.xScale) as Range;
@@ -642,14 +643,10 @@ export class BarsRenderer {
     }
 
     datumSelected(d: Datum) {
-        console.log('df');
         if (![SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
-        console.log('df');
         if (d.ci3 === EmptyConfidenceInterval) return;
-        console.log('df');
         if (d.keys.hasNullValue()) return;
 
-        console.log(d);
         this.logger.log(LogType.DatumSelected, {
             datum: d.toLog(),
             data: this.data.map(d => d.toLog())
@@ -733,17 +730,6 @@ export class BarsRenderer {
             this.constantUserChanged(constant);
         }
     }
-
-    /*
-        constant selection:
-            by selecting a category, no d3.event.sourceEvent
-            by brushing, has d3.event.sourceEvent
-            from outside (user input) = constantUserChanged, does not have d3.event.sourceEvent
-
-        No vis.component handler propagates
-
-    */
-
 
     showTooltip(d: Datum, i: number) {
         const clientRect = this.nativeSvg.getBoundingClientRect();

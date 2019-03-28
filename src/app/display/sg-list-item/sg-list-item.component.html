@@ -1,6 +1,6 @@
 <div class="wrapper border-bottom p-1">
     <span class="badge badge-primary">{{ L[sg.type] }}</span>
-    <span class="badge badge-secondary ml-1">{{ sg.query.recentProgress.processedPercent() * 100 }}%</span>
+    <span class="badge badge-secondary ml-1">{{ sg.query.recentProgress.processedPercent() | percent}}</span>
     <div class="display mb-1">
         <sg-display [safeguard]="sg"></sg-display>
     </div>
@@ -9,7 +9,8 @@
     <truthiness-indicator *ngIf="(sg.type == SGT.Value || sg.type == SGT.Rank) && !sg.query.approximator.estimatable" [t]="sg.t()"></truthiness-indicator>
 
     <p-indicator *ngIf="sg.type == SGT.Range" [p]="sg.p()"></p-indicator>
-    <p-indicator *ngIf="sg.type == SGT.Comparative" [p]="sg.p()"></p-indicator>
+    <p-indicator *ngIf="sg.type == SGT.Comparative && sg.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
+    <truthiness-indicator *ngIf="sg.type == SGT.Comparative && !sg.query.approximator.estimatable" [t]="sg.t()"></truthiness-indicator>
 
     <quality-indicator *ngIf="sg.type == SGT.PowerLaw || sg.type == SGT.Normal" [q]="sg.q()"></quality-indicator>
     <error-indicator *ngIf="sg.type == SGT.Linear" [e]="sg.e()"></error-indicator>
