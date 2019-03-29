@@ -15,7 +15,7 @@ export const Locale_en_US = Object.freeze({
     Fields: 'Fields',
     Aggregate: 'Aggregate',
     QueryPreview: 'Query Preview',
-    CreateVisualization: 'Create visualization',
+    CreateVisualization: 'Create a Visualization',
     Cancel: 'Cancel',
     ChooseFields: 'Choose fields that you want to include in a visualization.',
     NumRows: '# of rows found',
