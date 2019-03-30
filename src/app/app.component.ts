@@ -20,7 +20,7 @@ import { AndPredicate, EqualPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
 import { LoggerService, LogType } from './services/logger.service';
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, ɵangular_packages_router_router_h } from "@angular/router";
 import { ExpConstants } from './exp-constants';
 import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
@@ -179,9 +179,9 @@ export class AppComponent implements OnInit {
                 this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
             }
 
-            this.engine.run();
+            if(!this.fig) this.engine.run();
 
-            if(data === 'movies_en') {
+            if(data === 'movies_en' && !this.fig) {
                 this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')));
             }
 
@@ -236,6 +236,15 @@ export class AppComponent implements OnInit {
     createPowerLawSafeguardFig(query: AggregateQuery) {
         let sg = new PowerLawSafeguard(
             new PowerLawConstant(),
+            query);
+
+        this.safeguards.unshift(sg)
+        this.activeQuery.safeguards.push(sg);
+    }
+
+    createNormalSafeguardFig(query: AggregateQuery) {
+        let sg = new NormalSafeguard(
+            new NormalConstant(),
             query);
 
         this.safeguards.unshift(sg)
@@ -319,7 +328,7 @@ export class AppComponent implements OnInit {
         }
         else if (this.fig === 3) {
             this.cursorLeft = 565;
-            this.cursorTop = 222;
+            this.cursorTop = 242;
             this.createVisByNames('Year', 'Month');
             this.runMany(100);
             this.createVisByNames('Year', 'Month');
@@ -347,21 +356,32 @@ export class AppComponent implements OnInit {
                 new AndPredicate([
                     new EqualPredicate(dataset.getFieldByName('Month'), 'September')
                 ]));
+            this.createRankSafeguardFig(genre, new SingleVariable(new FieldGroupedValue(
+                dataset.getFieldByName('Genre'),
+                dataset.getFieldByName('Genre').group('Drama')
+                )),
+                Operators.LessThanOrEqualTo,
+                new RankConstant(3));
+
             this.createPowerLawSafeguardFig(genre);
             this.runMany(100);
 
-            let pop = this.createVisByNames('Popularity', '', Priority.Highest);
+            let score = this.createVisByNames('Score', '', Priority.Highest);
             this.runMany(23);
-            pop.getVisibleData();
-            this.runMany(10)
-            this.createValueSafeguardFig(pop, new SingleVariable(
+            score.getVisibleData();
+
+            this.createValueSafeguardFig(score, new SingleVariable(
                 new FieldGroupedValue(
-                    dataset.getFieldByName('Popularity'),
-                    [2, 3]
+                    dataset.getFieldByName('Score'),
+                    [12, 13]
                 )), Operators.LessThanOrEqualTo,
-                new ValueConstant(42));
+                new ValueConstant(3790));
+
+            this.createNormalSafeguardFig(score);
+            this.runMany(10)
 
             let heatmap = this.createVisByNames('Score', 'Votes', Priority.Highest);
+            (heatmap as Histogram2DQuery).aggregationLevelX /= 2;
             this.runMany(15);
 
             this.createVisByNames('Popularity', '', Priority.Highest)
@@ -378,7 +398,7 @@ export class AppComponent implements OnInit {
                 this.queryCreator.fieldSelected(dataset.getFieldByName('Genre'));
                 this.queryCreator.fieldSelected(dataset.getFieldByName('Score'));
 
-                this.querySelected(pop);
+                this.querySelected(score);
 
                 timer(500).subscribe(() => {
                     this.querySelected(heatmap);
@@ -389,7 +409,7 @@ export class AppComponent implements OnInit {
                                 new SingleVariable(
                                     new FieldGroupedValue(
                                         dataset.getFieldByName('Score'),
-                                        [4, 5]
+                                        [2, 2]
                                     )
                                 ),
                                 new SingleVariable(
