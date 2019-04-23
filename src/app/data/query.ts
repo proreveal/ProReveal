@@ -57,7 +57,7 @@ export abstract class Query {
         this.createdAt = new Date();
     }
 
-    abstract accumulate(job: Job, partialKeyValues: PartialKeyValue[]);
+    abstract accumulate(job: Job, partialKeyValues: PartialKeyValue[]): void;
     abstract combine(field: FieldTrait): Query;
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
     abstract desc(): string;
@@ -196,7 +196,7 @@ export class AggregateQuery extends Query {
 
     compatible(fields: FieldTrait[]) {
         let compatibleTypes: VlType[] = [];
-        if (this.target == null && this.groupBy.fields.length == 1) compatibleTypes.push(VlType.Quantitative, VlType.Dozen, VlType.Nominal, VlType.Ordinal);
+        if (this.target == null && this.groupBy.fields.length == 1) compatibleTypes.push(VlType.Quantitative, VlType.Nominal, VlType.Ordinal);
 
         return fields.filter(field => compatibleTypes.includes(field.vlType))
     }
@@ -365,7 +365,7 @@ export class EmptyQuery extends AggregateQuery {
         if (field.vlType === VlType.Quantitative) {
             return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]), this.sampler);
         }
-        else if ([VlType.Ordinal, VlType.Nominal, VlType.Dozen].includes(field.vlType)) {
+        else if ([VlType.Ordinal, VlType.Nominal].includes(field.vlType)) {
             return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
         }
 
@@ -670,7 +670,7 @@ export class Frequency1DQuery extends AggregateQuery {
             where,
             sampler);
 
-        assertIn(grouping.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
+        assertIn(grouping.vlType, [VlType.Nominal, VlType.Ordinal]);
     }
 
     combine(field: FieldTrait) {
@@ -727,8 +727,8 @@ export class Frequency2DQuery extends AggregateQuery {
             where,
             sampler);
 
-        assertIn(grouping1.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
-        assertIn(grouping2.vlType, [VlType.Dozen, VlType.Nominal, VlType.Ordinal]);
+        assertIn(grouping1.vlType, [VlType.Nominal, VlType.Ordinal]);
+        assertIn(grouping2.vlType, [VlType.Nominal, VlType.Ordinal]);
     }
 
     combine(field: FieldTrait): AggregateQuery {

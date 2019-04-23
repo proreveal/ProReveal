@@ -33,6 +33,7 @@
     "ngx-moment": "^3.3.0",
     "regression": "^2.0.1",
     "roboto-fontface": "^0.9.0",
+    "socket.io-client": "^2.2.0",
     "sortablejs": "^1.8.3",
     "vsup": "^1.1.0",
     "zone.js": "^0.8.29"
@@ -46,6 +47,7 @@
     "@types/jasmine": "^2.8.16",
     "@types/jasminewd2": "^2.0.6",
     "@types/node": "~8.9.4",
+    "@types/socket.io-client": "^1.4.32",
     "codelyzer": "~4.2.1",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",

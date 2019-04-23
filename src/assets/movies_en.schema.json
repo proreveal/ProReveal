@@ -33,7 +33,7 @@
     },
     {
         "name": "Month",
-        "type": "dozen"
+        "type": "ordinal"
     },
     {
         "name": "Revenue",
@@ -49,7 +49,7 @@
     },
     {
         "name": "Status",
-        "type": "dozen"
+        "type": "nominal"
     },
     {
         "name": "Title",

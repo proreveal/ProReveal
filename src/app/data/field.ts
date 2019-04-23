@@ -3,23 +3,21 @@ import { NumericalGrouper, CategoricalGrouper, GroupIdType, NullGroupId } from '
 import { QuantitativeUnit } from "./unit";
 
 export enum DataType {
-    String = "String",
-    Integer = "Integer",
-    Real = "Real"
+    String = "string",
+    Integer = "integer",
+    Float = "float"
 }
 
 export enum VlType {
-    Quantitative = "Quantitative",
-    Dozen = "Dozen",
-    Ordinal = "Ordinal",
-    Nominal = "Nominal",
-    Key = "Key"
+    Quantitative = "quantitative",
+    Ordinal = "ordinal",
+    Nominal = "nominal",
+    Key = "key"
 }
 
 export function getVlType(name: string) {
     switch(name.toLowerCase()) {
         case VlType.Quantitative.toLowerCase(): return VlType.Quantitative;
-        case VlType.Dozen.toLowerCase(): return VlType.Dozen;
         case VlType.Ordinal.toLowerCase(): return VlType.Ordinal;
         case VlType.Nominal.toLowerCase(): return VlType.Nominal;
         case VlType.Key.toLowerCase(): return VlType.Key;
@@ -68,7 +66,7 @@ export class QuantitativeField implements FieldTrait {
 }
 
 export class CategoricalField implements FieldTrait {
-    vlType: VlType = VlType.Dozen;
+    vlType: VlType = VlType.Ordinal;
     private grouper: CategoricalGrouper = new CategoricalGrouper();
 
     constructor(public name: string, public dataType: DataType,
@@ -86,10 +84,6 @@ export class CategoricalField implements FieldTrait {
     ungroupString(id: GroupIdType) {
         return this.grouper.ungroupString(id);
     }
-}
-
-export class DozenField extends CategoricalField {
-    vlType: VlType = VlType.Dozen;
 }
 
 export class OrdinalField extends CategoricalField {
@@ -117,7 +111,7 @@ export class FieldValue {
         else if (field.dataType == DataType.Integer && !Number.isInteger(value)) {
             throw `[field:${field.name}] the value ${value} is not an integer`;
         }
-        else if (field.dataType == DataType.Real && !isNumber(value)) {
+        else if (field.dataType == DataType.Float && !isNumber(value)) {
             throw `[field:${field.name}] the value ${value} is not a number`;
         }
         else if (field.dataType == DataType.String && !isString(value)) {
@@ -147,7 +141,7 @@ export function guess(values: any[]): [DataType, VlType, boolean] {
     let vlType: VlType;
 
     if (cardinality <= 20) vlType = VlType.Dozen;
-    else if (dataType === DataType.Integer || dataType === DataType.Real)
+    else if (dataType === DataType.Integer || dataType === DataType.Float)
         vlType = VlType.Quantitative;
     else if (cardinality <= 100)
         vlType = VlType.Nominal;
@@ -163,7 +157,7 @@ export function guessDataType(values: any[]) {
         let float = parseFloat(value);
 
         if (!isNull(value) && isNaN(float)) return DataType.String;
-        if (!isNull(value) && !Number.isInteger(float)) return DataType.Real;
+        if (!isNull(value) && !Number.isInteger(float)) return DataType.Float;
     }
 
     return DataType.Integer;

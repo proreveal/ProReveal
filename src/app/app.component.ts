@@ -26,6 +26,7 @@ import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { MaxApproximator } from './data/approx';
+import io from 'socket.io-client';
 
 @Component({
     selector: 'app-root',
@@ -116,6 +117,18 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
+        /*let ws = io('ws://localhost:7999', {
+            transports: ['websocket']
+        })
+        ws.on('connect', (msg: string) => {
+            console.log(msg);
+        })
+
+        ws.on('welcome', () => {
+            console.log('welcome from server')
+        })
+        */
+
         let parameters = util.parseQueryParameters(location.search);
 
         const data = parameters.data || "movies_en";
