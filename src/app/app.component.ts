@@ -107,6 +107,7 @@ export class AppComponent implements OnInit {
     dataViewerWhere: AndPredicate = null;
 
     fig: number;
+    ws: SocketIOClient.Socket;
 
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
@@ -117,17 +118,21 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        /*let ws = io('ws://localhost:7999', {
+        let ws = io('ws://localhost:7999', {
             transports: ['websocket']
         })
-        ws.on('connect', (msg: string) => {
-            console.log(msg);
-        })
+
+        this.ws = ws;
 
         ws.on('welcome', () => {
             console.log('welcome from server')
         })
-        */
+
+        ws.on('result', (res: any) => {
+            console.log('wer');
+            console.log(res);
+        })
+
 
         let parameters = util.parseQueryParameters(location.search);
 
@@ -206,6 +211,10 @@ export class AppComponent implements OnInit {
 
             if (this.fig) this.setupFigures();
         })
+    }
+
+    go() {
+        this.ws.emit('query')
     }
 
     createVisByNames(vis1: string, vis2: string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {
