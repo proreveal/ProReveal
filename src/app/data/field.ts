@@ -140,8 +140,7 @@ export function guess(values: any[]): [DataType, VlType, boolean] {
     let cardinality = Object.keys(unique).length;
     let vlType: VlType;
 
-    if (cardinality <= 20) vlType = VlType.Dozen;
-    else if (dataType === DataType.Integer || dataType === DataType.Float)
+    if (dataType === DataType.Integer || dataType === DataType.Float)
         vlType = VlType.Quantitative;
     else if (cardinality <= 100)
         vlType = VlType.Nominal;

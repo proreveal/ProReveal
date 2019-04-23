@@ -26,7 +26,7 @@ import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { MaxApproximator } from './data/approx';
-import io from 'socket.io-client';
+import * as io from 'socket.io-client';
 
 @Component({
     selector: 'app-root',

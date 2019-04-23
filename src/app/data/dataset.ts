@@ -1,5 +1,5 @@
 import * as util from '../util';
-import { FieldTrait, guess, VlType, QuantitativeField, NominalField, DozenField, KeyField } from './field';
+import { FieldTrait, guess, VlType, QuantitativeField, NominalField, KeyField } from './field';
 import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
@@ -59,9 +59,6 @@ export class Dataset {
             }
             else if (vlType === VlType.Nominal) {
                 field = new NominalField(name, dataType, nullable, order);
-            }
-            else if (vlType === VlType.Dozen) {
-                field = new DozenField(name, dataType, nullable, order);
             }
             else {
                 field = new KeyField(name, dataType, nullable, order);
