@@ -1,70 +1,70 @@
 [
     {
         "name": "Budget",
-        "type": "quantitative",
+        "vlType": "quantitative",
         "min": 0,
         "unit": "USD"
     },
     {
         "name": "Genre",
-        "type": "nominal"
+        "vlType": "nominal"
     },
     {
         "name": "Language",
-        "type": "nominal"
+        "vlType": "nominal"
     },
     {
         "name": "Popularity",
-        "type": "quantitative",
+        "vlType": "quantitative",
         "min": 0,
         "max": 300
     },
     {
         "name": "Production Company",
-        "type": "key"
+        "vlType": "key"
     },
     {
         "name": "Country",
-        "type": "nominal"
+        "vlType": "nominal"
     },
     {
         "name": "Year",
-        "type": "nominal"
+        "vlType": "nominal"
     },
     {
         "name": "Month",
-        "type": "ordinal"
+        "vlType": "ordinal"
     },
     {
         "name": "Revenue",
-        "type": "quantitative",
+        "vlType": "quantitative",
         "min": 0,
         "unit": "USD"
     },
     {
         "name": "Runtime",
-        "type": "quantitative",
+        "vlType": "quantitative",
         "min": 0,
         "max": 600
     },
     {
         "name": "Status",
-        "type": "nominal"
+        "vlType": "nominal"
     },
     {
         "name": "Title",
-        "type": "key"
+        "vlType": "key"
     },
     {
         "name": "Score",
-        "type": "quantitative",
+        "vlType": "quantitative",
         "min": 0,
         "max": 10,
         "numBins": 20
     },
     {
         "name": "Votes",
-        "type": "quantitative",
+        "vlType": "quantitative",
         "min": 0,
         "max": 12000,
         "numBins": 24

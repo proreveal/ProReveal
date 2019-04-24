@@ -26,6 +26,16 @@ export function getVlType(name: string) {
     throw new Error(`unknown vltype: ${name}`);
 }
 
+export function getDataType(name: string) {
+    switch(name.toLowerCase()) {
+        case DataType.String.toLowerCase(): return DataType.String;
+        case DataType.Integer.toLowerCase(): return DataType.Integer;
+        case DataType.Float.toLowerCase(): return DataType.Float;
+    }
+
+    throw new Error(`unknown datatype: ${name}`);
+}
+
 export interface FieldTrait {
     name: string;
     dataType: DataType;

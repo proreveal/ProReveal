@@ -1,22 +1,18 @@
 import * as util from '../util';
-import { Dataset, Row } from './dataset';
-import { Query, AggregateQuery } from './query';
-import { Queue } from './queue';
-import { Scheduler, QueryOrderScheduler } from './scheduler';
+import { Dataset, Row } from '../data/dataset';
+import { Query, AggregateQuery } from '../data/query';
+import { Queue } from '../data/queue';
+import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
 import { timer, Subscription } from 'rxjs';
-import { Schema } from './schema';
-import { Job, AggregateJob } from './job';
-import { AndPredicate } from './predicate';
+import { Schema } from '../data/schema';
+import { Job, AggregateJob } from '../data/job';
+import { AndPredicate } from '../data/predicate';
 import { ExpConstants } from '../exp-constants';
-
-export enum Priority {
-    Highest,
-    Lowest
-}
+import { Priority } from './priority';
 
 let TId = 0;
 
-export class Engine {
+export class BrowserEngine {
     rows: Row[];
     dataset: Dataset;
     schema: Schema;

@@ -1,6 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { VlType } from './data/field';
-import { Engine, Priority } from './data/engine';
+import { BrowserEngine } from './engine/browser-engine';
+import { SparkEngine } from './engine/spark-engine';
+
+import { Priority } from './engine/priority';
 
 import { Query, EmptyQuery, AggregateQuery, Histogram2DQuery, QueryState } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
@@ -26,7 +29,6 @@ import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { MaxApproximator } from './data/approx';
-import * as io from 'socket.io-client';
 
 @Component({
     selector: 'app-root',
@@ -58,7 +60,8 @@ export class AppComponent implements OnInit {
     @ViewChild('queryCreator') queryCreator: QueryCreatorComponent;
     @ViewChild('dataViewerModal') dataViewerModal: TemplateRef<ElementRef>;
 
-    engine: Engine;
+    engineType: string;
+    engine: BrowserEngine | SparkEngine;
 
     activeQuery: AggregateQuery = null;
     highlightedQuery: AggregateQuery = null;
@@ -101,13 +104,12 @@ export class AppComponent implements OnInit {
 
     isStudyMenuVisible = false;
     sampler = ExpConstants.sampler;
-    testMenu = false;
+    debug = false;
 
     dataViewerQuery: AggregateQuery = null;
     dataViewerWhere: AndPredicate = null;
 
     fig: number;
-    ws: SocketIOClient.Socket;
 
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
@@ -118,103 +120,95 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        let ws = io('ws://localhost:7999', {
-            transports: ['websocket']
-        })
-
-        this.ws = ws;
-
-        ws.on('welcome', () => {
-            console.log('welcome from server')
-        })
-
-        ws.on('result', (res: any) => {
-            console.log('wer');
-            console.log(res);
-        })
-
-
         let parameters = util.parseQueryParameters(location.search);
+        const engineType = parameters.engine;
+        this.engineType = engineType;
+        this.debug = parameters.debug || 0;
 
-        const data = parameters.data || "movies_en";
-        const init = +parameters.init || 0;
-        const run = +parameters.run || 0;
-        const uid = parameters.uid || '0';
-        const sid = parameters.sid || '0';
-        const alternate = parameters.alternate || this.alternate;
+        if(engineType == 'spark') {
+            this.logger.mute();
+            this.engine = new SparkEngine('ws://localhost:7999');
+            this.engine.load();
+        }
+        else {
+            const data = parameters.data || "movies_en";
+            const init = +parameters.init || 0;
+            const run = +parameters.run || 0;
+            const uid = parameters.uid || '0';
+            const sid = parameters.sid || '0';
+            const alternate = parameters.alternate || this.alternate;
 
-        this.data = data;
-        this.isStudying = parameters.study || 0;
-        this.testMenu = parameters.test || 0;
-        this.alternate = alternate;
+            this.data = data;
+            this.isStudying = parameters.study || 0;
 
-        const tutorial = parameters.tutorial || 0;
-        if (tutorial) this.alternate = true;
+            this.alternate = alternate;
 
-        this.engine = new Engine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+            const tutorial = parameters.tutorial || 0;
+            if (tutorial) this.alternate = true;
 
-        this.fig = +parameters.fig || 0;
+            this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
-        if (this.alternate)
-            this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
+            this.fig = +parameters.fig || 0;
 
-        this.engine.queryDone = this.queryDone.bind(this);
+            if (this.alternate)
+                this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
-        this.engine.load().then(([dataset]) => {
-            this.logger.setup(uid, sid);
+            this.engine.queryDone = this.queryDone.bind(this);
+            this.engine.load().then(([dataset]) => {
+                if (!this.isStudying) this.logger.mute();
+                else this.logger.setup(uid, sid);
 
-            if (!this.isStudying) this.logger.mute();
+                this.logger.log(LogType.AppStarted, { sid: sid, uid: uid });
 
-            this.logger.log(LogType.AppStarted, { sid: sid, uid: uid });
+                if (init) {
+                    dataset.fields
+                        .sort((a, b) => {
+                            if (a.order && b.order) return a.order - b.order;
+                            if (a.order) return -1;
+                            if (b.order) return 1;
 
-            if (init) {
-                dataset.fields
-                    .sort((a, b) => {
-                        if (a.order && b.order) return a.order - b.order;
-                        if (a.order) return -1;
-                        if (b.order) return 1;
+                            if (a.vlType > b.vlType) return 1;
+                            if (a.vlType < b.vlType) return -1;
 
-                        if (a.vlType > b.vlType) return 1;
-                        if (a.vlType < b.vlType) return -1;
+                            if (a.name > b.name) return 1;
+                            if (a.name < b.name) return -1;
+                            return 0;
+                        })
+                        .forEach(field => {
+                            if (field.vlType !== VlType.Key)
+                                this.create(new EmptyQuery(dataset, this.sampler).combine(field));
+                        });
 
-                        if (a.name > b.name) return 1;
-                        if (a.name < b.name) return -1;
-                        return 0;
-                    })
-                    .forEach(field => {
-                        if (field.vlType !== VlType.Key)
-                            this.create(new EmptyQuery(dataset, this.sampler).combine(field));
-                    });
+                    this.querySelected(this.engine.ongoingQueries[0]);
 
-                this.querySelected(this.engine.ongoingQueries[0]);
+                    if (run > 0) this.runMany(run);
+                }
 
-                if (run > 0) this.runMany(run);
-            }
+                if (tutorial) {
+                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('날씨')));
+                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('지역')));
+                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
+                }
 
-            if (tutorial) {
-                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('날씨')));
-                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('지역')));
-                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
-            }
+                this.engine.run();
 
-            this.engine.run();
+                if(data === 'movies_en') {
+                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')));
+                }
 
-            if(data === 'movies_en') {
-                this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')));
-            }
+                if(this.debug) {
+                    let q = new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
+                    // q.approximator = new MaxApproximator();
+                    this.create(q, Priority.Highest);
+                }
 
-            if(this.testMenu) {
-                let q = new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
-                // q.approximator = new MaxApproximator();
-                this.create(q, Priority.Highest);
-            }
-
-            if (this.fig) this.setupFigures();
-        })
+                if (this.fig) this.setupFigures();
+            })
+        }
     }
 
-    go() {
-        this.ws.emit('query')
+    emit(event: string) {
+        (this.engine as SparkEngine).emit(event);
     }
 
     createVisByNames(vis1: string, vis2: string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {

@@ -10,9 +10,9 @@
                 <fa-icon icon="folder-open"></fa-icon>
                 <small> ({{ this.data }}.json)</small>
             </button>
-            <ng-container *ngIf="!isStudying && testMenu && !fig">
+            <ng-container *ngIf="engineType == 'browser' && !isStudying && debug && !fig">
                 <span class="text-light navbar-text">
-                    Test menu
+                    Debug Menu
                 </span>
                 &nbsp;
                 <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.autoRun">
@@ -35,6 +35,14 @@
                 <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
                 <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
                 <button class="btn btn-sm btn-secondary" (click)="go()">Socket</button>&nbsp;
+            </ng-container>
+            <ng-container *ngIf="engineType == 'spark' && debug">
+                <span class="text-light navbar-text">
+                    Debug Menu
+                </span>
+                &nbsp;
+                <button class="btn btn-sm btn-primary" (click)="emit('query')">Request</button>&nbsp;
+                <button class="btn btn-sm btn-danger" (click)="emit('kill')">Kill</button>&nbsp;
             </ng-container>
         </div>
 

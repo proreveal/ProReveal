@@ -1,5 +1,5 @@
 import * as util from '../util';
-import { FieldTrait, guess, VlType, QuantitativeField, NominalField, KeyField } from './field';
+import { FieldTrait, guess, VlType, QuantitativeField, NominalField, KeyField, getDataType } from './field';
 import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
@@ -11,22 +11,25 @@ export type Row = any;
 
 export class Dataset {
     fields: FieldTrait[]
+    numRows: number;
 
-    constructor(public schema: Schema, public rows: Row[]) {
+    constructor(public schema: Schema, public rows: Row[] = []) {
+        if(rows.length > 0) {
+            Object.keys(rows[0]).forEach(name => {
+                let columnSchema = schema.getColumnSchema(name);
+                if(!columnSchema) throw new Error(`${name} does not exist in the schema`);
 
-        Object.keys(rows[0]).forEach(name => {
-            let columnSchema = schema.getColumnSchema(name);
-            if(!columnSchema) throw new Error(`${name} does not exist in the schema`);
-
-            let unit = columnSchema.unit;
-            if(unit === QuantitativeUnit.USD && Constants.locale.name == Locale.ko_KR) {
-                rows.forEach(row => {
-                    row[name] *= Constants.exchangeRate;
-                })
-            }
-        });
+                let unit = columnSchema.unit;
+                if(unit === QuantitativeUnit.USD && Constants.locale.name == Locale.ko_KR) {
+                    rows.forEach(row => {
+                        row[name] *= Constants.exchangeRate;
+                    })
+                }
+            });
+        }
 
         this.fields = this.guess(schema, rows);
+        this.numRows = rows.length;
     }
 
     guess(schema: Schema, rows: Row[]): FieldTrait[] {
@@ -34,38 +37,73 @@ export class Dataset {
         let indices = util.arange(n);
         let fields: FieldTrait[] = [];
 
-        Object.keys(rows[0]).forEach(name => {
-            let columnSchema = schema.getColumnSchema(name);
-            let unit = columnSchema.unit;
-            let order = columnSchema.order;
+        if(rows.length > 0) {
+            Object.keys(rows[0]).forEach(name => {
+                let columnSchema = schema.getColumnSchema(name);
+                let unit = columnSchema.unit;
+                let order = columnSchema.order;
 
-            let values = indices.map(i => rows[i][name]);
+                let values = indices.map(i => rows[i][name]);
 
-            let [dataType, vlType, nullable] = guess(values);
+                let [dataType, vlType, nullable] = guess(values);
 
-            let field: FieldTrait;
+                let field: FieldTrait;
 
-            if(columnSchema) {
-                vlType = columnSchema.type;
-                if(!isUndefined(columnSchema.nullable)) nullable = columnSchema.nullable;
+                if(columnSchema) {
+                    vlType = columnSchema.vlType;
+                    if(!isUndefined(columnSchema.nullable)) nullable = columnSchema.nullable;
+                    if(!isUndefined(columnSchema.dataType)) dataType = getDataType(columnSchema.dataType);
+                    if(columnSchema.hidden) return;
+                }
+
+                if (vlType === VlType.Quantitative) {
+                    let minValue = (columnSchema && !isUndefined(columnSchema.min)) ? columnSchema.min : d3.min(values);
+                    let maxValue = (columnSchema && !isUndefined(columnSchema.max)) ? columnSchema.max : d3.max(values);
+                    let numBins = (columnSchema && !isUndefined(columnSchema.numBins)) ? columnSchema.numBins : 40;
+                    field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable, unit, order);
+                }
+                else if (vlType === VlType.Nominal) {
+                    field = new NominalField(name, dataType, nullable, order);
+                }
+                else {
+                    field = new KeyField(name, dataType, nullable, order);
+                }
+
+                fields.push(field);
+            });
+        }
+        else {
+            schema.columns.forEach(columnSchema => {
                 if(columnSchema.hidden) return;
-            }
 
-            if (vlType === VlType.Quantitative) {
-                let minValue = (columnSchema && !isUndefined(columnSchema.min)) ? columnSchema.min : d3.min(values);
-                let maxValue = (columnSchema && !isUndefined(columnSchema.max)) ? columnSchema.max : d3.max(values);
-                let numBins = (columnSchema && !isUndefined(columnSchema.numBins)) ? columnSchema.numBins : 40;
-                field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable, unit, order);
-            }
-            else if (vlType === VlType.Nominal) {
-                field = new NominalField(name, dataType, nullable, order);
-            }
-            else {
-                field = new KeyField(name, dataType, nullable, order);
-            }
+                let vlType = columnSchema.vlType;
+                let nullable = true;
+                let dataType = columnSchema.dataType;
 
-            fields.push(field);
-        });
+                if(!isUndefined(columnSchema.nullable)) nullable = columnSchema.nullable;
+
+                let field:FieldTrait;
+
+                let name = columnSchema.name;
+                let min = columnSchema.min;
+                let max = columnSchema.max;
+                let numBins = columnSchema.numBins;
+                let unit = columnSchema.unit;
+                let order = columnSchema.order;
+
+                if (vlType === VlType.Quantitative) {
+                    field = new QuantitativeField(name, dataType, min, max, numBins, nullable, unit, order);
+                }
+                else if (vlType === VlType.Nominal) {
+                    field = new NominalField(name, dataType, nullable, order);
+                }
+                else {
+                    field = new KeyField(name, dataType, nullable, order);
+                }
+
+                fields.push(field);
+            })
+        }
 
         fields.sort((a, b) => {
             if (a.name > b.name) return 1;
@@ -85,6 +123,6 @@ export class Dataset {
     }
 
     get length() {
-        return this.rows.length;
+        return this.numRows;
     }
 }

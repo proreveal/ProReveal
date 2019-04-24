@@ -9,7 +9,7 @@ import { VariableTrait } from '../safeguard/variable';
 import { ConstantTrait } from '../safeguard/constant';
 import { Constants as C, Constants } from '../constants';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
-import { Priority } from '../data/engine';
+import { Priority } from '../engine/priority';
 import { Datum } from '../data/datum';
 import { LoggerService, LogType } from '../services/logger.service';
 
