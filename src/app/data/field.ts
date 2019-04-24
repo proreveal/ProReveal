@@ -36,25 +36,36 @@ export function getDataType(name: string) {
     throw new Error(`unknown datatype: ${name}`);
 }
 
-export interface FieldTrait {
-    name: string;
+export abstract class FieldTrait {
     dataType: DataType;
     vlType: VlType;
     nullable: boolean;
     order: number;
 
-    group(value: any): number;
-    ungroup(id: GroupIdType): null | string | [number, number];
-    ungroupString(id: GroupIdType): string;
+    constructor(public name: string) {
+
+    }
+
+    toJSON() {
+        return {
+            vlType: this.vlType,
+            name: this.name
+        }
+    }
+
+    abstract group(value: any): number;
+    abstract ungroup(id: GroupIdType): null | string | [number, number];
+    abstract ungroupString(id: GroupIdType): string;
 }
 
-export class QuantitativeField implements FieldTrait {
+export class QuantitativeField extends FieldTrait {
     vlType: VlType = VlType.Quantitative;
     grouper: NumericalGrouper;
 
     constructor(public name: string, public dataType: DataType,
         public initialMin: number, public initialMax: number, public numBins: number = 40,
         public nullable: boolean = false, public unit: QuantitativeUnit, public order: number = 0) {
+        super(name);
 
         this.grouper = new NumericalGrouper(initialMin, initialMax, numBins);
     }
@@ -75,12 +86,13 @@ export class QuantitativeField implements FieldTrait {
     get min() { return this.grouper.min; }
 }
 
-export class CategoricalField implements FieldTrait {
+export class CategoricalField extends FieldTrait {
     vlType: VlType = VlType.Ordinal;
     private grouper: CategoricalGrouper = new CategoricalGrouper();
 
     constructor(public name: string, public dataType: DataType,
         public nullable: boolean = false, public order: number = 0) {
+        super(name);
     }
 
     group(value: any) {

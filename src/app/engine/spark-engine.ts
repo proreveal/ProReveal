@@ -1,6 +1,6 @@
 import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
-import { Query, AggregateQuery } from '../data/query';
+import { Query, AggregateQuery, Frequency1DQuery } from '../data/query';
 import { Queue } from '../data/queue';
 import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
 import { timer, Subscription } from 'rxjs';
@@ -10,6 +10,10 @@ import { AndPredicate } from '../data/predicate';
 import { ExpConstants } from '../exp-constants';
 import { Priority } from './priority';
 import * as io from 'socket.io-client';
+import { PartialKeyValue } from '../data/keyvalue';
+import { FieldGroupedValueList } from '../data/field-grouped-value-list';
+import { FieldGroupedValue } from '../data/field-grouped-value';
+import { PartialValue } from '../data/accum';
 
 let TId = 0;
 
@@ -36,6 +40,42 @@ export class SparkEngine {
         ws.on('welcome', (welcome: string) => {
             console.log(`Connected to a Spark Engine (${this.url}): ${welcome}`);
         })
+
+        ws.on('RES/query', (data:any) => {
+            const clientQueryId = data.clientQueryId;
+            const queryId = data.queryId;
+
+            this.ongoingQueries.filter(q => q.id === clientQueryId)
+                .forEach(q => q.id = queryId);
+
+            console.log(`Upgraded the old id ${clientQueryId} to ${queryId}`);
+        });
+
+        ws.on('result', (data: any) => {
+            const query_json = data.query;
+            const job_json = data.job;
+            const result = data.result;
+
+            const query = this.ongoingQueries.find(q => q.id === query_json.id) as Frequency1DQuery;
+
+            let partialKeyValues = result.map((kv: [string, number]) => {
+                let [key, value] = kv;
+                let field = query.grouping;
+                let fgvl = new FieldGroupedValueList([
+                    new FieldGroupedValue(field, field.group(key))
+                ]);
+                let partialValue = new PartialValue(0, 0, value, 0, 0, 0);
+
+                return {
+                    key: fgvl,
+                    value: partialValue
+                } as PartialKeyValue
+            });
+
+            query.accumulate({sample: {length: job_json.numRows}} as any, partialKeyValues);
+            query.sync();
+        })
+
     }
 
     load(): Promise<[Dataset, Schema]> {
@@ -45,23 +85,20 @@ export class SparkEngine {
 
         let ws = this.ws;
 
-        ws.emit('REQ/schema');
-        ws.on('RES/schema', (schema: any[]) => {
-            this.schema = new Schema(schema);
-            this.dataset = new Dataset(this.schema);
-            console.log(this.dataset);
-        });
+        return new Promise((resolve, reject) => {
+            ws.emit('REQ/schema');
+            ws.on('RES/schema', (data: any) => {
+                const schema = data.schema;
+                const numRows = data.numRows;
+                const numBlocks = data.numBlocks;
 
-        /*return util.get(this.schemaUrl, "json").then(schema => {
-            this.schema = new Schema(schema);
+                this.schema = new Schema(schema);
+                this.dataset = new Dataset(this.schema);
+                this.dataset.numRows = numRows;
 
-            return util.get(this.url, "json").then(rows => {
-                this.rows = rows;
-                this.dataset = new Dataset(this.schema, this.rows);
-
-                return [this.dataset, this.schema] as [Dataset, Schema];
+                resolve([this.dataset, this.schema]);
             });
-        })*/
+        });
     }
 
     emit(event: string) {
@@ -76,10 +113,10 @@ export class SparkEngine {
             this.ongoingQueries.push(query);
         }
 
+        this.ws.emit('REQ/query', (query as Frequency1DQuery).toJSON(), priority)
+
         query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
-
-        if(this.autoRun && !this.isRunning) this.runOne();
     }
 
     remove(query: Query) {

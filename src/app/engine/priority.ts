@@ -1,4 +1,4 @@
 export enum Priority {
-    Highest,
-    Lowest
+    Highest = 'highest',
+    Lowest = 'lowest'
 }

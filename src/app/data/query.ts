@@ -27,7 +27,7 @@ export enum QueryState {
 };
 
 export abstract class Query {
-    id: number;
+    id: string;
     static Id = 1;
     visibleProgress: Progress = new Progress();
     recentProgress: Progress = new Progress();
@@ -53,7 +53,7 @@ export abstract class Query {
     processedIndices: number[] = [];
 
     constructor(public dataset: Dataset, public sampler: Sampler) {
-        this.id = Query.Id++;
+        this.id = `ClientQuery${Query.Id++}`;
         this.createdAt = new Date();
     }
 
@@ -112,6 +112,7 @@ export class AggregateQuery extends Query {
         // create samples
         let samples = this.sampler.sample(this.dataset.rows.length);
 
+        // TODO: samples when spark server
         this.recentProgress.totalBlocks = samples.length;
         this.recentProgress.totalRows = dataset.length;
     }
@@ -369,7 +370,7 @@ export class EmptyQuery extends AggregateQuery {
             return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
         }
 
-        throw new ServerError("EmptyQuery + [Q, O, N, D]");
+        throw new ServerError("only EmptyQuery + [Q, O, N, D] is possible");
     }
 
     compatible(fields: FieldTrait[]) {
@@ -696,6 +697,14 @@ export class Frequency1DQuery extends AggregateQuery {
     getPredicateFromDatum(d: Datum) {
         let field = this.groupBy.fields[0];
         return new EqualPredicate(field, d.keys.list[0].value());
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            type: this.name,
+            grouping: this.grouping.toJSON()
+        }
     }
 }
 

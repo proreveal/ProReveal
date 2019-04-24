@@ -1,5 +1,5 @@
 import * as util from '../util';
-import { FieldTrait, guess, VlType, QuantitativeField, NominalField, KeyField, getDataType } from './field';
+import { FieldTrait, guess, VlType, QuantitativeField, NominalField, KeyField, getDataType, OrdinalField } from './field';
 import * as d3 from 'd3-array';
 import { Schema } from './schema';
 import { isUndefined } from 'util';
@@ -62,6 +62,9 @@ export class Dataset {
                     let numBins = (columnSchema && !isUndefined(columnSchema.numBins)) ? columnSchema.numBins : 40;
                     field = new QuantitativeField(name, dataType, minValue, maxValue, numBins, nullable, unit, order);
                 }
+                else if (vlType === VlType.Ordinal) {
+                    field = new OrdinalField(name, dataType, nullable, order);
+                }
                 else if (vlType === VlType.Nominal) {
                     field = new NominalField(name, dataType, nullable, order);
                 }
@@ -93,6 +96,9 @@ export class Dataset {
 
                 if (vlType === VlType.Quantitative) {
                     field = new QuantitativeField(name, dataType, min, max, numBins, nullable, unit, order);
+                }
+                else if (vlType === VlType.Ordinal) {
+                    field = new OrdinalField(name, dataType, nullable, order);
                 }
                 else if (vlType === VlType.Nominal) {
                     field = new NominalField(name, dataType, nullable, order);

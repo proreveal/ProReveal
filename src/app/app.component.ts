@@ -128,7 +128,10 @@ export class AppComponent implements OnInit {
         if(engineType == 'spark') {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
-            this.engine.load();
+            this.engine.load().then(([dataset, schema]) => {
+                this.create(new EmptyQuery(dataset, this.sampler)
+                    .combine(dataset.getFieldByName('YEAR')));
+            });
         }
         else {
             const data = parameters.data || "movies_en";
@@ -226,7 +229,6 @@ export class AppComponent implements OnInit {
         return q;
     }
 
-
     createValueSafeguardFig(query: AggregateQuery, variable: SingleVariable, operator: Operators, constant: ValueConstant) {
         let sg = new ValueSafeguard(variable, operator, constant, query);
         this.safeguards.unshift(sg);
@@ -247,7 +249,6 @@ export class AppComponent implements OnInit {
         this.safeguards.unshift(sg);
         query.safeguards.push(sg);
     }
-
 
     createPowerLawSafeguardFig(query: AggregateQuery) {
         let sg = new PowerLawSafeguard(
