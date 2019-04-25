@@ -84,6 +84,16 @@ export class BrowserEngine {
         this.autoRun = false;
     }
 
+    pauseQuery(query: Query) {
+        query.pause();
+        this.reschedule();
+    }
+
+    resumeQuery(query: Query) {
+        query.resume();
+        this.reschedule();
+    }
+
     gaussianRandom(mean: number, sigma: number) {
         let u = Math.random()*0.682;
         return ((u % 1e-8 > 5e-9 ? 1 : -1) * (Math.sqrt(-Math.log(Math.max(1e-9, u)))-0.618))*1.618 * sigma + mean;

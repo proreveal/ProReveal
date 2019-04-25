@@ -28,7 +28,7 @@ export class SparkEngine {
     queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
     runningJob: Job;
-    isRunning = false;
+    isRunning = true;
     autoRun = false;
     activeTId: number;
     ws: SocketIOClient.Socket;
@@ -126,6 +126,16 @@ export class SparkEngine {
         // this.queue.reschedule();
     }
 
+    pauseQuery(query: Query) {
+        query.pause();
+        this.ws.emit('REQ/query/pause', query.toJSON());
+    }
+
+    resumeQuery(query: Query) {
+        query.resume();
+        this.ws.emit('REQ/query/resume', query.toJSON());
+    }
+
     remove(query: Query) {
         util.aremove(this.ongoingQueries, query);
         util.aremove(this.completedQueries, query);
@@ -144,10 +154,7 @@ export class SparkEngine {
         this.queue.reschedule();
     }
 
-    reschedule(scheduler?: Scheduler) {
-        if(scheduler) this.queue.scheduler = scheduler;
-        this.queue.reschedule();
-    }
+    reschedule(scheduler?: Scheduler) { }
 
     get runningQuery() {
         if(this.runningJob) return this.runningJob.query;

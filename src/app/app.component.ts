@@ -486,15 +486,13 @@ export class AppComponent implements OnInit {
     }
 
     queryPauseClick(query: AggregateQuery, $event: UIEvent) {
-        query.pause();
-        this.engine.reschedule();
+        this.engine.pauseQuery(query);
         $event.stopPropagation();
         return false;
     }
 
     queryRunClick(query: AggregateQuery, $event: UIEvent) {
-        query.run();
-        this.engine.reschedule();
+        this.engine.resumeQuery(query);
         if (this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
         $event.stopPropagation();
         return false;
@@ -502,7 +500,7 @@ export class AppComponent implements OnInit {
 
     runAll() {
         this.queries.forEach(query => {
-            query.run();
+            query.resume();
         });
         this.engine.reschedule();
         if (this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();

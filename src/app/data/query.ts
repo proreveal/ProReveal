@@ -67,7 +67,7 @@ export abstract class Query {
         this.state = QueryState.Paused;
     }
 
-    run() {
+    resume() {
         this.state = QueryState.Running;
     }
 
