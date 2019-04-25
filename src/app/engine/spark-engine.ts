@@ -61,6 +61,7 @@ export class SparkEngine {
             const result = data.result;
 
             const query = this.ongoingQueries.find(q => q.id === query_json.id) as Frequency1DQuery;
+            if(!query) return; // query removed
 
             let partialKeyValues = result.map((kv: [string, number]) => {
                 let [key, value] = kv;
@@ -119,7 +120,7 @@ export class SparkEngine {
             this.ongoingQueries.push(query);
         }
 
-        this.ws.emit('REQ/query', (query as Frequency1DQuery).toJSON(), priority)
+        this.ws.emit('REQ/query', query.toJSON(), priority)
 
         // query.jobs().forEach(job => this.queue.append(job));
         // this.queue.reschedule();
@@ -129,7 +130,7 @@ export class SparkEngine {
         util.aremove(this.ongoingQueries, query);
         util.aremove(this.completedQueries, query);
 
-        this.queue.remove(query);
+        this.ws.emit('REQ/query/delete', query.toJSON());
     }
 
     reorderOngoingQueries(queries: Query[]) {

@@ -70,6 +70,10 @@ export abstract class Query {
     run() {
         this.state = QueryState.Running;
     }
+
+    toJSON() {
+
+    }
 }
 
 /**
