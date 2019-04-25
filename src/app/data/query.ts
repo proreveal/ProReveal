@@ -52,12 +52,12 @@ export abstract class Query {
     state: QueryState = QueryState.Running;
     processedIndices: number[] = [];
 
-    constructor(public dataset: Dataset, public sampler: Sampler) {
+    constructor(public dataset: Dataset) {
         this.id = `ClientQuery${Query.Id++}`;
         this.createdAt = new Date();
     }
 
-    abstract accumulate(job: Job, partialKeyValues: PartialKeyValue[]): void;
+    abstract accumulate(partialKeyValues: PartialKeyValue[], processedRows: number): void;
     abstract combine(field: FieldTrait): Query;
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
     abstract desc(): string;
@@ -105,16 +105,11 @@ export class AggregateQuery extends Query {
         public target: FieldTrait,
         public dataset: Dataset,
         public groupBy: GroupBy,
-        public where: AndPredicate,
-        public sampler: Sampler) {
-        super(dataset, sampler);
+        public where: AndPredicate) {
+        super(dataset);
 
-        // create samples
-        let samples = this.sampler.sample(this.dataset.rows.length);
-
-        // TODO: samples when spark server
-        this.recentProgress.totalBlocks = samples.length;
-        this.recentProgress.totalRows = dataset.length;
+        this.recentProgress.numBatches = dataset.sampler.numBatches;
+        this.recentProgress.numRows = dataset.sampler.numRows;
     }
 
     toLog() {
@@ -138,7 +133,8 @@ export class AggregateQuery extends Query {
     }
 
     jobs() {
-        let samples = this.sampler.sample(this.dataset.rows.length);
+        let samples = this.dataset.sampler.sample(this.dataset.rows.length);
+
         return samples.map((sample, i) =>
             new AggregateJob(
                 this.accumulator,
@@ -151,10 +147,10 @@ export class AggregateQuery extends Query {
                 sample));
     }
 
-    accumulate(job: AggregateJob, partialKeyValues: PartialKeyValue[]) {
+    accumulate(partialKeyValues: PartialKeyValue[], processedRows: number) {
         this.lastUpdated = +new Date();
 
-        this.recentProgress.processedRows += job.sample.length;
+        this.recentProgress.processedRows += processedRows;
         this.recentProgress.processedBlocks++;
 
         partialKeyValues.forEach(pres => {
@@ -179,8 +175,7 @@ export class AggregateQuery extends Query {
                 field,
                 this.dataset,
                 this.groupBy,
-                this.where,
-                this.sampler
+                this.where
             );
         }
 
@@ -190,8 +185,7 @@ export class AggregateQuery extends Query {
             this.target,
             this.dataset,
             new GroupBy(this.groupBy.fields.concat(field)),
-            this.where,
-            this.sampler
+            this.where
         );
     }
 
@@ -221,7 +215,7 @@ export class AggregateQuery extends Query {
                 .approximate(value,
                     this.recentProgress.processedPercent(),
                     this.recentProgress.processedRows,
-                    this.recentProgress.totalRows);
+                    this.recentProgress.numRows);
 
             return new Datum(
                 key.hash,
@@ -245,7 +239,7 @@ export class AggregateQuery extends Query {
                 .approximate(value,
                     this.visibleProgress.processedPercent(),
                     this.visibleProgress.processedRows,
-                    this.visibleProgress.totalRows);
+                    this.visibleProgress.numRows);
 
             return new Datum(
                 key.hash,
@@ -354,20 +348,20 @@ export class EmptyQuery extends AggregateQuery {
     name = "EmptyQuery";
     hasAggregateFunction = false;
 
-    constructor(public dataset: Dataset, public sampler) {
-        super(null, null, null, dataset, null, null, sampler);
+    constructor(public dataset: Dataset) {
+        super(null, null, null, dataset, null, null);
     }
 
-    accumulate(job: Job, partialResponses: PartialKeyValue[]) {
+    accumulate(partialResponses: PartialKeyValue[], processedRows: number) {
         this.lastUpdated = +new Date();
     }
 
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
-            return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]), this.sampler);
+            return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]));
         }
         else if ([VlType.Ordinal, VlType.Nominal].includes(field.vlType)) {
-            return new Frequency1DQuery(field, this.dataset, new AndPredicate([]), this.sampler);
+            return new Frequency1DQuery(field, this.dataset, new AndPredicate([]));
         }
 
         throw new ServerError("only EmptyQuery + [Q, O, N, D] is possible");
@@ -410,16 +404,14 @@ export class Histogram1DQuery extends AggregateQuery {
 
     constructor(public grouping: QuantitativeField,
         public dataset: Dataset,
-        public where: AndPredicate,
-        public sampler: Sampler) {
+        public where: AndPredicate) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping]),
-            where,
-            sampler);
+            where);
 
         assert(grouping.vlType, VlType.Quantitative);
     }
@@ -430,8 +422,7 @@ export class Histogram1DQuery extends AggregateQuery {
                 this.grouping,
                 field as QuantitativeField,
                 this.dataset,
-                this.where,
-                this.sampler);
+                this.where);
 
         return new AggregateQuery(
             new AllAccumulator(),
@@ -439,8 +430,7 @@ export class Histogram1DQuery extends AggregateQuery {
             this.grouping,
             this.dataset,
             new GroupBy([field]),
-            this.where,
-            this.sampler);
+            this.where);
     }
 
     aggregate(data: Datum[]) {
@@ -483,7 +473,7 @@ export class Histogram1DQuery extends AggregateQuery {
                     value,
                     this.visibleProgress.processedPercent(),
                     this.visibleProgress.processedRows,
-                    this.visibleProgress.totalRows
+                    this.visibleProgress.numRows
                 ).range(3) : EmptyConfidenceInterval,
                 value
             ))
@@ -530,16 +520,14 @@ export class Histogram2DQuery extends AggregateQuery {
         public grouping1: QuantitativeField,
         public grouping2: QuantitativeField,
         public dataset: Dataset,
-        public where: AndPredicate,
-        public sampler: Sampler) {
+        public where: AndPredicate) {
         super(
             new AllAccumulator(),
             new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping1, grouping2]),
-            where,
-            sampler);
+            where);
 
         assert(grouping1.vlType, VlType.Quantitative);
         assert(grouping2.vlType, VlType.Quantitative);
@@ -617,7 +605,7 @@ export class Histogram2DQuery extends AggregateQuery {
                         value,
                         this.visibleProgress.processedPercent(),
                         this.visibleProgress.processedRows,
-                        this.visibleProgress.totalRows
+                        this.visibleProgress.numRows
                     ).range(3) : EmptyConfidenceInterval,
                     value
                 ))
@@ -660,16 +648,14 @@ export class Frequency1DQuery extends AggregateQuery {
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
-        public where: AndPredicate,
-        public sampler: Sampler) {
+        public where: AndPredicate) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
             null,
             dataset,
             new GroupBy([grouping]),
-            where,
-            sampler);
+            where);
 
         assertIn(grouping.vlType, [VlType.Nominal, VlType.Ordinal]);
     }
@@ -682,16 +668,14 @@ export class Frequency1DQuery extends AggregateQuery {
                 field,
                 this.dataset,
                 new GroupBy([this.grouping]),
-                this.where,
-                this.sampler);
+                this.where);
         }
 
         return new Frequency2DQuery(
             this.grouping,
             field,
             this.dataset,
-            this.where,
-            this.sampler);
+            this.where);
     }
 
     getPredicateFromDatum(d: Datum) {
@@ -724,8 +708,7 @@ export class Frequency2DQuery extends AggregateQuery {
         public grouping1: FieldTrait,
         public grouping2: FieldTrait,
         public dataset: Dataset,
-        public where: AndPredicate,
-        public sampler: Sampler) {
+        public where: AndPredicate) {
 
         super(
             new AllAccumulator(),
@@ -733,8 +716,7 @@ export class Frequency2DQuery extends AggregateQuery {
             null,
             dataset,
             new GroupBy([grouping1, grouping2]),
-            where,
-            sampler);
+            where);
 
         assertIn(grouping1.vlType, [VlType.Nominal, VlType.Ordinal]);
         assertIn(grouping2.vlType, [VlType.Nominal, VlType.Ordinal]);

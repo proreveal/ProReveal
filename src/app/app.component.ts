@@ -103,7 +103,6 @@ export class AppComponent implements OnInit {
     isStudying = false;
 
     isStudyMenuVisible = false;
-    sampler = ExpConstants.sampler;
     debug = false;
 
     dataViewerQuery: AggregateQuery = null;
@@ -129,7 +128,7 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
             this.engine.load().then(([dataset, schema]) => {
-                this.create(new EmptyQuery(dataset, this.sampler)
+                this.create(new EmptyQuery(dataset)
                     .combine(dataset.getFieldByName('YEAR')));
             });
         }
@@ -179,7 +178,7 @@ export class AppComponent implements OnInit {
                         })
                         .forEach(field => {
                             if (field.vlType !== VlType.Key)
-                                this.create(new EmptyQuery(dataset, this.sampler).combine(field));
+                                this.create(new EmptyQuery(dataset).combine(field));
                         });
 
                     this.querySelected(this.engine.ongoingQueries[0]);
@@ -188,19 +187,19 @@ export class AppComponent implements OnInit {
                 }
 
                 if (tutorial) {
-                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('날씨')));
-                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('지역')));
-                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
+                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('날씨')));
+                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('지역')));
+                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
                 }
 
                 this.engine.run();
 
                 if(data === 'movies_en') {
-                    this.create(new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Genre')));
+                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
                 }
 
                 if(this.debug) {
-                    let q = new EmptyQuery(dataset, this.sampler).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
+                    let q = new EmptyQuery(dataset).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
                     // q.approximator = new MaxApproximator();
                     this.create(q, Priority.Highest);
                 }
@@ -215,7 +214,7 @@ export class AppComponent implements OnInit {
     }
 
     createVisByNames(vis1: string, vis2: string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {
-        let q: any = new EmptyQuery(this.engine.dataset, this.sampler);
+        let q: any = new EmptyQuery(this.engine.dataset);
         q = q.combine(this.engine.dataset.getFieldByName(vis1));
         if (vis2) {
             q = q.combine(this.engine.dataset.getFieldByName(vis2));

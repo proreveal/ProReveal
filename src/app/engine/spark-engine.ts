@@ -14,6 +14,7 @@ import { PartialKeyValue } from '../data/keyvalue';
 import { FieldGroupedValueList } from '../data/field-grouped-value-list';
 import { FieldGroupedValue } from '../data/field-grouped-value';
 import { PartialValue } from '../data/accum';
+import { RemoteSampler } from '../data/sampler';
 
 let TId = 0;
 
@@ -52,6 +53,9 @@ export class SparkEngine {
         });
 
         ws.on('result', (data: any) => {
+            // TODO check query exists
+            // TODO check socket id
+
             const query_json = data.query;
             const job_json = data.job;
             const result = data.result;
@@ -72,7 +76,7 @@ export class SparkEngine {
                 } as PartialKeyValue
             });
 
-            query.accumulate({sample: {length: job_json.numRows}} as any, partialKeyValues);
+            query.accumulate(partialKeyValues, job_json.numRows);
             query.sync();
         })
 
@@ -90,16 +94,18 @@ export class SparkEngine {
             ws.on('RES/schema', (data: any) => {
                 const schema = data.schema;
                 const numRows = data.numRows;
-                const numBlocks = data.numBlocks;
+                const numBatches = data.numBatches;
 
                 this.schema = new Schema(schema);
-                this.dataset = new Dataset(this.schema);
-                this.dataset.numRows = numRows;
+                this.dataset = new Dataset(this.schema, [], new RemoteSampler(numRows, numBatches));
 
                 resolve([this.dataset, this.schema]);
             });
         });
     }
+
+    run() { }
+    runOne() { }
 
     emit(event: string) {
         this.ws.emit(event);
@@ -115,8 +121,8 @@ export class SparkEngine {
 
         this.ws.emit('REQ/query', (query as Frequency1DQuery).toJSON(), priority)
 
-        query.jobs().forEach(job => this.queue.append(job));
-        this.queue.reschedule();
+        // query.jobs().forEach(job => this.queue.append(job));
+        // this.queue.reschedule();
     }
 
     remove(query: Query) {
@@ -124,90 +130,6 @@ export class SparkEngine {
         util.aremove(this.completedQueries, query);
 
         this.queue.remove(query);
-    }
-
-
-    latencySubs: Subscription;
-
-    run() {
-        this.autoRun = true;
-        if(!this.isRunning) this.runOne();
-    }
-
-    pause() {
-        this.autoRun = false;
-    }
-
-    gaussianRandom(mean: number, sigma: number) {
-        let u = Math.random()*0.682;
-        return ((u % 1e-8 > 5e-9 ? 1 : -1) * (Math.sqrt(-Math.log(Math.max(1e-9, u)))-0.618))*1.618 * sigma + mean;
-    }
-
-    runOne(noDelay = false) {
-        if (!this.queue.peep()) { this.isRunning = false; return; }
-
-        this.isRunning = true;
-        const job = this.queue.pop();
-
-        this.runningJob = job;
-        job.query.recentProgress.ongoingBlocks = 1;
-
-        let body = () => {
-            this.runningJob = null;
-
-            const partialKeyValues = job.run();
-            job.query.recentProgress.ongoingBlocks = 0;
-
-            job.query.accumulate(job, partialKeyValues);
-            job.query.processedIndices = job.query.processedIndices.concat((job as AggregateJob).sample);
-
-            if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {
-                job.query.sync();
-            }
-
-            if (job.query.recentProgress.done()) {
-                util.aremove(this.ongoingQueries, job.query);
-                this.completedQueries.push(job.query);
-            }
-
-            if (this.queryDone)
-                this.queryDone(job.query);
-        }
-
-        if(noDelay) {
-            body(); // no casecading
-            if(this.autoRun && this.queue.peep()) {
-                this.runOne();
-            }
-            else {
-                this.isRunning = false;
-            }
-        }
-        else {
-            let latency = this.gaussianRandom(ExpConstants.latencyMean, ExpConstants.latencyStdev);
-            if(job.index === 0) latency = ExpConstants.initialLatency;
-
-            console.log(`running Job(${job.id}, ${job.index}) with latency of ${latency}`);
-
-            let latencyTimer = timer(latency);
-            let tid = TId++;
-            this.activeTId = tid;
-            this.latencySubs = latencyTimer.subscribe(() => {
-                if(tid != this.activeTId) return;
-                body();
-
-                if(this.autoRun && this.queue.peep()) {
-                    this.runOne();
-                }
-                else {
-                    this.isRunning = false;
-                }
-            });
-        }
-    }
-
-    empty() {
-        return this.queue.empty();
     }
 
     reorderOngoingQueries(queries: Query[]) {

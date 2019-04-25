@@ -40,18 +40,12 @@
                 Processed
                 <span class="font-weight-bold text-primary">{{ query.recentProgress.processedRows | number }}</span>
                 of
-                <span [ngPlural]="query.recentProgress.totalRows">
+                <span [ngPlural]="query.recentProgress.numRows">
                     <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> row</ng-template>
-                    <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.totalRows | number }}</span> rows</ng-template>
+                    <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.numRows | number }}</span> rows</ng-template>
                 </span>
 
-                (<!--<span class="font-weight-bold text-primary">{{ query.recentProgress.processedBlocks | number }}</span>
-                of
-                <span [ngPlural]="query.recentProgress.totalBlocks">
-                    <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> block</ng-template>
-                    <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.totalBlocks | number }}</span> blocks</ng-template>
-                </span>,
-            -->{{ query.recentProgress.processedPercent() | percent }})
+                ({{ query.recentProgress.processedPercent() | percent }})
             </div>
 
             <button type="button" class="btn border btn-sm ml-1"

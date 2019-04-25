@@ -40,7 +40,7 @@ export class ValueEstimator implements EstimatorTrait {
             result,
             query.visibleProgress.processedPercent(),
             query.visibleProgress.processedRows,
-            query.visibleProgress.totalRows);
+            query.visibleProgress.numRows);
 
         if(ai.stdev === 0) return 0; // always true since we automatically set the direction of > and <
 
@@ -60,7 +60,7 @@ export class RankEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
         operator: Operators, constant: RankConstant): PValue {
         const n = query.visibleProgress.processedRows;
-        const N = query.visibleProgress.totalRows;
+        const N = query.visibleProgress.numRows;
 
         let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult).map((hash) => {
             let result = query.visibleResult[hash];
@@ -68,7 +68,7 @@ export class RankEstimator implements EstimatorTrait {
                 result.value,
                 query.visibleProgress.processedPercent(),
                 query.visibleProgress.processedRows,
-                query.visibleProgress.totalRows
+                query.visibleProgress.numRows
             );
 
             return [hash, ai] as [string, ApproximatedInterval];
@@ -118,7 +118,7 @@ export class MinMaxValueEstimator implements EstimatorTrait {
             result,
             query.visibleProgress.processedPercent(),
             query.visibleProgress.processedRows,
-            query.visibleProgress.totalRows);
+            query.visibleProgress.numRows);
 
         if (operator == Operators.GreaterThan)
             return ai.center > constant.value;
@@ -144,7 +144,7 @@ export class MinMaxRankValueEstimator implements EstimatorTrait {
                 result.value,
                 query.visibleProgress.processedPercent(),
                 query.visibleProgress.processedRows,
-                query.visibleProgress.totalRows
+                query.visibleProgress.numRows
             );
 
             return [hash, ai] as [string, ApproximatedInterval];
@@ -184,7 +184,7 @@ export class RangeEstimator implements EstimatorTrait {
             result,
             query.visibleProgress.processedPercent(),
             query.visibleProgress.processedRows,
-            query.visibleProgress.totalRows);
+            query.visibleProgress.numRows);
 
         if(ai.stdev == 0) return 0; // no uncertainty
 
@@ -208,7 +208,7 @@ export class MinMaxRangeEstimator implements EstimatorTrait {
             result,
             query.visibleProgress.processedPercent(),
             query.visibleProgress.processedRows,
-            query.visibleProgress.totalRows);
+            query.visibleProgress.numRows);
 
         if(operator == Operators.InRange)
             return constant.from <= ai.center && ai.center <= constant.to;
@@ -223,7 +223,7 @@ export class ComparativeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariablePair | CombinedVariablePair,
         operator: Operators): PValue {
         const n = query.visibleProgress.processedRows;
-        const N = query.visibleProgress.totalRows;
+        const N = query.visibleProgress.numRows;
 
         let result1 = query.visibleData.find(d => d.keys.hash == variable.first.hash).accumulatedValue;
         let result2 = query.visibleData.find(d => d.keys.hash == variable.second.hash).accumulatedValue;
@@ -255,7 +255,7 @@ export class MinMaxComparativeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariablePair | CombinedVariablePair,
         operator: Operators): Truthiness {
         const n = query.visibleProgress.processedRows;
-        const N = query.visibleProgress.totalRows;
+        const N = query.visibleProgress.numRows;
 
         let result1 = query.visibleData.find(d => d.keys.hash == variable.first.hash).accumulatedValue;
         let result2 = query.visibleData.find(d => d.keys.hash == variable.second.hash).accumulatedValue;

@@ -9,6 +9,7 @@ import { Job, AggregateJob } from '../data/job';
 import { AndPredicate } from '../data/predicate';
 import { ExpConstants } from '../exp-constants';
 import { Priority } from './priority';
+import { UniformNumBlocksSampler } from '../data/sampler';
 
 let TId = 0;
 
@@ -30,9 +31,6 @@ export class BrowserEngine {
 
     }
 
-    /**
-     * This will take long. For real datasets, use `sampleRows` instead.
-     */
     load(): Promise<[Dataset, Schema]> {
         if (this.dataset && this.schema) {
             return Promise.resolve([this.dataset, this.schema] as [Dataset, Schema]);
@@ -43,7 +41,10 @@ export class BrowserEngine {
 
             return util.get(this.url, "json").then(rows => {
                 this.rows = rows;
-                this.dataset = new Dataset(this.schema, this.rows);
+                this.dataset = new Dataset(this.schema, this.rows, new UniformNumBlocksSampler(
+                    this.rows.length,
+                    ExpConstants.numBatches
+                ));
 
                 return [this.dataset, this.schema] as [Dataset, Schema];
             });
@@ -103,7 +104,7 @@ export class BrowserEngine {
             const partialKeyValues = job.run();
             job.query.recentProgress.ongoingBlocks = 0;
 
-            job.query.accumulate(job, partialKeyValues);
+            job.query.accumulate(partialKeyValues, (job as AggregateJob).sample.length);
             job.query.processedIndices = job.query.processedIndices.concat((job as AggregateJob).sample);
 
             if (job.query instanceof AggregateQuery && job.query.updateAutomatically) {

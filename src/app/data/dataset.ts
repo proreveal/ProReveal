@@ -6,14 +6,14 @@ import { isUndefined } from 'util';
 import { Constants } from '../constants';
 import { QuantitativeUnit } from './unit';
 import { Locale } from '../locales/locale';
+import { Sampler } from './sampler';
 
 export type Row = any;
 
 export class Dataset {
     fields: FieldTrait[]
-    numRows: number;
 
-    constructor(public schema: Schema, public rows: Row[] = []) {
+    constructor(public schema: Schema, public rows: Row[] = [], public sampler: Sampler) {
         if(rows.length > 0) {
             Object.keys(rows[0]).forEach(name => {
                 let columnSchema = schema.getColumnSchema(name);
@@ -29,7 +29,6 @@ export class Dataset {
         }
 
         this.fields = this.guess(schema, rows);
-        this.numRows = rows.length;
     }
 
     guess(schema: Schema, rows: Row[]): FieldTrait[] {
@@ -126,9 +125,5 @@ export class Dataset {
         if (!fields.length) throw `no field named ${name} exists`;
 
         return fields[0];
-    }
-
-    get length() {
-        return this.numRows;
     }
 }

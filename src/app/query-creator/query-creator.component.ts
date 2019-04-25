@@ -67,7 +67,7 @@ export class QueryCreatorComponent implements OnInit, OnChanges {
             this.selectedFields.push(field);
         }
 
-        let newQuery: Query = new EmptyQuery(this.dataset, ExpConstants.sampler);
+        let newQuery: Query = new EmptyQuery(this.dataset);
         this.selectedFields.forEach(field => {
             newQuery = newQuery.combine(field);
         })
