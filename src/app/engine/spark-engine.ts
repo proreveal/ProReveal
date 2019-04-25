@@ -60,23 +60,10 @@ export class SparkEngine {
             const job_json = data.job;
             const result = data.result;
 
-            const query = this.ongoingQueries.find(q => q.id === query_json.id) as Frequency1DQuery;
+            const query = this.ongoingQueries.find(q => q.id === query_json.id) as AggregateQuery;
             if(!query) return; // query removed
 
-            let partialKeyValues = result.map((kv: [string, number]) => {
-                let [key, value] = kv;
-                let field = query.grouping;
-                let fgvl = new FieldGroupedValueList([
-                    new FieldGroupedValue(field, field.group(key))
-                ]);
-                let partialValue = new PartialValue(0, 0, value, 0, 0, 0);
-
-                return {
-                    key: fgvl,
-                    value: partialValue
-                } as PartialKeyValue
-            });
-
+            let partialKeyValues = query.convertToPartialKeyValues(result);
             query.accumulate(partialKeyValues, job_json.numRows);
             query.sync();
         })

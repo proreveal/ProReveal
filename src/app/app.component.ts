@@ -128,8 +128,17 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
             this.engine.load().then(([dataset, schema]) => {
-                this.create(new EmptyQuery(dataset)
-                    .combine(dataset.getFieldByName('YEAR')));
+                let year = dataset.getFieldByName('YEAR');
+                let month = dataset.getFieldByName('MONTH');
+
+                let query = new EmptyQuery(dataset).combine(year).combine(month);
+
+                /*query.where = new AndPredicate([new EqualPredicate(
+                    dataset.getFieldByName('YEAR'),
+                    2016
+                )])*/
+
+                this.create(query);
             });
         }
         else {
@@ -498,19 +507,18 @@ export class AppComponent implements OnInit {
         return false;
     }
 
-    runAll() {
+    resumeAll() {
         this.queries.forEach(query => {
-            query.resume();
+            this.engine.resumeQuery(query);
         });
-        this.engine.reschedule();
         if (this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
     }
 
     pauseAll() {
+
         this.queries.forEach(query => {
-            query.pause();
+            this.engine.pauseQuery(query);
         });
-        this.engine.reschedule();
     }
 
     constantUserChanged(constant: ConstantTrait) {

@@ -49,6 +49,7 @@ export abstract class FieldTrait {
     toJSON() {
         return {
             vlType: this.vlType,
+            dataType: this.dataType,
             name: this.name
         }
     }

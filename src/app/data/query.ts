@@ -328,6 +328,11 @@ export class AggregateQuery extends Query {
         return data;
     }
 
+
+    convertToPartialKeyValues(result: any): PartialKeyValue[] {
+        return [];
+    }
+
     sync() {
         let clone: AccumulatedKeyValues = {};
 
@@ -691,8 +696,25 @@ export class Frequency1DQuery extends AggregateQuery {
         return {
             id: this.id,
             type: this.name,
-            grouping: this.grouping.toJSON()
+            grouping: this.grouping.toJSON(),
+            where: this.where.toJSON()
         }
+    }
+
+    convertToPartialKeyValues(result: [string, number][]) {
+        return result.map((kv: [string, number]) => {
+            let [key, value] = kv;
+            let field = this.grouping;
+            let fgvl = new FieldGroupedValueList([
+                new FieldGroupedValue(field, field.group(key))
+            ]);
+            let partialValue = new PartialValue(0, 0, value, 0, 0, 0);
+
+            return {
+                key: fgvl,
+                value: partialValue
+            } as PartialKeyValue
+        });
     }
 }
 
@@ -715,7 +737,7 @@ export class Frequency2DQuery extends AggregateQuery {
         public where: AndPredicate) {
 
         super(
-            new AllAccumulator(),
+            new CountAccumulator(),
             new CountApproximator(),
             null,
             dataset,
@@ -741,6 +763,35 @@ export class Frequency2DQuery extends AggregateQuery {
             new EqualPredicate(field1, d.keys.list[0].value()),
             new EqualPredicate(field2, d.keys.list[1].value())
         ])
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            type: this.name,
+            grouping1: this.grouping1.toJSON(),
+            grouping2: this.grouping2.toJSON(),
+            where: this.where.toJSON()
+        }
+    }
+
+    convertToPartialKeyValues(result: [string, string, number][]) {
+        return result.map((kv: [string, string, number]) => {
+            let [key1, key2, value] = kv;
+            const field1 = this.grouping1;
+            const field2 = this.grouping2;
+
+            let fgvl = new FieldGroupedValueList([
+                new FieldGroupedValue(field1, field1.group(key1)),
+                new FieldGroupedValue(field2, field2.group(key2)),
+            ]);
+            let partialValue = new PartialValue(0, 0, value, 0, 0, 0);
+
+            return {
+                key: fgvl,
+                value: partialValue
+            } as PartialKeyValue
+        });
     }
 }
 

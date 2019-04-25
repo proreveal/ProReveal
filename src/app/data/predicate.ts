@@ -39,6 +39,14 @@ export class EqualPredicate extends Predicate {
             expected: this.expected
         };
     }
+
+    toJSON() {
+        return {
+            type: 'equal',
+            field: this.target.toJSON(),
+            expected: this.expected
+        }
+    }
 }
 
 export class RangePredicate extends Predicate {
@@ -58,6 +66,16 @@ export class RangePredicate extends Predicate {
             start: this.start,
             end: this.end
         };
+    }
+
+    toJSON() {
+        return {
+            type: 'range',
+            field: this.target.toJSON(),
+            start: this.start,
+            end: this.end,
+            includeEnd: this.includeEnd
+        }
     }
 }
 
@@ -92,5 +110,26 @@ export class AndPredicate extends Predicate {
 
     toLog() {
         return this.predicates.map(p => p.toLog());
+    }
+
+    flatten() {
+        let res = [];
+        this.predicates.forEach(pred => {
+            if(pred instanceof AndPredicate) {
+                res = res.concat(pred.flatten())
+            } else {
+                res.push(pred);
+            }
+        })
+
+        return res;
+    }
+
+    toJSON() {
+        if(this.predicates.length == 0) return null;
+        return {
+            type: 'and',
+            predicates: this.flatten().map(pred => pred.toJSON())
+        };
     }
 }
