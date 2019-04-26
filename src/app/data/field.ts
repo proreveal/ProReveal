@@ -85,6 +85,18 @@ export class QuantitativeField extends FieldTrait {
 
     get max() { return this.grouper.max; }
     get min() { return this.grouper.min; }
+
+    toJSON() {
+        return {
+            vlType: this.vlType,
+            dataType: this.dataType,
+            name: this.name,
+            start: this.grouper.min,
+            end: this.grouper.max,
+            numBins: this.grouper.numBins,
+            step: this.grouper.step
+        }
+    }
 }
 
 export class CategoricalField extends FieldTrait {
@@ -156,7 +168,6 @@ export class FieldValueList {
 export function guess(values: any[]): [DataType, VlType, boolean] {
     let dataType = guessDataType(values);
     let unique = {};
-    let n = values.length;
 
     values.forEach(value => unique[value] = true);
 

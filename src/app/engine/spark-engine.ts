@@ -89,6 +89,8 @@ export class SparkEngine {
                 this.schema = new Schema(schema);
                 this.dataset = new Dataset(this.schema, [], new RemoteSampler(numRows, numBatches));
 
+                console.log('Got schema', schema);
+
                 resolve([this.dataset, this.schema]);
             });
         });

@@ -14,7 +14,7 @@ import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
 import { AndPredicate, EqualPredicate, RangePredicate, Predicate } from './predicate';
 import { Datum } from './datum';
 import { NullGroupId, GroupIdType } from './grouper';
-import { isArray } from 'util';
+import { isArray, isNull } from 'util';
 import * as d3 from 'd3';
 import { Safeguard } from '../safeguard/safeguard';
 import { FieldGroupedValue } from './field-grouped-value';
@@ -510,12 +510,37 @@ export class Histogram1DQuery extends AggregateQuery {
         return result;
     }
 
+    convertToPartialKeyValues(result: any): PartialKeyValue[] {
+        return result.map((kv: [number, number]) => {
+            let [key, count] = kv;
+            let field = this.groupBy.fields[0];
+            let fgvl = new FieldGroupedValueList([
+                new FieldGroupedValue(field, isNull(key) ? NullGroupId : key)
+            ]);
+            let partialValue = new PartialValue(0, 0, count, 0, 0, 0);
+
+            return {
+                key: fgvl,
+                value: partialValue
+            } as PartialKeyValue
+        });
+    }
+
     getPredicateFromDatum(d: Datum) {
         let field = this.groupBy.fields[0];
         let range: [number, number] = d.keys.list[0].value() as [number, number];
         let includeEnd = range[1] == (field as QuantitativeField).grouper.max;
 
         return new RangePredicate(field, range[0], range[1], includeEnd);
+    }
+
+    toJSON(): any {
+        return {
+            id: this.id,
+            type: this.name,
+            grouping: this.grouping.toJSON(),
+            where: this.where.toJSON()
+        }
     }
 }
 
