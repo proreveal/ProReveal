@@ -60,6 +60,8 @@ export class SparkEngine {
             const job_json = data.job;
             const result = data.result;
 
+            console.log('Result arrived', result)
+
             const query = this.ongoingQueries.find(q => q.id === query_json.id) as AggregateQuery;
             if(!query) return; // query removed
 

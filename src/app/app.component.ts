@@ -130,13 +130,14 @@ export class AppComponent implements OnInit {
             this.engine.load().then(([dataset, schema]) => {
                 let year = dataset.getFieldByName('YEAR');
                 let month = dataset.getFieldByName('MONTH');
+                let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
 
-                let query = new EmptyQuery(dataset).combine(year).combine(month);
+                let query = new EmptyQuery(dataset).combine(year).combine(arrivalDelay);
 
-                /*query.where = new AndPredicate([new EqualPredicate(
+                query.where = new AndPredicate([new EqualPredicate(
                     dataset.getFieldByName('YEAR'),
                     2016
-                )])*/
+                )])
 
                 this.create(query);
             });

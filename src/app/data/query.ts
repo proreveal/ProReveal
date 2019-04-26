@@ -22,8 +22,8 @@ import { FieldGroupedValueList } from './field-grouped-value-list';
 import { ConfidenceInterval, EmptyConfidenceInterval } from './confidence-interval';
 
 export enum QueryState {
-    Running = "Running",
-    Paused = "Paused"
+    Running = 'Running',
+    Paused = 'Paused'
 };
 
 export abstract class Query {
@@ -71,9 +71,7 @@ export abstract class Query {
         this.state = QueryState.Running;
     }
 
-    toJSON() {
-
-    }
+    abstract toJSON(): any;
 }
 
 /**
@@ -328,9 +326,20 @@ export class AggregateQuery extends Query {
         return data;
     }
 
-
     convertToPartialKeyValues(result: any): PartialKeyValue[] {
-        return [];
+        return result.map((kv: [string, number, number, number, number, number, number]) => {
+            let [key, sum, ssum, count, min, max, nullCount] = kv;
+            let field = this.groupBy.fields[0];
+            let fgvl = new FieldGroupedValueList([
+                new FieldGroupedValue(field, field.group(key))
+            ]);
+            let partialValue = new PartialValue(sum, ssum, count, min, max, nullCount);
+
+            return {
+                key: fgvl,
+                value: partialValue
+            } as PartialKeyValue
+        });
     }
 
     sync() {
@@ -350,6 +359,16 @@ export class AggregateQuery extends Query {
     getPredicateFromDatum(d: Datum): Predicate {
         let field = this.groupBy.fields[0];
         return new EqualPredicate(field, d.keys.list[0].value());
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            type: this.name,
+            target: this.target.toJSON(),
+            grouping: this.groupBy.fields[0].toJSON(),
+            where: this.where.toJSON()
+        }
     }
 }
 
@@ -692,7 +711,7 @@ export class Frequency1DQuery extends AggregateQuery {
         return new EqualPredicate(field, d.keys.list[0].value());
     }
 
-    toJSON() {
+    toJSON(): any {
         return {
             id: this.id,
             type: this.name,
@@ -765,7 +784,7 @@ export class Frequency2DQuery extends AggregateQuery {
         ])
     }
 
-    toJSON() {
+    toJSON(): any {
         return {
             id: this.id,
             type: this.name,
