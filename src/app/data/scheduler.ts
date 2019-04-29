@@ -27,7 +27,7 @@ export class FIFOScheduler extends Scheduler {
 }
 
 export class RoundRobinScheduler extends Scheduler {
-    name = 'RoundRobinScheduler';
+    name = 'roundrobin';
 
     constructor(public queries: Query[]) {
         super();
@@ -70,7 +70,7 @@ export class RoundRobinScheduler extends Scheduler {
 }
 
 export class QueryOrderScheduler extends Scheduler {
-    name: 'QueryOrderScheduler';
+    name = 'queryorder';
 
     constructor(public queries: Query[]) {
         super();

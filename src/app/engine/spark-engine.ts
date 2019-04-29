@@ -26,10 +26,8 @@ export class SparkEngine {
     ongoingQueries: Query[] = [];
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
-    queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
     runningQuery: Query;
-    runningJob: Job;
     isRunning = true;
     autoRun = false;
     activeTId: number;
@@ -48,7 +46,7 @@ export class SparkEngine {
             const clientQueryId = data.clientQueryId;
             const queryId = data.queryId;
 
-            this.ongoingQueries.filter(q => q.id === clientQueryId)
+            this.queries.filter(q => q.id === clientQueryId)
                 .forEach(q => q.id = queryId);
 
             console.log(`Upgraded the old id ${clientQueryId} to ${queryId}`);
@@ -129,20 +127,17 @@ export class SparkEngine {
 
         this.queries.push(query);
 
-        this.ws.emit('REQ/query', query.toJSON(), priority)
-
-        // query.jobs().forEach(job => this.queue.append(job));
-        // this.queue.reschedule();
+        this.ws.emit('REQ/query', {query: query.toJSON(), queue: this.queueToJSON()})
     }
 
     pauseQuery(query: Query) {
         query.pause();
-        this.ws.emit('REQ/query/pause', query.toJSON());
+        this.ws.emit('REQ/query/pause', {query: query.toJSON(), queue: this.queueToJSON()})
     }
 
     resumeQuery(query: Query) {
         query.resume();
-        this.ws.emit('REQ/query/resume', query.toJSON());
+        this.ws.emit('REQ/query/resume', {query: query.toJSON(), queue: this.queueToJSON()})
     }
 
     remove(query: Query) {
@@ -160,10 +155,14 @@ export class SparkEngine {
             return (order[a.id] || n) - (order[b.id] || n);
         });
 
-        this.queue.reschedule();
+        this.ws.emit('REQ/queue/reschedule', this.queueToJSON())
     }
 
-    reschedule(scheduler?: Scheduler) { }
+    reschedule(scheduler?: Scheduler) {
+        if(scheduler) this.scheduler = scheduler;
+
+        this.ws.emit('REQ/queue/reschedule', this.queueToJSON())
+    }
 
     select(where: AndPredicate, indices: number[]): Row[] {
         if(indices) {
@@ -174,5 +173,12 @@ export class SparkEngine {
         return this.dataset.rows.filter((row: Row) => {
             return where.test(row);
         })
+    }
+
+    queueToJSON() {
+        return {
+            mode: this.scheduler.name,
+            queries: this.ongoingQueries.map(q => q.toJSON())
+        }
     }
 }

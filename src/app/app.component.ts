@@ -113,7 +113,7 @@ export class AppComponent implements OnInit {
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
-                this.engine.queue.reschedule();
+                this.engine.reschedule();
             }
         };
     }
@@ -330,7 +330,7 @@ export class AppComponent implements OnInit {
                 ]));
             this.runMany(14);
 
-            this.engine.runningJob = genre.jobs()[0];
+            (this.engine as BrowserEngine).runningJob = genre.jobs()[0];
 
             timer(1000).subscribe(() => {
                 this.toggle(SafeguardTypes.PowerLaw);
