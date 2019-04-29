@@ -22,11 +22,13 @@ export class SparkEngine {
     rows: Row[];
     dataset: Dataset;
     schema: Schema;
+    queries: Query[] = []; // all queries (order is meaningless)
     ongoingQueries: Query[] = [];
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
+    runningQuery: Query;
     runningJob: Job;
     isRunning = true;
     autoRun = false;
@@ -70,6 +72,20 @@ export class SparkEngine {
             query.sync();
         })
 
+        ws.on('STATUS/job/start', (data:any) => {
+            const id = data.id;
+            const clientId = data.clientId;
+
+            this.runningQuery = this.queries.find(q => q.id == id || q.id == clientId);
+        })
+
+        ws.on('STATUS/job/end', (data:any) => {
+            const id = data.id;
+            const clientId = data.clientId;
+
+            if(this.runningQuery && (this.runningQuery.id == id || this.runningQuery.id == clientId))
+                this.runningQuery = null;
+        })
     }
 
     load(): Promise<[Dataset, Schema]> {
@@ -111,6 +127,8 @@ export class SparkEngine {
             this.ongoingQueries.push(query);
         }
 
+        this.queries.push(query);
+
         this.ws.emit('REQ/query', query.toJSON(), priority)
 
         // query.jobs().forEach(job => this.queue.append(job));
@@ -146,11 +164,6 @@ export class SparkEngine {
     }
 
     reschedule(scheduler?: Scheduler) { }
-
-    get runningQuery() {
-        if(this.runningJob) return this.runningJob.query;
-        return this.queue.peep();
-    }
 
     select(where: AndPredicate, indices: number[]): Row[] {
         if(indices) {

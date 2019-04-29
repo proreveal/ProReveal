@@ -140,7 +140,8 @@ export class AppComponent implements OnInit {
                 //     2016
                 // )])
 
-                this.create(query);
+                this.create(new EmptyQuery(dataset).combine(year));
+                this.create(query, Priority.Highest);
             });
         }
         else {
