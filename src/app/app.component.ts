@@ -131,8 +131,9 @@ export class AppComponent implements OnInit {
                 let year = dataset.getFieldByName('YEAR');
                 let month = dataset.getFieldByName('MONTH');
                 let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
+                let distance = dataset.getFieldByName('DISTANCE')
 
-                let query = new EmptyQuery(dataset).combine(arrivalDelay);
+                let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
 
                 // query.where = new AndPredicate([new EqualPredicate(
                 //     dataset.getFieldByName('YEAR'),

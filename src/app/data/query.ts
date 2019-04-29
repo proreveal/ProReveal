@@ -682,6 +682,34 @@ export class Histogram2DQuery extends AggregateQuery {
             new RangePredicate(fieldY, rangeY[0], rangeY[1], includeEndY)
         ]);
     }
+
+    convertToPartialKeyValues(result: any): PartialKeyValue[] {
+        return result.map((kv: [[number, number], number]) => {
+            let [[key1, key2], count] = kv;
+            let field1 = this.groupBy.fields[0];
+            let field2 = this.groupBy.fields[1];
+            let fgvl = new FieldGroupedValueList([
+                new FieldGroupedValue(field1, isNull(key1) ? NullGroupId : key1),
+                new FieldGroupedValue(field2, isNull(key2) ? NullGroupId : key2)
+            ]);
+            let partialValue = new PartialValue(0, 0, count, 0, 0, 0);
+
+            return {
+                key: fgvl,
+                value: partialValue
+            } as PartialKeyValue
+        });
+    }
+
+    toJSON(): any {
+        return {
+            id: this.id,
+            type: this.name,
+            grouping1: this.grouping1.toJSON(),
+            grouping2: this.grouping2.toJSON(),
+            where: this.where.toJSON()
+        }
+    }
 }
 
 /**
