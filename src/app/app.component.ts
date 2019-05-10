@@ -128,6 +128,7 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
             this.engine.load().then(([dataset, schema]) => {
+                return;
                 let year = dataset.getFieldByName('YEAR');
                 let month = dataset.getFieldByName('MONTH');
                 let arrivalDelay = dataset.getFieldByName('ARR_DELAY')

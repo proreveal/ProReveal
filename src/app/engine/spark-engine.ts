@@ -32,14 +32,20 @@ export class SparkEngine {
     autoRun = false;
     activeTId: number;
     ws: SocketIOClient.Socket;
+    info: any;
 
     constructor(private url: string) {
         let ws = io(url, { transports: ['websocket'] })
 
         this.ws = ws;
 
-        ws.on('welcome', (welcome: string) => {
-            console.log(`Connected to a Spark Engine (${this.url}): ${welcome}`);
+        ws.on('welcome', (serverInfo) => {
+            this.info = serverInfo;
+        })
+
+        ws.on('disconnect', (reason) => {
+            console.log(reason)
+            this.info = null;
         })
 
         ws.on('RES/query', (data:any) => {
