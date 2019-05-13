@@ -108,8 +108,6 @@ export class AppComponent implements OnInit {
 
     dataViewerWhere: AndPredicate = null;
 
-    fig: number;
-
     constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
@@ -163,8 +161,6 @@ export class AppComponent implements OnInit {
 
             this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
-            this.fig = +parameters.fig || 0;
-
             if (this.alternate)
                 this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
@@ -216,10 +212,8 @@ export class AppComponent implements OnInit {
                     this.create(q, Priority.Highest);
                 }
 
-                if (this.fig) this.setupFigures();
             })
         }
-
 
         this.engine.queryDone = this.queryDone.bind(this);
         this.engine.selectQueryDone = this.selectQueryDone.bind(this);
@@ -242,206 +236,6 @@ export class AppComponent implements OnInit {
         this.create(q, priority);
 
         return q;
-    }
-
-    createValueSafeguardFig(query: AggregateQuery, variable: SingleVariable, operator: Operators, constant: ValueConstant) {
-        let sg = new ValueSafeguard(variable, operator, constant, query);
-        this.safeguards.unshift(sg);
-        query.safeguards.push(sg);
-    }
-
-    createRankSafeguardFig(query: AggregateQuery, variable: SingleVariable, operator: Operators, constant: RankConstant) {
-        variable.isRank = true;
-
-        let sg = new RankSafeguard(variable, operator, constant, query);
-        this.safeguards.unshift(sg);
-        query.safeguards.push(sg);
-    }
-
-    createComparativeSafeguardFig(query: AggregateQuery, variable: VariablePair, operator: Operators) {
-        let sg = new ComparativeSafeguard(variable, operator, query);
-
-        this.safeguards.unshift(sg);
-        query.safeguards.push(sg);
-    }
-
-    createPowerLawSafeguardFig(query: AggregateQuery) {
-        let sg = new PowerLawSafeguard(
-            new PowerLawConstant(),
-            query);
-
-        this.safeguards.unshift(sg)
-        this.activeQuery.safeguards.push(sg);
-    }
-
-    createLinearSafeguardFig(query: AggregateQuery) {
-        let sg = new LinearSafeguard(new LinearRegressionConstant(1, 1), query);
-
-        this.safeguards.unshift(sg)
-        query.safeguards.push(sg);
-    }
-
-    cursorLeft: number;
-    cursorTop: number;
-    setupFigures() {
-        let dataset = this.engine.dataset;
-
-        if (this.fig === 1) {
-            this.cursorLeft = 740;
-            this.cursorTop = 250;
-
-            let country = this.createVisByNames('Country');
-            this.runMany(10);
-            country.getVisibleData();
-            this.runMany(90);
-            this.createComparativeSafeguardFig(
-                country,
-                new VariablePair(
-                    new SingleVariable(new FieldGroupedValue(
-                        dataset.getFieldByName('Country'),
-                        dataset.getFieldByName('Country').group('United States')
-                    )),
-                    new SingleVariable(new FieldGroupedValue(
-                        dataset.getFieldByName('Country'),
-                        dataset.getFieldByName('Country').group('United Kingdom')
-                    )),
-                ),
-                Operators.GreaterThanOrEqualTo
-            );
-            this.createVisByNames('Runtime')
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-
-            let month = this.createVisByNames('Month');
-            this.createRankSafeguardFig(month,
-                new SingleVariable(new FieldGroupedValue(
-                    dataset.getFieldByName('Month'),
-                    dataset.getFieldByName('Month').group('September')
-                )),
-                Operators.LessThanOrEqualTo,
-                new RankConstant(1));
-
-            this.runMany(45);
-            let rs = this.createVisByNames('Budget', 'Revenue', Priority.Highest);
-            this.createLinearSafeguardFig(rs);
-
-            this.runMany(27);
-
-            let genre = this.createVisByNames('Genre', '', Priority.Highest,
-                new AndPredicate([
-                    new EqualPredicate(dataset.getFieldByName('Month'), 'September')
-                ]));
-            this.runMany(14);
-
-            (this.engine as BrowserEngine).runningJob = genre.jobs()[0];
-
-            timer(1000).subscribe(() => {
-                this.toggle(SafeguardTypes.PowerLaw);
-                this.vis.renderer.showTooltip(
-                    (this.vis.renderer as BarsRenderer).getDatum(new SingleVariable(
-                        new FieldGroupedValue(
-                            dataset.getFieldByName('Genre'),
-                            dataset.getFieldByName('Genre').group('Action')
-                        )
-                    )),
-                    2
-                );
-            })
-        }
-        else if (this.fig === 3) {
-            this.cursorLeft = 565;
-            this.cursorTop = 222;
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-            this.createVisByNames('Year', 'Month');
-            this.runMany(100);
-
-            let month = this.createVisByNames('Month');
-            this.runMany(100);
-            let rs = this.createVisByNames('Budget', 'Revenue', Priority.Highest);
-
-            this.runMany(100);
-
-            let genre = this.createVisByNames('Genre', '', Priority.Highest,
-                new AndPredicate([
-                    new EqualPredicate(dataset.getFieldByName('Month'), 'September')
-                ]));
-            this.createPowerLawSafeguardFig(genre);
-            this.runMany(100);
-
-            let pop = this.createVisByNames('Popularity', '', Priority.Highest);
-            this.runMany(23);
-            pop.getVisibleData();
-            this.runMany(10)
-            this.createValueSafeguardFig(pop, new SingleVariable(
-                new FieldGroupedValue(
-                    dataset.getFieldByName('Popularity'),
-                    [2, 3]
-                )), Operators.LessThanOrEqualTo,
-                new ValueConstant(42));
-
-            let heatmap = this.createVisByNames('Score', 'Votes', Priority.Highest);
-            this.runMany(15);
-
-            this.createVisByNames('Popularity', '', Priority.Highest)
-            this.createVisByNames('Popularity', '', Priority.Highest)
-
-            this.createVisByNames('Popularity', '', Priority.Highest)
-            this.createVisByNames('Popularity', '', Priority.Highest)
-            this.createVisByNames('Popularity', '', Priority.Highest)
-
-            this.alternate = true;
-            this.toggleQueryCreator();
-
-            timer(1000).subscribe(() => {
-                this.queryCreator.fieldSelected(dataset.getFieldByName('Genre'));
-                this.queryCreator.fieldSelected(dataset.getFieldByName('Score'));
-
-                this.querySelected(pop);
-
-                timer(500).subscribe(() => {
-                    this.querySelected(heatmap);
-                    timer(500).subscribe(() => {
-                        // this.toggle(SafeguardTypes.Range);
-                        let datum = (this.vis.renderer as HeatmapRenderer).getDatum(
-                            new CombinedVariable(
-                                new SingleVariable(
-                                    new FieldGroupedValue(
-                                        dataset.getFieldByName('Score'),
-                                        [4, 5]
-                                    )
-                                ),
-                                new SingleVariable(
-                                    new FieldGroupedValue(
-                                        dataset.getFieldByName('Votes'),
-                                        [0, 1]
-                                    )
-                                )
-                            )
-                        );
-                        if(typeof (this.vis.renderer.eventBoxes as any)._groups[0][24].dispatchEvent == 'function') {
-                            (this.vis.renderer.eventBoxes as any)._groups[0][24].dispatchEvent(new Event('click'))
-                            //this.vis.renderer(this.vis.renderer.eventBoxes as any)._groups[0][24].dispatchEvent(new Event('mouseover'))
-                        }
-                        (this.vis.renderer as HeatmapRenderer).showTooltip(datum);
-
-                    });
-                });
-            })
-        }
     }
 
     create(query: AggregateQuery, priority = Priority.Lowest) {
