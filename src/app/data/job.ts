@@ -11,12 +11,30 @@ export abstract class Job {
     static Id = 1;
     id: number;
 
-    constructor(public query:Query, public index:number = 0) {
+    constructor(public query: Query, public index: number = 0) {
         this.id = Job.Id++;
     }
 
-    abstract run(): PartialKeyValue[];
+    abstract run(): any;
     abstract name(): string;
+}
+
+
+export class SelectJob extends Job {
+    constructor(
+        public dataset: Dataset,
+        public where: AndPredicate,
+        public query: Query
+    ) {
+        super(query, 0);
+    }
+
+    run(): void {
+    }
+
+    name() {
+        return 'SelectJob';
+    }
 }
 
 export class AggregateJob extends Job {
@@ -32,13 +50,13 @@ export class AggregateJob extends Job {
         super(query, index);
     }
 
-    run() {
+    run(): PartialKeyValue[] {
         let result: { [key: string]: PartialKeyValue } = {};
 
         this.sample.forEach(i => {
             let row = this.dataset.rows[i];
 
-            if(!this.where.test(row)) return;
+            if (!this.where.test(row)) return;
 
             let fieldGroupedValueList = this.groupBy.group(row);
             let hash = fieldGroupedValueList.hash;
@@ -50,7 +68,7 @@ export class AggregateJob extends Job {
                 };
 
             result[hash].value =
-            this.accumulator.reduce(result[hash].value,
+                this.accumulator.reduce(result[hash].value,
                     (this.target ? row[this.target.name] : 0));
         })
 
@@ -58,7 +76,7 @@ export class AggregateJob extends Job {
     }
 
     name() {
-        return "aggregate job";
+        return 'AggregateJob';
     }
 }
 

@@ -3,7 +3,7 @@ import { FieldTrait, VlType, QuantitativeField } from './field';
 import { assert, assertIn } from './assert';
 import { AccumulatorTrait, CountAccumulator, AllAccumulator, AccumulatedValue, PartialValue } from './accum';
 import { Sampler } from './sampler';
-import { AggregateJob } from './job';
+import { AggregateJob, SelectJob } from './job';
 import { GroupBy } from './groupby';
 import { Job } from './job';
 import { ServerError } from './exception';
@@ -74,12 +74,39 @@ export abstract class Query {
     abstract toJSON(): any;
 }
 
+export class SelectQuery extends Query {
+    name = 'SelectQuery';
+
+    constructor(public dataset: Dataset, public where: AndPredicate) {
+        super(dataset);
+    }
+
+    accumulate(partialKeyValues: PartialKeyValue[], processedRows: number): void { }
+    combine(field: FieldTrait): Query { throw new Error('SelectQuery cannot be combined'); }
+    compatible(fields: FieldTrait[]): FieldTrait[] { throw new Error('SelectQuery cannot be combined'); }
+    desc(): string { return `SelectQuery ${this.where.toJSON()}` };
+
+    jobs(): Job[] {
+        return [
+            new SelectJob(this.dataset, this.where, this)
+        ]
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            type: this.name,
+            where: this.where.toJSON()
+        }
+    }
+}
+
 /**
  * represent an aggregate query such as min(age) by occupation
  * one quantitative, multiple categoricals
  */
 export class AggregateQuery extends Query {
-    name = "AggregateQuery";
+    name = 'AggregateQuery';
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
@@ -373,7 +400,7 @@ export class AggregateQuery extends Query {
 }
 
 export class EmptyQuery extends AggregateQuery {
-    name = "EmptyQuery";
+    name = 'EmptyQuery';
     hasAggregateFunction = false;
 
     constructor(public dataset: Dataset) {
@@ -392,7 +419,7 @@ export class EmptyQuery extends AggregateQuery {
             return new Frequency1DQuery(field, this.dataset, new AndPredicate([]));
         }
 
-        throw new ServerError("only EmptyQuery + [Q, O, N, D] is possible");
+        throw new ServerError('only EmptyQuery + [Q, O, N, D] is possible');
     }
 
     compatible(fields: FieldTrait[]) {
@@ -413,7 +440,7 @@ export class EmptyQuery extends AggregateQuery {
  * one quantitative
  */
 export class Histogram1DQuery extends AggregateQuery {
-    name = "Histogram1DQuery";
+    name = 'Histogram1DQuery';
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
@@ -548,7 +575,7 @@ export class Histogram1DQuery extends AggregateQuery {
  * one quantitative
  */
 export class Histogram2DQuery extends AggregateQuery {
-    name = "Histogram2DQuery";
+    name = 'Histogram2DQuery';
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
@@ -716,7 +743,7 @@ export class Histogram2DQuery extends AggregateQuery {
  * one categorical
  */
 export class Frequency1DQuery extends AggregateQuery {
-    name = "Frequency1DQuery";
+    name = 'Frequency1DQuery';
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
 
@@ -791,7 +818,7 @@ export class Frequency1DQuery extends AggregateQuery {
 }
 
 export class Frequency2DQuery extends AggregateQuery {
-    name = "Frequency2DQuery";
+    name = 'Frequency2DQuery';
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
 

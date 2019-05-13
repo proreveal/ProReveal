@@ -1,12 +1,12 @@
 import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
-import { Query, AggregateQuery } from '../data/query';
+import { Query, AggregateQuery, SelectQuery } from '../data/query';
 import { Queue } from '../data/queue';
 import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
 import { timer, Subscription } from 'rxjs';
 import { Schema } from '../data/schema';
 import { Job, AggregateJob } from '../data/job';
-import { AndPredicate } from '../data/predicate';
+import { AndPredicate, Predicate } from '../data/predicate';
 import { ExpConstants } from '../exp-constants';
 import { Priority } from './priority';
 import { UniformNumBlocksSampler } from '../data/sampler';
@@ -22,6 +22,8 @@ export class BrowserEngine {
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
     queryDone: (query: Query) => void;
+    selectQueryDone: (where: Predicate, rows: Row[]) => void;
+
     runningJob: Job;
     isRunning = false;
     autoRun = false;
@@ -36,10 +38,10 @@ export class BrowserEngine {
             return Promise.resolve([this.dataset, this.schema] as [Dataset, Schema]);
         }
 
-        return util.get(this.schemaUrl, "json").then(schema => {
+        return util.get(this.schemaUrl, 'json').then(schema => {
             this.schema = new Schema(schema);
 
-            return util.get(this.url, "json").then(rows => {
+            return util.get(this.url, 'json').then(rows => {
                 this.rows = rows;
                 this.dataset = new Dataset(this.schema, this.rows, new UniformNumBlocksSampler(
                     this.rows.length,
@@ -187,14 +189,15 @@ export class BrowserEngine {
         return this.queue.peep();
     }
 
-    select(where: AndPredicate, indices: number[]): Row[] {
+    select(where: Predicate, indices?: number[]): void {
+        let rows: Row[];
         if(indices) {
-            return indices.map(i => this.dataset.rows[i]).filter((row: Row) => {
-                return where.test(row);
-            })
+            rows = indices.map(i => this.dataset.rows[i]).filter((row: Row) => where.test(row));
         }
-        return this.dataset.rows.filter((row: Row) => {
-            return where.test(row);
-        })
+        else {
+            rows = this.dataset.rows.filter((row: Row) => where.test(row));
+        }
+
+        this.selectQueryDone(where, rows);
     }
 }

@@ -5,7 +5,7 @@ import { SparkEngine } from './engine/spark-engine';
 
 import { Priority } from './engine/priority';
 
-import { Query, EmptyQuery, AggregateQuery, Histogram2DQuery, QueryState } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, Histogram2DQuery, QueryState, SelectQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -29,6 +29,7 @@ import { FieldGroupedValue } from './data/field-grouped-value';
 import { timer } from 'rxjs';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { MaxApproximator } from './data/approx';
+import { Row } from './data/dataset';
 
 @Component({
     selector: 'app-root',
@@ -105,7 +106,6 @@ export class AppComponent implements OnInit {
     isStudyMenuVisible = false;
     debug = false;
 
-    dataViewerQuery: AggregateQuery = null;
     dataViewerWhere: AndPredicate = null;
 
     fig: number;
@@ -118,6 +118,7 @@ export class AppComponent implements OnInit {
         };
     }
 
+
     ngOnInit() {
         let parameters = util.parseQueryParameters(location.search);
         const engineType = parameters.engine;
@@ -128,7 +129,6 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
             this.engine.load().then(([dataset, schema]) => {
-                return;
                 let year = dataset.getFieldByName('YEAR');
                 let month = dataset.getFieldByName('MONTH');
                 let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
@@ -168,7 +168,6 @@ export class AppComponent implements OnInit {
             if (this.alternate)
                 this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
 
-            this.engine.queryDone = this.queryDone.bind(this);
             this.engine.load().then(([dataset]) => {
                 if (!this.isStudying) this.logger.mute();
                 else this.logger.setup(uid, sid);
@@ -220,6 +219,10 @@ export class AppComponent implements OnInit {
                 if (this.fig) this.setupFigures();
             })
         }
+
+
+        this.engine.queryDone = this.queryDone.bind(this);
+        this.engine.selectQueryDone = this.selectQueryDone.bind(this);
     }
 
     emit(event: string) {
@@ -462,8 +465,6 @@ export class AppComponent implements OnInit {
             if (sg.lastUpdated < sg.query.lastUpdated) {
                 sg.lastUpdated = sg.query.lastUpdated;
                 sg.lastUpdatedAt = new Date(sg.query.lastUpdated);
-
-                sg.history.push(sg.validity());
             }
 
             if (sg instanceof DistributiveSafeguard && sg.query === query) {
@@ -475,9 +476,15 @@ export class AppComponent implements OnInit {
             this.vis.renderer.setDefaultConstantFromVariable(true);
         }
 
-        if (this.dataViewerQuery == query) {
-            this.filteredRows = this.engine.select(
-                this.dataViewerWhere, query.processedIndices);
+        // if (this.dataViewerQuery == query && this.engine instanceof BrowserEngine) {
+        //     this.filteredRows = this.engine.select(
+        //         this.dataViewerWhere, query.processedIndices);
+        // }
+    }
+
+    selectQueryDone(query: SelectQuery, rows: Row[]) {
+        if (this.dataViewerWhere == query.where) {
+            this.filteredRows = rows;
         }
     }
 
@@ -779,19 +786,17 @@ export class AppComponent implements OnInit {
         let where = this.activeQuery.where.and(predicate);
 
         this.dataViewerFilters = where;
-        this.filteredRows = this.engine.select(where, this.activeQuery.processedIndices);
 
-        this.dataViewerQuery = this.activeQuery;
+        this.engine.select(where);
+
         this.dataViewerWhere = where;
 
         this.modalService
             .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })
             .result
             .then(() => {
-                this.dataViewerQuery = null;
                 this.dataViewerWhere = null;
             }, () => {
-                this.dataViewerQuery = null;
                 this.dataViewerWhere = null;
             })
     }

@@ -1,6 +1,6 @@
 import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
-import { Query, AggregateQuery, Frequency1DQuery } from '../data/query';
+import { Query, AggregateQuery, Frequency1DQuery, SelectQuery } from '../data/query';
 import { Queue } from '../data/queue';
 import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
 import { timer, Subscription } from 'rxjs';
@@ -27,6 +27,7 @@ export class SparkEngine {
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queryDone: (query: Query) => void;
+    selectQueryDone: (query: SelectQuery) => void;
     runningQuery: Query;
     isRunning = true;
     autoRun = false;
@@ -170,15 +171,7 @@ export class SparkEngine {
         this.ws.emit('REQ/queue/reschedule', this.queueToJSON())
     }
 
-    select(where: AndPredicate, indices: number[]): Row[] {
-        if(indices) {
-            return indices.map(i => this.dataset.rows[i]).filter((row: Row) => {
-                return where.test(row);
-            })
-        }
-        return this.dataset.rows.filter((row: Row) => {
-            return where.test(row);
-        })
+    select(where: AndPredicate): void {
     }
 
     queueToJSON() {
