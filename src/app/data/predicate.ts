@@ -9,19 +9,8 @@ export abstract class Predicate {
         return new AndPredicate([this, predicate]);
     }
 
-    toLog() {
-
-    }
-}
-
-export class TruePredicate extends Predicate {
-    test(): boolean {
-        return true;
-    }
-
-    toLog() {
-        return true;
-    }
+    abstract toLog(): any;
+    abstract toJSON(): any;
 }
 
 export class EqualPredicate extends Predicate {

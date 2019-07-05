@@ -6,7 +6,7 @@ import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
 import { timer, Subscription } from 'rxjs';
 import { Schema } from '../data/schema';
 import { Job, AggregateJob } from '../data/job';
-import { AndPredicate } from '../data/predicate';
+import { AndPredicate, Predicate } from '../data/predicate';
 import { ExpConstants } from '../exp-constants';
 import { Priority } from './priority';
 import * as io from 'socket.io-client';
@@ -75,6 +75,8 @@ export class SparkEngine {
             let partialKeyValues = query.convertToPartialKeyValues(result);
             query.accumulate(partialKeyValues, job_json.numRows);
             query.sync();
+
+            this.queryDone(query);
         })
 
         ws.on('STATUS/job/start', (data:any) => {
@@ -171,7 +173,9 @@ export class SparkEngine {
         this.ws.emit('REQ/queue/reschedule', this.queueToJSON())
     }
 
-    select(where: AndPredicate): void {
+    select(where: Predicate): void {
+        let query = new SelectQuery(this.dataset, where);
+        this.ws.emit('REQ/query', {query: query.toJSON(), queue: this.queueToJSON()})
     }
 
     queueToJSON() {

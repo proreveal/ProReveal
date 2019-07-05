@@ -76,8 +76,11 @@ export abstract class Query {
 
 export class SelectQuery extends Query {
     name = 'SelectQuery';
+    pageSize = 25;
+    basePage = 0;
+    numPages = 10;
 
-    constructor(public dataset: Dataset, public where: AndPredicate) {
+    constructor(public dataset: Dataset, public where: Predicate) {
         super(dataset);
     }
 
@@ -96,7 +99,9 @@ export class SelectQuery extends Query {
         return {
             id: this.id,
             type: this.name,
-            where: this.where.toJSON()
+            where: this.where.toJSON(),
+            from: this.basePage * this.pageSize,
+            to: (this.basePage + this.numPages) * this.pageSize
         }
     }
 }

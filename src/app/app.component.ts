@@ -127,20 +127,20 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
             this.engine.load().then(([dataset, schema]) => {
-                let year = dataset.getFieldByName('YEAR');
-                let month = dataset.getFieldByName('MONTH');
-                let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
-                let distance = dataset.getFieldByName('DISTANCE')
+                // let year = dataset.getFieldByName('YEAR');
+                // let month = dataset.getFieldByName('MONTH');
+                // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
+                // let distance = dataset.getFieldByName('DISTANCE')
 
-                let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
+                // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
 
                 // query.where = new AndPredicate([new EqualPredicate(
                 //     dataset.getFieldByName('YEAR'),
                 //     2016
                 // )])
 
-                this.create(new EmptyQuery(dataset).combine(year));
-                this.create(query, Priority.Highest);
+                // this.create(new EmptyQuery(dataset).combine(year));
+                // this.create(query, Priority.Highest);
             });
         }
         else {
@@ -262,6 +262,7 @@ export class AppComponent implements OnInit {
             }
 
             if (sg instanceof DistributiveSafeguard && sg.query === query) {
+                console.log('update')
                 sg.updateConstant();
             }
         })

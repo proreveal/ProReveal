@@ -23,7 +23,7 @@ export abstract class Job {
 export class SelectJob extends Job {
     constructor(
         public dataset: Dataset,
-        public where: AndPredicate,
+        public where: Predicate,
         public query: Query
     ) {
         super(query, 0);
