@@ -20,7 +20,8 @@ export const Constants = Object.freeze({
             height: 15
         },
         circleRadius: 3,
-        initiallyVisibleCategories: 50
+        initiallyVisibleCategories: 50,
+        minimumGradientWidth: 3
     },
     heatmap: {
         rowHeight: 20,

@@ -397,7 +397,7 @@ export class HeatmapRenderer {
                 .utitle(Constants.locale.HeatmapLegendUncertainty)
                 .vtitle(Constants.locale.HeatmapLedgendValue)
 
-        if(maxUncertainty > 100000) {
+        if(maxUncertainty >= 100000 || domainEnd >= 100000) {
             legend = legend.format('.2s')
         }
 

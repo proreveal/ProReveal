@@ -303,9 +303,11 @@ export class BarsRenderer {
 
             leftBars.merge(enter)
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => xScale(d.ci3.center) - xScale(d.ci3.low))
+                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.center) - xScale(d.ci3.low), Constants.bars.minimumGradientWidth))
                 .attr('transform', (d, i) => {
-                    return translate(xScale(d.ci3.low), yScale(i + ''))
+                    if(xScale(d.ci3.center) - xScale(d.ci3.low) < Constants.bars.minimumGradientWidth)
+                        return translate(xScale(d.ci3.center) - Constants.bars.minimumGradientWidth, yScale(i + ''))
+                    return translate(xScale(d.ci3.low), yScale(i + ''));
                 })
                 .attr('fill', this.gradient.leftUrl())
                 .style('opacity', d => {
@@ -327,8 +329,12 @@ export class BarsRenderer {
 
             rightBars.merge(enter)
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.center))
-                .attr('transform', (d, i) => translate(xScale(d.ci3.center), yScale(i + '')))
+                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.high) - xScale(d.ci3.center), Constants.bars.minimumGradientWidth))
+                .attr('transform', (d, i) => {
+                    if(xScale(d.ci3.high) - xScale(d.ci3.center) < Constants.bars.minimumGradientWidth)
+                        return translate(xScale(d.ci3.center), yScale(i + ''))
+                    return translate(xScale(d.ci3.center), yScale(i + ''));
+                })
                 .attr('fill', this.gradient.rightUrl())
                 .style('opacity', d => {
                     if (d.keys.hasNullValue()) return 0.6;
