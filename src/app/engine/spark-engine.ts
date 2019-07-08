@@ -110,7 +110,7 @@ export class SparkEngine {
                 const numBatches = data.numBatches;
 
                 this.schema = new Schema(schema);
-                this.dataset = new Dataset(this.schema, [], new RemoteSampler(numRows, numBatches));
+                this.dataset = new Dataset(data.name, this.schema, [], new RemoteSampler(numRows, numBatches));
 
                 console.log('Got schema', schema);
 

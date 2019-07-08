@@ -201,3 +201,8 @@ export function formatKRW(krw: number) {
 
     return result;
 }
+
+export function getFileName(url: string) {
+    let filename = url.substring(url.lastIndexOf('/')+1);
+    return filename;
+}

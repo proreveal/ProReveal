@@ -43,7 +43,7 @@ export class BrowserEngine {
 
             return util.get(this.url, 'json').then(rows => {
                 this.rows = rows;
-                this.dataset = new Dataset(this.schema, this.rows, new UniformNumBlocksSampler(
+                this.dataset = new Dataset(util.getFileName(this.url), this.schema, this.rows, new UniformNumBlocksSampler(
                     this.rows.length,
                     ExpConstants.numBatches
                 ));

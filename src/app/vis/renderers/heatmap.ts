@@ -397,6 +397,10 @@ export class HeatmapRenderer {
                 .utitle(Constants.locale.HeatmapLegendUncertainty)
                 .vtitle(Constants.locale.HeatmapLedgendValue)
 
+        if(maxUncertainty > 100000) {
+            legend = legend.format('.2s')
+        }
+
         let floatingSvgWrapper = d3.select(floatingSvg);
         let floatingLegend = floatingSvgWrapper.select('.legend');
         let floatingBrush = floatingSvgWrapper.select('.angular-brush');

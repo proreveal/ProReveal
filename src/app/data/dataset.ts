@@ -13,7 +13,7 @@ export type Row = any;
 export class Dataset {
     fields: FieldTrait[]
 
-    constructor(public schema: Schema, public rows: Row[] = [], public sampler: Sampler) {
+    constructor(public name: string, public schema: Schema, public rows: Row[] = [], public sampler: Sampler) {
         if(rows.length > 0) {
             Object.keys(rows[0]).forEach(name => {
                 let columnSchema = schema.getColumnSchema(name);
