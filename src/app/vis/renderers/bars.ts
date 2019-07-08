@@ -406,8 +406,12 @@ export class BarsRenderer {
             barEventBoxes.merge(enter)
                 .style('cursor', 'pointer')
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => xScale(d.ci3.high) - xScale(d.ci3.low))
-                .attr('transform', (d, i) => translate(xScale(d.ci3.low), yScale(i + '')))
+                .attr('width', d => Math.max(Constants.bars.minimumGradientWidth * 2, xScale(d.ci3.high) - xScale(d.ci3.low)))
+                .attr('transform', (d, i) => {
+                    if(Constants.bars.minimumGradientWidth * 2 > xScale(d.ci3.high) - xScale(d.ci3.low))
+                        return translate(xScale(d.ci3.center) - Constants.bars.minimumGradientWidth, yScale(i + ''))
+                    return translate(xScale(d.ci3.low), yScale(i + ''))
+                })
                 .style('fill', 'transparent')
                 .on('mouseenter', (d, i) => {
                     this.showTooltip(d, i);

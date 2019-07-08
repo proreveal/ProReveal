@@ -222,6 +222,8 @@ export class LinearRegressionConstant extends ConstantTrait {
             xy_sum += count * x * y;
         })
 
+        // console.log(n, x_sum, y_sum, x_squared_sum, y_squared_sum, xy_sum);
+
         let a = (n * xy_sum - x_sum * y_sum) / (n * x_squared_sum - x_sum * x_sum);
         let b = (y_sum * x_squared_sum - x_sum * xy_sum) / (n * x_squared_sum - x_sum * x_sum);
 
@@ -229,13 +231,25 @@ export class LinearRegressionConstant extends ConstantTrait {
     }
 
     static FitFromVisData(data: Datum[], xKeyIndex: number = 0, yKeyIndex: number = 1) {
+        // console.log(data);
         let fitData = data
             .filter(d => d.keys.list[0].value() && d.keys.list[1].value())
-            .map(d => {
+            .filter(d => {
                 let x = (d.keys.list[xKeyIndex].value() as NumberPair)
                 let y = (d.keys.list[yKeyIndex].value() as NumberPair);
 
-                if (isNull(x) || isNull(y)) return;
+                if (isNull(x) || isNull(y)) return false;
+
+                let cx = (x[0] + x[1]) / 2;
+                let cy = (y[0] + y[1]) / 2;
+                let count = d.ci3.center;
+
+                if(isNaN(cx) || isNaN(cy)) return false;
+                return true;
+            })
+            .map(d => {
+                let x = (d.keys.list[xKeyIndex].value() as NumberPair)
+                let y = (d.keys.list[yKeyIndex].value() as NumberPair);
 
                 let cx = (x[0] + x[1]) / 2;
                 let cy = (y[0] + y[1]) / 2;
@@ -243,6 +257,8 @@ export class LinearRegressionConstant extends ConstantTrait {
 
                 return [cx, cy, count] as NumberTriplet;
             })
+
+        // console.log(fitData);
 
         return this.Fit(fitData);
     }

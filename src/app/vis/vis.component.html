@@ -45,7 +45,7 @@
                     <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.numRows | number }}</span> rows</ng-template>
                 </span>
 
-                ({{ query.recentProgress.processedPercent() | percent }})
+                ({{ query.recentProgress.processedPercent() | percent:'1.2' }})
             </div>
 
             <button type="button" class="btn border btn-sm ml-1"

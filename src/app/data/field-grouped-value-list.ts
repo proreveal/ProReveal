@@ -1,6 +1,6 @@
 import { FieldGroupedValue } from "./field-grouped-value";
 
-export const HashSeparator = '_';
+export const HashSeparator = '=';
 
 export class FieldGroupedValueList {
     hash: string;
