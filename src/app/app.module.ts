@@ -9,7 +9,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { QueueViewComponent } from './queue-view/queue-view.component';
 import { VisComponent } from './vis/vis.component';
 
@@ -44,13 +44,20 @@ import { SmartNumberPipe } from './pipes/smart-number.pipe';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { PredicateIndicatorComponent } from './display/predicate-indicator/predicate-indicator.component';
 import { DataViewerComponent } from './data-viewer/data-viewer.component';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { FieldGroupedValueIndicatorComponent } from './display/field-grouped-value-indicator/field-grouped-value-indicator.component';
 import { KeepHtmlPipe } from './pipes/keep-html.pipe';
 import { BytesPipe } from './pipes/bytes.pipe';
 import { DropdownComponent } from './figure/dropdown/dropdown.component';
+import { MobileComponent } from './mobile/mobile.component';
+import { RootComponent } from './root.component';
 
 library.add(fas, far);
+
+const appRoutes: Routes = [
+    { path: 'm', component: MobileComponent },
+    { path: '', component: AppComponent }
+]
 
 @NgModule({
     declarations: [
@@ -85,7 +92,9 @@ library.add(fas, far);
         FieldGroupedValueIndicatorComponent,
         KeepHtmlPipe,
         BytesPipe,
-        DropdownComponent
+        DropdownComponent,
+        MobileComponent,
+        RootComponent
     ],
     imports: [
         NgbModule,
@@ -96,10 +105,14 @@ library.add(fas, far);
         FormsModule,
         BrowserAnimationsModule,
         MomentModule,
-        RouterModule.forRoot([])
+
+        RouterModule.forRoot(
+            appRoutes,
+            {enableTracing: true}
+        )
     ],
     providers: [],
-    bootstrap: [AppComponent],
+    bootstrap: [RootComponent],
     entryComponents: [ BarsTooltipComponent, HeatmapTooltipComponent ]
 })
 export class AppModule { }

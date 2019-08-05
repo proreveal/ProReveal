@@ -27,7 +27,7 @@ import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { Row } from './data/dataset';
 
 @Component({
-    selector: 'app-root',
+    selector: 'app-main',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
