@@ -5,7 +5,7 @@ import { SparkEngine } from './engine/spark-engine';
 
 import { Priority } from './engine/priority';
 
-import { Query, EmptyQuery, AggregateQuery, Histogram2DQuery, QueryState, SelectQuery } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, QueryState, SelectQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,22 +13,17 @@ import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, Compa
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
-import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
+import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
 import { BarsRenderer } from './vis/renderers/bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator, MinMaxRangeEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
 import { Constants as C } from './constants';
-import { AndPredicate, EqualPredicate } from './data/predicate';
+import { AndPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
 import { LoggerService, LogType } from './services/logger.service';
-import { ActivatedRoute } from "@angular/router";
-import { ExpConstants } from './exp-constants';
-import { FieldGroupedValue } from './data/field-grouped-value';
-import { timer } from 'rxjs';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
-import { MaxApproximator } from './data/approx';
 import { Row } from './data/dataset';
 
 @Component({
@@ -108,7 +103,7 @@ export class AppComponent implements OnInit {
 
     dataViewerWhere: AndPredicate = null;
 
-    constructor(private route: ActivatedRoute, private modalService: NgbModal, public logger: LoggerService) {
+    constructor(private modalService: NgbModal, public logger: LoggerService) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.reschedule();
@@ -126,7 +121,7 @@ export class AppComponent implements OnInit {
         if(engineType == 'spark') {
             this.logger.mute();
             this.engine = new SparkEngine('ws://localhost:7999');
-            this.engine.load().then(([dataset, schema]) => {
+            this.engine.load().then(([]) => {
                 //dataset.
                 // let year = dataset.getFieldByName('YEAR');
                 // let month = dataset.getFieldByName('MONTH');
