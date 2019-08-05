@@ -37,11 +37,11 @@ export class VisComponent implements DoCheck {
     @Output('sgPanelRequested') sgPanelRequested: EventEmitter<SafeguardTypes> = new EventEmitter();
     @Output('dataViewerRequested') dataViewerRequested: EventEmitter<Datum> = new EventEmitter();
 
-    @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
+    @ViewChild('svg', { static: true }) svg: ElementRef<SVGSVGElement>;
     //@ViewChild('floatingSvg') floatingSvg: ElementRef<SVGSVGElement>;
 
-    @ViewChild('qc') queryCreator: QueryCreatorComponent;
-    @ViewChild('tooltip') tooltip: TooltipComponent;
+    @ViewChild('qc', { static: false }) queryCreator: QueryCreatorComponent;
+    @ViewChild('tooltip', { static: true }) tooltip: TooltipComponent;
 
     L = Constants.locale;
 

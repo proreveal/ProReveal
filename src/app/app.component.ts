@@ -56,10 +56,10 @@ export class AppComponent implements OnInit {
 
     L = C.locale;
 
-    @ViewChild('metadataEditor') metadataEditor: MetadataEditorComponent;
-    @ViewChild('vis') vis: VisComponent;
-    @ViewChild('queryCreator') queryCreator: QueryCreatorComponent;
-    @ViewChild('dataViewerModal') dataViewerModal: TemplateRef<ElementRef>;
+    @ViewChild('metadataEditor', { static: false }) metadataEditor: MetadataEditorComponent;
+    @ViewChild('vis', { static: false }) vis: VisComponent;
+    @ViewChild('queryCreator', { static: false }) queryCreator: QueryCreatorComponent;
+    @ViewChild('dataViewerModal', { static: true }) dataViewerModal: TemplateRef<ElementRef>;
 
     engineType: string;
     engine: BrowserEngine | SparkEngine;

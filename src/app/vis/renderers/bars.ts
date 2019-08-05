@@ -506,6 +506,7 @@ export class BarsRenderer {
         if(this.variable1 && this.safeguardType === SGT.Value) {
             let d = this.getDatum(this.variable1);
             this.brush.setReferenceValue(this.xScale(d.ci3.center));
+            console.log(d.ci3.center, this.xScale(d.ci3.center))
 
             if(this.constant) {
                 let center = xScale((this.constant as ValueConstant).value);

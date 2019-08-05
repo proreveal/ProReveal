@@ -19,8 +19,8 @@ export class TooltipComponent implements OnInit {
     id = 0;
     data: any;
 
-    @ViewChild(TooltipHostDirective) tooltipHost: TooltipHostDirective;
-    @ViewChild('inner') inner: ElementRef<HTMLDivElement>;
+    @ViewChild(TooltipHostDirective, { static: true }) tooltipHost: TooltipHostDirective;
+    @ViewChild('inner', { static: true }) inner: ElementRef<HTMLDivElement>;
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 

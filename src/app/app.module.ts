@@ -88,7 +88,7 @@ library.add(fas, far);
         DropdownComponent
     ],
     imports: [
-        NgbModule.forRoot(),
+        NgbModule,
         SortablejsModule.forRoot({ animation: 150 }),
         BrowserModule,
         HttpClientModule,

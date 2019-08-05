@@ -12,7 +12,7 @@ import { ValidityTypes } from '../../safeguard/validity';
 })
 export class SgHistoryComponent implements OnInit, DoCheck {
     @Input() sg: Safeguard;
-    @ViewChild('svg') svg: ElementRef<SVGSVGElement>;
+    @ViewChild('svg', { static: true }) svg: ElementRef<SVGSVGElement>;
 
     lastUpdated: number = 0;
 

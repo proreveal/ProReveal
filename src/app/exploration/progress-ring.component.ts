@@ -10,7 +10,7 @@ import * as d3util from '../d3-utils/d3-utils';
 export class ProgressRingComponent implements OnInit, OnChanges {
     @Input() processed: number;
     @Input() ongoing: number;
-    @ViewChild('svg') svg: ElementRef;
+    @ViewChild('svg', { static: true }) svg: ElementRef;
 
     private g;
     private percent;
