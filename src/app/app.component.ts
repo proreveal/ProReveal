@@ -25,6 +25,8 @@ import { Datum } from './data/datum';
 import { LoggerService, LogType } from './services/logger.service';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { Row } from './data/dataset';
+import { StorageService } from './services/storage.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-main',
@@ -103,7 +105,8 @@ export class AppComponent implements OnInit {
 
     dataViewerWhere: AndPredicate = null;
 
-    constructor(private modalService: NgbModal, public logger: LoggerService) {
+    constructor(private modalService: NgbModal, public logger: LoggerService,
+        private storage:StorageService, private router:Router) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.reschedule();
@@ -111,8 +114,10 @@ export class AppComponent implements OnInit {
         };
     }
 
-
     ngOnInit() {
+        if(!this.storage.session)
+            this.router.navigate(['/'])
+
         let parameters = util.parseQueryParameters(location.search);
         const engineType = parameters.engine;
         this.engineType = engineType;

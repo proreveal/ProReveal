@@ -51,12 +51,14 @@ import { BytesPipe } from './pipes/bytes.pipe';
 import { DropdownComponent } from './figure/dropdown/dropdown.component';
 import { MobileComponent } from './mobile/mobile.component';
 import { RootComponent } from './root.component';
+import { LoginComponent } from './login/login.component';
 
 library.add(fas, far);
 
 const appRoutes: Routes = [
     { path: 'm', component: MobileComponent },
-    { path: '', component: AppComponent }
+    { path: 'a', component: AppComponent },
+    { path: '', component: LoginComponent }
 ]
 
 @NgModule({
@@ -94,7 +96,8 @@ const appRoutes: Routes = [
         BytesPipe,
         DropdownComponent,
         MobileComponent,
-        RootComponent
+        RootComponent,
+        LoginComponent
     ],
     imports: [
         NgbModule,
@@ -108,7 +111,7 @@ const appRoutes: Routes = [
 
         RouterModule.forRoot(
             appRoutes,
-            {enableTracing: true}
+            // {enableTracing: true}
         )
     ],
     providers: [],

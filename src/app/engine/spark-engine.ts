@@ -1,22 +1,13 @@
 import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
-import { Query, AggregateQuery, Frequency1DQuery, SelectQuery } from '../data/query';
-import { Queue } from '../data/queue';
+import { Query, AggregateQuery, SelectQuery } from '../data/query';
 import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
-import { timer, Subscription } from 'rxjs';
 import { Schema } from '../data/schema';
-import { Job, AggregateJob } from '../data/job';
-import { AndPredicate, Predicate } from '../data/predicate';
-import { ExpConstants } from '../exp-constants';
+import { Predicate } from '../data/predicate';
 import { Priority } from './priority';
 import * as io from 'socket.io-client';
-import { PartialKeyValue } from '../data/keyvalue';
-import { FieldGroupedValueList } from '../data/field-grouped-value-list';
-import { FieldGroupedValue } from '../data/field-grouped-value';
-import { PartialValue } from '../data/accum';
 import { RemoteSampler } from '../data/sampler';
 
-let TId = 0;
 
 export class SparkEngine {
     rows: Row[];
@@ -35,7 +26,7 @@ export class SparkEngine {
     ws: SocketIOClient.Socket;
     info: any;
 
-    constructor(private url: string) {
+    constructor(url: string) {
         let ws = io(url, { transports: ['websocket'] })
 
         this.ws = ws;
@@ -102,7 +93,7 @@ export class SparkEngine {
 
         let ws = this.ws;
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             ws.emit('REQ/schema');
             ws.on('RES/schema', (data: any) => {
                 const schema = data.schema;

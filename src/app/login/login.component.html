@@ -1,0 +1,37 @@
+<section class="navbar navbar-dark bg-dark box-shadow" id="navbar">
+    <a href="/" class="navbar-brand ml-2">
+        <img src="assets/eye-white.png" width="24" height="24" class="d-inline-block align-text-bottom" alt="">
+        ProReveal
+    </a>
+</section>
+
+<section class="bg-light wrapper">
+<section class="container">
+<h1 class="mt-2">Log in</h1>
+<h5 class="mb-3">If you have a ProReveal server,</h5>
+
+<div class="alert alert-danger text-sm p-2" role="alert" *ngIf="!connected">
+  Cannot connect to <strong>{{ C.host }}</strong>.
+</div>
+<div class="alert alert-success text-sm p-2" role="alert" *ngIf="connected">
+  Connected to <strong>{{C.host}}</strong> (ProReveal Engine {{ info.version }}).
+</div>
+
+<form (submit)="restore()">
+    <div class="form-group">
+        <input type="text" minlength="3" maxlength="3" size="3" class="form-control" id="session_code" placeholder="Enter a 3-letter session code"
+        required [(ngModel)]="code" name="code" pattern="[A-Za-z]{3}">
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Restore a session</button>
+</form>
+
+<div class="text-center my-3">
+- OR -
+</div>
+
+<button type="submit" class="btn btn-primary w-100">Create a new session</button>
+
+<h5 class="mt-4">If you do not have a server,</h5>
+<button class="btn btn-primary w-100">Continue with a browser engine</button>
+</section>
+</section>
