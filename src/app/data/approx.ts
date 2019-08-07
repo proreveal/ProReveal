@@ -1,4 +1,4 @@
-import { AccumulatedValue } from "./accum";
+import { AggregateValue } from "./accum";
 import { ApproximatedInterval, EmptyApproximatedInterval, ApproximatedPoint } from "./approximated-interval";
 
 export interface ApproximatorTrait {
@@ -8,7 +8,7 @@ export interface ApproximatorTrait {
     readonly estimatable: boolean;
 
     approximate(
-        value: AccumulatedValue,
+        value: AggregateValue,
         p: number /* percentage of processed rows (e.g., 0.03 for 3%) */,
         n: number /* # of processed */,
         N: number /* # of rows in the dataset */): ApproximatedInterval;
@@ -33,7 +33,7 @@ export class MinApproximator implements ApproximatorTrait {
     requireTargetField = true;
     estimatable = false;
 
-    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+    approximate(value: AggregateValue, p: number, n: number, N: number) {
         if(value.min === Number.MAX_VALUE) return EmptyApproximatedInterval;
         return new ApproximatedPoint(value.min, value.count);
     }
@@ -45,7 +45,7 @@ export class MaxApproximator implements ApproximatorTrait {
     requireTargetField = true;
     estimatable = false;
 
-    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+    approximate(value: AggregateValue, p: number, n: number, N: number) {
         if(value.max === -Number.MAX_VALUE) return EmptyApproximatedInterval;
         return new ApproximatedPoint(value.max, value.count);
     }
@@ -57,7 +57,7 @@ export class CountApproximator implements ApproximatorTrait {
     requireTargetField = false;
     estimatable = true;
 
-    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+    approximate(value: AggregateValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
         let Ny_bar = N * n1 / n;
         if(n == 0) return EmptyApproximatedInterval;
@@ -75,7 +75,7 @@ export class MeanApproximator implements ApproximatorTrait {
     requireTargetField = true;
     estimatable = true;
 
-    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+    approximate(value: AggregateValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
         if(n1 == 0) return EmptyApproximatedInterval;
         let X_bar = value.sum / n1;
@@ -94,7 +94,7 @@ export class SumApproximator implements ApproximatorTrait {
     requireTargetField = true;
     estimatable = true;
 
-    approximate(value: AccumulatedValue, p: number, n: number, N: number) {
+    approximate(value: AggregateValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
         if(n1 == 0) return EmptyApproximatedInterval;
 

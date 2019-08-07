@@ -1,7 +1,7 @@
 import { Dataset } from './dataset';
 import { FieldTrait, VlType, QuantitativeField } from './field';
 import { assert, assertIn } from './assert';
-import { AccumulatorTrait, CountAccumulator, AllAccumulator, AccumulatedValue, PartialValue } from './accum';
+import { AccumulatorTrait, CountAccumulator, AllAccumulator, AggregateValue } from './accum';
 import { Sampler } from './sampler';
 import { AggregateJob, SelectJob } from './job';
 import { GroupBy } from './groupby';
@@ -10,7 +10,7 @@ import { ServerError } from './exception';
 import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
 import { ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
-import { AccumulatedKeyValues, PartialKeyValue } from './keyvalue';
+import { AggregateKeyValues, AggregateKeyValue } from './keyvalue';
 import { AndPredicate, EqualPredicate, RangePredicate, Predicate } from './predicate';
 import { Datum } from './datum';
 import { NullGroupId, GroupIdType } from './grouper';
@@ -20,6 +20,8 @@ import { Safeguard } from '../safeguard/safeguard';
 import { FieldGroupedValue } from './field-grouped-value';
 import { FieldGroupedValueList } from './field-grouped-value-list';
 import { ConfidenceInterval, EmptyConfidenceInterval } from './confidence-interval';
+
+export type RawAggregateKeyValue = [string[], number, number, number, number, number, number]
 
 export enum QueryState {
     Running = 'Running',
@@ -34,8 +36,8 @@ export abstract class Query {
 
     name: string;
 
-    recentResult: AccumulatedKeyValues = {};
-    visibleResult: AccumulatedKeyValues = {};
+    recentResult: AggregateKeyValues = {};
+    visibleResult: AggregateKeyValues = {};
     visibleData: Datum[];
 
     lastUpdated: number = +new Date(); // epoch
@@ -57,7 +59,7 @@ export abstract class Query {
         this.createdAt = new Date();
     }
 
-    abstract accumulate(partialKeyValues: PartialKeyValue[], processedRows: number): void;
+    abstract accumulate(partialKeyValues: AggregateKeyValue[], processedRows: number): void;
     abstract combine(field: FieldTrait): Query;
     abstract compatible(fields: FieldTrait[]): FieldTrait[];
     abstract desc(): string;
@@ -84,7 +86,7 @@ export class SelectQuery extends Query {
         super(dataset);
     }
 
-    accumulate(partialKeyValues: PartialKeyValue[], processedRows: number): void { }
+    accumulate(partialKeyValues: AggregateKeyValue[], processedRows: number): void { }
     combine(field: FieldTrait): Query { throw new Error('SelectQuery cannot be combined'); }
     compatible(fields: FieldTrait[]): FieldTrait[] { throw new Error('SelectQuery cannot be combined'); }
     desc(): string { return `SelectQuery ${this.where.toJSON()}` };
@@ -181,13 +183,13 @@ export class AggregateQuery extends Query {
                 sample));
     }
 
-    accumulate(partialKeyValues: PartialKeyValue[], processedRows: number) {
+    accumulate(aggregateKeyValues: AggregateKeyValue[], processedRows: number) {
         this.lastUpdated = +new Date();
 
         this.recentProgress.processedRows += processedRows;
         this.recentProgress.processedBlocks++;
 
-        partialKeyValues.forEach(pres => {
+        aggregateKeyValues.forEach(pres => {
             const hash = pres.key.hash;
 
             if (!this.recentResult[hash])
@@ -283,6 +285,7 @@ export class AggregateQuery extends Query {
             );
         })
 
+        // merge bins
         if (this instanceof Histogram1DQuery) {
             let field = this.groupBy.fields[0] as QuantitativeField;
             let allGroupIds = field.grouper.getGroupIds();
@@ -358,24 +361,29 @@ export class AggregateQuery extends Query {
         return data;
     }
 
-    convertToPartialKeyValues(result: any): PartialKeyValue[] {
-        return result.map((kv: [string, number, number, number, number, number, number]) => {
-            let [key, sum, ssum, count, min, max, nullCount] = kv;
-            let field = this.groupBy.fields[0];
-            let fgvl = new FieldGroupedValueList([
-                new FieldGroupedValue(field, field.group(key))
-            ]);
-            let partialValue = new PartialValue(sum, ssum, count, min, max, nullCount);
+    static toAggregateKeyValues(result: RawAggregateKeyValue[], fields: FieldTrait[]): AggregateKeyValue[] {
+        return result.map((kv: RawAggregateKeyValue) => {
+            let [keys, sum, ssum, count, min, max, nullCount] = kv;
+
+            let fgvl = new FieldGroupedValueList(
+                keys.map((key, i) => new FieldGroupedValue(fields[i], fields[i].group(key)))
+            );
+
+            let aggregateValue = new AggregateValue(sum, ssum, count, min, max, nullCount);
 
             return {
                 key: fgvl,
-                value: partialValue
-            } as PartialKeyValue
+                value: aggregateValue
+            } as AggregateKeyValue
         });
     }
 
-    sync() {
-        let clone: AccumulatedKeyValues = {};
+    convertToAggregateKeyValues(result: RawAggregateKeyValue[]):AggregateKeyValue[] {
+        throw new Error('convertToAggregateKeyValues must be implemented!');
+    }
+
+    sync() { // sync visible to recent
+        let clone: AggregateKeyValues = {};
 
         Object.keys(this.recentResult).forEach(key => {
             clone[key] = {
@@ -412,7 +420,7 @@ export class EmptyQuery extends AggregateQuery {
         super(null, null, null, dataset, null, null);
     }
 
-    accumulate(partialResponses: PartialKeyValue[], processedRows: number) {
+    accumulate(partialResponses: AggregateKeyValue[], processedRows: number) {
         this.lastUpdated = +new Date();
     }
 
@@ -499,7 +507,7 @@ export class Histogram1DQuery extends AggregateQuery {
         // level = 4
         // [-4 ... -1], [0 ... 3], [4 ... 7]
 
-        let aggregated: { [id: number]: AccumulatedValue } = {};
+        let aggregated: { [id: number]: AggregateValue } = {};
         let result: Datum[] = [];
 
         data.forEach(d => {
@@ -514,12 +522,12 @@ export class Histogram1DQuery extends AggregateQuery {
             if (!(binId in aggregated))
                 aggregated[binId] = this.accumulator.initAccumulatedValue;
 
-            aggregated[binId] = this.accumulator.accumulate(aggregated[binId], d.accumulatedValue.toPartial());
+            aggregated[binId] = this.accumulator.accumulate(aggregated[binId], d.accumulatedValue);
         })
 
         d3.keys(aggregated).forEach(id => {
             const nid = +id;
-            let value: AccumulatedValue = aggregated[id];
+            let value: AggregateValue = aggregated[id];
             let key = new FieldGroupedValueList([
                 new FieldGroupedValue(this.grouping, [
                     nid * level,
@@ -542,19 +550,19 @@ export class Histogram1DQuery extends AggregateQuery {
         return result;
     }
 
-    convertToPartialKeyValues(result: any): PartialKeyValue[] {
+    convertToAggregateKeyValues(result: any): AggregateKeyValue[] {
         return result.map((kv: [number, number]) => {
             let [key, count] = kv;
             let field = this.groupBy.fields[0];
             let fgvl = new FieldGroupedValueList([
                 new FieldGroupedValue(field, isNull(key) ? NullGroupId : key)
             ]);
-            let partialValue = new PartialValue(0, 0, count, 0, 0, 0);
+            let aggregateValue = new AggregateValue(0, 0, count, 0, 0, 0);
 
             return {
                 key: fgvl,
-                value: partialValue
-            } as PartialKeyValue
+                value: aggregateValue
+            } as AggregateKeyValue
         });
     }
 
@@ -636,7 +644,7 @@ export class Histogram2DQuery extends AggregateQuery {
         let aggregated: {
             [id: number]:
             {
-                [id: number]: AccumulatedValue
+                [id: number]: AggregateValue
             }
         } = {};
 
@@ -661,7 +669,7 @@ export class Histogram2DQuery extends AggregateQuery {
                 aggregated[xBinId][yBinId] = this.accumulator.initAccumulatedValue;
 
             aggregated[xBinId][yBinId] =
-                this.accumulator.accumulate(aggregated[xBinId][yBinId], d.accumulatedValue.toPartial());
+                this.accumulator.accumulate(aggregated[xBinId][yBinId], d.accumulatedValue);
         })
 
         d3.keys(aggregated).forEach(xId => {
@@ -675,7 +683,7 @@ export class Histogram2DQuery extends AggregateQuery {
                 if(yNewId != NullGroupId)
                     yNewId = [yNewId * yLevel, (yNewId + 1) * yLevel - 1]
 
-                let value: AccumulatedValue = aggregated[xId][yId];
+                let value: AggregateValue = aggregated[xId][yId];
 
                 let key = new FieldGroupedValueList([
                     new FieldGroupedValue(this.grouping1, xNewId),
@@ -715,7 +723,7 @@ export class Histogram2DQuery extends AggregateQuery {
         ]);
     }
 
-    convertToPartialKeyValues(result: any): PartialKeyValue[] {
+    convertToAggregateKeyValues(result: any): AggregateKeyValue[] {
         return result.map((kv: [[number, number], number]) => {
             let [[key1, key2], count] = kv;
             let field1 = this.groupBy.fields[0];
@@ -724,12 +732,12 @@ export class Histogram2DQuery extends AggregateQuery {
                 new FieldGroupedValue(field1, isNull(key1) ? NullGroupId : key1),
                 new FieldGroupedValue(field2, isNull(key2) ? NullGroupId : key2)
             ]);
-            let partialValue = new PartialValue(0, 0, count, 0, 0, 0);
+            let aggregateValue = new AggregateValue(0, 0, count, 0, 0, 0);
 
             return {
                 key: fgvl,
-                value: partialValue
-            } as PartialKeyValue
+                value: aggregateValue
+            } as AggregateKeyValue
         });
     }
 
@@ -805,20 +813,22 @@ export class Frequency1DQuery extends AggregateQuery {
         }
     }
 
-    convertToPartialKeyValues(result: [string, number][]) {
-        return result.map((kv: [string, number]) => {
-            let [key, value] = kv;
-            let field = this.grouping;
-            let fgvl = new FieldGroupedValueList([
-                new FieldGroupedValue(field, field.group(key))
-            ]);
-            let partialValue = new PartialValue(0, 0, value, 0, 0, 0);
+    convertToAggregateKeyValues(result: RawAggregateKeyValue[]) {
+        return AggregateQuery.toAggregateKeyValues(result, [this.grouping]);
 
-            return {
-                key: fgvl,
-                value: partialValue
-            } as PartialKeyValue
-        });
+        // return result.map((kv: [string, number]) => {
+        //     let [key, value] = kv;
+        //     let field = this.grouping;
+        //     let fgvl = new FieldGroupedValueList([
+        //         new FieldGroupedValue(field, field.group(key))
+        //     ]);
+        //     let aggregateValue = new AggregateValue(0, 0, value, 0, 0, 0);
+
+        //     return {
+        //         key: fgvl,
+        //         value: aggregateValue
+        //     } as AggregateKeyValue
+        // });
     }
 }
 
@@ -879,24 +889,24 @@ export class Frequency2DQuery extends AggregateQuery {
         }
     }
 
-    convertToPartialKeyValues(result: [string, string, number][]) {
-        return result.map((kv: [string, string, number]) => {
-            let [key1, key2, value] = kv;
-            const field1 = this.grouping1;
-            const field2 = this.grouping2;
+    // convertToAggregateKeyValues(result: [string, string, number][]) {
+    //     return result.map((kv: [string, string, number]) => {
+    //         let [key1, key2, value] = kv;
+    //         const field1 = this.grouping1;
+    //         const field2 = this.grouping2;
 
-            let fgvl = new FieldGroupedValueList([
-                new FieldGroupedValue(field1, field1.group(key1)),
-                new FieldGroupedValue(field2, field2.group(key2)),
-            ]);
-            let partialValue = new PartialValue(0, 0, value, 0, 0, 0);
+    //         let fgvl = new FieldGroupedValueList([
+    //             new FieldGroupedValue(field1, field1.group(key1)),
+    //             new FieldGroupedValue(field2, field2.group(key2)),
+    //         ]);
+    //         let aggregateValue = new AggregateValue(0, 0, value, 0, 0, 0);
 
-            return {
-                key: fgvl,
-                value: partialValue
-            } as PartialKeyValue
-        });
-    }
+    //         return {
+    //             key: fgvl,
+    //             value: aggregateValue
+    //         } as AggregateKeyValue
+    //     });
+    // }
 }
 
 

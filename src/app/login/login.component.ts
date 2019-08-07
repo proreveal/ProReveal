@@ -37,13 +37,11 @@ export class LoginComponent implements OnInit {
             if(res.success) {
                 console.log(res)
                 this.storage.session = res.session;
-
-                if(window.screen.availWidth < 720)
-                    this.router.navigate(['/m'])
-                else
-                    this.router.navigate(['/a'])
+                this.go();
             }
         })
+
+        this.restore(); // TODO: for debugging
     }
 
     restore() {
@@ -55,5 +53,21 @@ export class LoginComponent implements OnInit {
         this.ws.emit('REQ/restore', {code: code});
 
         return false;
+    }
+
+    go() {
+        if(window.screen.availWidth < 720)
+            this.router.navigate(['/m'])
+        else
+            this.router.navigate(['/a'])
+    }
+
+    continueBrowser() {
+        this.storage.session = {
+            engineType: 'browser'
+        };
+
+        this.go();
+
     }
 }

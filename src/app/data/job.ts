@@ -3,7 +3,7 @@ import { FieldTrait } from './field';
 import { AccumulatorTrait } from './accum';
 import { Dataset } from './dataset';
 import { GroupBy } from './groupby';
-import { PartialKeyValue } from './keyvalue';
+import { AggregateKeyValue } from './keyvalue';
 import * as d3 from 'd3';
 import { Predicate, AndPredicate } from './predicate';
 
@@ -50,8 +50,8 @@ export class AggregateJob extends Job {
         super(query, index);
     }
 
-    run(): PartialKeyValue[] {
-        let result: { [key: string]: PartialKeyValue } = {};
+    run(): AggregateKeyValue[] {
+        let result: { [key: string]: AggregateKeyValue } = {};
 
         this.sample.forEach(i => {
             let row = this.dataset.rows[i];

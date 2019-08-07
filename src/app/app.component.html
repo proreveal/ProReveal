@@ -1,4 +1,4 @@
-<div id="wrapper" (window:beforeunload)="unload()">
+<div id="wrapper" (window:beforeunload)="unload()" *ngIf="engine">
     <section class="navbar navbar-dark bg-dark box-shadow" id="navbar">
         <a href="#" class="navbar-brand ml-2">
             <img src="assets/eye-white.png" width="24" height="24" class="d-inline-block align-text-bottom" alt="">
@@ -8,7 +8,7 @@
         <div class="mr-auto">
             <button (click)="toggleMetadataEditor()" class="btn btn-sm btn-dark" id="open-metadata-editor">
                 <fa-icon icon="folder-open"></fa-icon>
-                <span *ngIf="engine && engine.dataset"> ({{ engine.dataset.name }})</span>
+                <span *ngIf="engine.dataset"> ({{ engine.dataset.name }})</span>
             </button>
             <ng-container *ngIf="engineType == 'browser' && !isStudying && debug">
                 <span class="text-light navbar-text">
@@ -46,12 +46,13 @@
             </ng-container>
         </div>
 
-        <div *ngIf="engineType == 'spark' && engine">
+        <div *ngIf="engineType == 'remote'">
             <ng-container *ngIf="engine.info">
                 <span class="text-light small">
-                    Connected to {{ engine.url }} (SparkEngine {{ engine.info.version }},
+                    Connected to <strong>{{engine.url}}</strong> (ProReveal Engine {{ engine.info.version }}) <ng-container *ngIf="engine.info.backend == 'spark'">
+                    (Spark Backend {{ engine.info.version }},
                     Apache Spark {{ engine.info.sparkVersion }}, Master: {{ engine.info.master }},
-                    <a href="{{ engine.info.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)
+                    <a href="{{ engine.info.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
                 </span>
             </ng-container>
             <ng-container *ngIf="!engine.info">

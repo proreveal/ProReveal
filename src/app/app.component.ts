@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { VlType } from './data/field';
 import { BrowserEngine } from './engine/browser-engine';
-import { SparkEngine } from './engine/spark-engine';
+import { RemoteEngine } from './engine/remote-engine';
 
 import { Priority } from './engine/priority';
 
@@ -18,7 +18,7 @@ import { BarsRenderer } from './vis/renderers/bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator, MinMaxRangeEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
-import { Constants as C } from './constants';
+import { Constants as C, Constants } from './constants';
 import { AndPredicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
@@ -59,7 +59,7 @@ export class AppComponent implements OnInit {
     @ViewChild('dataViewerModal', { static: true }) dataViewerModal: TemplateRef<ElementRef>;
 
     engineType: string;
-    engine: BrowserEngine | SparkEngine;
+    engine: BrowserEngine | RemoteEngine;
 
     activeQuery: AggregateQuery = null;
     highlightedQuery: AggregateQuery = null;
@@ -115,36 +115,17 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(!this.storage.session)
+        if(!this.storage.session) {
             this.router.navigate(['/'])
+            return;
+        }
 
         let parameters = util.parseQueryParameters(location.search);
-        const engineType = parameters.engine;
+        const engineType = this.storage.session.engineType;
         this.engineType = engineType;
         this.debug = parameters.debug || 0;
 
-        if(engineType == 'spark') {
-            this.logger.mute();
-            this.engine = new SparkEngine('ws://localhost:7999');
-            this.engine.load().then(([]) => {
-                //dataset.
-                // let year = dataset.getFieldByName('YEAR');
-                // let month = dataset.getFieldByName('MONTH');
-                // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
-                // let distance = dataset.getFieldByName('DISTANCE')
-
-                // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
-
-                // query.where = new AndPredicate([new EqualPredicate(
-                //     dataset.getFieldByName('YEAR'),
-                //     2016
-                // )])
-
-                // this.create(new EmptyQuery(dataset).combine(year));
-                // this.create(query, Priority.Highest);
-            });
-        }
-        else {
+        if(engineType == 'browser') {
             const data = parameters.data || "movies_en";
             const init = +parameters.init || 0;
             const run = +parameters.run || 0;
@@ -206,14 +187,36 @@ export class AppComponent implements OnInit {
                 if(data === 'movies_en') {
                     this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
                 }
+            });
 
-                if(this.debug) {
-                    let q = new EmptyQuery(dataset).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
-                    // q.approximator = new MaxApproximator();
-                    this.create(q, Priority.Highest);
-                }
+                // if(this.debug) {
+                //     let q = new EmptyQuery(dataset).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
+                //     // q.approximator = new MaxApproximator();
+                //     this.create(q, Priority.Highest);
+                // }
+        }
+        else {
+            this.logger.mute();
+            this.engine = new RemoteEngine(Constants.host);
+            this.engine.load().then(([dataset]) => {
+                this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
 
-            })
+                //dataset.
+                // let year = dataset.getFieldByName('YEAR');
+                // let month = dataset.getFieldByName('MONTH');
+                // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
+                // let distance = dataset.getFieldByName('DISTANCE')
+
+                // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
+
+                // query.where = new AndPredicate([new EqualPredicate(
+                //     dataset.getFieldByName('YEAR'),
+                //     2016
+                // )])
+
+                // this.create(new EmptyQuery(dataset).combine(year));
+                // this.create(query, Priority.Highest);
+            });
         }
 
         this.engine.queryDone = this.queryDone.bind(this);
@@ -221,7 +224,7 @@ export class AppComponent implements OnInit {
     }
 
     emit(event: string) {
-        (this.engine as SparkEngine).emit(event);
+        (this.engine as RemoteEngine).emit(event);
     }
 
     createVisByNames(vis1: string, vis2: string = '', priority = Priority.Lowest, where: AndPredicate = null): AggregateQuery {

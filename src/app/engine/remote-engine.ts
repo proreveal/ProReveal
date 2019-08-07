@@ -9,7 +9,7 @@ import * as io from 'socket.io-client';
 import { RemoteSampler } from '../data/sampler';
 
 
-export class SparkEngine {
+export class RemoteEngine {
     rows: Row[];
     dataset: Dataset;
     schema: Schema;
@@ -26,12 +26,12 @@ export class SparkEngine {
     ws: SocketIOClient.Socket;
     info: any;
 
-    constructor(url: string) {
+    constructor(public url: string) {
         let ws = io(url, { transports: ['websocket'] })
 
         this.ws = ws;
 
-        ws.on('welcome', (serverInfo) => {
+        ws.on('welcome', (serverInfo: any) => {
             this.info = serverInfo;
         })
 
@@ -54,18 +54,23 @@ export class SparkEngine {
             // TODO check query exists
             // TODO check socket id
 
-            const query_json = data.query;
-            const job_json = data.job;
-            const result = data.result;
+            console.log('Result arrived', data)
 
-            console.log('Result arrived', result)
-
-            const query = this.ongoingQueries.find(q => q.id === query_json.id) as AggregateQuery;
+            const query = this.ongoingQueries.find(q => q.id === data.query.id) as AggregateQuery;
             if(!query) return; // query removed
 
-            let partialKeyValues = query.convertToPartialKeyValues(result);
-            query.accumulate(partialKeyValues, job_json.numRows);
-            query.sync();
+            let aggregateKeyValues = query.convertToAggregateKeyValues(data.query.result);
+
+            query.lastUpdated = data.query.lastUpdated;
+            query.recentProgress.processedRows = data.query.numProcessedRows;
+            query.recentProgress.processedBlocks = data.query.numProcessedBlocks;
+            query.recentResult = {};
+
+            aggregateKeyValues.forEach(kv => {
+                query.recentResult[kv.key.hash] = kv;
+            });
+
+            if(query.updateAutomatically) query.sync();
 
             this.queryDone(query);
         })
@@ -73,8 +78,11 @@ export class SparkEngine {
         ws.on('STATUS/job/start', (data:any) => {
             const id = data.id;
             const clientId = data.clientId;
+            const query = this.queries.find(q => q.id == id || q.id == clientId);
 
-            this.runningQuery = this.queries.find(q => q.id == id || q.id == clientId);
+            this.runningQuery = query;
+            query.recentProgress.ongoingBlocks = data.numOngoingBlocks;
+            query.recentProgress.ongoingRows = data.numOngoingRows;
         })
 
         ws.on('STATUS/job/end', (data:any) => {
@@ -82,7 +90,11 @@ export class SparkEngine {
             const clientId = data.clientId;
 
             if(this.runningQuery && (this.runningQuery.id == id || this.runningQuery.id == clientId))
+            {
+                this.runningQuery.recentProgress.ongoingBlocks = 0;
+                this.runningQuery.recentProgress.ongoingRows = 0;
                 this.runningQuery = null;
+            }
         })
     }
 
