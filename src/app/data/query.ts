@@ -74,6 +74,19 @@ export abstract class Query {
     }
 
     abstract toJSON(): any;
+
+    static fromJSON(json:any, dataset:Dataset): Query {
+        if(json.type == Frequency1DQuery.name) {
+            let query = new Frequency1DQuery(
+                FieldTrait.fromJSON(json.grouping),
+                dataset,
+                Predicate.fromJSON(json.where)
+            )
+            return query;
+        }
+
+        throw new Error(`Invalid query spec: ${json}`);
+    }
 }
 
 export class SelectQuery extends Query {
@@ -155,7 +168,7 @@ export class AggregateQuery extends Query {
             approximator: this.approximator.name,
             target: this.target ? this.target.name : null,
             groupBy: this.groupBy.fields.map(d => d.name),
-            where: this.where.predicates.map(d => d.toLog())
+            where: this.where ? this.where.predicates.map(d => d.toLog()) : null
         };
     }
 
@@ -426,10 +439,10 @@ export class EmptyQuery extends AggregateQuery {
 
     combine(field: FieldTrait) {
         if (field.vlType === VlType.Quantitative) {
-            return new Histogram1DQuery(field as QuantitativeField, this.dataset, new AndPredicate([]));
+            return new Histogram1DQuery(field as QuantitativeField, this.dataset, null);
         }
         else if ([VlType.Ordinal, VlType.Nominal].includes(field.vlType)) {
-            return new Frequency1DQuery(field, this.dataset, new AndPredicate([]));
+            return new Frequency1DQuery(field, this.dataset, null);
         }
 
         throw new ServerError('only EmptyQuery + [Q, O, N, D] is possible');
@@ -809,7 +822,7 @@ export class Frequency1DQuery extends AggregateQuery {
             id: this.id,
             type: this.name,
             grouping: this.grouping.toJSON(),
-            where: this.where.toJSON()
+            where: this.where ? this.where.toJSON() : null
         }
     }
 

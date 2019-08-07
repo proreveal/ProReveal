@@ -57,6 +57,20 @@ export abstract class FieldTrait {
     abstract group(value: any): number;
     abstract ungroup(id: GroupIdType): null | string | [number, number];
     abstract ungroupString(id: GroupIdType): string;
+
+    static fromJSON(json: any) {
+        if(json.vlType === VlType.Ordinal)
+            return new CategoricalField(json.name, json.dataType);
+        else if(json.vlType == VlType.Key)
+            return new KeyField(json.name, json.dataType);
+        else if(json.vlType == VlType.Nominal)
+            return new NominalField(json.name, json.dataType);
+        else if(json.vlType == VlType.Quantitative)
+            return new QuantitativeField(json.name, json.dataType,
+                json.min, json.max, json.numBins);
+
+        throw new Error(`Invalid field json: ${JSON.stringify(json)}`);
+    }
 }
 
 export class QuantitativeField extends FieldTrait {
@@ -65,7 +79,7 @@ export class QuantitativeField extends FieldTrait {
 
     constructor(public name: string, public dataType: DataType,
         public initialMin: number, public initialMax: number, public numBins: number = 40,
-        public nullable: boolean = false, public unit: QuantitativeUnit, public order: number = 0) {
+        public nullable: boolean = false, public unit: QuantitativeUnit = null, public order: number = 0) {
         super(name);
 
         this.grouper = new NumericalGrouper(initialMin, initialMax, numBins);
@@ -93,8 +107,7 @@ export class QuantitativeField extends FieldTrait {
             name: this.name,
             start: this.grouper.min,
             end: this.grouper.max,
-            numBins: this.grouper.numBins,
-            step: this.grouper.step
+            numBins: this.grouper.numBins
         }
     }
 }

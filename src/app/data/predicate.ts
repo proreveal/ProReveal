@@ -11,6 +11,10 @@ export abstract class Predicate {
 
     abstract toLog(): any;
     abstract toJSON(): any;
+
+    static fromJSON(json: any) {
+        return null;
+    }
 }
 
 export class EqualPredicate extends Predicate {

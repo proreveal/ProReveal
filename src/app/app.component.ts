@@ -72,8 +72,6 @@ export class AppComponent implements OnInit {
 
     creating = false;
 
-    queries: AggregateQuery[] = [];
-
     variable1: SingleVariable;
     variable2: SingleVariable;
     variablePair: VariablePair;
@@ -115,13 +113,13 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(!this.storage.session) {
+        if(!this.storage.code) {
             this.router.navigate(['/'])
             return;
         }
 
         let parameters = util.parseQueryParameters(location.search);
-        const engineType = this.storage.session.engineType;
+        const engineType = this.storage.code.engineType;
         this.engineType = engineType;
         this.debug = parameters.debug || 0;
 
@@ -198,7 +196,7 @@ export class AppComponent implements OnInit {
         else {
             this.logger.mute();
             this.engine = new RemoteEngine(Constants.host);
-            this.engine.load().then(([dataset]) => {
+            this.engine.restore(this.storage.code).then(([dataset]) => {
                 this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
 
                 //dataset.
@@ -244,8 +242,6 @@ export class AppComponent implements OnInit {
 
     create(query: AggregateQuery, priority = Priority.Lowest) {
         this.logger.log(LogType.QueryCreated, query.toLog());
-
-        this.queries.push(query);
 
         this.engine.request(query, priority);
 
@@ -318,17 +314,13 @@ export class AppComponent implements OnInit {
     }
 
     resumeAll() {
-        this.queries.forEach(query => {
-            this.engine.resumeQuery(query);
-        });
-        if (this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
+        this.engine.resumeAllQueries();
+        if (this.engine instanceof BrowserEngine &&
+            this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
     }
 
     pauseAll() {
-
-        this.queries.forEach(query => {
-            this.engine.pauseQuery(query);
-        });
+        this.engine.pauseAllQueries();
     }
 
     constantUserChanged(constant: ConstantTrait) {

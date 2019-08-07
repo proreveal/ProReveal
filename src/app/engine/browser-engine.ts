@@ -91,9 +91,21 @@ export class BrowserEngine {
         this.reschedule();
     }
 
+    pauseAllQueries() {
+        this.ongoingQueries.forEach(query => {
+            this.pauseQuery(query);
+        });
+    }
+
     resumeQuery(query: Query) {
         query.resume();
         this.reschedule();
+    }
+
+    resumeAllQueries() {
+        this.ongoingQueries.forEach(query => {
+            this.resumeQuery(query);
+        });
     }
 
     gaussianRandom(mean: number, sigma: number) {

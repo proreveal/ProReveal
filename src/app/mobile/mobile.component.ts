@@ -12,7 +12,7 @@ export class MobileComponent implements OnInit {
     constructor(private storage:StorageService, private router:Router) { }
 
     ngOnInit() {
-        if(!this.storage.session)
+        if(!this.storage.code)
             this.router.navigate(['/'])
     }
 }

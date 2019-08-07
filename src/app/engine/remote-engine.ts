@@ -41,13 +41,12 @@ export class RemoteEngine {
         })
 
         ws.on('RES/query', (data:any) => {
-            const clientQueryId = data.clientQueryId;
-            const queryId = data.queryId;
+            console.log('new query created', data)
+            const querySpec = data.query;
+            const query = Query.fromJSON(querySpec, this.dataset);
 
-            this.queries.filter(q => q.id === clientQueryId)
-                .forEach(q => q.id = queryId);
-
-            console.log(`Upgraded the old id ${clientQueryId} to ${queryId}`);
+            this.queries.push(query);
+            this.ongoingQueries.push(query);
         });
 
         ws.on('result', (data: any) => {
@@ -98,26 +97,27 @@ export class RemoteEngine {
         })
     }
 
-    load(): Promise<[Dataset, Schema]> {
-        if (this.dataset && this.schema) {
-            return Promise.resolve([this.dataset, this.schema] as [Dataset, Schema]);
-        }
-
+    restore(code: string): Promise<[Dataset, Schema]> {
         let ws = this.ws;
 
         return new Promise((resolve) => {
-            ws.emit('REQ/schema');
-            ws.on('RES/schema', (data: any) => {
-                const schema = data.schema;
-                const numRows = data.numRows;
-                const numBatches = data.numBatches;
+            ws.emit('REQ/restore', {code: code});
+            ws.on('RES/restore', (data: any) => {
+                const schema = data.metadata.schema;
+                const numRows = data.metadata.numRows;
+                const numBatches = data.metadata.numBatches;
 
                 this.schema = new Schema(schema);
-                this.dataset = new Dataset(data.name, this.schema, [], new RemoteSampler(numRows, numBatches));
+                this.dataset = new Dataset(data.metadata.name, this.schema, [],
+                    new RemoteSampler(numRows, numBatches));
 
                 console.log('Got schema', schema);
 
                 resolve([this.dataset, this.schema]);
+
+                // restore queries
+
+
             });
         });
     }
@@ -130,6 +130,8 @@ export class RemoteEngine {
     }
 
     request(query: Query, priority: Priority = Priority.Highest) {
+        // TODO scheduling required
+        // recent to end
         if (priority === Priority.Highest) {
             this.ongoingQueries.unshift(query);
         }
@@ -137,9 +139,9 @@ export class RemoteEngine {
             this.ongoingQueries.push(query);
         }
 
-        this.queries.push(query);
+        // this.queries.push(query);
 
-        this.ws.emit('REQ/query', {query: query.toJSON(), queue: this.queueToJSON()})
+        this.ws.emit('REQ/query', {query: query.toJSON()}) //, queue: this.queueToJSON()})
     }
 
     pauseQuery(query: Query) {
@@ -147,9 +149,21 @@ export class RemoteEngine {
         this.ws.emit('REQ/query/pause', {query: query.toJSON(), queue: this.queueToJSON()})
     }
 
+    pauseAllQueries() {
+        this.ongoingQueries.forEach(query => {
+            this.pauseQuery(query);
+        });
+    }
+
     resumeQuery(query: Query) {
         query.resume();
         this.ws.emit('REQ/query/resume', {query: query.toJSON(), queue: this.queueToJSON()})
+    }
+
+    resumeAllQueries() {
+        this.ongoingQueries.forEach(query => {
+            this.resumeQuery(query);
+        });
     }
 
     remove(query: Query) {

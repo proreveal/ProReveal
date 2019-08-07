@@ -33,10 +33,9 @@ export class LoginComponent implements OnInit {
             this.connected = false;
         })
 
-        ws.on('RES/restore', (res:any) => {
+        ws.on('RES/login', (res:any) => {
             if(res.success) {
-                console.log(res)
-                this.storage.session = res.session;
+                this.storage.code = res.code;
                 this.go();
             }
         })
@@ -50,7 +49,7 @@ export class LoginComponent implements OnInit {
         const code = this.code.toUpperCase();
         if(code.length != 3) return;
 
-        this.ws.emit('REQ/restore', {code: code});
+        this.ws.emit('REQ/login', {code: code});
 
         return false;
     }
@@ -63,7 +62,7 @@ export class LoginComponent implements OnInit {
     }
 
     continueBrowser() {
-        this.storage.session = {
+        this.storage.code = {
             engineType: 'browser'
         };
 

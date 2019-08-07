@@ -5,7 +5,7 @@
     <ng-container *ngFor="let field of query.groupBy.fields; index as i">
         <field-badge [field]="field" class="ml-2 mr-1"></field-badge>{{ field.name }}<span *ngIf="i < query.groupBy.fields.length - 1" class="comma"></span>
     </ng-container>
-    <ng-container *ngIf="query.where.length > 0">
+    <ng-container *ngIf="query.where && query.where.length > 0">
         <span class="where ml-2"></span>
         <ng-container *ngFor="let pred of query.where.predicates index as i">
             <field-badge [field]="pred.target" class="ml-2 mr-1"></field-badge>
