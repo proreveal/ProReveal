@@ -76,16 +76,24 @@ export abstract class Query {
     abstract toJSON(): any;
 
     static fromJSON(json:any, dataset:Dataset): Query {
+        let query:Query;
+
         if(json.type == Frequency1DQuery.name) {
-            let query = new Frequency1DQuery(
+            query = new Frequency1DQuery(
                 FieldTrait.fromJSON(json.grouping),
                 dataset,
                 Predicate.fromJSON(json.where)
             )
-            return query;
         }
 
-        throw new Error(`Invalid query spec: ${json}`);
+        if(!query)
+            throw new Error(`Invalid query spec: ${json}`);
+
+        query.id = json.id;
+        query.recentProgress.processedBlocks = json.numProcessedBlocks;
+        query.recentProgress.processedRows = json.numProcessedRows;
+
+        return query;
     }
 }
 

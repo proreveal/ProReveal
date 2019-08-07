@@ -46,13 +46,10 @@ export class RemoteEngine {
             const query = Query.fromJSON(querySpec, this.dataset);
 
             this.queries.push(query);
-            this.ongoingQueries.push(query);
+            this.ongoingQueries.push(query); // TODO we want to remove ongoing queries
         });
 
         ws.on('result', (data: any) => {
-            // TODO check query exists
-            // TODO check socket id
-
             console.log('Result arrived', data)
 
             const query = this.ongoingQueries.find(q => q.id === data.query.id) as AggregateQuery;
@@ -76,8 +73,8 @@ export class RemoteEngine {
 
         ws.on('STATUS/job/start', (data:any) => {
             const id = data.id;
-            const clientId = data.clientId;
-            const query = this.queries.find(q => q.id == id || q.id == clientId);
+            const query = this.queries.find(q => q.id == id);
+            console.log('job start',  data)
 
             this.runningQuery = query;
             query.recentProgress.ongoingBlocks = data.numOngoingBlocks;
@@ -103,6 +100,8 @@ export class RemoteEngine {
         return new Promise((resolve) => {
             ws.emit('REQ/restore', {code: code});
             ws.on('RES/restore', (data: any) => {
+                console.log('Restored the session', data);
+
                 const schema = data.metadata.schema;
                 const numRows = data.metadata.numRows;
                 const numBatches = data.metadata.numBatches;
@@ -117,7 +116,12 @@ export class RemoteEngine {
 
                 // restore queries
 
+                data.session.queries.forEach(querySpec => {
+                    const query = Query.fromJSON(querySpec, this.dataset);
 
+                    this.queries.push(query);
+                    this.ongoingQueries.push(query)
+                })
             });
         });
     }
