@@ -197,7 +197,9 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new RemoteEngine(Constants.host);
             this.engine.restore(this.storage.code).then(([dataset]) => {
-                let query = new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre'));
+                let query = new EmptyQuery(dataset)
+                    .combine(dataset.getFieldByName('Genre'))
+                    .combine(dataset.getFieldByName('Status'));
                 query.where = new AndPredicate([new EqualPredicate(
                     dataset.getFieldByName('Genre'),
                     'Comedy'

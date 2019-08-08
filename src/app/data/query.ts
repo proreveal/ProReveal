@@ -86,6 +86,15 @@ export abstract class Query {
             )
         }
 
+        if(json.type == Frequency2DQuery.name) {
+            query = new Frequency2DQuery(
+                FieldTrait.fromJSON(json.grouping1),
+                FieldTrait.fromJSON(json.grouping2),
+                dataset,
+                Predicate.fromJSON(json.where, dataset)
+            )
+        }
+
         if (!query)
             throw new Error(`Invalid query spec: ${json}`);
 
@@ -840,20 +849,6 @@ export class Frequency1DQuery extends AggregateQuery {
 
     convertToAggregateKeyValues(result: RawAggregateKeyValue[]) {
         return AggregateQuery.toAggregateKeyValues(result, [this.grouping]);
-
-        // return result.map((kv: [string, number]) => {
-        //     let [key, value] = kv;
-        //     let field = this.grouping;
-        //     let fgvl = new FieldGroupedValueList([
-        //         new FieldGroupedValue(field, field.group(key))
-        //     ]);
-        //     let aggregateValue = new AggregateValue(0, 0, value, 0, 0, 0);
-
-        //     return {
-        //         key: fgvl,
-        //         value: aggregateValue
-        //     } as AggregateKeyValue
-        // });
     }
 }
 
@@ -910,28 +905,13 @@ export class Frequency2DQuery extends AggregateQuery {
             type: this.name,
             grouping1: this.grouping1.toJSON(),
             grouping2: this.grouping2.toJSON(),
-            where: this.where.toJSON()
+            where: this.where ? this.where.toJSON() : null
         }
     }
 
-    // convertToAggregateKeyValues(result: [string, string, number][]) {
-    //     return result.map((kv: [string, string, number]) => {
-    //         let [key1, key2, value] = kv;
-    //         const field1 = this.grouping1;
-    //         const field2 = this.grouping2;
-
-    //         let fgvl = new FieldGroupedValueList([
-    //             new FieldGroupedValue(field1, field1.group(key1)),
-    //             new FieldGroupedValue(field2, field2.group(key2)),
-    //         ]);
-    //         let aggregateValue = new AggregateValue(0, 0, value, 0, 0, 0);
-
-    //         return {
-    //             key: fgvl,
-    //             value: aggregateValue
-    //         } as AggregateKeyValue
-    //     });
-    // }
+    convertToAggregateKeyValues(result: RawAggregateKeyValue[]) {
+        return AggregateQuery.toAggregateKeyValues(result, [this.grouping1, this.grouping2]);
+    }
 }
 
 
