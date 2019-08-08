@@ -75,18 +75,18 @@ export abstract class Query {
 
     abstract toJSON(): any;
 
-    static fromJSON(json:any, dataset:Dataset): Query {
-        let query:Query;
+    static fromJSON(json: any, dataset: Dataset): Query {
+        let query: Query;
 
-        if(json.type == Frequency1DQuery.name) {
+        if (json.type == Frequency1DQuery.name) {
             query = new Frequency1DQuery(
                 FieldTrait.fromJSON(json.grouping),
                 dataset,
-                Predicate.fromJSON(json.where)
+                Predicate.fromJSON(json.where, dataset)
             )
         }
 
-        if(!query)
+        if (!query)
             throw new Error(`Invalid query spec: ${json}`);
 
         query.id = json.id;
@@ -166,7 +166,7 @@ export class AggregateQuery extends Query {
         public target: FieldTrait,
         public dataset: Dataset,
         public groupBy: GroupBy,
-        public where: AndPredicate) {
+        public where: Predicate) {
         super(dataset);
 
         this.recentProgress.numBatches = dataset.sampler.numBatches;
@@ -180,7 +180,7 @@ export class AggregateQuery extends Query {
             approximator: this.approximator.name,
             target: this.target ? this.target.name : null,
             groupBy: this.groupBy.fields.map(d => d.name),
-            where: this.where ? this.where.predicates.map(d => d.toLog()) : null
+            where: this.where ? this.where.toLog() : null
         };
     }
 
@@ -345,18 +345,18 @@ export class AggregateQuery extends Query {
                 let xGroupId = d.keys.list[0].groupId as number;
                 let yGroupId = d.keys.list[1].groupId as number;
 
-                if(xGroupId === NullGroupId) xHasNull = true;
-                if(yGroupId == NullGroupId) yHasNull = true;
+                if (xGroupId === NullGroupId) xHasNull = true;
+                if (yGroupId == NullGroupId) yHasNull = true;
 
                 if (!exist[xGroupId]) exist[xGroupId] = {};
                 exist[xGroupId][yGroupId] = true;
             })
 
             let allXIds = fieldX.grouper.getGroupIds();
-            if(xHasNull) allXIds.push(NullGroupId);
+            if (xHasNull) allXIds.push(NullGroupId);
 
             let allYIds = fieldY.grouper.getGroupIds();
-            if(yHasNull) allYIds.push(NullGroupId);
+            if (yHasNull) allYIds.push(NullGroupId);
 
             allXIds.forEach((xGroupId: number) => {
                 allYIds.forEach((yGroupId: number) => {
@@ -403,7 +403,7 @@ export class AggregateQuery extends Query {
         });
     }
 
-    convertToAggregateKeyValues(result: RawAggregateKeyValue[]):AggregateKeyValue[] {
+    convertToAggregateKeyValues(result: RawAggregateKeyValue[]): AggregateKeyValue[] {
         throw new Error('convertToAggregateKeyValues must be implemented!');
     }
 
@@ -497,7 +497,7 @@ export class Histogram1DQuery extends AggregateQuery {
 
     constructor(public grouping: QuantitativeField,
         public dataset: Dataset,
-        public where: AndPredicate) {
+        public where: Predicate) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
@@ -638,7 +638,7 @@ export class Histogram2DQuery extends AggregateQuery {
         public grouping1: QuantitativeField,
         public grouping2: QuantitativeField,
         public dataset: Dataset,
-        public where: AndPredicate) {
+        public where: Predicate) {
         super(
             new AllAccumulator(),
             new CountApproximator(),
@@ -702,10 +702,10 @@ export class Histogram2DQuery extends AggregateQuery {
                 let xNewId: GroupIdType = +xId;
                 let yNewId: GroupIdType = +yId;
 
-                if(xNewId != NullGroupId)
+                if (xNewId != NullGroupId)
                     xNewId = [xNewId * xLevel, (xNewId + 1) * xLevel - 1]
 
-                if(yNewId != NullGroupId)
+                if (yNewId != NullGroupId)
                     yNewId = [yNewId * yLevel, (yNewId + 1) * yLevel - 1]
 
                 let value: AggregateValue = aggregated[xId][yId];
@@ -719,12 +719,12 @@ export class Histogram2DQuery extends AggregateQuery {
                     key.hash,
                     key,
                     value.count > 0 ?
-                    this.approximator.approximate(
-                        value,
-                        this.visibleProgress.processedPercent(),
-                        this.visibleProgress.processedRows,
-                        this.visibleProgress.numRows
-                    ).range(3) : EmptyConfidenceInterval,
+                        this.approximator.approximate(
+                            value,
+                            this.visibleProgress.processedPercent(),
+                            this.visibleProgress.processedRows,
+                            this.visibleProgress.numRows
+                        ).range(3) : EmptyConfidenceInterval,
                     value
                 ))
             })
@@ -794,7 +794,7 @@ export class Frequency1DQuery extends AggregateQuery {
 
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
-        public where: AndPredicate) {
+        public where: Predicate) {
         super(
             new CountAccumulator(),
             new CountApproximator(),
@@ -873,7 +873,7 @@ export class Frequency2DQuery extends AggregateQuery {
         public grouping1: FieldTrait,
         public grouping2: FieldTrait,
         public dataset: Dataset,
-        public where: AndPredicate) {
+        public where: Predicate) {
 
         super(
             new CountAccumulator(),

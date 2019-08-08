@@ -19,7 +19,7 @@ import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, Po
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
 import { Constants as C, Constants } from './constants';
-import { AndPredicate } from './data/predicate';
+import { AndPredicate, EqualPredicate, Predicate } from './data/predicate';
 import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
 import { LoggerService, LogType } from './services/logger.service';
@@ -88,7 +88,7 @@ export class AppComponent implements OnInit {
     normalConstant: NormalConstant = new NormalConstant();
     linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
 
-    dataViewerFilters: AndPredicate;
+    dataViewerWhere: Predicate = null;
     filteredRows: any[] = [];
 
     alternate = false;
@@ -101,7 +101,7 @@ export class AppComponent implements OnInit {
     isStudyMenuVisible = false;
     debug = false;
 
-    dataViewerWhere: AndPredicate = null;
+
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage:StorageService, private router:Router) {
@@ -197,7 +197,12 @@ export class AppComponent implements OnInit {
             this.logger.mute();
             this.engine = new RemoteEngine(Constants.host);
             this.engine.restore(this.storage.code).then(([dataset]) => {
-                this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
+                let query = new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre'));
+                query.where = new AndPredicate([new EqualPredicate(
+                    dataset.getFieldByName('Genre'),
+                    'Comedy'
+                )])
+                this.create(query);
 
                 //dataset.
                 // let year = dataset.getFieldByName('YEAR');
@@ -244,9 +249,6 @@ export class AppComponent implements OnInit {
         this.logger.log(LogType.QueryCreated, query.toLog());
 
         this.engine.request(query, priority);
-
-        this.querySelected(query);
-
         this.creating = false;
     }
 
@@ -574,13 +576,11 @@ export class AppComponent implements OnInit {
 
     dataViewerRequested(d: Datum) {
         let predicate = this.activeQuery.getPredicateFromDatum(d);
-        let where = this.activeQuery.where.and(predicate);
-
-        this.dataViewerFilters = where;
-
-        this.engine.select(where);
+        let where = this.activeQuery.where ? this.activeQuery.where.and(predicate) : new AndPredicate([predicate]);
 
         this.dataViewerWhere = where;
+
+        this.engine.select(where);
 
         this.modalService
             .open(this.dataViewerModal, { size: 'lg', windowClass: 'modal-xxl' })

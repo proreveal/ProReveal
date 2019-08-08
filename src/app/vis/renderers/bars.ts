@@ -13,7 +13,7 @@ import { ScaleLinear } from 'd3';
 import { ConstantTrait, RankConstant, ValueConstant, RangeRankConstant, RangeConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { Brush, BrushDirection, BrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
-import { AndPredicate } from '../../data/predicate';
+import { AndPredicate, Predicate } from '../../data/predicate';
 import { Datum } from '../../data/datum';
 import { AggregateQuery } from '../../data/query';
 import { LoggerService, LogType } from '../../services/logger.service';
@@ -855,11 +855,10 @@ export class BarsRenderer {
         this.vis.queryCreatorTop = top;
         this.vis.queryCreatorLeft = this.labelWidth;
 
-        let where: AndPredicate = this.vis.query.where;
+        let where: Predicate = this.vis.query.where;
         // where + datum
 
-        where = where.and(this.query.getPredicateFromDatum(d));
-        this.vis.queryCreator.where = where;
+        this.vis.queryCreator.where = where.and(this.query.getPredicateFromDatum(d));
     }
 
     closeQueryCreator() {

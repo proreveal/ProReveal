@@ -1,19 +1,37 @@
 import { FieldTrait } from "./field";
+import { Dataset } from "./dataset";
 
 export abstract class Predicate {
     test(row: any): boolean {
         return true;
     }
 
-    and(predicate: Predicate): Predicate {
+    and(predicate: Predicate): AndPredicate {
         return new AndPredicate([this, predicate]);
     }
 
     abstract toLog(): any;
     abstract toJSON(): any;
 
-    static fromJSON(json: any) {
-        return null;
+    static fromJSON(json: any, dataset: Dataset) {
+        if(json.type == 'and')
+            return new AndPredicate(json.predicates.map(spec => Predicate.fromJSON(spec, dataset)))
+
+        if(json.type == 'range')
+            return new RangePredicate(
+                dataset.getFieldByName(json.field.name),
+                json.start,
+                json.end,
+                json.includeEnd
+            );
+
+        if(json.type == 'equal')
+            return new EqualPredicate(
+                dataset.getFieldByName(json.field.name),
+                json.expected
+            );
+
+        throw new Error(`Invalid predicate spec ${JSON.stringify(json)}`);
     }
 }
 

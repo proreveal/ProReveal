@@ -41,9 +41,11 @@ export class RemoteEngine {
         })
 
         ws.on('RES/query', (data:any) => {
-            console.log('new query created', data)
+
             const querySpec = data.query;
             const query = Query.fromJSON(querySpec, this.dataset);
+
+            console.log('new query created from server', data, query)
 
             this.queries.push(query);
             this.ongoingQueries.push(query); // TODO we want to remove ongoing queries
@@ -136,12 +138,12 @@ export class RemoteEngine {
     request(query: Query, priority: Priority = Priority.Highest) {
         // TODO scheduling required
         // recent to end
-        if (priority === Priority.Highest) {
-            this.ongoingQueries.unshift(query);
-        }
-        else if (priority === Priority.Lowest) {
-            this.ongoingQueries.push(query);
-        }
+        // if (priority === Priority.Highest) {
+        //     this.ongoingQueries.unshift(query);
+        // }
+        // else if (priority === Priority.Lowest) {
+        //     this.ongoingQueries.push(query);
+        // }
 
         // this.queries.push(query);
 
