@@ -55,6 +55,8 @@ export class LoginComponent implements OnInit {
     }
 
     go() {
+        this.ws.disconnect();
+
         if(window.screen.availWidth < 720)
             this.router.navigate(['/m'])
         else

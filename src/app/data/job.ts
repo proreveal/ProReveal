@@ -56,7 +56,7 @@ export class AggregateJob extends Job {
         this.sample.forEach(i => {
             let row = this.dataset.rows[i];
 
-            if (!this.where.test(row)) return;
+            if (this.where && !this.where.test(row)) return;
 
             let fieldGroupedValueList = this.groupBy.group(row);
             let hash = fieldGroupedValueList.hash;

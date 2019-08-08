@@ -95,6 +95,10 @@ export abstract class Query {
 
         return query;
     }
+
+    done() {
+        return this.recentProgress.done();
+    }
 }
 
 export class SelectQuery extends Query {

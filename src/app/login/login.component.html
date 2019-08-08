@@ -22,14 +22,15 @@
         <input type="text" minlength="3" maxlength="3" size="3" class="form-control" id="session_code" placeholder="Enter a 3-letter session code"
         required [(ngModel)]="code" name="code" pattern="[A-Za-z]{3}">
     </div>
-    <button type="submit" class="btn btn-primary w-100">Restore a session</button>
+    <button type="submit" class="btn btn-primary w-100"
+    [disabled]="!connected">Restore a session</button>
 </form>
 
 <div class="text-center my-3">
 - OR -
 </div>
 
-<button type="submit" class="btn btn-primary w-100">Create a new session</button>
+<button type="submit" class="btn btn-primary w-100" [disabled]="!connected">Create a new session</button>
 
 <h5 class="mt-4">If you do not have a server,</h5>
 <button class="btn btn-primary w-100" (click)="continueBrowser()">Continue with a browser engine</button>
