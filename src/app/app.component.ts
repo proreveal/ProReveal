@@ -198,7 +198,7 @@ export class AppComponent implements OnInit {
             this.engine = new RemoteEngine(Constants.host);
             this.engine.restore(this.storage.code).then(([dataset]) => {
                 let query = new EmptyQuery(dataset)
-                    .combine(dataset.getFieldByName('Genre'))
+                    .combine(dataset.getFieldByName('Score'))
                     //.combine(dataset.getFieldByName('Status'));
 
                 query.where = new AndPredicate([new EqualPredicate(

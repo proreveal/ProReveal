@@ -95,6 +95,14 @@ export abstract class Query {
             )
         }
 
+        if(json.type == Histogram1DQuery.name) {
+            query = new Histogram1DQuery(
+                FieldTrait.fromJSON(json.grouping) as QuantitativeField,
+                dataset,
+                Predicate.fromJSON(json.where, dataset)
+            );
+        }
+
         if (!query)
             throw new Error(`Invalid query spec: ${json}`);
 
@@ -395,13 +403,23 @@ export class AggregateQuery extends Query {
         return data;
     }
 
-    static toAggregateKeyValues(result: RawAggregateKeyValue[], fields: FieldTrait[]): AggregateKeyValue[] {
+    static toAggregateKeyValues(result: RawAggregateKeyValue[], fields: FieldTrait[], group = true): AggregateKeyValue[] {
         return result.map((kv: RawAggregateKeyValue) => {
             let [keys, sum, ssum, count, min, max, nullCount] = kv;
 
-            let fgvl = new FieldGroupedValueList(
+            let fgvl: FieldGroupedValueList;
+
+            if(group) fgvl = new FieldGroupedValueList(
                 keys.map((key, i) => new FieldGroupedValue(fields[i], fields[i].group(key)))
-            );
+                );
+            else {
+                fgvl = new FieldGroupedValueList(
+                    keys.map((key, i) => {
+                        if(isNull(key)) return new FieldGroupedValue(fields[i], NullGroupId);
+                        return new FieldGroupedValue(fields[i], parseInt(key));
+                    })
+                );
+            }
 
             let aggregateValue = new AggregateValue(sum, ssum, count, min, max, nullCount);
 
@@ -584,20 +602,8 @@ export class Histogram1DQuery extends AggregateQuery {
         return result;
     }
 
-    convertToAggregateKeyValues(result: any): AggregateKeyValue[] {
-        return result.map((kv: [number, number]) => {
-            let [key, count] = kv;
-            let field = this.groupBy.fields[0];
-            let fgvl = new FieldGroupedValueList([
-                new FieldGroupedValue(field, isNull(key) ? NullGroupId : key)
-            ]);
-            let aggregateValue = new AggregateValue(0, 0, count, 0, 0, 0);
-
-            return {
-                key: fgvl,
-                value: aggregateValue
-            } as AggregateKeyValue
-        });
+    convertToAggregateKeyValues(result: RawAggregateKeyValue[]) {
+        return AggregateQuery.toAggregateKeyValues(result, [this.grouping], false);
     }
 
     getPredicateFromDatum(d: Datum) {
@@ -613,7 +619,7 @@ export class Histogram1DQuery extends AggregateQuery {
             id: this.id,
             type: this.name,
             grouping: this.grouping.toJSON(),
-            where: this.where.toJSON()
+            where: this.where ? this.where.toJSON() : null
         }
     }
 }

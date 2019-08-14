@@ -65,7 +65,7 @@ export class NumericalGrouper {
 
         this.min = ticks[0];
         this.max = ticks[ticks.length - 1];
-        this.numBins = ticks.length;
+        this.numBins = ticks.length - 1;
         this.step = this.numBins > 1 ? ticks[1] - ticks[0] : 1;
         this.base = this.min;
     }
