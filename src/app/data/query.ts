@@ -9,7 +9,7 @@ import { Job } from './job';
 import { ServerError } from './exception';
 import { Progress } from './progress';
 import { NumericalOrdering, OrderingDirection } from './ordering';
-import { ApproximatorTrait, CountApproximator, MeanApproximator } from './approx';
+import { ApproximatorTrait, CountApproximator, MeanApproximator, Approximator } from './approx';
 import { AggregateKeyValues, AggregateKeyValue } from './keyvalue';
 import { AndPredicate, EqualPredicate, RangePredicate, Predicate } from './predicate';
 import { Datum } from './datum';
@@ -109,6 +109,19 @@ export abstract class Query {
                 FieldTrait.fromJSON(json.grouping1) as QuantitativeField,
                 FieldTrait.fromJSON(json.grouping2) as QuantitativeField,
                 dataset,
+                Predicate.fromJSON(json.where, dataset)
+            );
+        }
+
+        if(json.type == AggregateQuery.name) {
+            query = new AggregateQuery(
+                new AllAccumulator(),
+                Approximator.FromName(json.aggregate),
+                FieldTrait.fromJSON(json.target),
+                dataset,
+                new GroupBy([
+                    FieldTrait.fromJSON(json.grouping) as QuantitativeField
+                ]),
                 Predicate.fromJSON(json.where, dataset)
             );
         }
@@ -451,8 +464,8 @@ export class AggregateQuery extends Query {
         });
     }
 
-    convertToAggregateKeyValues(result: RawAggregateKeyValue[]): AggregateKeyValue[] {
-        throw new Error('convertToAggregateKeyValues must be implemented!');
+    convertToAggregateKeyValues(result: RawAggregateKeyValue[]) {
+        return AggregateQuery.toAggregateKeyValues(result, [this.groupBy.fields[0]]);
     }
 
     sync() { // sync visible to recent
@@ -479,8 +492,9 @@ export class AggregateQuery extends Query {
             id: this.id,
             type: this.name,
             target: this.target.toJSON(),
+            aggregate: this.approximator.name.toLowerCase(),
             grouping: this.groupBy.fields[0].toJSON(),
-            where: this.where.toJSON()
+            where: this.where ? this.where.toJSON() : null
         }
     }
 }

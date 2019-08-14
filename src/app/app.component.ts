@@ -195,13 +195,13 @@ export class AppComponent implements OnInit {
             this.engine.restore(this.storage.code).then(([dataset]) => {
                 let query = new EmptyQuery(dataset)
                     .combine(dataset.getFieldByName('Score'))
-                    .combine(dataset.getFieldByName('Votes'));
+                    .combine(dataset.getFieldByName('Country'));
 
                 query.where = new AndPredicate([new EqualPredicate(
                     dataset.getFieldByName('Genre'),
                     'Comedy'
                 )])
-                //this.create(query);
+                this.create(query);
 
                 //dataset.
                 // let year = dataset.getFieldByName('YEAR');
