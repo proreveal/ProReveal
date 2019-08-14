@@ -53,6 +53,7 @@ export abstract class Query {
 
     state: QueryState = QueryState.Running;
     processedIndices: number[] = [];
+    order = 0;
 
     constructor(public dataset: Dataset) {
         this.id = `ClientQuery${Query.Id++}`;
@@ -116,6 +117,7 @@ export abstract class Query {
             throw new Error(`Invalid query spec: ${JSON.stringify(json)}`);
 
         query.id = json.id;
+        query.order = json.order;
         query.recentProgress.processedBlocks = json.numProcessedBlocks;
         query.recentProgress.processedRows = json.numProcessedRows;
 

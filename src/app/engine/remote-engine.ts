@@ -1,7 +1,7 @@
 import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
-import { Query, AggregateQuery, SelectQuery } from '../data/query';
-import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
+import { Query, AggregateQuery, SelectQuery, QueryState } from '../data/query';
+import { Scheduler, QueryOrderScheduler, RoundRobinScheduler } from '../data/scheduler';
 import { Schema } from '../data/schema';
 import { Predicate } from '../data/predicate';
 import { Priority } from './priority';
@@ -13,10 +13,10 @@ export class RemoteEngine {
     rows: Row[];
     dataset: Dataset;
     schema: Schema;
+
     queries: Query[] = []; // all queries (order is meaningless)
-    ongoingQueries: Query[] = [];
-    completedQueries: Query[] = [];
-    scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
+    ongoingQueries: Query[] = []; // ongoing queries (highest -> lowest)
+    completedQueries: Query[] = []; // complete queries (most recent -> oldest)
     queryDone: (query: Query) => void;
     selectQueryDone: (query: SelectQuery) => void;
     runningQuery: Query;
@@ -24,6 +24,7 @@ export class RemoteEngine {
     autoRun = false;
     activeTId: number;
     ws: SocketIOClient.Socket;
+    alternate = false;
     info: any;
 
     constructor(public url: string) {
@@ -48,7 +49,8 @@ export class RemoteEngine {
             console.log('new query created from server', data, query)
 
             this.queries.push(query);
-            this.ongoingQueries.push(query); // TODO we want to remove ongoing queries
+            this.ongoingQueries.push(query);
+            this.ongoingQueries.sort((a, b) => a.order - b.order);
         });
 
         ws.on('result', (data: any) => {
@@ -94,6 +96,26 @@ export class RemoteEngine {
                 this.runningQuery = null;
             }
         })
+
+        ws.on('STATUS/queries', (data:any) => {
+            /*
+            data: {qid: {order: 1, state: running}}
+            */
+            console.log('new query states', data);
+
+            this.queries = this.queries.filter(q => data[q.id]);
+
+            this.queries.forEach(q => {
+                q.state = data[q.id].state;
+                q.order = data[q.id].order;
+            });
+
+            this.ongoingQueries = this.queries.filter(q => !q.done());
+            this.completedQueries = this.queries.filter(q => q.done());
+
+            this.ongoingQueries.sort((a, b) => a.order - b.order);
+            this.completedQueries.sort((a, b) => a.order - b.order);
+        });
     }
 
     restore(code: string): Promise<[Dataset, Schema]> {
@@ -112,6 +134,8 @@ export class RemoteEngine {
                 this.dataset = new Dataset(data.metadata.name, this.schema, [],
                     new RemoteSampler(numRows, numBatches));
 
+                this.alternate = data.session.alternate;
+
                 console.log('Got schema', schema);
 
                 resolve([this.dataset, this.schema]);
@@ -122,8 +146,10 @@ export class RemoteEngine {
                     const query = Query.fromJSON(querySpec, this.dataset);
 
                     this.queries.push(query);
-                    this.ongoingQueries.push(query)
+                    this.ongoingQueries.push(query);
                 })
+
+                this.ongoingQueries.sort((a, b) => a.order - b.order);
             });
         });
     }
@@ -135,24 +161,13 @@ export class RemoteEngine {
         this.ws.emit(event);
     }
 
-    request(query: Query, priority: Priority = Priority.Highest) {
-        // TODO scheduling required
-        // recent to end
-        // if (priority === Priority.Highest) {
-        //     this.ongoingQueries.unshift(query);
-        // }
-        // else if (priority === Priority.Lowest) {
-        //     this.ongoingQueries.push(query);
-        // }
-
-        // this.queries.push(query);
-
-        this.ws.emit('REQ/query', {query: query.toJSON()}) //, queue: this.queueToJSON()})
+    request(query: Query) {
+        this.ws.emit('REQ/query', {query: query.toJSON()});
     }
 
     pauseQuery(query: Query) {
         query.pause();
-        this.ws.emit('REQ/query/pause', {query: query.toJSON(), queue: this.queueToJSON()})
+        this.ws.emit('REQ/query/pause', {query: query.toJSON()})
     }
 
     pauseAllQueries() {
@@ -163,7 +178,7 @@ export class RemoteEngine {
 
     resumeQuery(query: Query) {
         query.resume();
-        this.ws.emit('REQ/query/resume', {query: query.toJSON(), queue: this.queueToJSON()})
+        this.ws.emit('REQ/query/resume', {query: query.toJSON()})
     }
 
     resumeAllQueries() {
@@ -187,24 +202,19 @@ export class RemoteEngine {
             return (order[a.id] || n) - (order[b.id] || n);
         });
 
-        this.ws.emit('REQ/queue/reschedule', this.queueToJSON())
+        this.ws.emit('REQ/queue/reschedule')
     }
 
-    reschedule(scheduler?: Scheduler) {
-        if(scheduler) this.scheduler = scheduler;
+    reschedule(alternate:boolean) {
+        this.alternate = alternate;
 
-        this.ws.emit('REQ/queue/reschedule', this.queueToJSON())
+        this.ws.emit('REQ/queue/reschedule', {
+            alternate: this.alternate
+        });
     }
 
     select(where: Predicate): void {
         let query = new SelectQuery(this.dataset, where);
-        this.ws.emit('REQ/query', {query: query.toJSON(), queue: this.queueToJSON()})
-    }
-
-    queueToJSON() {
-        return {
-            mode: this.scheduler.name,
-            queries: this.ongoingQueries.map(q => q.toJSON())
-        }
+        this.ws.emit('REQ/query', {query: query.toJSON()})
     }
 }

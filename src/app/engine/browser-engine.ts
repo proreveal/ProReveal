@@ -2,7 +2,7 @@ import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
 import { Query, AggregateQuery, SelectQuery } from '../data/query';
 import { Queue } from '../data/queue';
-import { Scheduler, QueryOrderScheduler } from '../data/scheduler';
+import { Scheduler, QueryOrderScheduler, RoundRobinScheduler } from '../data/scheduler';
 import { timer, Subscription } from 'rxjs';
 import { Schema } from '../data/schema';
 import { Job, AggregateJob } from '../data/job';
@@ -28,6 +28,7 @@ export class BrowserEngine {
     isRunning = false;
     autoRun = false;
     activeTId: number;
+    alternate = false;
 
     constructor(private url: string, private schemaUrl: string) {
 
@@ -88,7 +89,7 @@ export class BrowserEngine {
 
     pauseQuery(query: Query) {
         query.pause();
-        this.reschedule();
+        this.reschedule(this.alternate);
     }
 
     pauseAllQueries() {
@@ -99,7 +100,7 @@ export class BrowserEngine {
 
     resumeQuery(query: Query) {
         query.resume();
-        this.reschedule();
+        this.reschedule(this.alternate);
     }
 
     resumeAllQueries() {
@@ -191,8 +192,15 @@ export class BrowserEngine {
         this.queue.reschedule();
     }
 
-    reschedule(scheduler?: Scheduler) {
-        if(scheduler) this.queue.scheduler = scheduler;
+    reschedule(alternate:boolean) {
+        let scheduler;
+
+        this.alternate = alternate;
+
+        if (alternate) scheduler = new RoundRobinScheduler(this.ongoingQueries);
+        else scheduler = new QueryOrderScheduler(this.ongoingQueries);
+
+        this.queue.scheduler = scheduler;
         this.queue.reschedule();
     }
 

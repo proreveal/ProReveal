@@ -20,7 +20,6 @@ import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
 import { Constants as C, Constants } from './constants';
 import { AndPredicate, EqualPredicate, Predicate } from './data/predicate';
-import { RoundRobinScheduler, QueryOrderScheduler } from './data/scheduler';
 import { Datum } from './data/datum';
 import { LoggerService, LogType } from './services/logger.service';
 import { QueryCreatorComponent } from './query-creator/query-creator.component';
@@ -91,8 +90,6 @@ export class AppComponent implements OnInit {
     dataViewerWhere: Predicate = null;
     filteredRows: any[] = [];
 
-    alternate = false;
-
     operator = Operators.LessThanOrEqualTo;
 
     data: string;
@@ -107,7 +104,7 @@ export class AppComponent implements OnInit {
         private storage:StorageService, private router:Router) {
         this.sortablejsOptions = {
             onUpdate: () => {
-                this.engine.reschedule();
+                this.engine.reschedule(this.engine.alternate);
             }
         };
     }
@@ -129,20 +126,20 @@ export class AppComponent implements OnInit {
             const run = +parameters.run || 0;
             const uid = parameters.uid || '0';
             const sid = parameters.sid || '0';
-            const alternate = parameters.alternate || this.alternate;
+            const alternate = parameters.alternate || false;
 
             this.data = data;
             this.isStudying = parameters.study || 0;
 
-            this.alternate = alternate;
+            this.engine.alternate = alternate;
 
             const tutorial = parameters.tutorial || 0;
-            if (tutorial) this.alternate = true;
+            if (tutorial) this.engine.alternate = true;
 
             this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
 
-            if (this.alternate)
-                this.engine.reschedule(new RoundRobinScheduler(this.engine.ongoingQueries));
+            if (this.engine.alternate)
+                this.engine.reschedule(true);
 
             this.engine.load().then(([dataset]) => {
                 if (!this.isStudying) this.logger.mute();
@@ -646,12 +643,8 @@ export class AppComponent implements OnInit {
 
     // ongoing query list
     alternateChange() {
-        let scheduler;
-        if (this.alternate) scheduler = new RoundRobinScheduler(this.engine.ongoingQueries);
-        else scheduler = new QueryOrderScheduler(this.engine.ongoingQueries);
-
-        this.logger.log(LogType.SchedulerChanged, scheduler.name);
-        this.engine.reschedule(scheduler);
+        this.logger.log(LogType.SchedulerChanged, {alternate: this.engine.alternate});
+        this.engine.reschedule(this.engine.alternate);
     }
 
     exportSafeguards() {
