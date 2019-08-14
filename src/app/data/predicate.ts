@@ -14,6 +14,8 @@ export abstract class Predicate {
     abstract toJSON(): any;
 
     static fromJSON(json: any, dataset: Dataset) {
+        if(!json) return null;
+
         if(json.type == 'and')
             return new AndPredicate(json.predicates.map(spec => Predicate.fromJSON(spec, dataset)))
 

@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit {
         ws.on('RES/login', (res:any) => {
             if(res.success) {
                 this.storage.code = res.code;
+                this.storage.engineType = 'remote';
                 this.go();
             }
         })
@@ -64,9 +65,7 @@ export class LoginComponent implements OnInit {
     }
 
     continueBrowser() {
-        this.storage.code = {
-            engineType: 'browser'
-        };
+        this.storage.engineType = 'browser';
 
         this.go();
 

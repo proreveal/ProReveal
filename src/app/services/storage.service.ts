@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
     providedIn: 'root'
 })
 export class StorageService {
-    code: any;
-
+    code: string;
+    engineType: string;
     constructor() { }
 }

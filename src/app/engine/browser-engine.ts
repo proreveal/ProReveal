@@ -21,8 +21,10 @@ export class BrowserEngine {
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
     queue: Queue = new Queue(this.scheduler);
-    queryDone: (query: Query) => void;
+    jobDone: (query: Query) => void;
+    queryCreated: (query: Query) => void;
     selectQueryDone: (where: Predicate, rows: Row[]) => void;
+
 
     runningJob: Job;
     isRunning = false;
@@ -141,8 +143,8 @@ export class BrowserEngine {
                 this.completedQueries.push(job.query);
             }
 
-            if (this.queryDone)
-                this.queryDone(job.query);
+            if (this.jobDone)
+                this.jobDone(job.query);
         }
 
         if(noDelay) {
@@ -181,15 +183,8 @@ export class BrowserEngine {
         return this.queue.empty();
     }
 
-    reorderOngoingQueries(queries: Query[]) {
-        let order = {};
-        queries.forEach((q, i) => order[q.id] = i + 1);
-        let n = this.ongoingQueries.length;
-        this.ongoingQueries.sort((a, b) => {
-            return (order[a.id] || n) - (order[b.id] || n);
-        });
-
-        this.queue.reschedule();
+    reordered() {
+        this.reschedule(this.alternate);
     }
 
     reschedule(alternate:boolean) {
@@ -203,6 +198,7 @@ export class BrowserEngine {
         this.queue.scheduler = scheduler;
         this.queue.reschedule();
     }
+
 
     get runningQuery() {
         if(this.runningJob) return this.runningJob.query;

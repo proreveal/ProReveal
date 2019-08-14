@@ -77,7 +77,7 @@ export abstract class Query {
     abstract toJSON(): any;
 
     static fromJSON(json: any, dataset: Dataset): Query {
-        let query: Query;
+        let query: AggregateQuery;
 
         if (json.type == Frequency1DQuery.name) {
             query = new Frequency1DQuery(
@@ -120,6 +120,16 @@ export abstract class Query {
         query.order = json.order;
         query.recentProgress.processedBlocks = json.numProcessedBlocks;
         query.recentProgress.processedRows = json.numProcessedRows;
+
+        if(json.result) {
+            let aggregateKeyValues = query.convertToAggregateKeyValues(json.result);
+            query.recentResult = {};
+            aggregateKeyValues.forEach(kv => {
+                query.recentResult[kv.key.hash] = kv;
+            });
+
+            if(query.updateAutomatically) query.sync();
+        }
 
         return query;
     }

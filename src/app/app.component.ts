@@ -98,13 +98,11 @@ export class AppComponent implements OnInit {
     isStudyMenuVisible = false;
     debug = false;
 
-
-
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage:StorageService, private router:Router) {
         this.sortablejsOptions = {
             onUpdate: () => {
-                this.engine.reschedule(this.engine.alternate);
+                this.engine.reordered();
             }
         };
     }
@@ -116,8 +114,9 @@ export class AppComponent implements OnInit {
         }
 
         let parameters = util.parseQueryParameters(location.search);
-        const engineType = this.storage.code.engineType;
+        const engineType = this.storage.engineType;
         this.engineType = engineType;
+
         this.debug = parameters.debug || 0;
 
         if(engineType == 'browser') {
@@ -202,7 +201,7 @@ export class AppComponent implements OnInit {
                     dataset.getFieldByName('Genre'),
                     'Comedy'
                 )])
-                this.create(query);
+                //this.create(query);
 
                 //dataset.
                 // let year = dataset.getFieldByName('YEAR');
@@ -222,8 +221,9 @@ export class AppComponent implements OnInit {
             });
         }
 
-        this.engine.queryDone = this.queryDone.bind(this);
+        this.engine.jobDone = this.jobDone.bind(this);
         this.engine.selectQueryDone = this.selectQueryDone.bind(this);
+        this.engine.queryCreated = this.queryCreated.bind(this);
     }
 
     emit(event: string) {
@@ -256,7 +256,7 @@ export class AppComponent implements OnInit {
         this.metadataEditor.toggle();
     }
 
-    queryDone(query: Query) {
+    jobDone(query: Query) {
         this.safeguards.forEach(sg => {
             if (sg.lastUpdated < sg.query.lastUpdated) {
                 sg.lastUpdated = sg.query.lastUpdated;
@@ -482,7 +482,11 @@ export class AppComponent implements OnInit {
         this.vis.backgroundClick();
     }
 
-    queryCreated($event: any) {
+    queryCreated(query: Query) {
+        this.querySelected(query);
+    }
+
+    queryRequestedFromVis($event: any) {
         let query: AggregateQuery = $event.query;
 
         this.create(query, Priority.Highest);

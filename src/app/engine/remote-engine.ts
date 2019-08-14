@@ -17,7 +17,8 @@ export class RemoteEngine {
     queries: Query[] = []; // all queries (order is meaningless)
     ongoingQueries: Query[] = []; // ongoing queries (highest -> lowest)
     completedQueries: Query[] = []; // complete queries (most recent -> oldest)
-    queryDone: (query: Query) => void;
+    jobDone: (query: Query) => void;
+    queryCreated: (query: Query) => void;
     selectQueryDone: (query: SelectQuery) => void;
     runningQuery: Query;
     isRunning = true;
@@ -51,6 +52,9 @@ export class RemoteEngine {
             this.queries.push(query);
             this.ongoingQueries.push(query);
             this.ongoingQueries.sort((a, b) => a.order - b.order);
+
+            this.queryCreated(query);
+
         });
 
         ws.on('result', (data: any) => {
@@ -59,20 +63,19 @@ export class RemoteEngine {
             const query = this.ongoingQueries.find(q => q.id === data.query.id) as AggregateQuery;
             if(!query) return; // query removed
 
-            let aggregateKeyValues = query.convertToAggregateKeyValues(data.query.result);
-
             query.lastUpdated = data.query.lastUpdated;
             query.recentProgress.processedRows = data.query.numProcessedRows;
             query.recentProgress.processedBlocks = data.query.numProcessedBlocks;
-            query.recentResult = {};
 
+            let aggregateKeyValues = query.convertToAggregateKeyValues(data.query.result);
+            query.recentResult = {};
             aggregateKeyValues.forEach(kv => {
                 query.recentResult[kv.key.hash] = kv;
             });
 
             if(query.updateAutomatically) query.sync();
 
-            this.queryDone(query);
+            this.jobDone(query);
         })
 
         ws.on('STATUS/job/start', (data:any) => {
@@ -146,10 +149,15 @@ export class RemoteEngine {
                     const query = Query.fromJSON(querySpec, this.dataset);
 
                     this.queries.push(query);
-                    this.ongoingQueries.push(query);
+
+                    if(query.done())
+                        this.completedQueries.push(query);
+                    else
+                        this.ongoingQueries.push(query);
                 })
 
                 this.ongoingQueries.sort((a, b) => a.order - b.order);
+                this.completedQueries.sort((a, b) => a.order - b.order);
             });
         });
     }
@@ -194,15 +202,17 @@ export class RemoteEngine {
         this.ws.emit('REQ/query/delete', query.toJSON());
     }
 
-    reorderOngoingQueries(queries: Query[]) {
-        let order = {};
-        queries.forEach((q, i) => order[q.id] = i + 1);
-        let n = this.ongoingQueries.length;
-        this.ongoingQueries.sort((a, b) => {
-            return (order[a.id] || n) - (order[b.id] || n);
-        });
+    reordered() {
+        let order:{[key: string]: number} = {};
+        let i = 0
+        this.completedQueries.forEach(q => {
+            order[q.id] = i++;
+        })
+        this.ongoingQueries.forEach(q => {
+            order[q.id] = i++;
+        })
 
-        this.ws.emit('REQ/queue/reschedule')
+        this.ws.emit('REQ/query/reorder', {order: order});
     }
 
     reschedule(alternate:boolean) {
