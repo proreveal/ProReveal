@@ -12,6 +12,7 @@ import { QueryCreatorComponent } from '../query-creator/query-creator.component'
 import { Priority } from '../engine/priority';
 import { Datum } from '../data/datum';
 import { LoggerService, LogType } from '../services/logger.service';
+import { StorageService } from '../services/storage.service';
 
 @Component({
     selector: 'vis',
@@ -63,14 +64,19 @@ export class VisComponent implements DoCheck {
     queryCreatorLeft = 500;
     selectedDatum: Datum = null;
 
-    constructor(private logger: LoggerService) { }
+    isMobile = false;
+
+    constructor(private logger: LoggerService, private storage: StorageService) {
+        this.isMobile = storage.isMobile();
+    }
 
     recommend(query: AggregateQuery) {
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
             return new BarsRenderer(
                 this,
                 this.tooltip,
-                this.logger
+                this.logger,
+                this.storage.isMobile() ? window.screen.availWidth - 15 : Constants.bars.width
             );
 
         if (query.groupBy.fields.length === 2 || query instanceof Histogram2DQuery)

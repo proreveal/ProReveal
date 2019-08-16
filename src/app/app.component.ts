@@ -94,7 +94,6 @@ export class AppComponent implements OnInit {
 
     data: string;
     isStudying = false;
-
     isStudyMenuVisible = false;
     debug = false;
 

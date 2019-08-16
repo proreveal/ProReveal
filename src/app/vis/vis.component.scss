@@ -161,6 +161,25 @@ button.border:hover {
     border-color: #dae0e5;
 }
 
+@media screen and (max-width: 720px) {
+    header {
+        font-size: 1em;
+    }
+
+    .text-sm {
+        font-size: .8rem;
+    }
+
+  /*  .progress-control {
+        order: 2;
+    }
+
+    .actions {
+        order: 1;
+    }
+*/
+}
+
 @import '../theme.scss';
 
 ::ng-deep .event-box {
@@ -249,3 +268,4 @@ button.border:hover {
     stroke: darken($variable2-highlight-color, 10%);
     stroke-width: 3px;
 }
+

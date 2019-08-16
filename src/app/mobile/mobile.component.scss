@@ -1,15 +1,8 @@
 @import "node_modules/bootstrap/scss/bootstrap.scss";
 
-@import 'theme.scss';
+@import '../theme.scss';
 
-
-#wrapper {
-    display: grid;
-    grid-template-rows: 56px 1fr auto;
-    grid-template-columns: 420px 1fr 300px;
-    width: 100vw;
-    height: 100vh;
-
+.container-fluid {
     user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
@@ -18,34 +11,28 @@
     -moz-user-select: none;
 }
 
+.title {
+    line-height: .8em;
+
+    img {
+        position: relative;
+        top: -2px;
+    }
+
+    small {
+        font-size: 0.7rem;
+    }
+}
+
 #navbar {
     grid-row: 1;
     grid-column: 1 / 4;
 }
 
-#metadata-editor {
-    grid-row: 2 / 4;
-    grid-column: 1 / 4;
-    /* position: absolute; */
-    z-index: 2000;
-    width: 100%;
-    overflow-x: scroll;
-    background: white;
-}
-
-#query-view {
-    grid-row: 2 / 4;
-    grid-column: 1;
-    display: grid;
-    grid-template-rows: auto auto 1fr;
-    grid-template-columns: 180px 240px;
-    overflow: hidden;
-}
-
 #new-query {
-    grid-row: 1;
-    grid-column: 1 / 3;
-    position: relative;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
     font-size: 0.9rem;
 
     button {
@@ -78,44 +65,23 @@
 }
 
 #completed-query-view-header {
-    grid-row: 2;
-    grid-column: 1;
     position: relative;
 }
 
 #completed-query-view {
-    grid-row: 3;
-    grid-column: 1;
-    overflow-y: scroll;
     overflow-x: hidden;
 }
 
 #ongoing-query-view-header {
-    grid-row: 2;
-    grid-column: 2;
     position: relative;
 }
 
 #ongoing-query-view {
-    grid-row: 3;
-    grid-column: 2;
-
-    display: grid;
-    grid-template-rows: 30px 1fr;
-    overflow-y: auto;
     position: relative;
-}
-
-#all {
-    /*position: -webkit-sticky;
-    position: sticky;
-    z-index: 10;
-    top:0;*/
 }
 
 #queries {
     // height: 100%;
-    overflow-y: scroll;
     overflow-x: hidden;
 }
 
@@ -123,20 +89,14 @@
     cursor: pointer;
 }
 
-.round-robin {
+#query-view {
     position: absolute;
-    top:.35rem;
-    right:0;
-    font-size: .8rem;
-
-    .form-check-input {
-        margin-top: .1rem;
-        margin-left: -1rem;
-    }
+    width: 100%;
+    z-index: 10;
 }
 
 .query {
-    padding: 3px;
+    padding: 6px;
     background: #fefefe;
     position: relative;
     width: 100%;
@@ -144,8 +104,8 @@
     border:1px solid $border-color;
 
     progress-ring {
-        height: 56px;
-        flex-basis: 56px;
+        height: 40px;
+        flex-basis: 40px;
     }
 
     .field-names {
@@ -170,10 +130,6 @@
     &:hover {
         cursor: pointer;
         background: lighten($ui-background-color, 3%);
-
-        .actions {
-            display: block;
-        }
     }
 
     &.selected {
@@ -192,12 +148,6 @@
 }
 
 .actions {
-    position: absolute;
-    z-index: 10;
-    top: 0;
-    right: 0;
-    display: none;
-
     button {
         font-size: .8rem;
         background-color: transparent;
@@ -214,10 +164,7 @@
 }
 
 #main {
-    grid-row: 2;
-    grid-column: 2;
-    overflow: scroll;
-    position: relative;
+
 }
 
 vis {

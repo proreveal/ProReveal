@@ -15,7 +15,9 @@ export class ProgressRingComponent implements OnInit, OnChanges {
     private g;
     private percent;
 
-    outerRadius = 28;
+    @Input() radius:number = 28;
+    @Input() fontSize:string = '1em';
+
     constants = Constants;
 
     constructor() {
@@ -26,19 +28,20 @@ export class ProgressRingComponent implements OnInit, OnChanges {
         let g = svg.append('g');
 
         svg
-            .attr('width', this.outerRadius * 2)
-            .attr('height', this.outerRadius * 2)
+            .attr('width', this.radius * 2)
+            .attr('height', this.radius * 2)
 
         this.g = g;
 
         g
-            .attr('transform', d3util.translate(this.outerRadius, this.outerRadius));
+            .attr('transform', d3util.translate(this.radius, this.radius));
 
         this.percent = g.append('text')
             .attr('font-family', 'Roboto Condensed')
             .attr('text-anchor', 'middle')
             .attr('dy', '.33em')
             .attr('dx', '.1em')
+            .attr('font-size', this.fontSize);
 
         this.update();
     }
@@ -61,8 +64,8 @@ export class ProgressRingComponent implements OnInit, OnChanges {
         }
 
         let arc = d3.arc()
-            .innerRadius(this.outerRadius - 5)
-            .outerRadius(this.outerRadius);
+            .innerRadius(this.radius - 5)
+            .outerRadius(this.radius);
 
         let pie = d3.pie().value((d: any) => d).sort(null)
         let data = pie([progress, ongoing, 1 - progress - ongoing]);

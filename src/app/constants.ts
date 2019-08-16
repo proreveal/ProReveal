@@ -21,7 +21,8 @@ export const Constants = Object.freeze({
         },
         circleRadius: 3,
         initiallyVisibleCategories: 50,
-        minimumGradientWidth: 3
+        minimumGradientWidth: 3,
+        width: 960
     },
     heatmap: {
         rowHeight: 20,
@@ -37,7 +38,8 @@ export const Constants = Object.freeze({
                 width: 20
             }
         },
-        initiallyVisibleCategories: 40
+        initiallyVisibleCategories: 40,
+        width: 960
     },
     history: {
         height: 40,
@@ -53,5 +55,5 @@ export const Constants = Object.freeze({
     nullValueString: locale.nullValueString,
     currencyFormatter: locale.currencyFormatter,
 
-    host: 'ws://localhost:7999'
+    host: 'ws://147.46.240.230:7999'
 });

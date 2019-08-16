@@ -15,116 +15,119 @@
     </p>
 
     <div *ngIf="query" [hidden]="query.recentProgress.processedBlocks === 0">
-        <div class="progress-control">
-            <div class="progress mb-2">
-                <div class="progress-bar" role="progressbar"
-                    [style.width.%]="query.recentProgress.processedPercent() * 100"
-                    [attr.aria-valuenow]="query.recentProgress.processedPercent() * 100"
-                    aria-valuemin="0" aria-valuemax="100">
+        <div class="d-flex flex-column">
+            <div class="progress-control">
+                <div class="progress mb-2">
+                    <div class="progress-bar" role="progressbar"
+                        [style.width.%]="query.recentProgress.processedPercent() * 100"
+                        [attr.aria-valuenow]="query.recentProgress.processedPercent() * 100"
+                        aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                        [style.width.%]="query.recentProgress.ongoingPercent() * 100"
+                        [attr.aria-valuenow]="query.recentProgress.ongoingPercent() * 100"
+                        aria-valuemin="0" aria-valuemax="100">
+                    </div>
                 </div>
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                    [style.width.%]="query.recentProgress.ongoingPercent() * 100"
-                    [attr.aria-valuenow]="query.recentProgress.ongoingPercent() * 100"
-                    aria-valuemin="0" aria-valuemax="100">
+                <div class="text-center" id="visible-progress-indicator"
+                    [style.left.%]="query.visibleProgress.processedPercent() * 100"
+                >
+                    <fa-icon [icon]="['fas', 'caret-down']"></fa-icon> <br />
+                    <fa-icon [icon]="['far', 'eye']"></fa-icon>
+                </div>
+
+                <div class="pt-1 text-sm">
+                    Processed
+                    <span class="font-weight-bold text-primary">{{ query.recentProgress.processedRows | number }}</span>
+                    of
+                    <span [ngPlural]="query.recentProgress.numRows">
+                        <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> row</ng-template>
+                        <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.numRows | number }}</span> rows</ng-template>
+                    </span>
+
+                    ({{ query.recentProgress.processedPercent() | percent:'1.2' }})
                 </div>
             </div>
-            <div class="text-center" id="visible-progress-indicator"
-                [style.left.%]="query.visibleProgress.processedPercent() * 100"
-            >
-                <fa-icon [icon]="['fas', 'caret-down']"></fa-icon> <br />
-                <fa-icon [icon]="['far', 'eye']"></fa-icon>
+
+            <div class="d-flex justify-content-end actions">
+                <button type="button" class="btn border btn-sm ml-1"
+                    [hidden]="!query.aggregationLevelX"
+                    [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
+                    (click)="splitXBins()">
+                    <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                    {{ L.SplitXAxisBins }}
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    [hidden]="!query.aggregationLevelX"
+                    [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
+                    (click)="mergeXBins()">
+                    <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                    {{ L.MergeXAxisBins }}
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    [hidden]="!query.aggregationLevelY"
+                    [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
+                    (click)="splitYBins()">
+                    <div class="icon-stack">
+                        <fa-icon class="top" [icon]="['fas', 'angle-up']"></fa-icon>
+                        <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
+                        <fa-icon class="bottom" [icon]="['fas', 'angle-down']"></fa-icon>
+                    </div>
+                    {{ L.SplitYAxisBins }}
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    [hidden]="!query.aggregationLevelY"
+                    [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
+                    (click)="mergeYBins()">
+                    <div class="icon-stack">
+                        <fa-icon class="top" [icon]="['fas', 'angle-down']"></fa-icon>
+                        <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
+                        <fa-icon class="bottom" [icon]="['fas', 'angle-up']"></fa-icon>
+                    </div>
+                    {{ L.MergeYAxisBins }}
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    [hidden]="!query.aggregationLevel"
+                    [disabled]="query.aggregationLevel == query.minLevel || query.safeguards.length > 0"
+                    (click)="splitBins()">
+                    <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                    {{ L.SplitBins }}
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    [hidden]="!query.aggregationLevel"
+                    [disabled]="query.aggregationLevel == query.maxLevel || query.safeguards.length > 0"
+                    (click)="mergeBins()">
+                    <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                    {{ L.MergeBins }}
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    (click)="query.updateAutomatically=!query.updateAutomatically">
+                    <fa-icon icon="check-square" [hidden]="!query.updateAutomatically"></fa-icon>
+                    <fa-icon [icon]="['far', 'square']" [hidden]="query.updateAutomatically"></fa-icon>
+                    Update automatically
+                </button>
+
+                <button type="button" class="btn border btn-sm ml-1"
+                    [disabled]="query.updateAutomatically"
+                    (click)="query.sync();forceUpdate()">
+                    <fa-icon icon="sync-alt"></fa-icon>
+                    Sync
+                </button>
             </div>
-        </div>
-        <div class="d-flex flex-row justify-content-between mb-1">
-            <div class="pt-1 flex-grow-1">
-                Processed
-                <span class="font-weight-bold text-primary">{{ query.recentProgress.processedRows | number }}</span>
-                of
-                <span [ngPlural]="query.recentProgress.numRows">
-                    <ng-template ngPluralCase="=1"><span class="font-weight-bold">1</span> row</ng-template>
-                    <ng-template ngPluralCase="other"><span class="font-weight-bold">{{ query.recentProgress.numRows | number }}</span> rows</ng-template>
-                </span>
-
-                ({{ query.recentProgress.processedPercent() | percent:'1.2' }})
-            </div>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [hidden]="!query.aggregationLevelX"
-                [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
-                (click)="splitXBins()">
-                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
-                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
-                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
-                {{ L.SplitXAxisBins }}
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [hidden]="!query.aggregationLevelX"
-                [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
-                (click)="mergeXBins()">
-                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
-                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
-                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
-                {{ L.MergeXAxisBins }}
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [hidden]="!query.aggregationLevelY"
-                [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
-                (click)="splitYBins()">
-                <div class="icon-stack">
-                    <fa-icon class="top" [icon]="['fas', 'angle-up']"></fa-icon>
-                    <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
-                    <fa-icon class="bottom" [icon]="['fas', 'angle-down']"></fa-icon>
-                </div>
-                {{ L.SplitYAxisBins }}
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [hidden]="!query.aggregationLevelY"
-                [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
-                (click)="mergeYBins()">
-                <div class="icon-stack">
-                    <fa-icon class="top" [icon]="['fas', 'angle-down']"></fa-icon>
-                    <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
-                    <fa-icon class="bottom" [icon]="['fas', 'angle-up']"></fa-icon>
-                </div>
-                {{ L.MergeYAxisBins }}
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [hidden]="!query.aggregationLevel"
-                [disabled]="query.aggregationLevel == query.minLevel || query.safeguards.length > 0"
-                (click)="splitBins()">
-                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
-                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
-                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
-                {{ L.SplitBins }}
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [hidden]="!query.aggregationLevel"
-                [disabled]="query.aggregationLevel == query.maxLevel || query.safeguards.length > 0"
-                (click)="mergeBins()">
-                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
-                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
-                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
-                {{ L.MergeBins }}
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                (click)="query.updateAutomatically=!query.updateAutomatically">
-                <fa-icon icon="check-square" [hidden]="!query.updateAutomatically"></fa-icon>
-                <fa-icon [icon]="['far', 'square']" [hidden]="query.updateAutomatically"></fa-icon>
-                Update automatically
-            </button>
-
-            <button type="button" class="btn border btn-sm ml-1"
-                [disabled]="query.updateAutomatically"
-                (click)="query.sync();forceUpdate()">
-                <fa-icon icon="sync-alt"></fa-icon>
-                Sync
-            </button>
         </div>
         <button class="btn btn-sm btn-secondary w-100" [hidden]="!limitNumCategories"
             (click)="showAllCategories()">

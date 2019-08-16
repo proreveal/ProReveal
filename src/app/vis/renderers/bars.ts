@@ -45,7 +45,8 @@ export class BarsRenderer {
     visG;
     interactionG;
 
-    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService) {
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService,
+        public expectedWidth) {
     }
 
     setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -81,7 +82,7 @@ export class BarsRenderer {
 
         const height = C.bars.axis.height * 2 +
             C.bars.height * data.length + C.bars.label.height * 2;
-        const width = 800;
+        const width = this.expectedWidth;
 
         svg.attr('width', width).attr('height', height)
             .on('contextmenu', () => d3.event.preventDefault());

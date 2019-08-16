@@ -3,6 +3,7 @@ import { Constants } from '../constants';
 import * as io from 'socket.io-client';
 import { StorageService } from '../services/storage.service';
 import { Router } from '@angular/router';
+import { ScreenType } from '../vis/ScreenType';
 
 @Component({
     selector: 'app-login',
@@ -24,7 +25,6 @@ export class LoginComponent implements OnInit {
 
         ws.on('welcome', (serverInfo: any) => {
             this.info = serverInfo;
-            console.log(serverInfo);
             this.connected = true;
         })
 
@@ -58,10 +58,14 @@ export class LoginComponent implements OnInit {
     go() {
         this.ws.disconnect();
 
-        if(window.screen.availWidth < 720)
+        if(window.screen.availWidth < 720) {
+            this.storage.screenType = ScreenType.Mobile;
             this.router.navigate(['/m'])
-        else
+        }
+        else {
+            this.storage.screenType = ScreenType.Desktop;
             this.router.navigate(['/a'])
+        }
     }
 
     continueBrowser() {

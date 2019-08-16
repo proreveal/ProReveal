@@ -50,6 +50,7 @@ export class HeatmapRenderer {
     xTopLabels: d3.Selection<d3.BaseType, FieldGroupedValue, d3.BaseType, {}>;
     xBottomLabels: d3.Selection<d3.BaseType, FieldGroupedValue, d3.BaseType, {}>;
     yLabels: d3.Selection<d3.BaseType, FieldGroupedValue, d3.BaseType, {}>;
+    expectedWidth: number;
 
     limitNumCategories = true;
 
