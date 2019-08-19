@@ -98,6 +98,7 @@ export class MobileComponent implements OnInit {
     debug = false;
     showQueryList = false; //true;
     showInfo = false;
+    showGuardList = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage:StorageService, private router:Router) {
@@ -352,6 +353,7 @@ export class MobileComponent implements OnInit {
         this.rankConstant = null;
         this.valueConstant = null;
         this.toggle(SGT.None);
+        this.showGuardList = true;
     }
 
     createRankSafeguard() {
@@ -370,6 +372,7 @@ export class MobileComponent implements OnInit {
         this.rankConstant = null;
         this.valueConstant = null;
         this.toggle(SGT.None);
+        this.showGuardList = true;
     }
 
     createRangeSafeguard() {
@@ -386,6 +389,7 @@ export class MobileComponent implements OnInit {
         this.variable1 = null;
         this.rangeConstant = null;
         this.toggle(SGT.None);
+        this.showGuardList = true;
     }
 
     createComparativeSafeguard() {
@@ -403,6 +407,7 @@ export class MobileComponent implements OnInit {
         this.variable1 = null;
         this.variable2 = null;
         this.toggle(SGT.None);
+        this.showGuardList = true;
     }
 
     createDistributiveSafeguard() {
@@ -420,6 +425,7 @@ export class MobileComponent implements OnInit {
         this.activeQuery.safeguards.push(sg);
 
         this.toggle(SGT.None);
+        this.showGuardList = true;
     }
 
     cancelSafeguard() {

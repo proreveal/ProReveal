@@ -1,6 +1,6 @@
 <section class="navbar navbar-dark fixed-top bg-dark box-shadow justify-content-between px-1 py-1" id="navbar">
     <button class="navbar-brand btn btn-dark mr-1" [class.active]="showQueryList"
-    (click)="showQueryList=!showQueryList;toggle(SGT.None)">
+    (click)="showQueryList=!showQueryList;showGuardList=false;toggle(SGT.None)">
         <fa-icon [icon]="['fas', 'chart-bar']"></fa-icon>
     </button>
     <div class="text-light text-center title my-1">
@@ -15,6 +15,10 @@
     <div>
         <button class="btn text-light" (click)="showInfo=!showInfo">
             <fa-icon [icon]="['fas', 'info']"></fa-icon>
+        </button>
+        <button class="navbar-brand btn btn-dark mr-0" [class.active]="showGuardList"
+            (click)="showGuardList=!showGuardList;showQueryList=false;toggle(SGT.None)">
+            <fa-icon [icon]="['fas', 'tasks']"></fa-icon>
         </button>
     </div>
     <div [hidden]="!showInfo">
@@ -159,6 +163,7 @@
     </div>
     <section id="main" class="row p-1"
         [class.query-visible]="showQueryList"
+        [class.guard-visible]="showGuardList"
         (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
@@ -192,7 +197,10 @@
 
     </section>
 
-    <section id="safeguard-view" class="row" [hidden]="true">
+    <div id="close-safeguard-view" [hidden]="!showGuardList" (click)="showGuardList=false">
+    </div>
+    <section id="safeguard-view" class="bg-light border-left"
+        [class.visible]="showGuardList">
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             {{ L.Safeguards }}
         </h3>

@@ -129,6 +129,7 @@ export abstract class Query {
         query.order = json.order;
         query.recentProgress.processedBlocks = json.numProcessedBlocks;
         query.recentProgress.processedRows = json.numProcessedRows;
+        query.lastUpdated = json.lastUpdated;
 
         if (json.result) {
             let aggregateKeyValues = query.convertToAggregateKeyValues(json.result);

@@ -66,7 +66,7 @@ $button-height: 38px;
 
 #close-query-view {
     position: fixed;
-    width: $query-view-width;
+    width: calc(100% - #{$query-view-width});
     z-index: 10;
     top: $navbar-height;
     height: calc(100% - #{$navbar-height});
@@ -190,7 +190,10 @@ $button-height: 38px;
 
     &.query-visible {
         transform: translateX($query-view-width);
-        //left: $query-view-width;
+    }
+
+    &.guard-visible {
+        transform: translateX(-$query-view-width);
     }
 }
 
@@ -211,13 +214,39 @@ $button-height: 38px;
     }
 }
 
+#close-safeguard-view {
+    position: fixed;
+    width: calc(100% - #{$query-view-width});
+    z-index: 10;
+    top: $navbar-height;
+    height: calc(100% - #{$navbar-height});
+    left: 0px;
+    right: $query-view-width;
+    background: transparent;
+}
+
 #safeguard-view {
     display: flex;
     flex-direction: column;
+
+    position: fixed;
+    width: $query-view-width;
+    z-index: 10;
+    top: $navbar-height;
+    height: calc(100% - #{$navbar-height});
+    left: 100%;
+    transition: left .3s ease-in-out;
+    right: -$query-view-width;
+    overflow-x: hidden;
+
+    &.visible {
+        right: 0;
+        left: calc(100% - #{$query-view-width});
+    }
 }
 
 #safeguard-list {
-    overflow-y: scroll;
+    overflow-y: auto;
     flex-grow: 1;
 }
 
