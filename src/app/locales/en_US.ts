@@ -90,6 +90,10 @@ export const Locale_en_US = Object.freeze({
     PauseAll: 'Pause All',
     ResumeAll: 'Resume All',
 
+
+    NoOngoingQueries: 'There is no visualization currently being processed. Create one by tapping the "New Visualization" button below.',
+    NoCompletedQueries: 'There is no completed visualization.',
+
     XLabelTitleFormatter: (q: AggregateQuery) => `${Locale_en_US[q.approximator.name.toUpperCase()]} of ${q.target.name}`,
     currencyFormatter: (usd: number) => {
         return '$' + d3format.format('2s')(usd);

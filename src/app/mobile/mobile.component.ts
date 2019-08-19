@@ -96,7 +96,7 @@ export class MobileComponent implements OnInit {
     isStudying = false;
     isStudyMenuVisible = false;
     debug = false;
-    showQueryList = false;
+    showQueryList = true;
     showInfo = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
@@ -115,8 +115,10 @@ export class MobileComponent implements OnInit {
         }
 
         // dirty fix
+        document.querySelector('html').style.height = '100%';
         document.querySelector('body').style.overflowY = 'auto';
-        (document.querySelector('app-root') as HTMLElement).style.overflowY = 'visible';
+        document.querySelector('body').style.minHeight = '100%';
+        (document.querySelector('app-root') as HTMLElement).style.overflowY = 'auto';
 
         let parameters = util.parseQueryParameters(location.search);
         const engineType = this.storage.engineType;
@@ -289,16 +291,10 @@ export class MobileComponent implements OnInit {
 
         this.logger.log(LogType.VisualizationSelected, query.toLog());
 
-        if (this.activeQuery === query)
-            this.activeQuery = null;
-        else if (this.activeQuery) {
-            this.activeQuery.updateAutomatically = true;
-            this.activeQuery = query;
+        if (this.activeQuery) {
             this.toggle(SGT.None);
         }
-        else {
-            this.activeQuery = query;
-        }
+        this.activeQuery = query;
     }
 
     queryPauseClick(query: AggregateQuery, $event: UIEvent) {
@@ -479,6 +475,7 @@ export class MobileComponent implements OnInit {
 
     visBackgroundClick() {
         this.vis.backgroundClick();
+        this.showQueryList = false;
     }
 
     queryCreated(query: Query) {

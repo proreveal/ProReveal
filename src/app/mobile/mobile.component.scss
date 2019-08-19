@@ -1,6 +1,10 @@
 @import "node_modules/bootstrap/scss/bootstrap.scss";
 
-@import '../theme.scss';
+@import "../theme.scss";
+
+$navbar-height: 50px;
+$query-view-width: 300px;
+$button-height: 38px;
 
 .container-fluid {
     user-select: none;
@@ -12,7 +16,7 @@
 }
 
 .title {
-    line-height: .8em;
+    line-height: 0.8em;
 
     img {
         position: relative;
@@ -32,7 +36,8 @@
 #new-query {
     position: fixed;
     bottom: 0;
-    width: 100%;
+    left: 0;
+    width: $query-view-width;
     font-size: 0.9rem;
 
     button {
@@ -40,15 +45,13 @@
     }
 
     #query-creator {
-        background:white;
+        background: white;
         width: 100%;
-        position: absolute;
-        z-index:100;
     }
 }
 
 .section-header {
-    font-family: 'Roboto Condensed', 'Noto Sans KR';
+    font-family: "Roboto Condensed", "Noto Sans KR";
     background: $ui-background-color;
     margin: 0;
     padding: 0;
@@ -56,7 +59,7 @@
 }
 
 .section-subheader {
-    font-family: 'Roboto Condensed', 'Noto Sans KR';
+    font-family: "Roboto Condensed", "Noto Sans KR";
     background: lighten($ui-background-color, 4%);
     margin: 0;
     padding: 0;
@@ -64,16 +67,8 @@
     padding: 0.2rem;
 }
 
-#completed-query-view-header {
-    position: relative;
-}
-
 #completed-query-view {
     overflow-x: hidden;
-}
-
-#ongoing-query-view-header {
-    position: relative;
 }
 
 #ongoing-query-view {
@@ -89,10 +84,25 @@
     cursor: pointer;
 }
 
-#query-view {
-    position: absolute;
+.container-stretched {
     width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    min-height: 100%;
+}
+
+#query-view {
+    position: fixed;
+    width: $query-view-width;
     z-index: 10;
+    top: $navbar-height;
+    height: calc(100% - #{$navbar-height} - #{$button-height});
+    overflow-y: scroll;
+    left: 0px;
+    right: calc(100% - #{$query-view-width});
+    padding-bottom: $button-height;
 }
 
 .query {
@@ -100,8 +110,7 @@
     background: #fefefe;
     position: relative;
     width: 100%;
-    overflow:hidden;
-    border:1px solid $border-color;
+    overflow: hidden;
 
     progress-ring {
         height: 40px;
@@ -119,12 +128,12 @@
     .field-names div {
         white-space: nowrap;
         overflow: hidden;
-        width: calc(100% - .5rem);
+        width: calc(100% - 0.5rem);
     }
 
     .filtered-by {
-        opacity: .5;
-        font-family: 'Roboto Condensed', 'Noto Sans KR';
+        opacity: 0.5;
+        font-family: "Roboto Condensed", "Noto Sans KR";
     }
 
     &:hover {
@@ -149,7 +158,7 @@
 
 .actions {
     button {
-        font-size: .8rem;
+        font-size: 0.8rem;
         background-color: transparent;
         border: 0;
         cursor: pointer;
@@ -157,17 +166,14 @@
 }
 
 .state-icon {
-    font-size:0.6em;
+    font-size: 0.6em;
     position: absolute;
-    left:3px;
-    top:3px;
+    left: 3px;
+    top: 3px;
 }
 
 #main {
-
-}
-
-vis {
+    margin-top: $navbar-height;
     min-height: 100%;
 }
 
@@ -200,7 +206,6 @@ vis {
     flex-grow: 1;
 }
 
-
 #safeguard-config-view {
     grid-row: 3;
     grid-column: 2;
@@ -211,11 +216,11 @@ vis {
 }
 
 .guide {
-    font-size:.9rem;
+    font-size: 0.9rem;
 
     .tip {
         font-family: #aaa;
-        font-family: 'Roboto Condensed', 'Noto Sans KR';
+        font-family: "Roboto Condensed", "Noto Sans KR";
         font-weight: bold;
     }
 }
@@ -270,22 +275,20 @@ vis {
     background: lighten($constant-highlight-color, 50%);
 }
 
-
 #mark-complete {
     position: fixed;
     right: 0;
     bottom: 0;
 }
 
-
 .cursor {
     position: absolute;
     transform: scale(2);
-    z-index:10001;
+    z-index: 10001;
 }
 
 .export-safeguards {
-    float:right;
+    float: right;
 }
 
 ::ng-deep .modal-xxl {

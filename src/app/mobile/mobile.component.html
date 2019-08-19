@@ -1,75 +1,75 @@
-<div class="container-fluid" (window:beforeunload)="unload()" *ngIf="engine">
-    <section class="row navbar navbar-dark bg-dark box-shadow justify-content-between px-1 py-1" id="navbar">
-        <button class="navbar-brand btn btn-dark mr-1" [class.active]="showQueryList" (click)="showQueryList=!showQueryList">
-            <fa-icon [icon]="['fas', 'bars']"></fa-icon>
-        </button>
-        <div class="text-light text-center title my-1">
-            <div>
-                <a href="/" class="text-light">
-                <img src="assets/eye-white.png" width="20" height="20" class="d-inline-block" alt="">
-                ProReveal
-                </a>
-            </div>
-            <small *ngIf="engine.dataset">({{ engine.dataset.name }})</small>
-        </div>
+<section class="navbar navbar-dark fixed-top bg-dark box-shadow justify-content-between px-1 py-1" id="navbar">
+    <button class="navbar-brand btn btn-dark mr-1" [class.active]="showQueryList" (click)="showQueryList=!showQueryList">
+        <fa-icon [icon]="['fas', 'chart-bar']"></fa-icon>
+    </button>
+    <div class="text-light text-center title my-1">
         <div>
-            <button class="btn text-light" (click)="showInfo=!showInfo">
-                <fa-icon [icon]="['fas', 'info']"></fa-icon>
+            <a href="/" class="text-light">
+            <img src="assets/eye-white.png" width="20" height="20" class="d-inline-block" alt="">
+            ProReveal
+            </a>
+        </div>
+        <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }})</small>
+    </div>
+    <div>
+        <button class="btn text-light" (click)="showInfo=!showInfo">
+            <fa-icon [icon]="['fas', 'info']"></fa-icon>
+        </button>
+    </div>
+    <div [hidden]="!showInfo">
+        <ng-container *ngIf="engineType == 'browser' && !isStudying && debug">
+            <span class="text-light navbar-text">
+                Debug Menu
+            </span>
+            &nbsp;
+            <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.autoRun">
+                <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                Auto Run
             </button>
-        </div>
-        <div [hidden]="!showInfo">
-            <ng-container *ngIf="engineType == 'browser' && !isStudying && debug">
-                <span class="text-light navbar-text">
-                    Debug Menu
+            <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.autoRun">
+                <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                Pause
+            </button>
+            &nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="runMany(1)">Run a job</button>
+            &nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="runMany(10)">Run 10 jobs</button>
+            &nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="runMany(100)">Run 100 jobs</button>&nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="testC()">C</button>&nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="testN()">N</button>&nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="testCN()">CN</button>&nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
+            <button class="btn btn-sm btn-secondary" (click)="go()">Socket</button>&nbsp;
+        </ng-container>
+        <div *ngIf="engineType == 'remote'">
+            <ng-container *ngIf="engine.info">
+                <span class="text-light small">
+                    Connected to <strong>{{engine.url}}</strong> (ProReveal Engine {{ engine.info.version }}) <ng-container *ngIf="engine.info.backend == 'spark'">
+                    (Spark Backend {{ engine.info.version }},
+                    Apache Spark {{ engine.info.sparkVersion }}, Master: {{ engine.info.master }},
+                    <a href="{{ engine.info.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
                 </span>
-                &nbsp;
-                <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.autoRun">
-                    <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                    Auto Run
-                </button>
-                <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.autoRun">
-                    <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                    Pause
-                </button>
-                &nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="runMany(1)">Run a job</button>
-                &nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="runMany(10)">Run 10 jobs</button>
-                &nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="runMany(100)">Run 100 jobs</button>&nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="testC()">C</button>&nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="testN()">N</button>&nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="testCN()">CN</button>&nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
-                <button class="btn btn-sm btn-secondary" (click)="go()">Socket</button>&nbsp;
             </ng-container>
-            <div *ngIf="engineType == 'remote'">
-                <ng-container *ngIf="engine.info">
-                    <span class="text-light small">
-                        Connected to <strong>{{engine.url}}</strong> (ProReveal Engine {{ engine.info.version }}) <ng-container *ngIf="engine.info.backend == 'spark'">
-                        (Spark Backend {{ engine.info.version }},
-                        Apache Spark {{ engine.info.sparkVersion }}, Master: {{ engine.info.master }},
-                        <a href="{{ engine.info.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
-                    </span>
-                </ng-container>
-                <ng-container *ngIf="!engine.info">
-                    <span class="text-light small">
-                        <fa-icon [icon]="['fas', 'exclamation-circle']"></fa-icon>
-                        Disconnected.
-                        Trying to connect to {{ engine.url }}
-                    </span>
-                </ng-container>
-            </div>
+            <ng-container *ngIf="!engine.info">
+                <span class="text-light small">
+                    <fa-icon [icon]="['fas', 'exclamation-circle']"></fa-icon>
+                    Disconnected.
+                    Trying to connect to {{ engine.url }}
+                </span>
+            </ng-container>
         </div>
-    </section>
-    <section id="query-view" class="row flex-column" [hidden]="!showQueryList">
+    </div>
+</section>
+<div class="container-stretched bg-light" (window:beforeunload)="unload()" *ngIf="engine">
+    <section id="query-view" class="bg-light border-right shadow" [hidden]="!showQueryList">
         <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
             {{ L.OngoingVisualization }}
         </h6>
 
         <section id="ongoing-query-view" class="styled-scroll">
-            <div class="btn-group w-100 rounded-0 border-bottom" role="group" id="all">
+            <div [hidden]="engine.ongoingQueries.length == 0" class="btn-group w-100 rounded-0 border-bottom" role="group" id="all">
                 <button type="button" class="btn btn-sm btn-light" (click)="resumeAll()">
                     <fa-icon [icon]="['fas', 'play']"></fa-icon>
                     {{ L.ResumeAll }}
@@ -88,7 +88,7 @@
             <!-- [sortablejs]="engine.ongoingQueries"
                 [sortablejsOptions]="sortablejsOptions">-->
                 <div *ngFor="let query of engine.ongoingQueries">
-                    <div class="query d-flex flex-row" (click)="querySelected(query)"
+                    <div class="query d-flex flex-row border-bottom" (click)="querySelected(query)"
                         [class.selected]="activeQuery === query"
                         [class.highlighted]="highlightedQuery === query">
                         <progress-ring
@@ -103,7 +103,7 @@
                                 {{ field.name }}<span *ngIf="!isLast" class="mr-2">,</span>
                             </span>
                             <div *ngIf="query.where">
-                                <span class="filtered-by mr-2">FILTERED BY</span>
+                                <span class="filtered-by mr-2">WITH</span>
                                 <span *ngFor="let pred of query.where.predicates; last as isLast">
                                     <field-badge [field]="pred.target" class="mr-1"></field-badge>
                                     <predicate-indicator [predicate]="pred"></predicate-indicator><span *ngIf="!isLast" class="mr-2">,</span>
@@ -127,35 +127,41 @@
                     </div>
                 </div>
             </div>
+            <div [hidden]="engine.ongoingQueries.length > 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
+                {{ L.NoOngoingQueries }}
+            </div>
         </section>
         <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">
             {{ L.CompletedVisualization }}
         </h3>
         <section id="completed-query-view" class="styled-scroll bg-light">
             <ng-container *ngFor="let query of engine.completedQueries">
-                <div class="query" (click)="querySelected(query)"
+                <div class="query d-flex flex-row" (click)="querySelected(query)"
                     [class.selected]="activeQuery === query"
                     [class.highlighted]="highlightedQuery === query">
                     <div class="field-names m-0 p-0">
-                        <div *ngFor="let field of query.fields">
+                        <span *ngFor="let field of query.fields; last as isLast">
                             <field-badge [field]="field"></field-badge>
-                            {{ field.name }}
-                        </div>
-                        <ng-container *ngIf="query.where">
-                            <div class="filtered-by">FILTERED BY</div>
-                            <div *ngFor="let pred of query.where.predicates">
+                            {{ field.name }}<span *ngIf="!isLast" class="mr-2">,</span>
+                        </span>
+                        <div *ngIf="query.where">
+                            <span class="filtered-by mr-2">WITH</span>
+                            <span *ngFor="let pred of query.where.predicates; last as isLast">
                                 <field-badge [field]="pred.target" class="mr-1"></field-badge>
-                                <predicate-indicator [predicate]="pred"></predicate-indicator>
-                            </div>
-                        </ng-container>
+                                <predicate-indicator [predicate]="pred"></predicate-indicator><span *ngIf="!isLast" class="mr-2">,</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="actions d-flex align-items-center">
+                        <button class="btn px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
+                            <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                        </button>
                     </div>
                 </div>
-                <div class="actions" *ngIf="activeQuery === query">
-                    <button class="btn btn-light" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
-                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                    </button>
-                </div>
             </ng-container>
+            <div [hidden]="engine.completedQueries.length > 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
+                {{ L.NoCompletedQueries }}
+            </div>
         </section>
 
         <section id="new-query" class="border-bottom">
@@ -205,16 +211,9 @@
 
     </section>
 
-    <section id="safeguard-view">
+    <section id="safeguard-view" class="row" [hidden]="true">
         <h3 class="section-header p-1 border-right-0 border-top border-bottom">
             {{ L.Safeguards }}
-
-            <a href="#" class="export-safeguards mr-1 text-dark"
-                (click)="exportSafeguards()">
-                <small>
-                    <fa-icon [icon]="['fas', 'download']"></fa-icon> Export
-                </small>
-            </a>
         </h3>
         <section id="safeguard-list" class="styled-scroll bg-light">
             <p *ngIf="safeguards.length === 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
