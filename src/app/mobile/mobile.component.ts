@@ -96,7 +96,7 @@ export class MobileComponent implements OnInit {
     isStudying = false;
     isStudyMenuVisible = false;
     debug = false;
-    showQueryList = true;
+    showQueryList = false; //true;
     showInfo = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,

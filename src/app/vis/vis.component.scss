@@ -1,3 +1,6 @@
+@import "node_modules/bootstrap/scss/bootstrap.scss";
+@import '../theme.scss';
+
 .vis-content {
     position: relative;
     // min-height: 100%;
@@ -118,6 +121,18 @@ header {
             stroke: white;
             fill: white;
         }
+    }
+
+    &.mobile {
+        position: fixed;
+        bottom: 0px !important;
+        left: 0 !important;
+        right: 0;
+        top: auto !important;
+        border: none;
+        border-top: 1px solid $border-color;
+        border-radius: 0px;
+        width: 100%;
     }
 }
 

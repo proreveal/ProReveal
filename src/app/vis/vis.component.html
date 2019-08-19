@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end actions">
+            <div class="d-flex justify-content-end actions mt-1">
                 <button type="button" class="btn border btn-sm ml-1"
                     [hidden]="!query.aggregationLevelX"
                     [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
@@ -143,7 +143,8 @@
         [style.top.px]="dropdownTop"
         [style.left.px]="dropdownLeft"
         (click)="$event.stopPropagation()"
-        [hidden]="!isDropdownVisible">
+        [hidden]="!isDropdownVisible"
+        [class.mobile]="isMobile">
         <h6 class="dropdown-header px-3" *ngIf="selectedDatum">
             {{ selectedDatum.keys.list[0].valueString() }}<ng-container *ngIf="selectedDatum.keys.list.length > 1"><!--
             -->, {{ selectedDatum.keys.list[1].valueString() }}

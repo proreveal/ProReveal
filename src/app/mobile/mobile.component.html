@@ -1,5 +1,6 @@
 <section class="navbar navbar-dark fixed-top bg-dark box-shadow justify-content-between px-1 py-1" id="navbar">
-    <button class="navbar-brand btn btn-dark mr-1" [class.active]="showQueryList" (click)="showQueryList=!showQueryList">
+    <button class="navbar-brand btn btn-dark mr-1" [class.active]="showQueryList"
+    (click)="showQueryList=!showQueryList;toggle(SGT.None)">
         <fa-icon [icon]="['fas', 'chart-bar']"></fa-icon>
     </button>
     <div class="text-light text-center title my-1">
@@ -9,7 +10,7 @@
             ProReveal
             </a>
         </div>
-        <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }})</small>
+        <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }}, SESSION CODE: <strong>{{ storage.code}}</strong>)</small>
     </div>
     <div>
         <button class="btn text-light" (click)="showInfo=!showInfo">
@@ -89,13 +90,13 @@
                             <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
 
                             <div class="actions d-flex align-items-center">
-                                <button class="btn px-2 py-1" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
+                                <button class="btn px-2 py-0" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
                                     <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                                 </button>
-                                <button class="btn px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
+                                <button class="btn px-2 py-0" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
                                     <fa-icon [icon]="['fas', 'play']"></fa-icon>
                                 </button>
-                                <button class="btn px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
+                                <button class="btn px-2 py-0" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
                                     <fa-icon [icon]="['fas', 'times']"></fa-icon>
                                 </button>
                             </div>
@@ -128,7 +129,7 @@
                             </div>
                         </div>
                         <div class="actions d-flex align-items-center">
-                            <button class="btn px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
+                            <button class="btn px-2 py-0" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
                                 <fa-icon [icon]="['fas', 'times']"></fa-icon>
                             </button>
                         </div>
@@ -210,7 +211,7 @@
         </section>
     </section>
 
-    <section id="safeguard-config-view" class="border-top border-right px-2 pb-1"
+    <section id="safeguard-config-view" class="border-top"
         [hidden]="activeSafeguardPanel == SGT.None" *ngIf="activeQuery">
 
         <!-- Value -->

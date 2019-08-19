@@ -10,8 +10,8 @@
 --><ng-container *ngIf="variable.isCombined"><span class="pl-1 where"></span><!--
 --><field-grouped-value-indicator [showName]="true" [fieldGroupedValue]="variable.first.fieldGroupedValue"></field-grouped-value-indicator><span class="ml-1 and"></span><!--
 --><field-grouped-value-indicator [showName]="true" [fieldGroupedValue]="variable.second.fieldGroupedValue"></field-grouped-value-indicator></ng-container><!--
---><ng-container *ngFor="let pred of query.where.predicates">
+--><ng-container *ngIf="query.where"><ng-container *ngFor="let pred of query.where.predicates">
     <span class="px-1 and"></span><predicate-indicator [predicate]="pred"></predicate-indicator>
-</ng-container>
+</ng-container></ng-container>
 </span>
 
