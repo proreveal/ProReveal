@@ -62,42 +62,85 @@
         </div>
     </div>
 </section>
-<div class="container-stretched bg-light" (window:beforeunload)="unload()" *ngIf="engine">
-    <section id="query-view" class="bg-light border-right shadow" [hidden]="!showQueryList">
-        <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
-            {{ L.OngoingVisualization }}
-        </h6>
+<div class="container-stretched bg-danger" (window:beforeunload)="unload()" *ngIf="engine">
+    <section id="query-view" class="bg-light border-right" [class.visible]="showQueryList">
+        <div class="query-view-scroll">
+            <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
+                {{ L.OngoingVisualization }}
+            </h6>
 
-        <section id="ongoing-query-view" class="styled-scroll">
-            <div [hidden]="engine.ongoingQueries.length == 0" class="btn-group w-100 rounded-0 border-bottom" role="group" id="all">
-                <button type="button" class="btn btn-sm btn-light" (click)="resumeAll()">
-                    <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                    {{ L.ResumeAll }}
-                </button>
-                <button type="button" class="btn btn-sm btn-light border-left" (click)="pauseAll()">
-                    <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                    {{ L.PauseAll }}
-                </button>
-                <button type="button" class="btn btn-sm btn-light border-left" (click)="engine.alternate=!engine.alternate;alternateChange()">
-                    <fa-icon [icon]="['far', 'square']" [hidden]="engine.alternate"></fa-icon>
-                    <fa-icon [icon]="['far', 'check-square']" [hidden]="!engine.alternate"></fa-icon>
-                    {{ L.Alternate }}
-                </button>
-            </div>
-            <div id="queries" class="styled-scroll bg-light">
-            <!-- [sortablejs]="engine.ongoingQueries"
-                [sortablejsOptions]="sortablejsOptions">-->
-                <div *ngFor="let query of engine.ongoingQueries">
+            <section id="ongoing-query-view" class="styled-scroll">
+                <div [hidden]="engine.ongoingQueries.length == 0" class="btn-group w-100 rounded-0 border-bottom" role="group" id="all">
+                    <button type="button" class="btn btn-sm btn-light" (click)="resumeAll()">
+                        <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                        {{ L.ResumeAll }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border-left" (click)="pauseAll()">
+                        <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                        {{ L.PauseAll }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border-left" (click)="engine.alternate=!engine.alternate;alternateChange()">
+                        <fa-icon [icon]="['far', 'square']" [hidden]="engine.alternate"></fa-icon>
+                        <fa-icon [icon]="['far', 'check-square']" [hidden]="!engine.alternate"></fa-icon>
+                        {{ L.Alternate }}
+                    </button>
+                </div>
+                <div id="queries" class="styled-scroll bg-light">
+                <!-- [sortablejs]="engine.ongoingQueries"
+                    [sortablejsOptions]="sortablejsOptions">-->
+                    <div *ngFor="let query of engine.ongoingQueries">
+                        <div class="query d-flex flex-row border-bottom" (click)="querySelected(query)"
+                            [class.selected]="activeQuery === query"
+                            [class.highlighted]="highlightedQuery === query">
+                            <progress-ring
+                                [processed]="query.recentProgress.processedPercent()"
+                                [ongoing]="query.recentProgress.ongoingPercent()"
+                                [radius]="20" [fontSize]="'0.7rem'"
+                                [style.opacity]="query.state === QS.Paused ? 0.2 : 1"></progress-ring>
+
+                            <div class="field-names m-0 p-0 ml-2">
+                                <span *ngFor="let field of query.fields; last as isLast">
+                                    <field-badge [field]="field"></field-badge>
+                                    {{ field.name }}<span *ngIf="!isLast" class="mr-2">,</span>
+                                </span>
+                                <div *ngIf="query.where">
+                                    <span class="filtered-by mr-2">WITH</span>
+                                    <span *ngFor="let pred of query.where.predicates; last as isLast">
+                                        <field-badge [field]="pred.target" class="mr-1"></field-badge>
+                                        <predicate-indicator [predicate]="pred"></predicate-indicator><span *ngIf="!isLast" class="mr-2">,</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
+                            <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
+
+                            <div class="actions d-flex align-items-center">
+                                <button class="btn px-2 py-1" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
+                                    <fa-icon [icon]="['fas', 'pause']"></fa-icon>
+                                </button>
+                                <button class="btn px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
+                                    <fa-icon [icon]="['fas', 'play']"></fa-icon>
+                                </button>
+                                <button class="btn px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
+                                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div [hidden]="engine.ongoingQueries.length > 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
+                    {{ L.NoOngoingQueries }}
+                </div>
+            </section>
+            <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">
+                {{ L.CompletedVisualization }}
+            </h3>
+            <section id="completed-query-view" class="styled-scroll bg-light">
+                <ng-container *ngFor="let query of engine.completedQueries">
                     <div class="query d-flex flex-row border-bottom" (click)="querySelected(query)"
                         [class.selected]="activeQuery === query"
                         [class.highlighted]="highlightedQuery === query">
-                        <progress-ring
-                            [processed]="query.recentProgress.processedPercent()"
-                            [ongoing]="query.recentProgress.ongoingPercent()"
-                            [radius]="20" [fontSize]="'0.7rem'"
-                            [style.opacity]="query.state === QS.Paused ? 0.2 : 1"></progress-ring>
-
-                        <div class="field-names m-0 p-0 ml-2">
+                        <div class="field-names m-0 p-0">
                             <span *ngFor="let field of query.fields; last as isLast">
                                 <field-badge [field]="field"></field-badge>
                                 {{ field.name }}<span *ngIf="!isLast" class="mr-2">,</span>
@@ -110,61 +153,19 @@
                                 </span>
                             </div>
                         </div>
-                        <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
-                        <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
-
                         <div class="actions d-flex align-items-center">
-                            <button class="btn px-2 py-1" [hidden]="query.state === QS.Paused" (click)="queryPauseClick(query, $event)">
-                                <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                            </button>
-                            <button class="btn px-2 py-1" [hidden]="query.state === QS.Running" (click)="queryRunClick(query, $event)">
-                                <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                            </button>
                             <button class="btn px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
                                 <fa-icon [icon]="['fas', 'times']"></fa-icon>
                             </button>
                         </div>
                     </div>
+                </ng-container>
+                <div [hidden]="engine.completedQueries.length > 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
+                    {{ L.NoCompletedQueries }}
                 </div>
-            </div>
-            <div [hidden]="engine.ongoingQueries.length > 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
-                {{ L.NoOngoingQueries }}
-            </div>
-        </section>
-        <h3 id="completed-query-view-header" class="section-header p-1 border-bottom border-right">
-            {{ L.CompletedVisualization }}
-        </h3>
-        <section id="completed-query-view" class="styled-scroll bg-light">
-            <ng-container *ngFor="let query of engine.completedQueries">
-                <div class="query d-flex flex-row" (click)="querySelected(query)"
-                    [class.selected]="activeQuery === query"
-                    [class.highlighted]="highlightedQuery === query">
-                    <div class="field-names m-0 p-0">
-                        <span *ngFor="let field of query.fields; last as isLast">
-                            <field-badge [field]="field"></field-badge>
-                            {{ field.name }}<span *ngIf="!isLast" class="mr-2">,</span>
-                        </span>
-                        <div *ngIf="query.where">
-                            <span class="filtered-by mr-2">WITH</span>
-                            <span *ngFor="let pred of query.where.predicates; last as isLast">
-                                <field-badge [field]="pred.target" class="mr-1"></field-badge>
-                                <predicate-indicator [predicate]="pred"></predicate-indicator><span *ngIf="!isLast" class="mr-2">,</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="actions d-flex align-items-center">
-                        <button class="btn px-2 py-1" (click)="queryRemoveClicked(query, confirmRemoval, rejectRemoval, $event)">
-                            <fa-icon [icon]="['fas', 'times']"></fa-icon>
-                        </button>
-                    </div>
-                </div>
-            </ng-container>
-            <div [hidden]="engine.completedQueries.length > 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
-                {{ L.NoCompletedQueries }}
-            </div>
-        </section>
-
-        <section id="new-query" class="border-bottom">
+            </section>
+        </div>
+        <section id="new-query">
             <button class="btn btn-secondary w-100 rounded-0" (click)="toggleQueryCreator()">
                 <fa-icon [icon]="['fas', 'plus']"></fa-icon>
                 {{ L.NewVisualization }}
@@ -179,7 +180,8 @@
                 ></query-creator>
         </section>
     </section>
-    <section id="main" class="row p-1 bg-light" (click)="visBackgroundClick()">
+    <section id="main" class="row p-1 bg-light"
+        [class.query-visible]="showQueryList"  (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
                 [innerHTML]="L.CreateANewVisualization">

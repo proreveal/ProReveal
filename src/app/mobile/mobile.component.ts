@@ -202,7 +202,7 @@ export class MobileComponent implements OnInit {
                     dataset.getFieldByName('Genre'),
                     'Comedy'
                 )])
-                this.create(query);
+                // this.create(query);
 
                 //dataset.
                 // let year = dataset.getFieldByName('YEAR');
@@ -295,6 +295,7 @@ export class MobileComponent implements OnInit {
             this.toggle(SGT.None);
         }
         this.activeQuery = query;
+        this.showQueryList = false;
     }
 
     queryPauseClick(query: AggregateQuery, $event: UIEvent) {

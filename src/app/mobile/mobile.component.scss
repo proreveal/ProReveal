@@ -6,15 +6,6 @@ $navbar-height: 50px;
 $query-view-width: 300px;
 $button-height: 38px;
 
-.container-fluid {
-    user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    -webkit-touch-callout: none;
-    -o-user-select: none;
-    -moz-user-select: none;
-}
-
 .title {
     line-height: 0.8em;
 
@@ -25,28 +16,6 @@ $button-height: 38px;
 
     small {
         font-size: 0.7rem;
-    }
-}
-
-#navbar {
-    grid-row: 1;
-    grid-column: 1 / 4;
-}
-
-#new-query {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: $query-view-width;
-    font-size: 0.9rem;
-
-    button {
-        display: block;
-    }
-
-    #query-creator {
-        background: white;
-        width: 100%;
     }
 }
 
@@ -91,6 +60,7 @@ $button-height: 38px;
     margin-right: auto;
     margin-left: auto;
     min-height: 100%;
+    overflow-x: hidden;
 }
 
 #query-view {
@@ -98,11 +68,20 @@ $button-height: 38px;
     width: $query-view-width;
     z-index: 10;
     top: $navbar-height;
-    height: calc(100% - #{$navbar-height} - #{$button-height});
-    overflow-y: scroll;
-    left: 0px;
+    height: calc(100% - #{$navbar-height});
+    left: -$query-view-width;
+    transition: left .3s ease-in-out;
     right: calc(100% - #{$query-view-width});
-    padding-bottom: $button-height;
+    overflow-x: hidden;
+
+    &.visible {
+        left: 0px;
+    }
+
+    .query-view-scroll {
+        overflow-y: scroll;
+        height: calc(100% - #{$button-height});
+    }
 }
 
 .query {
@@ -152,6 +131,24 @@ $button-height: 38px;
     }
 }
 
+#new-query {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: $query-view-width;
+    font-size: 0.9rem;
+
+    button {
+        display: block;
+    }
+
+    #query-creator {
+        background: white;
+        width: 100%;
+    }
+}
+
+
 #completed-query-view .field-names div {
     width: 100%;
 }
@@ -175,6 +172,15 @@ $button-height: 38px;
 #main {
     margin-top: $navbar-height;
     min-height: 100%;
+
+    transform: translateX(0px);
+
+    transition: transform .3s ease-in-out;
+
+    &.query-visible {
+        transform: translateX($query-view-width);
+        //left: $query-view-width;
+    }
 }
 
 #floating-svg-wrapper {
