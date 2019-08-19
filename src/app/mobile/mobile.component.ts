@@ -4,8 +4,7 @@ import { BrowserEngine } from '../engine/browser-engine';
 import { RemoteEngine } from '../engine/remote-engine';
 
 import { Priority } from '../engine/priority';
-
-import { Query, EmptyQuery, AggregateQuery, QueryState, SelectQuery } from '../data/query';
+import { Query, EmptyQuery, AggregateQuery, SelectQuery } from '../data/query';
 import { MetadataEditorComponent } from '../metadata-editor/metadata-editor.component';
 import * as util from '../util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +25,7 @@ import { QueryCreatorComponent } from '../query-creator/query-creator.component'
 import { Row } from '../data/dataset';
 import { StorageService } from '../services/storage.service';
 import { Router } from '@angular/router';
+import { QueryState } from '../data/query-state';
 
 @Component({
     selector: 'app-mobile',
@@ -96,7 +96,7 @@ export class MobileComponent implements OnInit {
     isStudying = false;
     isStudyMenuVisible = false;
     debug = false;
-    showQueryList = false;
+    showQueryList = true;
     showInfo = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
@@ -116,10 +116,12 @@ export class MobileComponent implements OnInit {
 
         // dirty fix
         document.querySelector('html').style.height = '100%';
-        document.querySelector('body').style.overflowY = 'auto';
-        document.querySelector('body').style.overflowX = 'hidden';
-        document.querySelector('body').style.minHeight = '100%';
-        document.querySelector('body').style.height = 'auto';
+        const body = document.querySelector('body');
+
+        body.style.overflowY = 'auto';
+        body.style.overflowX = 'hidden';
+        body.style.minHeight = '100%';
+        body.style.height = 'auto';
 
         let parameters = util.parseQueryParameters(location.search);
         const engineType = this.storage.engineType;
@@ -195,6 +197,14 @@ export class MobileComponent implements OnInit {
             this.logger.mute();
             this.engine = new RemoteEngine(Constants.host);
             this.engine.restore(this.storage.code).then(([dataset]) => {
+
+                if(this.engine.ongoingQueries.length > 0) {
+                    this.querySelected(this.engine.ongoingQueries[0]);
+                }
+                else if(this.engine.completedQueries.length > 0) {
+                    this.querySelected(this.engine.completedQueries[0]);
+                }
+
                 let query = new EmptyQuery(dataset)
                     .combine(dataset.getFieldByName('Score'))
                     .combine(dataset.getFieldByName('Country'));

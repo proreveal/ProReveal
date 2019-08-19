@@ -3,7 +3,7 @@ import { Constants } from '../constants';
 import * as io from 'socket.io-client';
 import { StorageService } from '../services/storage.service';
 import { Router } from '@angular/router';
-import { ScreenType } from '../vis/ScreenType';
+import { ScreenType } from '../vis/screen-type';
 
 @Component({
     selector: 'app-login',

@@ -17,32 +17,6 @@
         </button>
     </div>
     <div [hidden]="!showInfo">
-        <ng-container *ngIf="engineType == 'browser' && !isStudying && debug">
-            <span class="text-light navbar-text">
-                Debug Menu
-            </span>
-            &nbsp;
-            <button class="btn btn-sm btn-primary" (click)="engine.run()" [hidden]="engine.autoRun">
-                <fa-icon [icon]="['fas', 'play']"></fa-icon>
-                Auto Run
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="engine.pause()" [hidden]="!engine.autoRun">
-                <fa-icon [icon]="['fas', 'pause']"></fa-icon>
-                Pause
-            </button>
-            &nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="runMany(1)">Run a job</button>
-            &nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="runMany(10)">Run 10 jobs</button>
-            &nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="runMany(100)">Run 100 jobs</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testC()">C</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testN()">N</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testCN()">CN</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testNN()">NN</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="testCC()">CC</button>&nbsp;
-            <button class="btn btn-sm btn-secondary" (click)="go()">Socket</button>&nbsp;
-        </ng-container>
         <div *ngIf="engineType == 'remote'">
             <ng-container *ngIf="engine.info">
                 <span class="text-light small">
@@ -180,14 +154,17 @@
                 ></query-creator>
         </section>
     </section>
-    <section id="main" class="row p-1 pr-2"
-        [class.query-visible]="showQueryList"  (click)="visBackgroundClick()">
+    <div id="close-query-view" [hidden]="!showQueryList" (click)="showQueryList=false">
+    </div>
+    <section id="main" class="row p-1"
+        [class.query-visible]="showQueryList"
+        (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
-                [innerHTML]="L.CreateANewVisualization">
+                [innerHTML]="L.CreateANewVisualizationMobile">
             </span>
             <ng-container *ngIf="engine.ongoingQueries.length || engine.completedQueries.length">
-                {{ L.ChooseVisualizationToInspect }}
+                {{ L.ChooseVisualizationToInspectMobile }}
             </ng-container>
         </div>
 
@@ -201,6 +178,7 @@
         (numBinsChanged)="numBinsChanged()"
         (sgPanelRequested)="sgPanelRequested($event)"
         (dataViewerRequested)="dataViewerRequested($event)"
+        class="pr-1"
         ></vis>
 
         <div id="floating-svg-wrapper" class="border" #floatingSvg

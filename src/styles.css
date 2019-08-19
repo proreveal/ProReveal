@@ -5,6 +5,8 @@ body, app-root {
     height:100%;
     font-family: 'Roboto', 'Noto Sans KR';
     overflow-y: hidden;
+
+    background: #f8f9fa !important;
 }
 
 body::-webkit-scrollbar {

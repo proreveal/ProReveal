@@ -1,6 +1,7 @@
-import { Query, QueryState } from './query';
+import { Query } from './query';
 import { Job } from './job';
 import { isUndefined } from 'util';
+import { QueryState } from './query-state';
 
 export abstract class Scheduler {
     name: string;

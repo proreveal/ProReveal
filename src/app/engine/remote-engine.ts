@@ -1,10 +1,8 @@
 import * as util from '../util';
 import { Dataset, Row } from '../data/dataset';
-import { Query, AggregateQuery, SelectQuery, QueryState } from '../data/query';
-import { Scheduler, QueryOrderScheduler, RoundRobinScheduler } from '../data/scheduler';
+import { Query, AggregateQuery, SelectQuery } from '../data/query';
 import { Schema } from '../data/schema';
 import { Predicate } from '../data/predicate';
-import { Priority } from './priority';
 import * as io from 'socket.io-client';
 import { RemoteSampler } from '../data/sampler';
 

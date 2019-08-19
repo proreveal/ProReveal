@@ -20,13 +20,9 @@ import { Safeguard } from '../safeguard/safeguard';
 import { FieldGroupedValue } from './field-grouped-value';
 import { FieldGroupedValueList } from './field-grouped-value-list';
 import { ConfidenceInterval, EmptyConfidenceInterval } from './confidence-interval';
+import { QueryState } from './query-state';
+import { RawAggregateKeyValue } from './raw-aggregate-key-value';
 
-export type RawAggregateKeyValue = [string[], number, number, number, number, number, number]
-
-export enum QueryState {
-    Running = 'Running',
-    Paused = 'Paused'
-};
 
 export abstract class Query {
     id: string;
@@ -87,7 +83,7 @@ export abstract class Query {
             )
         }
 
-        if(json.type == Frequency2DQuery.name) {
+        if (json.type == Frequency2DQuery.name) {
             query = new Frequency2DQuery(
                 FieldTrait.fromJSON(json.grouping1),
                 FieldTrait.fromJSON(json.grouping2),
@@ -96,7 +92,7 @@ export abstract class Query {
             )
         }
 
-        if(json.type == Histogram1DQuery.name) {
+        if (json.type == Histogram1DQuery.name) {
             query = new Histogram1DQuery(
                 FieldTrait.fromJSON(json.grouping) as QuantitativeField,
                 dataset,
@@ -104,7 +100,7 @@ export abstract class Query {
             );
         }
 
-        if(json.type == Histogram2DQuery.name) {
+        if (json.type == Histogram2DQuery.name) {
             query = new Histogram2DQuery(
                 FieldTrait.fromJSON(json.grouping1) as QuantitativeField,
                 FieldTrait.fromJSON(json.grouping2) as QuantitativeField,
@@ -113,7 +109,7 @@ export abstract class Query {
             );
         }
 
-        if(json.type == AggregateQuery.name) {
+        if (json.type == AggregateQuery.name) {
             query = new AggregateQuery(
                 new AllAccumulator(),
                 Approximator.FromName(json.aggregate),
@@ -134,14 +130,14 @@ export abstract class Query {
         query.recentProgress.processedBlocks = json.numProcessedBlocks;
         query.recentProgress.processedRows = json.numProcessedRows;
 
-        if(json.result) {
+        if (json.result) {
             let aggregateKeyValues = query.convertToAggregateKeyValues(json.result);
             query.recentResult = {};
             aggregateKeyValues.forEach(kv => {
                 query.recentResult[kv.key.hash] = kv;
             });
 
-            if(query.updateAutomatically) query.sync();
+            if (query.updateAutomatically) query.sync();
         }
 
         return query;
@@ -443,13 +439,13 @@ export class AggregateQuery extends Query {
 
             let fgvl: FieldGroupedValueList;
 
-            if(group) fgvl = new FieldGroupedValueList(
+            if (group) fgvl = new FieldGroupedValueList(
                 keys.map((key, i) => new FieldGroupedValue(fields[i], fields[i].group(key)))
-                );
+            );
             else {
                 fgvl = new FieldGroupedValueList(
                     keys.map((key, i) => {
-                        if(isNull(key)) return new FieldGroupedValue(fields[i], NullGroupId);
+                        if (isNull(key)) return new FieldGroupedValue(fields[i], NullGroupId);
                         return new FieldGroupedValue(fields[i], parseInt(key));
                     })
                 );

@@ -5,7 +5,7 @@ import { RemoteEngine } from './engine/remote-engine';
 
 import { Priority } from './engine/priority';
 
-import { Query, EmptyQuery, AggregateQuery, QueryState, SelectQuery } from './data/query';
+import { Query, EmptyQuery, AggregateQuery, SelectQuery } from './data/query';
 import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
 import * as util from './util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +26,7 @@ import { QueryCreatorComponent } from './query-creator/query-creator.component';
 import { Row } from './data/dataset';
 import { StorageService } from './services/storage.service';
 import { Router } from '@angular/router';
+import { QueryState } from './data/query-state';
 
 @Component({
     selector: 'app-main',

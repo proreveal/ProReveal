@@ -1,8 +1,9 @@
 import { Job } from './job';
 import { Scheduler } from './scheduler';
 import { ServerError } from './exception';
-import { Query, QueryState } from './query';
+import { Query } from './query';
 import { aremove } from '../util';
+import { QueryState } from './query-state';
 
 export class Queue {
     jobs: Job[] = [];

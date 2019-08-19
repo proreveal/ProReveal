@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ScreenType } from '../vis/screenType';
+import { ScreenType } from '../vis/screen-type';
 
 @Injectable({
     providedIn: 'root'

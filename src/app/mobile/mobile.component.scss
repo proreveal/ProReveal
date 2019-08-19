@@ -64,6 +64,17 @@ $button-height: 38px;
     overflow-y: hidden;
 }
 
+#close-query-view {
+    position: fixed;
+    width: $query-view-width;
+    z-index: 10;
+    top: $navbar-height;
+    height: calc(100% - #{$navbar-height});
+    left: $query-view-width;
+    right: 0px;
+    background: transparent;
+}
+
 #query-view {
     position: fixed;
     width: $query-view-width;
