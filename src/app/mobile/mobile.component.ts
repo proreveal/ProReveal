@@ -96,7 +96,7 @@ export class MobileComponent implements OnInit {
     isStudying = false;
     isStudyMenuVisible = false;
     debug = false;
-    showQueryList = true;
+    showQueryList = false;
     showInfo = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
@@ -117,8 +117,9 @@ export class MobileComponent implements OnInit {
         // dirty fix
         document.querySelector('html').style.height = '100%';
         document.querySelector('body').style.overflowY = 'auto';
+        document.querySelector('body').style.overflowX = 'hidden';
         document.querySelector('body').style.minHeight = '100%';
-        (document.querySelector('app-root') as HTMLElement).style.overflowY = 'auto';
+        document.querySelector('body').style.height = 'auto';
 
         let parameters = util.parseQueryParameters(location.search);
         const engineType = this.storage.engineType;

@@ -7,6 +7,9 @@ export function measure(label: string, fontSize: string = '1rem') {
         svg.appendChild(textNode);
         document.querySelector('body').appendChild(svg);
         svg.style.visibility = 'hidden';
+        svg.style.position = 'absolute';
+        svg.style.zIndex = '-1';
+        svg.style.top = '-5000';
     }
 
     textNode.style.fontSize = fontSize;

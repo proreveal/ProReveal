@@ -62,7 +62,7 @@
         </div>
     </div>
 </section>
-<div class="container-stretched bg-danger" (window:beforeunload)="unload()" *ngIf="engine">
+<div class="container-stretched" (window:beforeunload)="unload()" *ngIf="engine">
     <section id="query-view" class="bg-light border-right" [class.visible]="showQueryList">
         <div class="query-view-scroll">
             <h6 id="ongoing-query-view-header" class="border-left section-header p-1 border-bottom">
@@ -180,7 +180,7 @@
                 ></query-creator>
         </section>
     </section>
-    <section id="main" class="row p-1 bg-light"
+    <section id="main" class="row p-1 pr-2"
         [class.query-visible]="showQueryList"  (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
@@ -423,8 +423,8 @@
             </div>
         </div>
     </section>
-    <metadata-editor [dataset]="engine.dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
-    </metadata-editor>
+    <!--<metadata-editor [dataset]="engine.dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
+    </metadata-editor>-->
 </div>
 
 <ng-template #confirmRemoval let-c="close" let-d="dismiss">
