@@ -1,5 +1,6 @@
 import { FieldGroupedValue } from "../data/field-grouped-value";
 import { HashSeparator } from "../data/field-grouped-value-list";
+import { Dataset } from "../data/dataset";
 
 export enum VariableTypes {
     Single = 'Single',
@@ -19,6 +20,41 @@ export abstract class VariableTrait {
     }
 
     abstract toLog(): any;
+    abstract toJSON(): any;
+
+    static fromJSON(json: any, dataset: Dataset): VariableTrait {
+        const variableType = json.type;
+
+
+        if(variableType == VariableTypes.Single) {
+            const value = FieldGroupedValue.fromJSON(json.value, dataset);
+            return new SingleVariable(value);
+        }
+
+        if(variableType == VariableTypes.Pair) {
+            const first = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
+            const second = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
+            return new VariablePair(first, second);
+        }
+
+        if(variableType == VariableTypes.Combined) {
+            const first = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
+            const second = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
+            return new CombinedVariable(first, second);
+        }
+
+        if(variableType == VariableTypes.Combined) {
+            const first = VariableTrait.fromJSON(json.first, dataset) as CombinedVariable;
+            const second = VariableTrait.fromJSON(json.first, dataset) as CombinedVariable;
+            return new CombinedVariablePair(first, second);
+        }
+
+        if(variableType == VariableTypes.Distributive) {
+            return new DistributiveVariable();
+        }
+
+        throw new Error(`Invalid variable spec ${JSON.stringify(json)}`);
+    }
 }
 
 export class SingleVariable extends VariableTrait {
@@ -43,6 +79,13 @@ export class SingleVariable extends VariableTrait {
 
     toLog() {
         return this.fieldGroupedValue.toLog();
+    }
+
+    toJSON() {
+        return {
+            type: this.type,
+            value: this.fieldGroupedValue.toJSON()
+        }
     }
 }
 
@@ -82,6 +125,14 @@ export class VariablePair extends VariableTrait { // (a = 1) < (a = 2)
     toLog() {
         return ['pair', this.first.toLog(), this.second.toLog()];
     }
+
+    toJSON() {
+        return {
+            type: this.type,
+            first: this.first.toJSON(),
+            second: this.second.toJSON()
+        }
+    }
 }
 
 export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
@@ -93,7 +144,7 @@ export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
         return new CombinedVariable(first, second);
     }
 
-    constructor(public first:SingleVariable, public second: SingleVariable) {
+    constructor(public first: SingleVariable, public second: SingleVariable) {
         super();
     }
 
@@ -120,6 +171,14 @@ export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
     toLog() {
         return ['combined', this.first.toLog(), this.second.toLog()];
     }
+
+    toJSON() {
+        return {
+            type: this.type,
+            first: this.first.toJSON(),
+            second: this.second.toJSON()
+        }
+    }
 }
 
 export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a = 2, b = 3)
@@ -131,7 +190,7 @@ export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a =
         return new CombinedVariablePair(first, second);
     }
 
-    constructor(public first:CombinedVariable, public second: CombinedVariable) {
+    constructor(public first: CombinedVariable, public second: CombinedVariable) {
         super();
     }
 
@@ -142,9 +201,18 @@ export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a =
     toLog() {
         return ['combined pair', this.first.toLog(), this.second.toLog()];
     }
+
+    toJSON() {
+        return {
+            type: this.type,
+            first: this.first.toJSON(),
+            second: this.second.toJSON()
+        }
+    }
 }
 
 export class DistributiveVariable extends VariableTrait {
     readonly type = VariableTypes.Distributive;
     toLog() { return 'distributive variable'; }
+    toJSON() { return { type: this.type } }
 }

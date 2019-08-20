@@ -1,6 +1,7 @@
 import { FieldTrait, QuantitativeField } from "./field";
 import { GroupIdType, NullGroupId } from "./grouper";
 import { isString } from "util";
+import { Dataset } from "./dataset";
 
 /**
  * field & grouped value id (can be a negative integer)
@@ -13,7 +14,7 @@ export class FieldGroupedValue {
     }
 
     get includeEnd() {
-        if(isString(this.value())) return false;
+        if (isString(this.value())) return false;
 
         return this.groupId[1] >= (this.field as QuantitativeField).grouper.lastGroupId;
     }
@@ -36,6 +37,28 @@ export class FieldGroupedValue {
             groupId: this.groupId,
             value: this.value()
         };
+    }
+
+    toJSON() {
+        return {
+            field: this.field.name,
+            groupId: this.groupId,
+            value: this.value()
+        }
+    }
+
+    static fromJSON(json: any, dataset: Dataset) {
+        const field = dataset.getFieldByName(json.field);
+        let value: FieldGroupedValue;
+
+        if (field instanceof QuantitativeField) {
+            value = new FieldGroupedValue(field, json.groupId);
+        }
+        else {
+            value = new FieldGroupedValue(field, field.group(json.value));
+        }
+
+        return value;
     }
 }
 
