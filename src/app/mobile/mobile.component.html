@@ -2,6 +2,7 @@
     <button class="navbar-brand btn btn-dark mr-1" [class.active]="showQueryList"
     (click)="showQueryList=!showQueryList;showGuardList=false;toggle(SGT.None)">
         <fa-icon [icon]="['fas', 'chart-bar']"></fa-icon>
+        <span class="badge badge-light" *ngIf="engine && engine.queries.length > 0">{{ engine.queries.length }}</span>
     </button>
     <div class="text-light text-center title my-1">
         <div>
@@ -10,7 +11,7 @@
             ProReveal
             </a>
         </div>
-        <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }}, SESSION CODE: <strong>{{ storage.code}}</strong>)</small>
+        <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }})</small> <!--, CODE: <strong>{{ storage.code}}</strong>)</small>-->
     </div>
     <div>
         <button class="btn text-light" (click)="showInfo=!showInfo">
@@ -19,6 +20,7 @@
         <button class="navbar-brand btn btn-dark mr-0" [class.active]="showGuardList"
             (click)="showGuardList=!showGuardList;showQueryList=false;toggle(SGT.None)">
             <fa-icon [icon]="['fas', 'tasks']"></fa-icon>
+            <span class="badge badge-light" *ngIf="engine && engine.safeguards.length > 0">{{ engine.safeguards.length }}</span>
         </button>
     </div>
     <div [hidden]="!showInfo">

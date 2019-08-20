@@ -19,6 +19,10 @@ $button-height: 38px;
     }
 }
 
+.navbar .badge {
+    font-size: 50%;
+}
+
 .section-header {
     font-family: "Roboto Condensed", "Noto Sans KR";
     background: $ui-background-color;
@@ -375,3 +379,4 @@ $button-height: 38px;
         font-weight: bold;
     }
 }
+
