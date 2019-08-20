@@ -2,7 +2,7 @@ import { NormalDistribution } from "./normal";
 import { AggregateQuery } from "../data/query";
 import { VariablePair, VariableTrait, CombinedVariablePair } from "./variable";
 import { Operators } from "./operator";
-import { ValueConstant, RankConstant, RangeConstant, RangeRankConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from "./constant";
+import { ValueConstant, RankConstant, RangeConstant, PowerLawConstant, NormalConstant, LinearConstant } from "./constant";
 import { isNull } from "util";
 import { Validity, PValue, Truthiness, Quality, Error } from "./validity";
 import { ApproximatedInterval } from "../data/approximated-interval";
@@ -383,7 +383,7 @@ export class NormalEstimator implements EstimatorTrait {
 }
 
 export class LinearRegressionEstimator {
-    estimate(query: AggregateQuery, constant: LinearRegressionConstant): Error {
+    estimate(query: AggregateQuery, constant: LinearConstant): Error {
 
         let data = query.getVisibleData();
         let n = 0;

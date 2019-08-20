@@ -2,7 +2,7 @@ import { AggregateValue } from "./accum";
 import { ApproximatedInterval, EmptyApproximatedInterval, ApproximatedPoint } from "./approximated-interval";
 
 export interface ApproximatorTrait {
-    readonly name: string;
+    readonly type: string;
     readonly alwaysNonNegative: boolean;
     readonly requireTargetField: boolean;
     readonly estimatable: boolean;
@@ -28,7 +28,7 @@ export abstract class Approximator {
 }
 
 export class MinApproximator implements ApproximatorTrait {
-    name = 'Min';
+    type = 'Min';
     alwaysNonNegative = false;
     requireTargetField = true;
     estimatable = false;
@@ -40,7 +40,7 @@ export class MinApproximator implements ApproximatorTrait {
 }
 
 export class MaxApproximator implements ApproximatorTrait {
-    name = 'Max';
+    type = 'Max';
     alwaysNonNegative = false;
     requireTargetField = true;
     estimatable = false;
@@ -52,7 +52,7 @@ export class MaxApproximator implements ApproximatorTrait {
 }
 
 export class CountApproximator implements ApproximatorTrait {
-    name = 'Count';
+    type = 'Count';
     alwaysNonNegative = true;
     requireTargetField = false;
     estimatable = true;
@@ -70,7 +70,7 @@ export class CountApproximator implements ApproximatorTrait {
 }
 
 export class MeanApproximator implements ApproximatorTrait {
-    name = 'Mean';
+    type = 'Mean';
     alwaysNonNegative = true;
     requireTargetField = true;
     estimatable = true;
@@ -89,7 +89,7 @@ export class MeanApproximator implements ApproximatorTrait {
 
 
 export class SumApproximator implements ApproximatorTrait {
-    name = 'Sum';
+    type = 'Sum';
     alwaysNonNegative = true;
     requireTargetField = true;
     estimatable = true;

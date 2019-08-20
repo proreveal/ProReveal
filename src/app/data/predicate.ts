@@ -1,6 +1,12 @@
 import { FieldTrait } from "./field";
 import { Dataset } from "./dataset";
 
+export enum PredicateTypes {
+    And = 'And',
+    Range = 'Range',
+    Equal = 'Equal'
+};
+
 export abstract class Predicate {
     test(row: any): boolean {
         return true;
@@ -16,10 +22,10 @@ export abstract class Predicate {
     static fromJSON(json: any, dataset: Dataset) {
         if(!json) return null;
 
-        if(json.type == 'and')
+        if(json.type == PredicateTypes.And)
             return new AndPredicate(json.predicates.map(spec => Predicate.fromJSON(spec, dataset)))
 
-        if(json.type == 'range')
+        if(json.type == PredicateTypes.Range)
             return new RangePredicate(
                 dataset.getFieldByName(json.field.name),
                 json.start,
@@ -27,7 +33,7 @@ export abstract class Predicate {
                 json.includeEnd
             );
 
-        if(json.type == 'equal')
+        if(json.type == PredicateTypes.Equal)
             return new EqualPredicate(
                 dataset.getFieldByName(json.field.name),
                 json.expected
@@ -38,6 +44,8 @@ export abstract class Predicate {
 }
 
 export class EqualPredicate extends Predicate {
+    readonly type = PredicateTypes.Equal;
+
     constructor(public target: FieldTrait, public expected: any) {
         super();
     }
@@ -55,7 +63,7 @@ export class EqualPredicate extends Predicate {
 
     toJSON() {
         return {
-            type: 'equal',
+            type: this.type,
             field: this.target.toJSON(),
             expected: this.expected
         }
@@ -63,6 +71,8 @@ export class EqualPredicate extends Predicate {
 }
 
 export class RangePredicate extends Predicate {
+    readonly type = PredicateTypes.Range;
+
     constructor(public target: FieldTrait, public start: number, public end: number, public includeEnd: boolean = false) {
         super();
     }
@@ -83,7 +93,7 @@ export class RangePredicate extends Predicate {
 
     toJSON() {
         return {
-            type: 'range',
+            type: this.type,
             field: this.target.toJSON(),
             start: this.start,
             end: this.end,
@@ -93,6 +103,8 @@ export class RangePredicate extends Predicate {
 }
 
 export class AndPredicate extends Predicate {
+    readonly type = PredicateTypes.And;
+
     constructor(public predicates: Predicate[] = []) {
         super();
     }
@@ -141,7 +153,7 @@ export class AndPredicate extends Predicate {
     toJSON() {
         if(this.predicates.length == 0) return null;
         return {
-            type: 'and',
+            type: this.type,
             predicates: this.flatten().map(pred => pred.toJSON())
         };
     }

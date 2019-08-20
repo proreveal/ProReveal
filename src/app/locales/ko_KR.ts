@@ -86,5 +86,5 @@ export const Locale_ko_KR = Object.freeze({
     HeatmapLedgendValue: '개수',
     P: '유의 확률',
 
-    XLabelTitleFormatter: (q: AggregateQuery) => `${q.target.name}의 ${Locale_ko_KR[q.approximator.name.toUpperCase()]}`
+    XLabelTitleFormatter: (q: AggregateQuery) => `${q.target.name}의 ${Locale_ko_KR[q.approximator.type.toUpperCase()]}`
 });

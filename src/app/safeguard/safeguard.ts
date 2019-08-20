@@ -1,5 +1,5 @@
 import { Operators } from './operator';
-import { ConstantTrait, ValueConstant, RankConstant, RangeConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from './constant';
+import { ConstantTrait, ValueConstant, RankConstant, RangeConstant, NormalConstant, PowerLawConstant, LinearConstant } from './constant';
 import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from './variable';
 import { NormalDistribution } from './normal';
 import {
@@ -74,10 +74,14 @@ export abstract class Safeguard {
     toJSON(): any {
         return {
             type: this.name,
-            variable: this.variable ? this.variable.toJSON() : null,
+            variable: this.variable.toJSON(),
             operator: this.operator,
-            constant: this.constant ? this.constant.toJSON() : null
+            constant: this.constant ? this.constant.toJSON() : null,
+            queryId: this.query.id
         }
+    }
+
+    static fromJSON(json:any) {
     }
 }
 
@@ -283,7 +287,7 @@ export class LinearSafeguard extends DistributiveSafeguard {
     e() {
         return LinearRegressionEstimate(
             this.query,
-            this.constant as LinearRegressionConstant
+            this.constant as LinearConstant
         )
     }
 
@@ -292,6 +296,6 @@ export class LinearSafeguard extends DistributiveSafeguard {
     }
 
     updateConstant() {
-        this.constant = LinearRegressionConstant.FitFromVisData(this.query.getRecentData());
+        this.constant = LinearConstant.FitFromVisData(this.query.getRecentData());
     }
 }

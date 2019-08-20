@@ -6,12 +6,52 @@ import { Datum } from '../data/datum';
 export type NumberPair = [number, number];
 export type NumberTriplet = [number, number, number];
 
+export enum ConstantTypes {
+    Value = 'Value',
+    Rank = 'Rank',
+    Range = 'Range',
+    PowerLaw = 'PowerLaw',
+    Normal = 'Normal',
+    Linear = 'Linear'
+};
+
 export abstract class ConstantTrait {
-    name: string;
-    toLog() { };
+    readonly type: string;
+    abstract toLog(): any;
+    abstract toJSON(): any;
+
+    static fromJSON(json: any): ConstantTrait {
+        let type_string = json.type;
+        if(type_string == ConstantTypes.Value) {
+            return new ValueConstant(json.value);
+        }
+
+        if(type_string == ConstantTypes.Rank) {
+            return new RankConstant(json.rank);
+        }
+
+        if(type_string == ConstantTypes.Range) {
+            return new RangeConstant(json.center, json.from, json.to);
+        }
+
+        if(type_string == ConstantTypes.PowerLaw) {
+            return new PowerLawConstant(json.a, json.b);
+        }
+
+        if(type_string == ConstantTypes.Normal) {
+            return new NormalConstant(json.mean, json.stdev);
+        }
+
+        if(type_string == ConstantTypes.Linear) {
+            return new LinearConstant(json.a, json.b);
+        }
+
+        throw new Error(`Invalid constant spec: ${JSON.stringify(json)}`);
+    }
 }
 
 export class ValueConstant extends ConstantTrait {
+    static readonly type = ConstantTypes.Value;
     isRank = false;
 
     constructor(public value: number) {
@@ -19,11 +59,19 @@ export class ValueConstant extends ConstantTrait {
     }
 
     toLog() {
-        return ['value', this.value];
+        return [this.type, this.value];
+    }
+
+    toJSON() {
+        return {
+            type: this.type,
+            value: this.value
+        }
     }
 }
 
 export class RankConstant extends ConstantTrait {
+    readonly type = ConstantTypes.Rank;
     isRank = true;
 
     constructor(public rank: number) {
@@ -33,9 +81,17 @@ export class RankConstant extends ConstantTrait {
     toLog() {
         return ['rank', this.rank];
     }
+
+    toJSON() {
+        return {
+            type: this.type,
+            rank: this.rank
+        }
+    }
 }
 
 export class RangeConstant extends ConstantTrait {
+    readonly type = ConstantTypes.Range;
     constructor(public center: number, public from: number, public to: number) {
         super();
         this.checkOrder();
@@ -54,25 +110,15 @@ export class RangeConstant extends ConstantTrait {
     }
 
     toLog() {
-        return ['range', this.from, this.to];
-    }
-}
-
-export class RangeRankConstant extends ConstantTrait {
-    constructor(public from: number, public to: number) {
-        super();
-        this.checkOrder();
+        return [this.type, this.from, this.to];
     }
 
-    get range(): NumberPair {
-        return [this.from, this.to];
-    }
-
-    checkOrder() {
-        if (this.from > this.to) {
-            let temp = this.from;
-            this.from = this.to;
-            this.to = temp;
+    toJSON() {
+        return {
+            type: this.type,
+            center: this.center,
+            from: this.from,
+            to: this.to
         }
     }
 }
@@ -81,15 +127,16 @@ export class RangeRankConstant extends ConstantTrait {
  * Something that returns a pdf value
  */
 export interface DistributionTrait {
-    readonly name: string;
+    readonly type: string;
     readonly normalized: boolean;
 
     compute(left: number, right: number): number;
-    toLog(): Object;
+    toLog(): any;
+    toJSON(): any;
 }
 
 export class PowerLawConstant extends ConstantTrait implements DistributionTrait {
-    name = 'power';
+    readonly type = ConstantTypes.PowerLaw;
     normalized = false;
 
     // a*x^b
@@ -125,12 +172,20 @@ export class PowerLawConstant extends ConstantTrait implements DistributionTrait
     }
 
     toLog() {
-        return ['power law', this.a, this.b];
+        return [this.type, this.a, this.b];
+    }
+
+    toJSON() {
+        return {
+            type: this.type,
+            a: this.a,
+            b: this.b
+        }
     }
 }
 
 export class NormalConstant extends ConstantTrait implements DistributionTrait {
-    name = 'normal';
+    readonly type = ConstantTypes.Normal;
     normal: NormalDistribution;
     normalized = true;
 
@@ -187,12 +242,20 @@ export class NormalConstant extends ConstantTrait implements DistributionTrait {
     }
 
     toLog() {
-        return ['normal', this.mean, this.stdev];
+        return [this.type, this.mean, this.stdev];
+    }
+
+    toJSON() {
+        return {
+            type: this.type,
+            mean: this.mean,
+            stdev: this.stdev
+        }
     }
 }
 
-export class LinearRegressionConstant extends ConstantTrait {
-    name = 'linear_regression';
+export class LinearConstant extends ConstantTrait {
+    readonly type = ConstantTypes.Linear;
 
     // ax + b
     constructor(public a = 1, public b = 0) {
@@ -227,7 +290,7 @@ export class LinearRegressionConstant extends ConstantTrait {
         let a = (n * xy_sum - x_sum * y_sum) / (n * x_squared_sum - x_sum * x_sum);
         let b = (y_sum * x_squared_sum - x_sum * xy_sum) / (n * x_squared_sum - x_sum * x_sum);
 
-        return new LinearRegressionConstant(a, b);
+        return new LinearConstant(a, b);
     }
 
     static FitFromVisData(data: Datum[], xKeyIndex: number = 0, yKeyIndex: number = 1) {
@@ -271,6 +334,14 @@ export class LinearRegressionConstant extends ConstantTrait {
     }
 
     toLog() {
-        return ['linear', this.a, this.b];
+        return [this.type, this.a, this.b];
+    }
+
+    toJSON() {
+        return {
+            type: this.type,
+            a: this.a,
+            b: this.b
+        }
     }
 }

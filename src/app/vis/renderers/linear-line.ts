@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { selectOrAppend } from '../../d3-utils/d3-utils';
-import {  LinearRegressionConstant } from '../../safeguard/constant';
+import { LinearConstant } from '../../safeguard/constant';
 import { NullGroupId } from '../../data/grouper';
 import { FieldGroupedValue } from '../../data/field-grouped-value';
 
@@ -19,7 +19,7 @@ export class LinearLine {
     }
 
     render(
-        constant: LinearRegressionConstant,
+        constant: LinearConstant,
         xKeyValues: { [hash: string]: FieldGroupedValue },
         yKeyValues: { [hash: string]: FieldGroupedValue },
         xScale: d3.ScaleBand<string>,

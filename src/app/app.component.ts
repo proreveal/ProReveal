@@ -13,7 +13,7 @@ import { Safeguard, SafeguardTypes as SGT, ValueSafeguard, RangeSafeguard, Compa
 import { VisComponent } from './vis/vis.component';
 import { Operators } from './safeguard/operator';
 import { VariablePair, SingleVariable, CombinedVariable, VariableTrait, CombinedVariablePair } from './safeguard/variable';
-import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, PowerLawConstant, NormalConstant, LinearRegressionConstant } from './safeguard/constant';
+import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, PowerLawConstant, NormalConstant, LinearConstant } from './safeguard/constant';
 import { BarsRenderer } from './vis/renderers/bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator, MinMaxRangeEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
@@ -86,7 +86,7 @@ export class AppComponent implements OnInit {
 
     powerLawConstant: PowerLawConstant = new PowerLawConstant();
     normalConstant: NormalConstant = new NormalConstant();
-    linearRegressionConstant: LinearRegressionConstant = new LinearRegressionConstant();
+    linearRegressionConstant: LinearConstant = new LinearConstant();
 
     dataViewerWhere: Predicate = null;
     filteredRows: any[] = [];
@@ -560,7 +560,7 @@ export class AppComponent implements OnInit {
             this.powerLawConstant = constant;
         else if (constant instanceof NormalConstant)
             this.normalConstant = constant;
-        else if (constant instanceof LinearRegressionConstant)
+        else if (constant instanceof LinearConstant)
             this.linearRegressionConstant = constant;
         else
             throw new Error(`Unknown Constant Type ${constant}`);

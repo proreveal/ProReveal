@@ -1,17 +1,28 @@
 import { FieldGroupedValue } from "../data/field-grouped-value";
 import { HashSeparator } from "../data/field-grouped-value-list";
 
+export enum VariableTypes {
+    Single = 'Single',
+    Pair = 'Pair',
+    Combined = 'Combined',
+    CombinedPair = 'CombinedPair',
+    Distributive = 'Distributive'
+}
+
 export abstract class VariableTrait {
-    isRank;
+    readonly type: VariableTypes;
+    isRank: boolean;
+    isCombined: boolean;
 
     get hash(): string {
         throw new Error('Hash must be implemented for a variable');
     }
 
-    toLog() { };
+    abstract toLog(): any;
 }
 
 export class SingleVariable extends VariableTrait {
+    readonly type = VariableTypes.Single;
     isRank = false;
 
     constructor(public fieldGroupedValue: FieldGroupedValue) {
@@ -36,6 +47,7 @@ export class SingleVariable extends VariableTrait {
 }
 
 export class VariablePair extends VariableTrait { // (a = 1) < (a = 2)
+    readonly type = VariableTypes.Pair;
     isRank = false;
     isCombined = false;
 
@@ -73,6 +85,7 @@ export class VariablePair extends VariableTrait { // (a = 1) < (a = 2)
 }
 
 export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
+    readonly type = VariableTypes.Combined;
     isRank = false;
     isCombined = true;
 
@@ -110,6 +123,7 @@ export class CombinedVariable extends VariableTrait { // (a = 1, b = 2)
 }
 
 export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a = 2, b = 3)
+    readonly type = VariableTypes.CombinedPair;
     isRank = false;
     isCombined = true;
 
@@ -131,5 +145,6 @@ export class CombinedVariablePair extends VariableTrait { // (a = 1, b = 2) (a =
 }
 
 export class DistributiveVariable extends VariableTrait {
+    readonly type = VariableTypes.Distributive;
     toLog() { return 'distributive variable'; }
 }

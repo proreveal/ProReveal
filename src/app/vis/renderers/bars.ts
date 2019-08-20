@@ -10,7 +10,7 @@ import { SafeguardTypes as SGT, DistributiveSafeguardTypes } from '../../safegua
 import { SingleVariable } from '../../safeguard/variable';
 import { VisComponent } from '../vis.component';
 import { ScaleLinear } from 'd3';
-import { ConstantTrait, RankConstant, ValueConstant, RangeRankConstant, RangeConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
+import { ConstantTrait, RankConstant, ValueConstant, RangeConstant, PowerLawConstant, DistributionTrait, NormalConstant } from '../../safeguard/constant';
 import { Brush, BrushDirection, BrushMode } from './brush';
 import { DistributionLine } from './distribution-line';
 import { AndPredicate, Predicate } from '../../data/predicate';

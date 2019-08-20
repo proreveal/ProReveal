@@ -34,11 +34,11 @@
         <h6 class="mt-3">{{ L.Aggregate }}</h6>
         <div class="ml-3">
             <button *ngFor="let approx of approximators" class="btn btn-sm mr-2"
-                [class.btn-light]="newQuery && approx.name !== newQuery.approximator.name"
-                [class.btn-primary]="newQuery && approx.name === newQuery.approximator.name"
+                [class.btn-light]="newQuery && approx.type !== newQuery.approximator.type"
+                [class.btn-primary]="newQuery && approx.type === newQuery.approximator.type"
                 (click)="approxClick(approx)"
                 >
-                {{ L[approx.name.toUpperCase()] }}
+                {{ L[approx.type.toUpperCase()] }}
             </button>
         </div>
     </ng-container>

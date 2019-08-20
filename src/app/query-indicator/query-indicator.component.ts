@@ -29,9 +29,9 @@ export class QueryIndicatorComponent implements OnInit {
     ngOnInit() {
     }
 
-    thisApproximatorChanged(name: string) {
-        if(this.query.approximator.name == name)  return;
-        this.query.approximator = Approximator.FromName(name);
-        this.approximatorChanged.emit(name);
+    thisApproximatorChanged(type: string) {
+        if(this.query.approximator.type == type)  return;
+        this.query.approximator = Approximator.FromName(type);
+        this.approximatorChanged.emit(type);
     }
 }

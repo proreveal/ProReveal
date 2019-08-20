@@ -8,7 +8,7 @@ import { QuantitativeField } from '../../data/field';
 import { TooltipComponent } from '../../tooltip/tooltip.component';
 import * as vsup from 'vsup';
 import { VisComponent } from '../vis.component';
-import { ConstantTrait, ValueConstant, RangeConstant, LinearRegressionConstant } from '../../safeguard/constant';
+import { ConstantTrait, ValueConstant, RangeConstant, LinearConstant } from '../../safeguard/constant';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { CombinedVariable, SingleVariable } from '../../safeguard/variable';
 import { HeatmapTooltipComponent } from './heatmap-tooltip.component';
@@ -502,7 +502,7 @@ export class HeatmapRenderer {
         if (this.safeguardType === SGT.Linear) {
             this.linearLine.show();
             this.linearLine.render(
-                this.constant as LinearRegressionConstant,
+                this.constant as LinearConstant,
                 xKeys,
                 yKeys,
                 xScale,
@@ -684,7 +684,7 @@ export class HeatmapRenderer {
             }
         }
         else if (this.safeguardType === SGT.Linear) {
-            let constant = LinearRegressionConstant.FitFromVisData(this.query.getVisibleData(), 0, 1);
+            let constant = LinearConstant.FitFromVisData(this.query.getVisibleData(), 0, 1);
             this.vis.constantSelected.emit(constant);
             this.constantUserChanged(constant);
         }

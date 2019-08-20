@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, Query } from '@angular/core';
 import { Constants } from '../../constants';
-import { LinearRegressionConstant } from '../../safeguard/constant';
+import { LinearConstant } from '../../safeguard/constant';
 import { CombinedVariablePair } from '../../safeguard/variable';
 import { GroupBy } from '../../data/groupby';
 import { FieldTrait, VlType } from '../../data/field';
@@ -16,7 +16,7 @@ export class SgDistributiveComponent implements OnInit {
     @Input('constant') constant;
     @Input('groupBy') groupBy: GroupBy;
 
-    LinearRegressionConstant = LinearRegressionConstant;
+    LinearConstant = LinearConstant;
     CT = Constants;
 
     @Output('highlight') highlight = new EventEmitter<number>();

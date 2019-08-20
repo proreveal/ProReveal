@@ -24,13 +24,13 @@ import { QueryState } from './query-state';
 import { RawAggregateKeyValue } from './raw-aggregate-key-value';
 
 export enum QueryTypes {
-    AggregateQuery = 'AggregateQuery',
-    Frequency1DQuery = 'Frequency1DQuery',
-    Frequency2DQuery = 'Frequency2DQuery',
-    EmptyQuery = 'EmptyQuery',
-    SelectQuery = 'SelectQuery',
-    Histogram1DQuery = 'Histogram1DQuery',
-    Histogram2DQuery = 'Histogram2DQuery'
+    Aggregate = 'Aggregate',
+    Frequency1D = 'Frequency1D',
+    Frequency2D = 'Frequency2D',
+    Empty = 'Empty',
+    Select = 'Select',
+    Histogram1D = 'Histogram1D',
+    Histogram2D = 'Histogram2D'
 }
 
 export abstract class Query {
@@ -39,7 +39,7 @@ export abstract class Query {
     visibleProgress: Progress = new Progress();
     recentProgress: Progress = new Progress();
 
-    name: QueryTypes;
+    readonly type: QueryTypes;
 
     recentResult: AggregateKeyValues = {};
     visibleResult: AggregateKeyValues = {};
@@ -84,7 +84,7 @@ export abstract class Query {
     static fromJSON(json: any, dataset: Dataset): Query {
         let query: AggregateQuery;
 
-        if (json.type == Frequency1DQuery.name) {
+        if (json.type == QueryTypes.Frequency1D) {
             query = new Frequency1DQuery(
                 FieldTrait.fromJSON(json.grouping),
                 dataset,
@@ -92,7 +92,7 @@ export abstract class Query {
             )
         }
 
-        if (json.type == Frequency2DQuery.name) {
+        if (json.type == QueryTypes.Frequency2D) {
             query = new Frequency2DQuery(
                 FieldTrait.fromJSON(json.grouping1),
                 FieldTrait.fromJSON(json.grouping2),
@@ -101,7 +101,7 @@ export abstract class Query {
             )
         }
 
-        if (json.type == Histogram1DQuery.name) {
+        if (json.type == QueryTypes.Histogram1D) {
             query = new Histogram1DQuery(
                 FieldTrait.fromJSON(json.grouping) as QuantitativeField,
                 dataset,
@@ -109,7 +109,7 @@ export abstract class Query {
             );
         }
 
-        if (json.type == Histogram2DQuery.name) {
+        if (json.type == QueryTypes.Histogram2D) {
             query = new Histogram2DQuery(
                 FieldTrait.fromJSON(json.grouping1) as QuantitativeField,
                 FieldTrait.fromJSON(json.grouping2) as QuantitativeField,
@@ -118,7 +118,7 @@ export abstract class Query {
             );
         }
 
-        if (json.type == AggregateQuery.name) {
+        if (json.type == QueryTypes.Aggregate) {
             query = new AggregateQuery(
                 new AllAccumulator(),
                 Approximator.FromName(json.aggregate),
@@ -159,7 +159,7 @@ export abstract class Query {
 }
 
 export class SelectQuery extends Query {
-    readonly name = QueryTypes.SelectQuery;
+    readonly type = QueryTypes.Select;
     pageSize = 25;
     basePage = 0;
     numPages = 10;
@@ -182,7 +182,7 @@ export class SelectQuery extends Query {
     toJSON() {
         return {
             id: this.id,
-            type: this.name,
+            type: this.type,
             where: this.where.toJSON(),
             from: this.basePage * this.pageSize,
             to: (this.basePage + this.numPages) * this.pageSize
@@ -195,7 +195,7 @@ export class SelectQuery extends Query {
  * one quantitative, multiple categoricals
  */
 export class AggregateQuery extends Query {
-    readonly name:QueryTypes = QueryTypes.AggregateQuery;
+    readonly type: QueryTypes = QueryTypes.Aggregate;
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
@@ -232,9 +232,9 @@ export class AggregateQuery extends Query {
 
     toLog() {
         return {
-            name: this.name,
+            type: this.type,
             accumulator: this.accumulator.name,
-            approximator: this.approximator.name,
+            approximator: this.approximator.type,
             target: this.target ? this.target.name : null,
             groupBy: this.groupBy.fields.map(d => d.name),
             where: this.where ? this.where.toLog() : null
@@ -496,9 +496,9 @@ export class AggregateQuery extends Query {
     toJSON() {
         return {
             id: this.id,
-            type: this.name,
+            type: this.type,
             target: this.target.toJSON(),
-            aggregate: this.approximator.name.toLowerCase(),
+            aggregate: this.approximator.type.toLowerCase(),
             grouping: this.groupBy.fields[0].toJSON(),
             where: this.where ? this.where.toJSON() : null
         }
@@ -506,7 +506,7 @@ export class AggregateQuery extends Query {
 }
 
 export class EmptyQuery extends AggregateQuery {
-    readonly name = QueryTypes.EmptyQuery;
+    readonly type = QueryTypes.Empty;
     hasAggregateFunction = false;
 
     constructor(public dataset: Dataset) {
@@ -533,7 +533,7 @@ export class EmptyQuery extends AggregateQuery {
     }
 
     desc() {
-        return this.name;
+        return this.type;
     }
 
     jobs() {
@@ -546,7 +546,7 @@ export class EmptyQuery extends AggregateQuery {
  * one quantitative
  */
 export class Histogram1DQuery extends AggregateQuery {
-    readonly name = QueryTypes.Histogram1DQuery;
+    readonly type = QueryTypes.Histogram1D;
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
@@ -659,7 +659,7 @@ export class Histogram1DQuery extends AggregateQuery {
     toJSON(): any {
         return {
             id: this.id,
-            type: this.name,
+            type: this.type,
             grouping: this.grouping.toJSON(),
             where: this.where ? this.where.toJSON() : null
         }
@@ -670,7 +670,7 @@ export class Histogram1DQuery extends AggregateQuery {
  * one quantitative
  */
 export class Histogram2DQuery extends AggregateQuery {
-    readonly name = QueryTypes.Histogram2DQuery;
+    readonly type = QueryTypes.Histogram2D;
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
@@ -709,7 +709,7 @@ export class Histogram2DQuery extends AggregateQuery {
     }
 
     combine(field: FieldTrait): AggregateQuery {
-        throw new Error(`${this.name} cannot be combined`);
+        throw new Error(`${this.type} cannot be combined`);
     }
 
     compatible(fields: FieldTrait[]) {
@@ -812,7 +812,7 @@ export class Histogram2DQuery extends AggregateQuery {
     toJSON(): any {
         return {
             id: this.id,
-            type: this.name,
+            type: this.type,
             grouping1: this.grouping1.toJSON(),
             grouping2: this.grouping2.toJSON(),
             where: this.where ? this.where.toJSON() : null
@@ -824,7 +824,7 @@ export class Histogram2DQuery extends AggregateQuery {
  * one categorical
  */
 export class Frequency1DQuery extends AggregateQuery {
-    readonly name = QueryTypes.Frequency1DQuery;
+    readonly type = QueryTypes.Frequency1D;
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
 
@@ -875,7 +875,7 @@ export class Frequency1DQuery extends AggregateQuery {
     toJSON(): any {
         return {
             id: this.id,
-            type: this.name,
+            type: this.type,
             grouping: this.grouping.toJSON(),
             where: this.where ? this.where.toJSON() : null
         }
@@ -887,7 +887,7 @@ export class Frequency1DQuery extends AggregateQuery {
 }
 
 export class Frequency2DQuery extends AggregateQuery {
-    readonly name = QueryTypes.Frequency2DQuery;
+    readonly type = QueryTypes.Frequency2D;
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
 
@@ -917,7 +917,7 @@ export class Frequency2DQuery extends AggregateQuery {
     }
 
     combine(field: FieldTrait): AggregateQuery {
-        throw new Error(`${this.name} cannot be combined`);
+        throw new Error(`${this.type} cannot be combined`);
     }
 
     compatible(fields: FieldTrait[]) {
@@ -936,7 +936,7 @@ export class Frequency2DQuery extends AggregateQuery {
     toJSON(): any {
         return {
             id: this.id,
-            type: this.name,
+            type: this.type,
             grouping1: this.grouping1.toJSON(),
             grouping2: this.grouping2.toJSON(),
             where: this.where ? this.where.toJSON() : null
