@@ -21,28 +21,29 @@ export abstract class ConstantTrait {
     abstract toJSON(): any;
 
     static fromJSON(json: any): ConstantTrait {
-        let type_string = json.type;
-        if(type_string == ConstantTypes.Value) {
+        let constantType = json.type;
+
+        if(constantType == ConstantTypes.Value) {
             return new ValueConstant(json.value);
         }
 
-        if(type_string == ConstantTypes.Rank) {
+        if(constantType == ConstantTypes.Rank) {
             return new RankConstant(json.rank);
         }
 
-        if(type_string == ConstantTypes.Range) {
+        if(constantType == ConstantTypes.Range) {
             return new RangeConstant(json.center, json.from, json.to);
         }
 
-        if(type_string == ConstantTypes.PowerLaw) {
+        if(constantType == ConstantTypes.PowerLaw) {
             return new PowerLawConstant(json.a, json.b);
         }
 
-        if(type_string == ConstantTypes.Normal) {
+        if(constantType == ConstantTypes.Normal) {
             return new NormalConstant(json.mean, json.stdev);
         }
 
-        if(type_string == ConstantTypes.Linear) {
+        if(constantType == ConstantTypes.Linear) {
             return new LinearConstant(json.a, json.b);
         }
 
