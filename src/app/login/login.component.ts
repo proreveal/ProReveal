@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
             }
         })
 
-        // this.restore(); // TODO: for debugging
+        this.restore(); // TODO: for debugging
     }
 
     restore() {
@@ -72,6 +72,5 @@ export class LoginComponent implements OnInit {
         this.storage.engineType = 'browser';
 
         this.go();
-
     }
 }

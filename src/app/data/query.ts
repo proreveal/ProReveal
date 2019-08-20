@@ -23,6 +23,15 @@ import { ConfidenceInterval, EmptyConfidenceInterval } from './confidence-interv
 import { QueryState } from './query-state';
 import { RawAggregateKeyValue } from './raw-aggregate-key-value';
 
+export enum QueryTypes {
+    AggregateQuery = 'AggregateQuery',
+    Frequency1DQuery = 'Frequency1DQuery',
+    Frequency2DQuery = 'Frequency2DQuery',
+    EmptyQuery = 'EmptyQuery',
+    SelectQuery = 'SelectQuery',
+    Histogram1DQuery = 'Histogram1DQuery',
+    Histogram2DQuery = 'Histogram2DQuery'
+}
 
 export abstract class Query {
     id: string;
@@ -30,7 +39,7 @@ export abstract class Query {
     visibleProgress: Progress = new Progress();
     recentProgress: Progress = new Progress();
 
-    name: string;
+    name: QueryTypes;
 
     recentResult: AggregateKeyValues = {};
     visibleResult: AggregateKeyValues = {};
@@ -150,7 +159,7 @@ export abstract class Query {
 }
 
 export class SelectQuery extends Query {
-    name = 'SelectQuery';
+    readonly name = QueryTypes.SelectQuery;
     pageSize = 25;
     basePage = 0;
     numPages = 10;
@@ -186,7 +195,7 @@ export class SelectQuery extends Query {
  * one quantitative, multiple categoricals
  */
 export class AggregateQuery extends Query {
-    name = 'AggregateQuery';
+    readonly name:QueryTypes = QueryTypes.AggregateQuery;
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
     updateAutomatically = true;
@@ -497,7 +506,7 @@ export class AggregateQuery extends Query {
 }
 
 export class EmptyQuery extends AggregateQuery {
-    name = 'EmptyQuery';
+    readonly name = QueryTypes.EmptyQuery;
     hasAggregateFunction = false;
 
     constructor(public dataset: Dataset) {
@@ -537,7 +546,7 @@ export class EmptyQuery extends AggregateQuery {
  * one quantitative
  */
 export class Histogram1DQuery extends AggregateQuery {
-    name = 'Histogram1DQuery';
+    readonly name = QueryTypes.Histogram1DQuery;
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
@@ -661,7 +670,7 @@ export class Histogram1DQuery extends AggregateQuery {
  * one quantitative
  */
 export class Histogram2DQuery extends AggregateQuery {
-    name = 'Histogram2DQuery';
+    readonly name = QueryTypes.Histogram2DQuery;
     ordering = NumericalOrdering;
     orderingDirection = OrderingDirection.Ascending;
     orderingAttributeGetter = (d: Datum) => isArray(d.keys.list[0].groupId) ?
@@ -815,7 +824,7 @@ export class Histogram2DQuery extends AggregateQuery {
  * one categorical
  */
 export class Frequency1DQuery extends AggregateQuery {
-    name = 'Frequency1DQuery';
+    readonly name = QueryTypes.Frequency1DQuery;
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => d.ci3.center;
 
@@ -878,7 +887,7 @@ export class Frequency1DQuery extends AggregateQuery {
 }
 
 export class Frequency2DQuery extends AggregateQuery {
-    name = 'Frequency2DQuery';
+    readonly name = QueryTypes.Frequency2DQuery;
     ordering = NumericalOrdering;
     orderingAttributeGetter = (d: Datum) => (d.ci3 as ConfidenceInterval).center;
 

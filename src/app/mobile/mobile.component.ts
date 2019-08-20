@@ -110,7 +110,7 @@ export class MobileComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(!this.storage.code) {
+        if(!this.storage.engineType) {
             this.router.navigate(['/'])
             return;
         }
@@ -141,12 +141,11 @@ export class MobileComponent implements OnInit {
             this.data = data;
             this.isStudying = parameters.study || 0;
 
-            this.engine.alternate = alternate;
-
             const tutorial = parameters.tutorial || 0;
             if (tutorial) this.engine.alternate = true;
 
             this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+            this.engine.alternate = alternate;
 
             if (this.engine.alternate)
                 this.engine.reschedule(true);

@@ -1,13 +1,13 @@
-import { Operators } from "./operator";
-import { ConstantTrait, ValueConstant, RankConstant, RangeConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from "./constant";
-import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from "./variable";
-import { NormalDistribution } from "./normal";
+import { Operators } from './operator';
+import { ConstantTrait, ValueConstant, RankConstant, RangeConstant, NormalConstant, PowerLawConstant, LinearRegressionConstant } from './constant';
+import { VariableTrait, VariablePair, DistributiveVariable, CombinedVariablePair } from './variable';
+import { NormalDistribution } from './normal';
 import {
     ValueEstimator, RankEstimator, RangeEstimator, ComparativeEstimator,
     NormalEstimator, PowerLawEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator
-} from "./estimate";
-import { ValidityTypes, Validity } from "./validity";
-import { AggregateQuery } from "../data/query";
+} from './estimate';
+import { ValidityTypes, Validity } from './validity';
+import { AggregateQuery } from '../data/query';
 
 const ValueEstimate = new ValueEstimator().estimate;
 const MinMaxValueEstimate = new MinMaxValueEstimator().estimate
@@ -24,25 +24,26 @@ const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 
 
 export enum SafeguardTypes {
-    None = "None",
-    Value = "Value",
-    Rank = "Rank",
-    Range = "Range",
-    Comparative = "Comparative",
-    PowerLaw = "PowerLaw",
-    Normal = "Normal",
-    Linear = "Linear"
+    None = 'None',
+    Value = 'Value',
+    Rank = 'Rank',
+    Range = 'Range',
+    Comparative = 'Comparative',
+    PowerLaw = 'PowerLaw',
+    Normal = 'Normal',
+    Linear = 'Linear'
 }
 
 export const DistributiveSafeguardTypes = [SafeguardTypes.PowerLaw, SafeguardTypes.Normal, SafeguardTypes.Linear];
 
-export class Safeguard {
+export abstract class Safeguard {
     static normal = new NormalDistribution();
     createdAt: Date;
     validityType: ValidityTypes;
     history: Validity[] = [];
     lastUpdated: number;
     lastUpdatedAt: Date;
+    name = 'Base';
 
     constructor(
         public type: SafeguardTypes,
@@ -69,6 +70,15 @@ export class Safeguard {
             validity: this.validity()
         };
     }
+
+    toJSON(): any {
+        return {
+            type: this.name,
+            variable: this.variable ? this.variable.toJSON() : null,
+            operator: this.operator,
+            constant: this.constant ? this.constant.toJSON() : null
+        }
+    }
 }
 
 export abstract class DistributiveSafeguard extends Safeguard {
@@ -77,6 +87,7 @@ export abstract class DistributiveSafeguard extends Safeguard {
 
 export class ValueSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
+    name = SafeguardTypes.Value;
 
     constructor(public variable: VariableTrait,
         public operator: Operators,
@@ -109,6 +120,7 @@ export class ValueSafeguard extends Safeguard {
 
 export class RankSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
+    readonly name = SafeguardTypes.Rank;
 
     constructor(public variable: VariableTrait,
         public operator: Operators,
@@ -141,6 +153,7 @@ export class RankSafeguard extends Safeguard {
 
 export class RangeSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
+    readonly name = SafeguardTypes.Range;
 
     constructor(public variable: VariableTrait,
         public constant: ConstantTrait,
@@ -172,6 +185,7 @@ export class RangeSafeguard extends Safeguard {
 
 export class ComparativeSafeguard extends Safeguard {
     readonly validityType = ValidityTypes.PValue;
+    readonly name = SafeguardTypes.Comparative;
 
     constructor(public variable: VariablePair | CombinedVariablePair,
         public operator: Operators,
@@ -201,6 +215,7 @@ export class ComparativeSafeguard extends Safeguard {
 
 export class PowerLawSafeguard extends DistributiveSafeguard {
     readonly validityType = ValidityTypes.Quality;
+    readonly name = SafeguardTypes.PowerLaw;
 
     constructor(public constant: ConstantTrait,
         public query: AggregateQuery) {
@@ -228,6 +243,7 @@ export class PowerLawSafeguard extends DistributiveSafeguard {
 
 export class NormalSafeguard extends DistributiveSafeguard {
     readonly validityType = ValidityTypes.Quality;
+    readonly name = SafeguardTypes.Normal;
 
     constructor(public constant: ConstantTrait,
         public query: AggregateQuery) {
@@ -254,6 +270,7 @@ export class NormalSafeguard extends DistributiveSafeguard {
 
 export class LinearSafeguard extends DistributiveSafeguard {
     readonly validityType = ValidityTypes.Error;
+    readonly name = SafeguardTypes.Linear;
 
     constructor(public constant: ConstantTrait,
         public query: AggregateQuery) {
