@@ -190,6 +190,7 @@ export class MobileComponent implements OnInit {
 
                 if(data === 'movies_en') {
                     this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
+                    this.querySelected(this.engine.ongoingQueries[0]);
                 }
             });
         }

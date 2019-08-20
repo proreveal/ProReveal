@@ -5,6 +5,7 @@ import { Schema } from '../data/schema';
 import { Predicate } from '../data/predicate';
 import * as io from 'socket.io-client';
 import { RemoteSampler } from '../data/sampler';
+import { Safeguard, DistributiveSafeguard } from '../safeguard/safeguard';
 
 
 export class RemoteEngine {
@@ -25,6 +26,7 @@ export class RemoteEngine {
     ws: SocketIOClient.Socket;
     alternate = false;
     info: any;
+    safeguards: Safeguard[] = [];
 
     constructor(public url: string) {
         let ws = io(url, { transports: ['websocket'] })
@@ -72,6 +74,18 @@ export class RemoteEngine {
             });
 
             if(query.updateAutomatically) query.sync();
+
+            this.safeguards.forEach(sg => {
+                if (sg.lastUpdated < sg.query.lastUpdated) {
+                    sg.lastUpdated = sg.query.lastUpdated;
+                    sg.lastUpdatedAt = new Date(sg.query.lastUpdated);
+                }
+
+                if (sg instanceof DistributiveSafeguard && sg.query === query) {
+                    sg.updateConstant();
+                }
+            })
+
 
             this.jobDone(query);
         })
@@ -171,6 +185,12 @@ export class RemoteEngine {
         this.ws.emit('REQ/query', {query: query.toJSON()});
     }
 
+    requestSafeguard(sg: Safeguard) {
+        // TODO (socket)
+        this.safeguards.unshift(sg);
+        sg.query.safeguards.push(sg);
+    }
+
     pauseQuery(query: Query) {
         query.pause();
         this.ws.emit('REQ/query/pause', {query: query.toJSON()})
@@ -198,6 +218,12 @@ export class RemoteEngine {
         util.aremove(this.completedQueries, query);
 
         this.ws.emit('REQ/query/delete', query.toJSON());
+    }
+
+    removeSafeguard(sg: Safeguard){
+        // TODO
+        util.aremove(this.safeguards, sg);
+        util.aremove(sg.query.safeguards, sg);
     }
 
     reordered() {

@@ -67,7 +67,6 @@ export class AppComponent implements OnInit {
     sortablejsOptions: any;
 
     activeSafeguardPanel = SGT.None;
-    safeguards: Safeguard[] = [];
     isPlaying = false;
 
     creating = false;
@@ -108,7 +107,7 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(!this.storage.code) {
+        if(!this.storage.engineType) {
             this.router.navigate(['/'])
             return;
         }
@@ -130,12 +129,12 @@ export class AppComponent implements OnInit {
             this.data = data;
             this.isStudying = parameters.study || 0;
 
-            this.engine.alternate = alternate;
 
             const tutorial = parameters.tutorial || 0;
             if (tutorial) this.engine.alternate = true;
 
             this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
+            this.engine.alternate = alternate;
 
             if (this.engine.alternate)
                 this.engine.reschedule(true);
@@ -180,6 +179,7 @@ export class AppComponent implements OnInit {
 
                 if(data === 'movies_en') {
                     this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
+                    this.querySelected(this.engine.ongoingQueries[0]);
                 }
             });
 
@@ -257,18 +257,6 @@ export class AppComponent implements OnInit {
     }
 
     jobDone(query: Query) {
-        this.safeguards.forEach(sg => {
-            if (sg.lastUpdated < sg.query.lastUpdated) {
-                sg.lastUpdated = sg.query.lastUpdated;
-                sg.lastUpdatedAt = new Date(sg.query.lastUpdated);
-            }
-
-            if (sg instanceof DistributiveSafeguard && sg.query === query) {
-                console.log('update')
-                sg.updateConstant();
-            }
-        })
-
         if (DistributiveSafeguardTypes.includes(this.activeSafeguardPanel)) {
             this.vis.renderer.setDefaultConstantFromVariable(true);
         }
@@ -338,8 +326,8 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.unshift(sg);
-        this.activeQuery.safeguards.push(sg);
+
+        this.engine.requestSafeguard(sg);
 
         this.variable1 = null;
         this.rankConstant = null;
@@ -356,8 +344,8 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.unshift(sg);
-        this.activeQuery.safeguards.push(sg);
+
+        this.engine.requestSafeguard(sg);
 
         this.variable1 = null;
         this.rankConstant = null;
@@ -372,9 +360,9 @@ export class AppComponent implements OnInit {
         let sg = new RangeSafeguard(variable, this.rangeConstant, this.activeQuery);
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
-        this.safeguards.unshift(sg);
-        this.activeQuery.safeguards.push(sg);
         sg.history.push(sg.validity());
+
+        this.engine.requestSafeguard(sg);
 
         this.variable1 = null;
         this.rangeConstant = null;
@@ -390,8 +378,8 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.unshift(sg);
-        this.activeQuery.safeguards.push(sg);
+
+        this.engine.requestSafeguard(sg);
 
         this.variable1 = null;
         this.variable2 = null;
@@ -409,8 +397,8 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.SafeguardCreated, sg.toLog());
         sg.history.push(sg.validity());
-        this.safeguards.unshift(sg)
-        this.activeQuery.safeguards.push(sg);
+
+        this.engine.requestSafeguard(sg);
 
         this.toggle(SGT.None);
     }
@@ -598,7 +586,7 @@ export class AppComponent implements OnInit {
 
     // query remove
     queryRemoveClicked(query: Query, confirm, reject, $event: UIEvent) {
-        let sg = this.safeguards.find(sg => sg.query === query);
+        let sg = this.engine.safeguards.find(sg => sg.query === query);
 
         if (sg) {
             this.modalService
@@ -629,8 +617,7 @@ export class AppComponent implements OnInit {
     // safeguard remove
     sgRemoveClicked(sg: Safeguard) {
         this.highlightedQuery = null;
-        util.aremove(this.safeguards, sg);
-        util.aremove(sg.query.safeguards, sg);
+        this.engine.removeSafeguard(sg);
     }
 
     sgMouseEnter(sg: Safeguard) {
@@ -652,7 +639,7 @@ export class AppComponent implements OnInit {
     }
 
     exportSafeguards() {
-        let safeguards = this.safeguards.map(s => s.toLog());
+        let safeguards = this.engine.safeguards.map(s => s.toLog());
         let safeguardsString = JSON.stringify(safeguards, null, 2);
         let dataString = `data:text/json;charset=utf-8,${encodeURIComponent(safeguardsString)}`;
         let anchor = document.createElement("a");
@@ -702,7 +689,7 @@ export class AppComponent implements OnInit {
         }
 
         this.logger.log(LogType.Done, {
-            safeguards: this.safeguards.map(sg => sg.toLog()),
+            safeguards: this.engine.safeguards.map(sg => sg.toLog()),
             data: data
         })
     }

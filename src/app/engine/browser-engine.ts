@@ -10,6 +10,7 @@ import { AndPredicate, Predicate } from '../data/predicate';
 import { ExpConstants } from '../exp-constants';
 import { Priority } from './priority';
 import { UniformNumBlocksSampler } from '../data/sampler';
+import { Safeguard } from '../safeguard/safeguard';
 
 let TId = 0;
 
@@ -24,7 +25,7 @@ export class BrowserEngine {
     jobDone: (query: Query) => void;
     queryCreated: (query: Query) => void;
     selectQueryDone: (where: Predicate, rows: Row[]) => void;
-
+    safeguards: Safeguard[] = [];
 
     runningJob: Job;
     isRunning = false;
@@ -70,6 +71,12 @@ export class BrowserEngine {
         if(this.autoRun && !this.isRunning) this.runOne();
     }
 
+
+    requestSafeguard(sg: Safeguard) {
+        this.safeguards.unshift(sg);
+        sg.query.safeguards.push(sg);
+    }
+
     remove(query: Query) {
         util.aremove(this.ongoingQueries, query);
         util.aremove(this.completedQueries, query);
@@ -77,6 +84,10 @@ export class BrowserEngine {
         this.queue.remove(query);
     }
 
+    removeSafeguard(sg: Safeguard){
+        util.aremove(this.safeguards, sg);
+        util.aremove(sg.query.safeguards, sg);
+    }
 
     latencySubs: Subscription;
 
