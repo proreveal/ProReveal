@@ -47,14 +47,26 @@ export class RemoteEngine {
             const querySpec = data.query;
             const query = Query.fromJSON(querySpec, this.dataset);
 
-            console.log('new query created from server', data, query)
+            console.log('new query created from the server', data, query)
 
             this.queries.push(query);
             this.ongoingQueries.push(query);
             this.ongoingQueries.sort((a, b) => a.order - b.order);
 
             this.queryCreated(query);
+        });
 
+        ws.on('RES/safeguard', (data:any) => {
+            console.log('new safeguard created from the server', data);
+
+            const sgSpec = data.safeguard;
+            const query = this.queries.find(q => q.id === sgSpec.queryId) as AggregateQuery;
+
+            if(!query) return;
+
+            const sg = Safeguard.fromJSON(sgSpec, this.dataset, query);
+
+            this.safeguards.unshift(sg);
         });
 
         ws.on('result', (data: any) => {
@@ -85,7 +97,6 @@ export class RemoteEngine {
                     sg.updateConstant();
                 }
             })
-
 
             this.jobDone(query);
         })
@@ -131,6 +142,15 @@ export class RemoteEngine {
             this.ongoingQueries.sort((a, b) => a.order - b.order);
             this.completedQueries.sort((a, b) => a.order - b.order);
         });
+
+        ws.on('STATUS/safeguards', (data:any) => {
+            /*
+            data: [sg1_json, sg2_json, ... ]
+            */
+            console.log('new safeguard states', data);
+
+            this.safeguards = this.safeguards.filter(sg => data[sg.id]);
+        })
     }
 
     restore(code: string): Promise<[Dataset, Schema]> {
@@ -157,7 +177,7 @@ export class RemoteEngine {
 
                 // restore queries
 
-                data.session.queries.forEach(querySpec => {
+                data.session.queries.forEach((querySpec: any) => {
                     const query = Query.fromJSON(querySpec, this.dataset);
 
                     this.queries.push(query);
@@ -170,6 +190,19 @@ export class RemoteEngine {
 
                 this.ongoingQueries.sort((a, b) => a.order - b.order);
                 this.completedQueries.sort((a, b) => a.order - b.order);
+
+                // restore safeguards
+
+                data.session.safeguards.forEach((sgSpec:any) => {
+                    const query = this.queries.find(q => q.id === sgSpec.queryId) as AggregateQuery;
+
+                    if(!query) return;
+
+                    const sg = Safeguard.fromJSON(sgSpec, this.dataset, query);
+                    console.log(query.visibleData);
+
+                    this.safeguards.push(sg);
+                })
             });
         });
     }
@@ -186,9 +219,7 @@ export class RemoteEngine {
     }
 
     requestSafeguard(sg: Safeguard) {
-        // TODO (socket)
-        this.safeguards.unshift(sg);
-        sg.query.safeguards.push(sg);
+        this.ws.emit('REQ/safeguard', {safeguard: sg.toJSON()});
     }
 
     pauseQuery(query: Query) {
@@ -217,13 +248,11 @@ export class RemoteEngine {
         util.aremove(this.ongoingQueries, query);
         util.aremove(this.completedQueries, query);
 
-        this.ws.emit('REQ/query/delete', query.toJSON());
+        this.ws.emit('REQ/query/remove', query.toJSON());
     }
 
     removeSafeguard(sg: Safeguard){
-        // TODO
-        util.aremove(this.safeguards, sg);
-        util.aremove(sg.query.safeguards, sg);
+        this.ws.emit('REQ/safeguard/remove', {safeguard: sg.toJSON()});
     }
 
     reordered() {

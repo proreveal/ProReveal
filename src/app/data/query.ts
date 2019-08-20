@@ -147,7 +147,8 @@ export abstract class Query {
                 query.recentResult[kv.key.hash] = kv;
             });
 
-            if (query.updateAutomatically) query.sync();
+            query.sync();
+            query.getVisibleData();
         }
 
         return query;

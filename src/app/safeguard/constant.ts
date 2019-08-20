@@ -52,7 +52,7 @@ export abstract class ConstantTrait {
 }
 
 export class ValueConstant extends ConstantTrait {
-    static readonly type = ConstantTypes.Value;
+    readonly type = ConstantTypes.Value;
     isRank = false;
 
     constructor(public value: number) {

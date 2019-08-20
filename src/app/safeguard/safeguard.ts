@@ -22,8 +22,6 @@ const PowerLawEstimate = new PowerLawEstimator().estimate;
 const NormalEstimate = new NormalEstimator().estimate;
 const LinearRegressionEstimate = new LinearRegressionEstimator().estimate;
 
-
-
 export enum SafeguardTypes {
     None = 'None',
     Value = 'Value',
@@ -44,6 +42,8 @@ export abstract class Safeguard {
     history: Validity[] = [];
     lastUpdated: number;
     lastUpdatedAt: Date;
+
+    id: number;
 
     constructor(
         public type: SafeguardTypes,
@@ -73,6 +73,7 @@ export abstract class Safeguard {
 
     toJSON(): any {
         return {
+            id: this.id,
             type: this.type,
             variable: this.variable.toJSON(),
             operator: this.operator,
@@ -88,36 +89,42 @@ export abstract class Safeguard {
         const variable = VariableTrait.fromJSON(json.variable, dataset);
         const operator = json.operator;
         const constant = json.constant ? ConstantTrait.fromJSON(json.constant) : null;
+        let sg: Safeguard;
 
         if(safeguardType == SafeguardTypes.Value) {
-            return new ValueSafeguard(variable, operator, constant, query);
+            sg = new ValueSafeguard(variable, operator, constant, query);
         }
 
         if(safeguardType == SafeguardTypes.Rank) {
-            return new RankSafeguard(variable, operator, constant, query);
+            sg =  new RankSafeguard(variable, operator, constant, query);
         }
 
         if(safeguardType == SafeguardTypes.Range) {
-            return new RangeSafeguard(variable, constant, query);
+            sg = new RangeSafeguard(variable, constant, query);
         }
 
         if(safeguardType == SafeguardTypes.Comparative) {
-            return new ComparativeSafeguard(variable as any, operator, query);
+            sg = new ComparativeSafeguard(variable as any, operator, query);
         }
 
         if(safeguardType == SafeguardTypes.PowerLaw) {
-            return new PowerLawSafeguard(constant, query);
+            sg = new PowerLawSafeguard(constant, query);
         }
 
         if(safeguardType == SafeguardTypes.Normal) {
-            return new NormalSafeguard(constant, query);
+            sg = new NormalSafeguard(constant, query);
         }
 
         if(safeguardType == SafeguardTypes.Linear) {
-            return new LinearSafeguard(constant, query);
+            sg = new LinearSafeguard(constant, query);
         }
 
-        throw new Error(`Invalid safeguard spec: ${JSON.stringify(json)}`);
+        if(!sg)
+            throw new Error(`Invalid safeguard spec: ${JSON.stringify(json)}`);
+
+        sg.id = json.id;
+
+        return sg;
     }
 }
 

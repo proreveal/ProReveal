@@ -207,7 +207,7 @@ export class MobileComponent implements OnInit {
 
                 let query = new EmptyQuery(dataset)
                     .combine(dataset.getFieldByName('Score'))
-                    .combine(dataset.getFieldByName('Country'));
+                   // .combine(dataset.getFieldByName('Country'));
 
                 query.where = new AndPredicate([new EqualPredicate(
                     dataset.getFieldByName('Genre'),

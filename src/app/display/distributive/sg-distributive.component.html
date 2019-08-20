@@ -1,9 +1,9 @@
-<span *ngIf="constant.name === 'linear_regression'">
+<span *ngIf="constant.type === CST.Linear">
 <span class="variable1">{{ groupBy.fields[1].name }}</span> = {{ constant.a | smartNumber }} *
 <span class="variable1">{{ groupBy.fields[0].name }}</span>
 <span *ngIf="constant.b > 0"> + </span>{{ constant.b | smartNumber }}
 </span>
-<ng-container *ngIf="constant.name == 'power'">
+<ng-container *ngIf="constant.type == CST.PowerLaw">
 <span class="variable1 pr-1">
     <ng-container *ngIf="isQuantitative(query.groupBy.fields[0])">{{ query.groupBy.fields[0].name }}</ng-container>
     <ng-container *ngIf="!isQuantitative(query.groupBy.fields[0])">Count({{ query.groupBy.fields[0].name }})</ng-container>
@@ -14,10 +14,10 @@
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
 >{{ constant.a | smartNumber }} * Rank({{ query.groupBy.fields[0].name }})<sup>{{ constant.b | smartNumber }}</sup> </span>
 </ng-container>
-<ng-container *ngIf="constant.name == 'normal'">
+<ng-container *ngIf="constant.type == CST.Normal">
 <span class="variable1 pr-1">{{ query.groupBy.fields[0].name }}</span>
 <span class="operator pr-1">~</span>
-<span class="constant pr-1" *ngIf="constant.name == 'normal'"
+<span class="constant pr-1" *ngIf="constant.type == CST.Normal"
     [class.highlighted]="highlighted == 3"
     (mouseenter)="highlight.emit(3)" (mouseleave)="highlight.emit(0)"
 >N({{ constant.mean | smartNumber }}, {{ constant.stdev | smartNumber }})</span>
