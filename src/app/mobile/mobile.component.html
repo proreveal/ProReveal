@@ -205,11 +205,11 @@
             {{ L.Safeguards }}
         </h3>
         <section id="safeguard-list" class="styled-scroll bg-light">
-            <p *ngIf="safeguards.length === 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
+            <p *ngIf="engine.safeguards.length === 0" class="m-0 guide p-2 alert alert-primary rounded-0" style="word-break:keep-all;">
                 {{ L.SafeguardGuide }}
             </p>
 
-            <sg-list-item *ngFor="let sg of safeguards"
+            <sg-list-item *ngFor="let sg of engine.safeguards"
                 [safeguard]="sg"
                 (removeClicked)="sgRemoveClicked($event)"
                 (mouseenter)="sgMouseEnter(sg)"
