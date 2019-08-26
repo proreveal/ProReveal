@@ -201,7 +201,7 @@ export class AppComponent implements OnInit {
                     dataset.getFieldByName('Genre'),
                     'Comedy'
                 )])
-                this.create(query);
+                //this.create(query);
 
                 //dataset.
                 // let year = dataset.getFieldByName('YEAR');

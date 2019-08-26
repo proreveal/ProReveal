@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end actions mt-1">
+            <div class="d-flex justify-content-end actions mt-1 flex-wrap">
                 <button type="button" class="btn border btn-sm ml-1"
                     [hidden]="!query.aggregationLevelX"
                     [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
@@ -135,8 +135,24 @@
         </button>
     </div>
 
-    <svg #svg class="mt-2"
+    <div id="vis-grid" #visGrid>
+        <div id="x-title-wrapper">
+            <svg #xTitle></svg>
+        </div>
+        <div id="x-labels-wrapper" class="hide-scrollbar">
+            <svg #xLabels></svg>
+        </div>
+        <div id="y-title-wrapper">
+            <svg #yTitle></svg>
+        </div>
+        <div id="y-labels-wrapper" class="hide-scrollbar">
+            <svg #yLabels></svg>
+        </div>
+        <div id="vis-wrapper">
+            <svg #svg [class.mt-2]="!isMobile"
         [class.hidden]="!query || (query.recentProgress.processedBlocks === 0)"></svg>
+        </div>
+    </div>
 
     <div #dw class="dropdown-menu" id="dropdown"
         *ngIf="query"

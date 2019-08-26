@@ -16,11 +16,12 @@ import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
 import { AngularBrush, AngularBrushMode } from './angular-brush';
-import { AndPredicate, Predicate } from '../../data/predicate';
+import { Predicate } from '../../data/predicate';
 import { LinearLine } from './linear-line';
 import { LoggerService, LogType } from '../../services/logger.service';
 import { FieldGroupedValue } from '../../data/field-grouped-value';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
+import { VisGridSet } from '../vis-grid';
 
 type Range = [number, number];
 
@@ -41,7 +42,6 @@ export class HeatmapRenderer {
     linearLine = new LinearLine();
 
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
-    swatch: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     visG;
     interactionG;
     xValuesCount: number;
@@ -54,7 +54,8 @@ export class HeatmapRenderer {
 
     limitNumCategories = true;
 
-    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService) {
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService,
+        public isMobile: boolean) {
     }
 
     setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -80,8 +81,8 @@ export class HeatmapRenderer {
         this.linearLine.setup(this.interactionG);
     }
 
-    render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
-        let visG = d3.select(nativeSvg).select('g.vis');
+    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement) {
+        // Data Processing (view independent)
 
         let data = query.getVisibleData();
         this.data = data;
@@ -156,54 +157,108 @@ export class HeatmapRenderer {
         const yLabelWidth = d3.max(yValues, v => measure('~' + v.valueString()).width) || 0;
         const xLabelWidth = d3.max(xValues, v => measure('~' + v.valueString()).width) || 0;
 
-        const xFieldLabelHeight = C.heatmap.label.x.height;
-        const yFieldLabelWidth = C.heatmap.label.y.width;
+        const xTitleHeight = C.heatmap.title.x.height;
+        const yTitleWidth = C.heatmap.title.y.width;
 
-        const header = 1.414 / 2 * (C.heatmap.columnWidth + xLabelWidth) + xFieldLabelHeight
-        const height = C.heatmap.rowHeight * yValues.length + header * 2;
+        const headerHeight = 1.414 / 2 * (C.heatmap.title.x.height + xLabelWidth) + xTitleHeight
+        const height = C.heatmap.rowHeight * yValues.length + headerHeight * 2;
 
         const matrixWidth = xValues.length > 0 ?
-            (yFieldLabelWidth + yLabelWidth + C.heatmap.columnWidth * (xValues.length - 1) + header) : 0;
+            (yTitleWidth + yLabelWidth + C.heatmap.columnWidth * xValues.length) : 0;
         const width = matrixWidth + C.heatmap.legendSize * 1.2;
 
         this.matrixWidth = matrixWidth;
 
-        d3.select(nativeSvg).attr('width', width)
-            .attr('height', Math.max(height, C.heatmap.legendSize + C.heatmap.legendPadding * 2));
+        let heatmapFullWidth = C.heatmap.columnWidth * xValues.length;
+        let heatmapFullHeight = C.heatmap.rowHeight * yValues.length;
+        let heatmapXLabelHeight = 1.414 / 2 * xLabelWidth;
+
+        let availWidth = Math.min(window.screen.availWidth - 10, heatmapFullWidth + yTitleWidth + yLabelWidth);
+        let availHeight = Math.min(window.screen.availHeight - 300, heatmapFullHeight + xTitleHeight + heatmapXLabelHeight);
+
+        let heatmapAvailWidth = availWidth - C.heatmap.title.y.width - yLabelWidth;
+        let heatmapAvailHeight = availHeight - headerHeight;
+
+        // Set dimensions (x: ->, y: ↓)
+        if(this.isMobile) {
+            visGridSet.d3XTitle
+                .attr('width', heatmapAvailWidth)
+                .attr('height', C.heatmap.title.x.height);
+
+            visGridSet.d3XLabels
+                .attr('width', heatmapFullWidth)
+                .attr('height', heatmapXLabelHeight);
+
+            visGridSet.d3YTitle.attr('width', C.heatmap.title.y.width)
+                .attr('height', heatmapAvailHeight);
+
+            visGridSet.d3YLabels
+                .attr('width', yLabelWidth)
+                .attr('height', heatmapFullHeight);
+
+            visGridSet.d3VisGrid
+            .style('grid-template-columns', `${C.heatmap.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
+                .style('grid-template-rows', `${C.heatmap.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
+
+
+
+            visGridSet.d3Svg.attr('width', heatmapFullWidth)
+                .attr('height', heatmapFullHeight);
+        }
+        else {
+            d3.select(visGridSet.svg).attr('width', width)
+                .attr('height', Math.max(height, C.heatmap.legendSize + C.heatmap.legendPadding * 2));
+        }
 
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
-            .range([yFieldLabelWidth + yLabelWidth, matrixWidth - header]);
+            .range([yTitleWidth + yLabelWidth, matrixWidth - headerHeight]);
 
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
-            .range([header, height - header]);
+            .range([headerHeight, height - headerHeight]);
 
-        this.header = header;
+        if(this.isMobile) {
+            xScale.range([0, heatmapFullWidth]);
+            yScale.range([0, heatmapFullHeight]);
+        }
+
+        this.header = headerHeight;
         this.xScale = xScale;
         this.yScale = yScale;
 
-        // render top and bottom labels
+        let visG = d3.select(visGridSet.svg).select('g.vis');
+
+        // render top and bottom x title
         {
-            // x labels
-            selectOrAppend(visG, 'text', '.x.field.label.top')
+            let target = this.isMobile ? visGridSet.d3XTitle : visG;
+            let targetWidth = this.isMobile ? heatmapAvailWidth / 2 : matrixWidth / 2;
+
+            selectOrAppend(target, 'text', '.x.title.top')
                 .text(query.groupBy.fields[0].name)
-                .attr('transform', translate(matrixWidth / 2, 0))
+                .attr('transform', translate(targetWidth, 0))
                 .style('text-anchor', 'middle')
                 .attr('dy', '1.1em')
                 .style('font-size', '.8rem')
                 .style('font-style', 'italic')
 
-            selectOrAppend(visG, 'text', '.x.field.label.bottom')
-                .text(query.groupBy.fields[0].name)
-                .attr('transform', translate(matrixWidth / 2, height - C.bars.axis.height))
-                .style('text-anchor', 'middle')
-                .attr('dy', '1.3em')
-                .style('font-size', '.8rem')
-                .style('font-style', 'italic')
+            if(!this.isMobile)
+                selectOrAppend(target, 'text', '.x.title.bottom')
+                    .text(query.groupBy.fields[0].name)
+                    .attr('transform', translate(matrixWidth / 2, height - C.heatmap.title.x.height))
+                    .style('text-anchor', 'middle')
+                    .attr('dy', '1.3em')
+                    .style('font-size', '.8rem')
+                    .style('font-style', 'italic')
+        }
 
-            selectOrAppend(visG, 'text', '.y.field.label')
+        // render y title
+        {
+            let target = this.isMobile ? visGridSet.d3YTitle : visG;
+            let targetHeight = this.isMobile ? heatmapAvailHeight / 2 : height / 2;
+
+            selectOrAppend(target, 'text', '.y.title')
                 .text(query.groupBy.fields[1].name)
                 .attr('transform',
-                    translate(0, height / 2) + 'rotate(-90)')
+                    translate(0, targetHeight) + 'rotate(-90)')
                 .style('text-anchor', 'middle')
                 .attr('dy', '1em')
                 .style('font-size', '.8rem')
@@ -212,8 +267,12 @@ export class HeatmapRenderer {
 
         let enter: any;
 
-        { // y labels
-            const yLabels = visG
+        // y labels
+        {
+            let target = this.isMobile ? visGridSet.d3YLabels : visG;
+            let x = (this.isMobile ? yLabelWidth : (yTitleWidth + yLabelWidth)) - C.padding;
+
+            const yLabels = target
                 .selectAll('text.label.y.data')
                 .data(yValues, (d: FieldGroupedValue) => d.hash);
 
@@ -223,15 +282,19 @@ export class HeatmapRenderer {
                 .attr('dy', '.8rem')
 
             this.yLabels = yLabels.merge(enter)
-                .attr('transform', (d) => translate(yFieldLabelWidth + yLabelWidth - C.padding, yScale(d.hash)))
+                .attr('transform', (d) => translate(x, yScale(d.hash)))
                 .text(d => d.valueString())
 
             yLabels.exit().remove();
 
         }
 
-        { // x labels
-            const xTopLabels = visG
+        // x labels
+        {
+            let target = this.isMobile ? visGridSet.d3XLabels : visG;
+            let y = this.isMobile ? (heatmapXLabelHeight - C.padding / 1.4) : (headerHeight - C.padding);
+
+            const xTopLabels = target
                 .selectAll('text.label.top.x.data')
                 .data(xValues, (d: FieldGroupedValue) => d.hash);
 
@@ -241,25 +304,27 @@ export class HeatmapRenderer {
 
             this.xTopLabels = xTopLabels.merge(enter)
                 .attr('transform', (d) =>
-                    translate(xScale(d.hash) + xScale.bandwidth() / 2, header - C.padding) + 'rotate(-45)')
+                    translate(xScale(d.hash) + xScale.bandwidth() / 2, y) + 'rotate(-45)')
                 .text(d => d.valueString())
 
             xTopLabels.exit().remove();
 
-            const xBottomLabels = visG
-                .selectAll('text.label.x.bottom.data')
-                .data(xValues, (d: FieldGroupedValue) => d.hash);
+            if(!this.isMobile) {
+                const xBottomLabels = visG
+                    .selectAll('text.label.x.bottom.data')
+                    .data(xValues, (d: FieldGroupedValue) => d.hash);
 
-            enter = xBottomLabels.enter().append('text').attr('class', 'label x bottom data')
-                .style('text-anchor', 'start')
-                .attr('font-size', '.8rem')
+                enter = xBottomLabels.enter().append('text').attr('class', 'label x bottom data')
+                    .style('text-anchor', 'start')
+                    .attr('font-size', '.8rem')
 
-            this.xBottomLabels = xBottomLabels.merge(enter)
-                .attr('transform', (d) =>
-                    translate(xScale(d.hash) + xScale.bandwidth() / 2, height - header + yScale.bandwidth() / 2) + 'rotate(45)')
-                .text(d => d.valueString())
+                this.xBottomLabels = xBottomLabels.merge(enter)
+                    .attr('transform', (d) =>
+                        translate(xScale(d.hash) + xScale.bandwidth() / 2, height - headerHeight + yScale.bandwidth() / 2) + 'rotate(45)')
+                    .text(d => d.valueString())
 
-            xBottomLabels.exit().remove();
+                xBottomLabels.exit().remove();
+            }
         }
 
         const xMin = (query as AggregateQuery).approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
@@ -283,7 +348,6 @@ export class HeatmapRenderer {
             .valueDomain([domainStart, domainEnd])
             .uncertaintyDomain([0, maxUncertainty]);
 
-        let viridis = d3.interpolateViridis;
         let zScale = vsup.scale()
             .quantize(quant)
             // .range(t => viridis(1 - t));
@@ -310,213 +374,280 @@ export class HeatmapRenderer {
 
 
         // horizontal lines (grid)
+        {
+            let hls = visG.selectAll('line.horizontal')
+                .data(d3.range(yValues.length + 1))
 
-        let hls = visG.selectAll('line.horizontal')
-            .data(d3.range(yValues.length + 1))
+            enter = hls.enter().append('line').attr('class', 'horizontal')
+                .style('stroke', 'black')
+                .style('stroke-opacity', 0.1)
+                .style('pointer-events', 'none')
 
-        enter = hls.enter().append('line').attr('class', 'horizontal')
-            .style('stroke', 'black')
-            .style('stroke-opacity', 0.1)
-            .style('pointer-events', 'none')
+            let baseY = this.isMobile ? 0 : headerHeight;
+            hls.merge(enter)
+                .attr('x1', this.isMobile ? 0 : (yTitleWidth + yLabelWidth))
+                .attr('x2', this.isMobile ? heatmapFullWidth : (matrixWidth - headerHeight))
+                .attr('y1', (d, i) => baseY + C.heatmap.rowHeight * i)
+                .attr('y2', (d, i) => baseY + C.heatmap.rowHeight * i)
 
-        hls.merge(enter)
-            .attr('x1', yFieldLabelWidth + yLabelWidth)
-            .attr('y1', (d, i) => header + C.heatmap.rowHeight * i)
-            .attr('x2', matrixWidth - header)
-            .attr('y2', (d, i) => header + C.heatmap.rowHeight * i)
-
-        hls.exit().remove();
+            hls.exit().remove();
+        }
 
         // vertical lines (grid)
-        let vls = visG.selectAll('line.vertical')
-            .data(d3.range(xValues.length + 1))
+        {
+            let vls = visG.selectAll('line.vertical')
+                .data(d3.range(xValues.length + 1))
 
-        enter = vls.enter().append('line').attr('class', 'vertical')
-            .style('stroke', 'black')
-            .style('stroke-opacity', 0.1)
-            .style('pointer-events', 'none')
+            enter = vls.enter().append('line').attr('class', 'vertical')
+                .style('stroke', 'black')
+                .style('stroke-opacity', 0.1)
+                .style('pointer-events', 'none')
 
-        let xbw = this.xScale.bandwidth();
-        vls.merge(enter)
-            .attr('x1', (d, i) => yFieldLabelWidth + yLabelWidth + xbw * i)
-            .attr('y1', (d, i) => header)
-            .attr('x2', (d, i) => yFieldLabelWidth + yLabelWidth + xbw * i)
-            .attr('y2', (d, i) => height - header)
+            let bandwidth = this.xScale.bandwidth();
+            let baseX = this.isMobile ? 0 : yTitleWidth + yLabelWidth;
+            vls.merge(enter)
+                .attr('x1', (d, i) => baseX + bandwidth * i)
+                .attr('x2', (d, i) => baseX + bandwidth * i)
+                .attr('y1', this.isMobile ? 0 : headerHeight)
+                .attr('y2', this.isMobile ? heatmapFullHeight : (height - headerHeight))
 
-        vls.exit().remove();
-
-        let eventBoxes = this.interactionG
-            .selectAll('rect.event-box')
-            .data(data, (d: Datum) => d.id);
-
-        enter = eventBoxes
-            .enter().append('rect').attr('class', 'event-box variable1')
-
-        this.eventBoxes = eventBoxes.merge(enter)
-            .attr('height', yScale.bandwidth())
-            .attr('width', xScale.bandwidth())
-            .attr('transform', (d) => {
-                return translate(xScale(d.keys.list[0].hash), yScale(d.keys.list[1].hash))
-            })
-            .attr('fill', 'transparent')
-            .style('cursor', (d) => d.ci3 === EmptyConfidenceInterval ? 'auto' : 'pointer')
-            .on('mouseenter', (d, i) => {
-                this.showTooltip(d);
-
-                this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
-                this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
-                this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', true);
-            })
-            .on('mouseleave', (d, i) => {
-                this.hideTooltip();
-
-                this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
-                this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
-                this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', false);
-            })
-            .on('click', (d, i, ele) => {
-                if (d.ci3 == EmptyConfidenceInterval) return;
-                this.datumSelected(d);
-                this.toggleDropdown(d, i);
-
-                let d3ele = d3.select(ele[i]);
-                d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
-
-                this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
-                this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
-                this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
-            })
-            .on('contextmenu', (d) => this.datumSelected2(d))
-
-        eventBoxes.exit().remove();
-
-        // vertical lines (grid)
-        const size = C.heatmap.legendSize;
-        const padding = C.heatmap.legendPadding;
-        let legend = vsup.legend.arcmapLegend()
-            .scale(zScale).size(size)
-                .utitle(Constants.locale.HeatmapLegendUncertainty)
-                .vtitle(Constants.locale.HeatmapLedgendValue)
-
-        if(maxUncertainty >= 100000 || domainEnd >= 100000) {
-            legend = legend.format('.2s')
+            vls.exit().remove();
         }
 
-        let floatingSvgWrapper = d3.select(floatingSvg);
-        let floatingLegend = floatingSvgWrapper.select('.legend');
-        let floatingBrush = floatingSvgWrapper.select('.angular-brush');
+        // event boxes
+        {
+            let eventBoxes = this.interactionG
+                .selectAll('rect.event-box')
+                .data(data, (d: Datum) => d.id);
 
-        let parentWidth = nativeSvg.parentElement.offsetWidth;
-        let parentOffsetTop = 100 + header; // nativeSvg.getBoundingClientRect().top; // TODO
-        floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
-        floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+            enter = eventBoxes
+                .enter().append('rect').attr('class', 'event-box variable1')
 
-        d3.select(floatingSvg).style('display', 'block');
+            this.eventBoxes = eventBoxes.merge(enter)
+                .attr('height', yScale.bandwidth())
+                .attr('width', xScale.bandwidth())
+                .attr('transform', (d) => {
+                    return translate(xScale(d.keys.list[0].hash), yScale(d.keys.list[1].hash))
+                })
+                .attr('fill', 'transparent')
+                .style('cursor', (d) => d.ci3 === EmptyConfidenceInterval ? 'auto' : 'pointer')
+                .on('mouseenter', (d, i) => {
+                    this.showTooltip(d);
 
-        selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
-        selectOrAppend(floatingLegend, 'g', '.z.legend')
-            .attr('transform', translate(padding, 2 * padding))
-            .append('g')
-            .call(legend);
+                    this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
+                    this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
+                    this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', true);
+                })
+                .on('mouseleave', (d, i) => {
+                    this.hideTooltip();
 
-        selectOrAppend(visG, 'g', '.z.legend').remove();
+                    this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
+                    this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
+                    this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', false);
+                })
+                .on('click', (d, i, ele) => {
+                    if (d.ci3 == EmptyConfidenceInterval) return;
+                    this.datumSelected(d);
+                    this.toggleDropdown(d, i);
 
+                    let d3ele = d3.select(ele[i]);
+                    d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
 
-        if (matrixWidth + size + padding * 2 > parentWidth) {
-            floatingSvgWrapper
-                .style('position', 'sticky')
-                .style('left', `${parentWidth - size - padding * 3}px`)
-                .style('bottom', `${C.padding}px`)
-                .style('top', 'auto')
+                    this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                    this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                    this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                })
+                .on('contextmenu', (d) => this.datumSelected2(d))
+
+            eventBoxes.exit().remove();
         }
-        else {
-            floatingSvgWrapper
-                .style('position', 'absolute')
-                .style('left', `${matrixWidth}px`)
-                .style('top', `${parentOffsetTop}px`)
-                .style('bottom', 'auto')
-        }
 
-        this.angularBrush.on('brush', (centerOrRange) => {
-            if (this.safeguardType === SGT.Value) {
-                let constant = new ValueConstant(this.legendXScale.invert(centerOrRange));
-                this.constant = constant;
-                this.vis.constantSelected.emit(constant);
+        // legend
+        {
+            const size = C.heatmap.legendSize;
+            const padding = C.heatmap.legendPadding;
+            let legend = vsup.legend.arcmapLegend()
+                .scale(zScale).size(size)
+                    .utitle(Constants.locale.HeatmapLegendUncertainty)
+                    .vtitle(Constants.locale.HeatmapLedgendValue)
+
+            if(maxUncertainty >= 100000 || domainEnd >= 100000) {
+                legend = legend.format('.2s')
             }
-            else if (this.safeguardType === SGT.Range) {
-                let [center, from, to] = centerOrRange as [number, number, number];
-                let constant = new RangeConstant(
-                    this.legendXScale.invert(center),
-                    this.legendXScale.invert(from),
-                    this.legendXScale.invert(to));
-                this.constant = constant;
-                this.vis.constantSelected.emit(constant);
+
+            let floatingSvgWrapper = d3.select(floatingSvg);
+            let floatingLegend = floatingSvgWrapper.select('.legend');
+            let floatingBrush = floatingSvgWrapper.select('.angular-brush');
+
+            let parentWidth = visGridSet.svg.parentElement.offsetWidth;
+            let parentOffsetTop = 100 + headerHeight; // nativeSvg.getBoundingClientRect().top; // TODO
+            floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+            floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+
+            d3.select(floatingSvg).style('display', 'block');
+
+            selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
+            selectOrAppend(floatingLegend, 'g', '.z.legend')
+                .attr('transform', translate(padding, 2 * padding))
+                .append('g')
+                .call(legend);
+
+            selectOrAppend(visG, 'g', '.z.legend').remove();
+
+            if (matrixWidth + size + padding * 2 > parentWidth) {
+                floatingSvgWrapper
+                    .style('position', 'sticky')
+                    .style('left', `${parentWidth - size - padding * 3}px`)
+                    .style('bottom', `${C.padding}px`)
+                    .style('top', 'auto')
             }
-        })
+            else {
+                floatingSvgWrapper
+                    .style('position', 'absolute')
+                    .style('left', `${matrixWidth}px`)
+                    .style('top', `${parentOffsetTop}px`)
+                    .style('bottom', 'auto')
+            }
 
-        let legendXScale = d3.scaleLinear().domain(quant.valueDomain())
-            .range([padding, size + padding]);
-        this.legendXScale = legendXScale;
+            this.angularBrush.on('brush', (centerOrRange) => {
+                if (this.safeguardType === SGT.Value) {
+                    let constant = new ValueConstant(this.legendXScale.invert(centerOrRange));
+                    this.constant = constant;
+                    this.vis.constantSelected.emit(constant);
+                }
+                else if (this.safeguardType === SGT.Range) {
+                    let [center, from, to] = centerOrRange as [number, number, number];
+                    let constant = new RangeConstant(
+                        this.legendXScale.invert(center),
+                        this.legendXScale.invert(from),
+                        this.legendXScale.invert(to));
+                    this.constant = constant;
+                    this.vis.constantSelected.emit(constant);
+                }
+            })
 
-        if (this.safeguardType == SGT.Value || this.safeguardType === SGT.Range) {
-            this.angularBrush.render([[padding, 2 * padding], [size + padding, size + 2 * padding]]);
-        }
+            let legendXScale = d3.scaleLinear().domain(quant.valueDomain())
+                .range([padding, size + padding]);
+            this.legendXScale = legendXScale;
 
-        if (!this.constant) this.setDefaultConstantFromVariable();
+            if (this.safeguardType == SGT.Value || this.safeguardType === SGT.Range) {
+                this.angularBrush.render([[padding, 2 * padding], [size + padding, size + 2 * padding]]);
+            }
 
-        if ([SGT.Value, SGT.Range].includes(this.safeguardType) && this.constant)
-            this.angularBrush.show();
-        else
-            this.angularBrush.hide();
+            if (!this.constant) this.setDefaultConstantFromVariable();
+
+            if ([SGT.Value, SGT.Range].includes(this.safeguardType) && this.constant)
+                this.angularBrush.show();
+            else
+                this.angularBrush.hide();
 
 
-        if(this.variable1 && this.safeguardType === SGT.Value) {
-            let d = this.getDatum(this.variable1);
-            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+            if(this.variable1 && this.safeguardType === SGT.Value) {
+                let d = this.getDatum(this.variable1);
+                this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
 
-            if(this.constant) {
-                let center = this.legendXScale((this.constant as ValueConstant).value);
-                this.angularBrush.move(center);
+                if(this.constant) {
+                    let center = this.legendXScale((this.constant as ValueConstant).value);
+                    this.angularBrush.move(center);
+                }
+            }
+            else if(this.variable1 && this.safeguardType == SGT.Range) {
+                let d = this.getDatum(this.variable1);
+                this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+                this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
+
+                if(this.constant) {
+                    let oldRange: Range = (this.constant as RangeConstant).range;
+                    let half = (oldRange[1] - oldRange[0]) / 2;
+                    let newCenter = this.getDatum(this.variable1).ci3.center;
+                    let domain = this.legendXScale.domain();
+
+                    if(newCenter - half < domain[0]) { half = newCenter - domain[0]; }
+                    if(newCenter + half > domain[1]) { half = Math.min(half, domain[1] - newCenter); }
+
+                    let constant = new RangeConstant(newCenter, newCenter - half, newCenter + half);
+                    this.vis.constantSelected.emit(constant);
+                    this.constantUserChanged(constant); // calls brush.move
+                }
+            }
+
+            if (this.safeguardType === SGT.Linear) {
+                this.linearLine.show();
+                this.linearLine.render(
+                    this.constant as LinearConstant,
+                    xKeys,
+                    yKeys,
+                    xScale,
+                    yScale
+                );
+            }
+            else {
+                this.linearLine.hide();
             }
         }
-        else if(this.variable1 && this.safeguardType == SGT.Range) {
-            let d = this.getDatum(this.variable1);
-            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
-            this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
 
-            if(this.constant) {
-                let oldRange: Range = (this.constant as RangeConstant).range;
-                let half = (oldRange[1] - oldRange[0]) / 2;
-                let newCenter = this.getDatum(this.variable1).ci3.center;
-                let domain = this.legendXScale.domain();
+        // sync scroll (mobile)
+        if(this.isMobile) {
+            let wrapper = visGridSet.svg.parentElement;
+            let xFromLabel = false, xFromSvg = false, yFromLabel = false, yFromSvg = false;
 
-                if(newCenter - half < domain[0]) { half = newCenter - domain[0]; }
-                if(newCenter + half > domain[1]) { half = Math.min(half, domain[1] - newCenter); }
+            d3.select(wrapper)
+                .on('scroll', null)
+                .on('scroll', () => {
+                    let left = wrapper.scrollLeft,
+                        top = wrapper.scrollTop;
 
-                let constant = new RangeConstant(newCenter, newCenter - half, newCenter + half);
-                this.vis.constantSelected.emit(constant);
-                this.constantUserChanged(constant); // calls brush.move
-            }
-        }
+                    if(yFromLabel) {
+                        yFromLabel = false;
+                    }
+                    else {
+                        visGridSet.yLabels.parentElement.scrollTop = top;
+                        yFromSvg = true;
+                    }
 
-        if (this.safeguardType === SGT.Linear) {
-            this.linearLine.show();
-            this.linearLine.render(
-                this.constant as LinearConstant,
-                xKeys,
-                yKeys,
-                xScale,
-                yScale
-            );
-        }
-        else {
-            this.linearLine.hide();
+                    if(xFromLabel) {
+                        xFromLabel = false;
+                    }
+                    else {
+                        visGridSet.xLabels.parentElement.scrollLeft = left;
+                        xFromSvg = true;
+                    }
+                })
+
+            d3.select(visGridSet.xLabels.parentElement)
+                .on('scroll', null)
+                .on('scroll', () => {
+                    if(xFromSvg) {
+                        xFromSvg = false;
+                        return;
+                    }
+
+                    let left = visGridSet.xLabels.parentElement.scrollLeft;
+
+                    visGridSet.svg.parentElement.scrollLeft = left;
+                    xFromLabel = true;
+                })
+
+            d3.select(visGridSet.yLabels.parentElement)
+                .on('scroll', null)
+                .on('scroll', () => {
+                    if(yFromSvg) {
+                        yFromSvg = false;
+                        return;
+                    }
+
+                    let top = visGridSet.yLabels.parentElement.scrollTop
+
+                    visGridSet.svg.parentElement.scrollTop = top;
+                    yFromLabel = true;
+                })
         }
     }
 
     constant: ConstantTrait;
 
     safeguardType: SGT = SGT.None;
+
     setSafeguardType(st: SGT) {
         this.safeguardType = st;
 

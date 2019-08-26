@@ -30,9 +30,9 @@ export const Constants = Object.freeze({
         legendSize: 200,
         legendPadding: 30,
         swatchHeight: 20,
-        label: {
+        title: {
             x: {
-                height: 0,
+                height: 20
             },
             y: {
                 width: 20

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { BarsRenderer } from './renderers/bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
@@ -13,13 +13,14 @@ import { Priority } from '../engine/priority';
 import { Datum } from '../data/datum';
 import { LoggerService, LogType } from '../services/logger.service';
 import { StorageService } from '../services/storage.service';
+import { VisGridSet } from './vis-grid';
 
 @Component({
     selector: 'vis',
     templateUrl: './vis.component.html',
     styleUrls: ['./vis.component.scss']
 })
-export class VisComponent implements DoCheck {
+export class VisComponent implements DoCheck, AfterViewInit {
     @Input() query: AggregateQuery;
     @Input() floatingSvg: HTMLDivElement;
 
@@ -38,8 +39,12 @@ export class VisComponent implements DoCheck {
     @Output('sgPanelRequested') sgPanelRequested: EventEmitter<SafeguardTypes> = new EventEmitter();
     @Output('dataViewerRequested') dataViewerRequested: EventEmitter<Datum> = new EventEmitter();
 
-    @ViewChild('svg', { static: true }) svg: ElementRef<SVGSVGElement>;
-    //@ViewChild('floatingSvg') floatingSvg: ElementRef<SVGSVGElement>;
+    @ViewChild('svg', { static: false }) svg: ElementRef<SVGSVGElement>;
+    @ViewChild('xTitle', { static: false }) xTitle: ElementRef<SVGSVGElement>;
+    @ViewChild('xLabels', { static: false }) xLabels: ElementRef<SVGSVGElement>;
+    @ViewChild('yTitle', { static: false }) yTitle: ElementRef<SVGSVGElement>;
+    @ViewChild('yLabels', { static: false }) yLabels: ElementRef<SVGSVGElement>;
+    @ViewChild('visGrid', { static: false }) visGrid: ElementRef<HTMLDivElement>;
 
     @ViewChild('qc', { static: false }) queryCreator: QueryCreatorComponent;
     @ViewChild('tooltip', { static: true }) tooltip: TooltipComponent;
@@ -64,6 +69,7 @@ export class VisComponent implements DoCheck {
     queryCreatorLeft = 500;
     selectedDatum: Datum = null;
 
+    visGridSet: VisGridSet;
     isMobile = false;
 
     constructor(private logger: LoggerService, private storage: StorageService) {
@@ -83,10 +89,22 @@ export class VisComponent implements DoCheck {
             return new HeatmapRenderer(
                 this,
                 this.tooltip,
-                this.logger
+                this.logger,
+                this.storage.isMobile()
             ) as any;
 
         return null;
+    }
+
+    ngAfterViewInit() {
+        this.visGridSet = new VisGridSet(
+            this.svg.nativeElement,
+            this.xTitle.nativeElement,
+            this.xLabels.nativeElement,
+            this.yTitle.nativeElement,
+            this.yLabels.nativeElement,
+            this.visGrid.nativeElement
+        );
     }
 
     ngDoCheck() {
@@ -116,12 +134,12 @@ export class VisComponent implements DoCheck {
         if (this.limitNumCategories) {
             this.limitNumCategories = false;
             this.renderer.limitNumCategories = false;
-            this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
+            this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg);
         }
     }
 
     forceUpdate() {
-        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
+        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg);
         this.limitNumCategories = false;
 
         if (this.renderer instanceof BarsRenderer) {
@@ -145,7 +163,7 @@ export class VisComponent implements DoCheck {
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
-        this.renderer.render(this.query, this.svg.nativeElement, this.floatingSvg);
+        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg);
     }
 
     constantUserChanged(constant: ConstantTrait) {
@@ -275,7 +293,7 @@ export class VisComponent implements DoCheck {
     }
 
     emptySelectedDatum() {
-        if(this.renderer)
+        if (this.renderer)
             this.renderer.emptySelectedDatum();
         this.selectedDatum = null;
     }
