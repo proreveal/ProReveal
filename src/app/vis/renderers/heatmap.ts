@@ -497,7 +497,9 @@ export class HeatmapRenderer {
             floatingLegend.select('g.legend text[y="-30"]')
                 .attr('y', -40)
 
-            if (matrixWidth + size + padding * 2 > parentWidth) {
+            if(this.isMobile) {
+            }
+            else if (matrixWidth + size + padding * 2 > parentWidth) {
                 floatingSvgWrapper
                     .style('position', 'sticky')
                     .style('left', `${parentWidth - size - padding * 3}px`)
@@ -604,9 +606,6 @@ export class HeatmapRenderer {
         if(this.isMobile) {
             d3minimap
                 .style('display', 'block')
-                .style('position', 'sticky')
-                .style('bottom', 0)
-                .style('right', 0)
 
             d3minisvg
                 .attr('width', blockWidth * xValues.length)

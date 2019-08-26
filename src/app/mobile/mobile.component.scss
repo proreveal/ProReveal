@@ -345,7 +345,12 @@ $button-height: 38px;
 
 #minimap-wrapper {
     background: white;
+
+    position: fixed;
+    bottom: 5px;
+    right: 5px;
 }
+
 ::ng-deep .modal-xxl {
     .modal-lg {
         max-width: 90% !important;
@@ -380,6 +385,16 @@ $button-height: 38px;
     .create {
         color: var(--success);
         font-weight: bold;
+    }
+}
+
+@media screen and (max-width: 720px) {
+    #floating-svg-wrapper {
+        position: fixed;
+        display: block;
+        background: white;
+        bottom:5px;
+        left: 5px;
     }
 }
 
