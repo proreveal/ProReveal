@@ -23,6 +23,7 @@ import { VisGridSet } from './vis-grid';
 export class VisComponent implements DoCheck, AfterViewInit {
     @Input() query: AggregateQuery;
     @Input() floatingSvg: HTMLDivElement;
+    @Input() minimap: HTMLDivElement;
 
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
@@ -116,7 +117,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
                 this.renderer = this.recommend(this.query);
                 d3.select(this.svg.nativeElement).selectAll('*').remove();
                 this.renderer.setup(this.query, this.svg.nativeElement,
-                    this.floatingSvg);
+                    this.floatingSvg, this.minimap);
                 this.isDropdownVisible = false;
                 this.isQueryCreatorVisible = false;
             }
@@ -134,12 +135,12 @@ export class VisComponent implements DoCheck, AfterViewInit {
         if (this.limitNumCategories) {
             this.limitNumCategories = false;
             this.renderer.limitNumCategories = false;
-            this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg);
+            this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg, this.minimap);
         }
     }
 
     forceUpdate() {
-        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg);
+        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg, this.minimap);
         this.limitNumCategories = false;
 
         if (this.renderer instanceof BarsRenderer) {
@@ -163,7 +164,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
-        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg);
+        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg, this.minimap);
     }
 
     constantUserChanged(constant: ConstantTrait) {

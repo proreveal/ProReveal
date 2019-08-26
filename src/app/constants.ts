@@ -38,6 +38,10 @@ export const Constants = Object.freeze({
                 width: 20
             }
         },
+        minimap: {
+            maxWidth: 140,
+            maxHeight: 200
+        },
         initiallyVisibleCategories: 40,
         width: 960
     },

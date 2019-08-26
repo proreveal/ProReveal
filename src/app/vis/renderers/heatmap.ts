@@ -54,11 +54,13 @@ export class HeatmapRenderer {
 
     limitNumCategories = true;
 
+    minimapBrush: d3.BrushBehavior<unknown>;
+
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService,
         public isMobile: boolean) {
     }
 
-    setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
+    setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
         if (query.groupBy.fields.length !== 2) {
             throw 'Heatmaps can be used for 2 categories!';
         }
@@ -81,7 +83,7 @@ export class HeatmapRenderer {
         this.linearLine.setup(this.interactionG);
     }
 
-    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement) {
+    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
         // Data Processing (view independent)
 
         let data = query.getVisibleData();
@@ -435,14 +437,14 @@ export class HeatmapRenderer {
                     this.showTooltip(d);
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
-                    this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
+                    if(this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', true);
                 })
                 .on('mouseleave', (d, i) => {
                     this.hideTooltip();
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
-                    this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
+                    if(this.xBottomLabels)  this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
@@ -454,7 +456,7 @@ export class HeatmapRenderer {
                     d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
-                    this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                    if(this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
                 .on('contextmenu', (d) => this.datumSelected2(d))
@@ -492,7 +494,8 @@ export class HeatmapRenderer {
                 .append('g')
                 .call(legend);
 
-            selectOrAppend(visG, 'g', '.z.legend').remove();
+            floatingLegend.select('g.legend text[y="-30"]')
+                .attr('y', -40)
 
             if (matrixWidth + size + padding * 2 > parentWidth) {
                 floatingSvgWrapper
@@ -586,44 +589,126 @@ export class HeatmapRenderer {
             }
         }
 
+        // minimap
+
+        let d3minimap = d3.select(minimap);
+        let d3minisvg = d3minimap.select('svg');
+
+        let xCount = xValues.length;
+        let yCount = yValues.length;
+
+        let blockWidth = Math.min(Math.floor(C.heatmap.minimap.maxWidth / xCount), Math.floor(C.heatmap.minimap.maxHeight / yCount
+            / C.heatmap.rowHeight * C.heatmap.columnWidth))
+        let blockHeight = blockWidth * C.heatmap.rowHeight / C.heatmap.columnWidth;
+
+        if(this.isMobile) {
+            d3minimap
+                .style('display', 'block')
+                .style('position', 'sticky')
+                .style('bottom', 0)
+                .style('right', 0)
+
+            d3minisvg
+                .attr('width', blockWidth * xValues.length)
+                .attr('height', blockHeight * yValues.length)
+
+            let g = selectOrAppend(d3minisvg, 'g', 'blocks');
+
+            const rects =
+                g.selectAll('rect.area')
+                .data(data, (d: any) => d.id);
+
+            enter = rects
+                .enter().append('rect').attr('class', 'area')
+
+            const miniXScale = d3.scaleBand().domain(xValues.map(d => d.hash))
+                .range([0, blockWidth * xValues.length]);
+
+            const miniYScale = d3.scaleBand().domain(yValues.map(d => d.hash))
+                .range([0, blockHeight * yValues.length]);
+
+            rects.merge(enter)
+                .attr('width', miniXScale.bandwidth())
+                .attr('height', miniYScale.bandwidth())
+                .attr('transform', (d) => {
+                    return translate(miniXScale(d.keys.list[0].hash), miniYScale(d.keys.list[1].hash))
+                })
+                .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
+                    'transparent' :
+                    zScale(d.ci3.center, d.ci3.high - d.ci3.center)
+                );
+
+            rects.exit().remove();
+
+            let brush = d3.brush().handleSize(0);
+            this.minimapBrush = brush;
+
+            let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
+                .call(brush)
+                .call(brush.move, [[0, 0],
+                    [heatmapAvailWidth / C.heatmap.columnWidth * blockWidth,
+                    heatmapAvailHeight / C.heatmap.rowHeight * blockHeight]])
+
+            wrapper.select('.selection').style('stroke', 'none');
+
+            wrapper
+                .selectAll('.overlay').remove();
+        }
+        else {
+            d3minimap.style('display', 'none');
+        }
+
         // sync scroll (mobile)
         if(this.isMobile) {
             let wrapper = visGridSet.svg.parentElement;
             let xFromLabel = false, xFromSvg = false, yFromLabel = false, yFromSvg = false;
+            let xyFromBrush = false, xyFromSvg = false;
 
             d3.select(wrapper)
                 .on('scroll', null)
                 .on('scroll', () => {
+                    this.hideTooltip();
                     let left = wrapper.scrollLeft,
                         top = wrapper.scrollTop;
 
-                    if(yFromLabel) {
-                        yFromLabel = false;
-                    }
+                    if(yFromLabel) yFromLabel = false;
                     else {
                         visGridSet.yLabels.parentElement.scrollTop = top;
                         yFromSvg = true;
                     }
 
-                    if(xFromLabel) {
-                        xFromLabel = false;
-                    }
+                    if(xFromLabel) xFromLabel = false;
                     else {
                         visGridSet.xLabels.parentElement.scrollLeft = left;
                         xFromSvg = true;
+                    }
+
+                    if(xyFromBrush) {
+                        visGridSet.yLabels.parentElement.scrollTop = top;
+                        visGridSet.xLabels.parentElement.scrollLeft = left;
+                        yFromSvg = true;
+                        xFromSvg = true;
+                        xyFromBrush = false;
+                    }
+                    else {
+                        selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
+                            .call(this.minimapBrush.move, [[
+                                left / C.heatmap.columnWidth * blockWidth,
+                                top / C.heatmap.rowHeight * blockHeight,
+                            ], [
+                                left / C.heatmap.columnWidth * blockWidth + heatmapAvailWidth / C.heatmap.columnWidth * blockWidth,
+                                top / C.heatmap.rowHeight * blockHeight + heatmapAvailHeight / C.heatmap.rowHeight * blockHeight,
+                            ]]);
+
+                        xyFromSvg = true;
                     }
                 })
 
             d3.select(visGridSet.xLabels.parentElement)
                 .on('scroll', null)
                 .on('scroll', () => {
-                    if(xFromSvg) {
-                        xFromSvg = false;
-                        return;
-                    }
-
+                    if(xFromSvg) { xFromSvg = false; return; }
                     let left = visGridSet.xLabels.parentElement.scrollLeft;
-
                     visGridSet.svg.parentElement.scrollLeft = left;
                     xFromLabel = true;
                 })
@@ -631,16 +716,20 @@ export class HeatmapRenderer {
             d3.select(visGridSet.yLabels.parentElement)
                 .on('scroll', null)
                 .on('scroll', () => {
-                    if(yFromSvg) {
-                        yFromSvg = false;
-                        return;
-                    }
-
+                    if(yFromSvg) { yFromSvg = false; return;}
                     let top = visGridSet.yLabels.parentElement.scrollTop
-
                     visGridSet.svg.parentElement.scrollTop = top;
                     yFromLabel = true;
                 })
+
+            this.minimapBrush.on('start brush', () => {
+                let [[x0, y0], [x1, y1]] = d3.event.selection;
+
+                if(xyFromSvg) {xyFromSvg = false; return;}
+                visGridSet.svg.parentElement.scrollLeft = x0 / blockWidth * C.heatmap.columnWidth;
+                visGridSet.svg.parentElement.scrollTop = y0 / blockHeight * C.heatmap.rowHeight;
+                xyFromSvg = true;
+            })
         }
     }
 
@@ -825,8 +914,9 @@ export class HeatmapRenderer {
         if(d.ci3 === EmptyConfidenceInterval) return;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
-        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
-
+        const parentRect = this.nativeSvg.parentElement
+            .parentElement
+            .parentElement.getBoundingClientRect();
 
         let data = {
             query: this.query,
@@ -843,7 +933,7 @@ export class HeatmapRenderer {
     }
 
     hideTooltip() {
-        this.tooltip.hide();
+        if(this.tooltip.visible) this.tooltip.hide();
     }
 
     toggleDropdown(d: Datum, i: number) {
@@ -868,7 +958,10 @@ export class HeatmapRenderer {
         this.vis.selectedDatum = d;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
-        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement // wrapper
+            .parentElement // vis-grid
+            .parentElement // vis
+            .getBoundingClientRect();
 
         let i = this.data.indexOf(d);
         let top = clientRect.top - parentRect.top
@@ -913,7 +1006,7 @@ export class HeatmapRenderer {
     emptySelectedDatum() {
         this.eventBoxes.classed('menu-highlighted', false);
         this.xTopLabels.classed('menu-highlighted', false);
-        this.xBottomLabels.classed('menu-highlighted', false);
+        if(this.xBottomLabels) this.xBottomLabels.classed('menu-highlighted', false);
         this.yLabels.classed('menu-highlighted', false);
     }
 }

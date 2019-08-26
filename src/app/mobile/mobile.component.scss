@@ -343,6 +343,9 @@ $button-height: 38px;
     float: right;
 }
 
+#minimap-wrapper {
+    background: white;
+}
 ::ng-deep .modal-xxl {
     .modal-lg {
         max-width: 90% !important;

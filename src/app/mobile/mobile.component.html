@@ -180,6 +180,7 @@
         [hidden]="!activeQuery"
         [query]="activeQuery"
         [floatingSvg]="floatingSvg"
+        [minimap]="minimap"
         (variableSelected)="variableSelected($event)"
         (constantSelected)="constantSelected($event)"
         (queryCreated)="queryRequestedFromVis($event)"
@@ -195,6 +196,13 @@
         >
             <svg class="mr-2 mt-2 legend"></svg>
             <svg class="mr-2 mt-2 angular-brush"></svg>
+        </div>
+
+        <div id="minimap-wrapper" class="border" #minimap
+            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)"
+            style="display:none"
+        >
+            <svg class="m-2"></svg>
         </div>
 
     </section>

@@ -136,19 +136,6 @@ header {
     }
 }
 
-#dropdown-safeguard-header {
-    opacity: .8;
-    pointer-events: none;
-}
-
-#floating-svg {
-    display: block;
-    position: -webkit-sticky;
-    position: sticky;
-    left: 50px;
-    bottom: 0px;
-}
-
 svg.hidden {
     display: none;
 }
@@ -275,11 +262,19 @@ button.border:hover {
     stroke-width: 3px;
 }
 
+#x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper {
+    display: none;
+}
+
 @media screen and (max-width: 720px) {
     #vis-grid {
         display: grid;
         grid-template-columns: 20px 20px 100px;
         grid-template-rows: 20px 20px 100px;
+    }
+
+    #x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper {
+        display: block;
     }
 
     #x-title-wrapper {
