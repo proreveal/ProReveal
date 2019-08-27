@@ -61,11 +61,14 @@ export class NumericalGrouper {
     base: number;
 
     constructor(approxMin: number, approxMax: number, approxNumBins = 40) {
+        if(!approxNumBins || approxNumBins < 0) approxNumBins = 40;
+
         const ticks = d3.ticks(approxMin, approxMax, approxNumBins);
 
         this.min = ticks[0];
         this.max = ticks[ticks.length - 1];
         this.numBins = ticks.length - 1;
+
         this.step = this.numBins > 1 ? ticks[1] - ticks[0] : 1;
         this.base = this.min;
     }

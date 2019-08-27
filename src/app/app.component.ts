@@ -208,14 +208,14 @@ export class AppComponent implements OnInit {
                         this.querySelected(this.engine.completedQueries[0]);
                     }
 
-                    let query = new EmptyQuery(dataset)
-                        .combine(dataset.getFieldByName('Score'))
-                        .combine(dataset.getFieldByName('Country'));
+                    // let query = new EmptyQuery(dataset)
+                    //     .combine(dataset.getFieldByName('Score'))
+                    //     .combine(dataset.getFieldByName('Country'));
 
-                    query.where = new AndPredicate([new EqualPredicate(
-                        dataset.getFieldByName('Genre'),
-                        'Comedy'
-                    )])
+                    // query.where = new AndPredicate([new EqualPredicate(
+                    //     dataset.getFieldByName('Genre'),
+                    //     'Comedy'
+                    // )])
                     //this.create(query);
 
                     //dataset.

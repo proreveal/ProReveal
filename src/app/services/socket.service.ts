@@ -25,10 +25,16 @@ export class SocketService {
 
         ws.on('error', (reason) => {
             console.error(reason);
-        })
+        });
+
+        (window as any).ss = this;
     }
 
     disconnect() {
         this.ws.disconnect();
+    }
+
+    kill() {
+        this.ws.emit('kill');
     }
 }

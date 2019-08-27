@@ -769,7 +769,7 @@ export class BarsRenderer {
 
     showTooltip(d: Datum, i: number) {
         const clientRect = this.nativeSvg.getBoundingClientRect();
-        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.parentElement.parentElement.getBoundingClientRect();
 
         let data = {
             query: this.query,
@@ -828,7 +828,7 @@ export class BarsRenderer {
         this.vis.selectedDatum = d;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
-        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.parentElement.parentElement.getBoundingClientRect();
 
         let i = this.data.indexOf(d);
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
@@ -849,7 +849,7 @@ export class BarsRenderer {
         if (this.safeguardType != SGT.None) return;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
-        const parentRect = this.nativeSvg.parentElement.getBoundingClientRect();
+        const parentRect = this.nativeSvg.parentElement.parentElement.parentElement.getBoundingClientRect();
 
         let i = this.data.findIndex(datum => datum.id === d.id);
 
@@ -863,7 +863,8 @@ export class BarsRenderer {
         let where: Predicate = this.vis.query.where;
         // where + datum
 
-        this.vis.queryCreator.where = where.and(this.query.getPredicateFromDatum(d));
+        this.vis.queryCreator.where = where ? where.and(this.query.getPredicateFromDatum(d))
+         : new AndPredicate([this.query.getPredicateFromDatum(d)]);
     }
 
     closeQueryCreator() {
