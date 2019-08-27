@@ -25,19 +25,19 @@
     </div>
     <div [hidden]="!showInfo">
         <div *ngIf="engineType == 'remote'">
-            <ng-container *ngIf="engine.info">
+            <ng-container *ngIf="socket.serverInfo">
                 <span class="text-light small">
-                    Connected to <strong>{{engine.url}}</strong> (ProReveal Engine {{ engine.info.version }}) <ng-container *ngIf="engine.info.backend == 'spark'">
-                    (Spark Backend {{ engine.info.version }},
-                    Apache Spark {{ engine.info.sparkVersion }}, Master: {{ engine.info.master }},
-                    <a href="{{ engine.info.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
+                    Connected to <strong>{{ socket.url }}</strong> (ProReveal Engine {{ socket.serverInfo.version }}) <ng-container *ngIf="socket.serverInfo.backend == 'spark'">
+                    (Spark Backend {{ socket.serverInfo.version }},
+                    Apache Spark {{ socket.serverInfo.sparkVersion }}, Master: {{ socket.serverInfo.master }},
+                    <a href="{{ socket.serverInfo.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
                 </span>
             </ng-container>
-            <ng-container *ngIf="!engine.info">
+            <ng-container *ngIf="!socket.serverInfo">
                 <span class="text-light small">
                     <fa-icon [icon]="['fas', 'exclamation-circle']"></fa-icon>
                     Disconnected.
-                    Trying to connect to {{ engine.url }}
+                    Trying to connect to {{ socket.url }}
                 </span>
             </ng-container>
         </div>
@@ -52,15 +52,15 @@
 
             <section id="ongoing-query-view" class="styled-scroll">
                 <div [hidden]="engine.ongoingQueries.length == 0" class="btn-group w-100 rounded-0 border-bottom" role="group" id="all">
-                    <button type="button" class="btn btn-sm btn-light" (click)="resumeAll()">
+                    <button type="button" class="btn btn-sm py-2 btn-light" (click)="resumeAll()">
                         <fa-icon [icon]="['fas', 'play']"></fa-icon>
                         {{ L.ResumeAll }}
                     </button>
-                    <button type="button" class="btn btn-sm btn-light border-left" (click)="pauseAll()">
+                    <button type="button" class="btn btn-sm py-2 btn-light border-left" (click)="pauseAll()">
                         <fa-icon [icon]="['fas', 'pause']"></fa-icon>
                         {{ L.PauseAll }}
                     </button>
-                    <button type="button" class="btn btn-sm btn-light border-left" (click)="engine.alternate=!engine.alternate;alternateChange()">
+                    <button type="button" class="btn btn-sm py-2 btn-light border-left" (click)="engine.alternate=!engine.alternate;alternateChange()">
                         <fa-icon [icon]="['far', 'square']" [hidden]="engine.alternate"></fa-icon>
                         <fa-icon [icon]="['far', 'check-square']" [hidden]="!engine.alternate"></fa-icon>
                         {{ L.Alternate }}

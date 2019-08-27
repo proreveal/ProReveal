@@ -6,6 +6,7 @@ import { Predicate } from '../data/predicate';
 import * as io from 'socket.io-client';
 import { RemoteSampler } from '../data/sampler';
 import { Safeguard, DistributiveSafeguard } from '../safeguard/safeguard';
+import { SocketService } from '../services/socket.service';
 
 
 export class RemoteEngine {
@@ -23,26 +24,11 @@ export class RemoteEngine {
     isRunning = true;
     autoRun = false;
     activeTId: number;
-    ws: SocketIOClient.Socket;
     alternate = false;
-    info: any;
     safeguards: Safeguard[] = [];
 
-    constructor(public url: string) {
-        let ws = io(url, { transports: ['websocket'] })
-
-        this.ws = ws;
-
-        ws.on('welcome', (serverInfo: any) => {
-            this.info = serverInfo;
-        })
-
-        ws.on('disconnect', (reason) => {
-            console.log(reason)
-            this.info = null;
-        })
-
-        ws.on('RES/query', (data:any) => {
+    constructor(private socket: SocketService) {
+        socket.ws.on('RES/query', (data:any) => {
 
             const querySpec = data.query;
             const query = Query.fromJSON(querySpec, this.dataset);
@@ -56,7 +42,7 @@ export class RemoteEngine {
             this.queryCreated(query);
         });
 
-        ws.on('RES/safeguard', (data:any) => {
+        socket.ws.on('RES/safeguard', (data:any) => {
             console.log('new safeguard created from the server', data);
 
             const sgSpec = data.safeguard;
@@ -69,7 +55,7 @@ export class RemoteEngine {
             this.safeguards.unshift(sg);
         });
 
-        ws.on('result', (data: any) => {
+        socket.ws.on('result', (data: any) => {
             console.log('Result arrived', data)
 
             const query = this.ongoingQueries.find(q => q.id === data.query.id) as AggregateQuery;
@@ -101,7 +87,7 @@ export class RemoteEngine {
             this.jobDone(query);
         })
 
-        ws.on('STATUS/job/start', (data:any) => {
+        socket.ws.on('STATUS/job/start', (data:any) => {
             const id = data.id;
             const query = this.queries.find(q => q.id == id);
             console.log('job start',  data)
@@ -111,7 +97,7 @@ export class RemoteEngine {
             query.recentProgress.ongoingRows = data.numOngoingRows;
         })
 
-        ws.on('STATUS/job/end', (data:any) => {
+        socket.ws.on('STATUS/job/end', (data:any) => {
             const id = data.id;
             const clientId = data.clientId;
 
@@ -123,7 +109,7 @@ export class RemoteEngine {
             }
         })
 
-        ws.on('STATUS/queries', (data:any) => {
+        socket.ws.on('STATUS/queries', (data:any) => {
             /*
             data: {qid: {order: 1, state: running}}
             */
@@ -143,7 +129,7 @@ export class RemoteEngine {
             this.completedQueries.sort((a, b) => a.order - b.order);
         });
 
-        ws.on('STATUS/safeguards', (data:any) => {
+        socket.ws.on('STATUS/safeguards', (data:any) => {
             /*
             data: [sg1_json, sg2_json, ... ]
             */
@@ -153,13 +139,23 @@ export class RemoteEngine {
         })
     }
 
-    restore(code: string): Promise<[Dataset, Schema]> {
-        let ws = this.ws;
+    connect(): Promise<void> {
+        let ws = this.socket.ws;
 
         return new Promise((resolve) => {
-            ws.emit('REQ/restore', {code: code});
+            if(ws.connected) resolve();
+            ws.on('connect', () => {
+                resolve();
+            });
+        })
+    }
+
+    restore(code: string): Promise<[Dataset, Schema]> {
+        let ws = this.socket.ws;
+
+        return new Promise((resolve) => {
             ws.on('RES/restore', (data: any) => {
-                console.log('Restored the session', data);
+                console.log('Restored the session!!', data);
 
                 const schema = data.metadata.schema;
                 const numRows = data.metadata.numRows;
@@ -172,8 +168,6 @@ export class RemoteEngine {
                 this.alternate = data.session.alternate;
 
                 console.log('Got schema', schema);
-
-                resolve([this.dataset, this.schema]);
 
                 // restore queries
 
@@ -203,7 +197,12 @@ export class RemoteEngine {
 
                     this.safeguards.push(sg);
                 })
-            });
+
+                resolve([this.dataset, this.schema]);
+            })
+            .emit('REQ/restore', {code: code});
+            console.log('Restore emitted');
+
         });
     }
 
@@ -211,20 +210,20 @@ export class RemoteEngine {
     runOne() { }
 
     emit(event: string) {
-        this.ws.emit(event);
+        this.socket.ws.emit(event);
     }
 
     request(query: Query) {
-        this.ws.emit('REQ/query', {query: query.toJSON()});
+        this.socket.ws.emit('REQ/query', {query: query.toJSON()});
     }
 
     requestSafeguard(sg: Safeguard) {
-        this.ws.emit('REQ/safeguard', {safeguard: sg.toJSON()});
+        this.socket.ws.emit('REQ/safeguard', {safeguard: sg.toJSON()});
     }
 
     pauseQuery(query: Query) {
         query.pause();
-        this.ws.emit('REQ/query/pause', {query: query.toJSON()})
+        this.socket.ws.emit('REQ/query/pause', {query: query.toJSON()})
     }
 
     pauseAllQueries() {
@@ -235,7 +234,7 @@ export class RemoteEngine {
 
     resumeQuery(query: Query) {
         query.resume();
-        this.ws.emit('REQ/query/resume', {query: query.toJSON()})
+        this.socket.ws.emit('REQ/query/resume', {query: query.toJSON()})
     }
 
     resumeAllQueries() {
@@ -248,11 +247,11 @@ export class RemoteEngine {
         util.aremove(this.ongoingQueries, query);
         util.aremove(this.completedQueries, query);
 
-        this.ws.emit('REQ/query/remove', query.toJSON());
+        this.socket.ws.emit('REQ/query/remove', query.toJSON());
     }
 
     removeSafeguard(sg: Safeguard){
-        this.ws.emit('REQ/safeguard/remove', {safeguard: sg.toJSON()});
+        this.socket.ws.emit('REQ/safeguard/remove', {safeguard: sg.toJSON()});
     }
 
     reordered() {
@@ -265,19 +264,19 @@ export class RemoteEngine {
             order[q.id] = i++;
         })
 
-        this.ws.emit('REQ/query/reorder', {order: order});
+        this.socket.ws.emit('REQ/query/reorder', {order: order});
     }
 
     reschedule(alternate:boolean) {
         this.alternate = alternate;
 
-        this.ws.emit('REQ/queue/reschedule', {
+        this.socket.ws.emit('REQ/queue/reschedule', {
             alternate: this.alternate
         });
     }
 
     select(where: Predicate): void {
         let query = new SelectQuery(this.dataset, where);
-        this.ws.emit('REQ/query', {query: query.toJSON()})
+        this.socket.ws.emit('REQ/query', {query: query.toJSON()})
     }
 }

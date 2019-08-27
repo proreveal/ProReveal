@@ -26,6 +26,7 @@ import { Row } from '../data/dataset';
 import { StorageService } from '../services/storage.service';
 import { Router } from '@angular/router';
 import { QueryState } from '../data/query-state';
+import { SocketService } from '../services/socket.service';
 
 @Component({
     selector: 'app-mobile',
@@ -100,7 +101,8 @@ export class MobileComponent implements OnInit {
     showGuardList = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
-        private storage:StorageService, private router:Router) {
+        private storage: StorageService, public socket: SocketService,
+        private router: Router) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.reordered();
@@ -109,7 +111,7 @@ export class MobileComponent implements OnInit {
     }
 
     ngOnInit() {
-        if(!this.storage.engineType) {
+        if (!this.storage.engineType) {
             this.router.navigate(['/'])
             return;
         }
@@ -129,7 +131,9 @@ export class MobileComponent implements OnInit {
 
         this.debug = parameters.debug || 0;
 
-        if(engineType == 'browser') {
+        if (engineType == 'browser') {
+            this.socket.disconnect();
+
             const data = parameters.data || "movies_en";
             const init = +parameters.init || 0;
             const run = +parameters.run || 0;
@@ -187,7 +191,7 @@ export class MobileComponent implements OnInit {
 
                 this.engine.run();
 
-                if(data === 'movies_en') {
+                if (data === 'movies_en') {
                     this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
                     this.querySelected(this.engine.ongoingQueries[0]);
                 }
@@ -195,41 +199,45 @@ export class MobileComponent implements OnInit {
         }
         else {
             this.logger.mute();
-            this.engine = new RemoteEngine(Constants.host);
-            this.engine.restore(this.storage.code).then(([dataset]) => {
+            this.engine = new RemoteEngine(this.socket);
+            let engine = this.engine;
+            engine.connect().then(() => {
+                console.log('connected');
+                engine.restore(this.storage.code).then(([dataset]) => {
+                    console.log('Session restored. Executing the controller logic');
+                    if (this.engine.ongoingQueries.length > 0) {
+                        this.querySelected(this.engine.ongoingQueries[0]);
+                    }
+                    else if (this.engine.completedQueries.length > 0) {
+                        this.querySelected(this.engine.completedQueries[0]);
+                    }
 
-                if(this.engine.ongoingQueries.length > 0) {
-                    this.querySelected(this.engine.ongoingQueries[0]);
-                }
-                else if(this.engine.completedQueries.length > 0) {
-                    this.querySelected(this.engine.completedQueries[0]);
-                }
+                    let query = new EmptyQuery(dataset)
+                        .combine(dataset.getFieldByName('Score'))
+                    // .combine(dataset.getFieldByName('Country'));
 
-                let query = new EmptyQuery(dataset)
-                    .combine(dataset.getFieldByName('Score'))
-                   // .combine(dataset.getFieldByName('Country'));
+                    query.where = new AndPredicate([new EqualPredicate(
+                        dataset.getFieldByName('Genre'),
+                        'Comedy'
+                    )])
+                    // this.create(query);
 
-                query.where = new AndPredicate([new EqualPredicate(
-                    dataset.getFieldByName('Genre'),
-                    'Comedy'
-                )])
-                // this.create(query);
+                    //dataset.
+                    // let year = dataset.getFieldByName('YEAR');
+                    // let month = dataset.getFieldByName('MONTH');
+                    // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
+                    // let distance = dataset.getFieldByName('DISTANCE')
 
-                //dataset.
-                // let year = dataset.getFieldByName('YEAR');
-                // let month = dataset.getFieldByName('MONTH');
-                // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
-                // let distance = dataset.getFieldByName('DISTANCE')
+                    // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
 
-                // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
+                    // query.where = new AndPredicate([new EqualPredicate(
+                    //     dataset.getFieldByName('YEAR'),
+                    //     2016
+                    // )])
 
-                // query.where = new AndPredicate([new EqualPredicate(
-                //     dataset.getFieldByName('YEAR'),
-                //     2016
-                // )])
-
-                // this.create(new EmptyQuery(dataset).combine(year));
-                // this.create(query, Priority.Highest);
+                    // this.create(new EmptyQuery(dataset).combine(year));
+                    // this.create(query, Priority.Highest);
+                });
             });
         }
 
@@ -645,7 +653,7 @@ export class MobileComponent implements OnInit {
 
     // ongoing query list
     alternateChange() {
-        this.logger.log(LogType.SchedulerChanged, {alternate: this.engine.alternate});
+        this.logger.log(LogType.SchedulerChanged, { alternate: this.engine.alternate });
         this.engine.reschedule(this.engine.alternate);
     }
 

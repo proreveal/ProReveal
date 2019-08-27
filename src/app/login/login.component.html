@@ -10,11 +10,11 @@
 <h1 class="mt-2">Log in</h1>
 <h5 class="mb-3">If you have a ProReveal server,</h5>
 
-<div class="alert alert-danger text-sm p-2" role="alert" *ngIf="!connected">
+<div class="alert alert-danger text-sm p-2" role="alert" *ngIf="!socket.ws.connected">
   Cannot connect to <strong>{{ C.host }}</strong>.
 </div>
-<div class="alert alert-success text-sm p-2" role="alert" *ngIf="connected">
-  Connected to <strong>{{C.host}}</strong> (ProReveal Engine {{ info.version }}).
+<div class="alert alert-success text-sm p-2" role="alert" *ngIf="socket.ws.connected">
+  Connected to <strong>{{C.host}}</strong> (ProReveal Engine {{ socket.serverInfo.version }}).
 </div>
 
 <form (submit)="restore()">
@@ -23,14 +23,14 @@
         required [(ngModel)]="code" name="code" pattern="[A-Za-z]{3}">
     </div>
     <button type="submit" class="btn btn-primary w-100"
-    [disabled]="!connected">Restore a session</button>
+    [disabled]="!socket.ws.connected">Restore a session</button>
 </form>
 
 <div class="text-center my-3">
 - OR -
 </div>
 
-<button type="submit" class="btn btn-primary w-100" [disabled]="!connected">Create a new session</button>
+<button type="submit" class="btn btn-primary w-100" [disabled]="!socket.ws.connected">Create a new session</button>
 
 <h5 class="mt-4">If you do not have a server,</h5>
 <button class="btn btn-primary w-100" (click)="continueBrowser()">Continue with a browser engine</button>

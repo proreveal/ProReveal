@@ -611,7 +611,7 @@ export class HeatmapRenderer {
                 .attr('width', blockWidth * xValues.length)
                 .attr('height', blockHeight * yValues.length)
 
-            let g = selectOrAppend(d3minisvg, 'g', 'blocks');
+            let g = selectOrAppend(d3minisvg, 'g', '.blocks');
 
             const rects =
                 g.selectAll('rect.area')
@@ -772,6 +772,7 @@ export class HeatmapRenderer {
             )
             .classed('highlighted', true)
 
+        if(this.xBottomLabels)
         this.xBottomLabels
             .classed('highlighted', false)
             .filter((d) => (this.variable1 && this.variable1.first.fieldGroupedValue.hash === d.hash) ||
@@ -796,6 +797,7 @@ export class HeatmapRenderer {
             .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
             .classed('variable2', true)
 
+        if(this.xBottomLabels)
         this.xBottomLabels
             .classed('variable2', false)
             .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
