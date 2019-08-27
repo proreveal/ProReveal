@@ -83,7 +83,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
                 this,
                 this.tooltip,
                 this.logger,
-                this.storage.isMobile() ? window.screen.availWidth - 15 : Constants.bars.width
+                this.storage.isMobile()
             );
 
         if (query.groupBy.fields.length === 2 || query instanceof Histogram2DQuery)

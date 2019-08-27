@@ -202,8 +202,6 @@ export class HeatmapRenderer {
             .style('grid-template-columns', `${C.heatmap.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
                 .style('grid-template-rows', `${C.heatmap.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
 
-
-
             visGridSet.d3Svg.attr('width', heatmapFullWidth)
                 .attr('height', heatmapFullHeight);
         }

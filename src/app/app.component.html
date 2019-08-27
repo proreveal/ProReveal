@@ -47,19 +47,19 @@
         </div>
 
         <div *ngIf="engineType == 'remote'">
-            <ng-container *ngIf="engine.info">
+            <ng-container *ngIf="socket.serverInfo">
                 <span class="text-light small">
-                    Connected to <strong>{{engine.url}}</strong> (ProReveal Engine {{ engine.info.version }}) <ng-container *ngIf="engine.info.backend == 'spark'">
-                    (Spark Backend {{ engine.info.version }},
-                    Apache Spark {{ engine.info.sparkVersion }}, Master: {{ engine.info.master }},
-                    <a href="{{ engine.info.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
+                    Connected to <strong>{{ socket.url }}</strong> (ProReveal Engine {{ socket.serverInfo.version }}) <ng-container *ngIf="socket.serverInfo.backend == 'spark'">
+                    (Spark Backend {{ socket.serverInfo.version }},
+                    Apache Spark {{ socket.serverInfo.sparkVersion }}, Master: {{ socket.serverInfo.master }},
+                    <a href="{{ socket.serverInfo.uiWebUrl }}" target="_blank" class="text-light">Web UI</a>)</ng-container>
                 </span>
             </ng-container>
-            <ng-container *ngIf="!engine.info">
+            <ng-container *ngIf="!socket.serverInfo">
                 <span class="text-light small">
                     <fa-icon [icon]="['fas', 'exclamation-circle']"></fa-icon>
                     Disconnected.
-                    Trying to connect to {{ engine.url }}
+                    Trying to connect to {{ socket.url }}
                 </span>
             </ng-container>
         </div>

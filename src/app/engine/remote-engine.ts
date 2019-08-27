@@ -154,7 +154,9 @@ export class RemoteEngine {
         let ws = this.socket.ws;
 
         return new Promise((resolve) => {
-            ws.on('RES/restore', (data: any) => {
+            ws
+                .off('RES/restore')
+                .on('RES/restore', (data: any) => {
                 console.log('Restored the session!!', data);
 
                 const schema = data.metadata.schema;

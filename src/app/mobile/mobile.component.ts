@@ -202,7 +202,6 @@ export class MobileComponent implements OnInit {
             this.engine = new RemoteEngine(this.socket);
             let engine = this.engine;
             engine.connect().then(() => {
-                console.log('connected');
                 engine.restore(this.storage.code).then(([dataset]) => {
                     console.log('Session restored. Executing the controller logic');
                     if (this.engine.ongoingQueries.length > 0) {

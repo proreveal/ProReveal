@@ -18,7 +18,7 @@ import { BarsRenderer } from './vis/renderers/bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator, MinMaxRangeEstimator } from './safeguard/estimate';
 import { HeatmapRenderer } from './vis/renderers/heatmap';
 import { isNull } from 'util';
-import { Constants as C, Constants } from './constants';
+import { Constants as C } from './constants';
 import { AndPredicate, EqualPredicate, Predicate } from './data/predicate';
 import { Datum } from './data/datum';
 import { LoggerService, LogType } from './services/logger.service';
@@ -27,6 +27,7 @@ import { Row } from './data/dataset';
 import { StorageService } from './services/storage.service';
 import { Router } from '@angular/router';
 import { QueryState } from './data/query-state';
+import { SocketService } from './services/socket.service';
 
 @Component({
     selector: 'app-main',
@@ -98,7 +99,8 @@ export class AppComponent implements OnInit {
     debug = false;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
-        private storage:StorageService, private router:Router) {
+        private storage: StorageService, public socket: SocketService,
+        private router:Router) {
         this.sortablejsOptions = {
             onUpdate: () => {
                 this.engine.reordered();
@@ -119,6 +121,8 @@ export class AppComponent implements OnInit {
         this.debug = parameters.debug || 0;
 
         if(engineType == 'browser') {
+            this.socket.disconnect();
+
             const data = parameters.data || "movies_en";
             const init = +parameters.init || 0;
             const run = +parameters.run || 0;
@@ -191,33 +195,45 @@ export class AppComponent implements OnInit {
         }
         else {
             this.logger.mute();
-            this.engine = new RemoteEngine(Constants.host);
-            this.engine.restore(this.storage.code).then(([dataset]) => {
-                let query = new EmptyQuery(dataset)
-                    .combine(dataset.getFieldByName('Score'))
-                    .combine(dataset.getFieldByName('Country'));
+            this.engine = new RemoteEngine(this.socket);
+            let engine = this.engine;
+            engine.connect().then(() => {
+                engine.restore(this.storage.code).then(([dataset]) => {
+                    console.log('Session restored. Executing the controller logic');
 
-                query.where = new AndPredicate([new EqualPredicate(
-                    dataset.getFieldByName('Genre'),
-                    'Comedy'
-                )])
-                //this.create(query);
+                    if (this.engine.ongoingQueries.length > 0) {
+                        this.querySelected(this.engine.ongoingQueries[0]);
+                    }
+                    else if (this.engine.completedQueries.length > 0) {
+                        this.querySelected(this.engine.completedQueries[0]);
+                    }
 
-                //dataset.
-                // let year = dataset.getFieldByName('YEAR');
-                // let month = dataset.getFieldByName('MONTH');
-                // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
-                // let distance = dataset.getFieldByName('DISTANCE')
+                    let query = new EmptyQuery(dataset)
+                        .combine(dataset.getFieldByName('Score'))
+                        .combine(dataset.getFieldByName('Country'));
 
-                // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
+                    query.where = new AndPredicate([new EqualPredicate(
+                        dataset.getFieldByName('Genre'),
+                        'Comedy'
+                    )])
+                    //this.create(query);
 
-                // query.where = new AndPredicate([new EqualPredicate(
-                //     dataset.getFieldByName('YEAR'),
-                //     2016
-                // )])
+                    //dataset.
+                    // let year = dataset.getFieldByName('YEAR');
+                    // let month = dataset.getFieldByName('MONTH');
+                    // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
+                    // let distance = dataset.getFieldByName('DISTANCE')
 
-                // this.create(new EmptyQuery(dataset).combine(year));
-                // this.create(query, Priority.Highest);
+                    // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
+
+                    // query.where = new AndPredicate([new EqualPredicate(
+                    //     dataset.getFieldByName('YEAR'),
+                    //     2016
+                    // )])
+
+                    // this.create(new EmptyQuery(dataset).combine(year));
+                    // this.create(query, Priority.Highest);
+                });
             });
         }
 
@@ -278,16 +294,12 @@ export class AppComponent implements OnInit {
 
         this.logger.log(LogType.VisualizationSelected, query.toLog());
 
-        if (this.activeQuery === query)
-            this.activeQuery = null;
-        else if (this.activeQuery) {
+        if (this.activeQuery) {
             this.activeQuery.updateAutomatically = true;
-            this.activeQuery = query;
             this.toggle(SGT.None);
         }
-        else {
-            this.activeQuery = query;
-        }
+
+        this.activeQuery = query;
     }
 
     queryPauseClick(query: AggregateQuery, $event: UIEvent) {

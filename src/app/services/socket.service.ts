@@ -22,6 +22,10 @@ export class SocketService {
         ws.on('disconnect', (reason) => {
             this.serverInfo = null;
         })
+
+        ws.on('error', (reason) => {
+            console.error(reason);
+        })
     }
 
     disconnect() {

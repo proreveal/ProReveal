@@ -18,6 +18,7 @@ import { Datum } from '../../data/datum';
 import { AggregateQuery } from '../../data/query';
 import { LoggerService, LogType } from '../../services/logger.service';
 import { EmptyConfidenceInterval, ConfidencePoint } from '../../data/confidence-interval';
+import { VisGridSet } from '../vis-grid';
 
 type Range = [number, number];
 
@@ -46,7 +47,7 @@ export class BarsRenderer {
     interactionG;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService,
-        public expectedWidth) {
+        public isMobile: boolean) {
     }
 
     setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
@@ -68,10 +69,7 @@ export class BarsRenderer {
         this.distributionLine.setup(this.interactionG);
     }
 
-    render(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
-        let svg = d3.select(nativeSvg);
-        let done = query.visibleProgress.done();
-        let visG = svg.select('g.vis');
+    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement) {
         let data = query.getVisibleData();
 
         this.data = data;
@@ -79,13 +77,6 @@ export class BarsRenderer {
         if (this.limitNumCategories) {
             data = data.slice(0, C.bars.initiallyVisibleCategories);
         }
-
-        const height = C.bars.axis.height * 2 +
-            C.bars.height * data.length + C.bars.label.height * 2;
-        const width = this.expectedWidth;
-
-        svg.attr('width', width).attr('height', height)
-            .on('contextmenu', () => d3.event.preventDefault());
 
         let labelStrings = data.map(d => d.keys.list[0].valueString());
         let maxLabelWidth = labelStrings.length > 0 ? d3.max(labelStrings, l => measure(l, '.8rem').width) : 0;
@@ -99,8 +90,6 @@ export class BarsRenderer {
             );
 
         this.labelWidth = labelWidth;
-        this.width = width;
-        this.height = height;
 
         const xMin = query.approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
         const xMax = d3.max(data, d => d.ci3.high);
@@ -112,6 +101,21 @@ export class BarsRenderer {
 
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
+
+
+        const height = C.bars.axis.height * 2 +
+            C.bars.height * data.length + C.bars.label.height * 2;
+        const width = this.isMobile ? window.screen.availWidth - 15 : Constants.bars.width;
+
+        let svg = d3.select(visGridSet.svg);
+        let done = query.visibleProgress.done();
+        let visG = svg.select('g.vis');
+
+        svg.attr('width', width).attr('height', height)
+            .on('contextmenu', () => d3.event.preventDefault());
+
+        this.width = width;
+        this.height = height;
 
         const xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
             .range([labelWidth, width - C.padding])
