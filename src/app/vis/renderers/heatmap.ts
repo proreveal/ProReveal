@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
-import { Constants as C, Constants } from '../../constants';
-import * as util from '../../util';
+import { Constants as C } from '../../constants';
 import { AggregateQuery, Histogram2DQuery } from '../../data/query';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
@@ -165,9 +164,11 @@ export class HeatmapRenderer {
         const headerHeight = 1.414 / 2 * (C.heatmap.title.x.height + xLabelWidth) + xTitleHeight
         const height = C.heatmap.rowHeight * yValues.length + headerHeight * 2;
 
+        const legendSpec = this.isMobile ? C.heatmap.mobile.legend : C.heatmap.legend;
+
         const matrixWidth = xValues.length > 0 ?
             (yTitleWidth + yLabelWidth + C.heatmap.columnWidth * xValues.length) : 0;
-        const width = matrixWidth + C.heatmap.legendSize * 1.2;
+        const width = matrixWidth + legendSpec.size * 1.2;
 
         this.matrixWidth = matrixWidth;
 
@@ -207,7 +208,7 @@ export class HeatmapRenderer {
         }
         else {
             d3.select(visGridSet.svg).attr('width', width)
-                .attr('height', Math.max(height, C.heatmap.legendSize + C.heatmap.legendPadding * 2));
+                .attr('height', Math.max(height, legendSpec.size + legendSpec.paddingY * 2));
         }
 
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
@@ -341,6 +342,10 @@ export class HeatmapRenderer {
         let maxUncertainty = d3.max(data, d => d.ci3.stdev);
 
         if (query.maxUncertainty < maxUncertainty) query.maxUncertainty = maxUncertainty;
+        if (maxUncertainty == 0) {
+            maxUncertainty = 1;
+            query.maxUncertainty = maxUncertainty;
+        }
 
         maxUncertainty = query.maxUncertainty;
 
@@ -464,12 +469,11 @@ export class HeatmapRenderer {
 
         // legend
         {
-            const size = C.heatmap.legendSize;
-            const padding = C.heatmap.legendPadding;
+            const size = legendSpec.size;
             let legend = vsup.legend.arcmapLegend()
                 .scale(zScale).size(size)
-                    .utitle(Constants.locale.HeatmapLegendUncertainty)
-                    .vtitle(Constants.locale.HeatmapLedgendValue)
+                    .vtitle(C.locale.HeatmapLedgendValue)
+                    .utitle(this.isMobile ? C.locale.HeatmapLegendMobileUncertainty : C.locale.HeatmapLegendUncertainty)
 
             if(maxUncertainty >= 100000 || domainEnd >= 100000) {
                 legend = legend.format('.2s')
@@ -481,35 +485,42 @@ export class HeatmapRenderer {
 
             let parentWidth = visGridSet.svg.parentElement.offsetWidth;
             let parentOffsetTop = 100 + headerHeight; // nativeSvg.getBoundingClientRect().top; // TODO
-            floatingLegend.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
-            floatingBrush.attr('width', size + 2 * padding).attr('height', size + 3 * padding);
+
+            floatingLegend.attr('width', size + 2 * legendSpec.paddingX).attr('height', size + 2 * legendSpec.paddingY);
+            floatingBrush.attr('width', size + 2 * legendSpec.paddingX).attr('height', size + 2 * legendSpec.paddingY);
 
             d3.select(floatingSvg).style('display', 'block');
 
             selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
             selectOrAppend(floatingLegend, 'g', '.z.legend')
-                .attr('transform', translate(padding, 2 * padding))
+                .attr('transform', translate(legendSpec.paddingX, legendSpec.paddingY + legendSpec.translateY))
                 .append('g')
                 .call(legend);
 
-            floatingLegend.select('g.legend text[y="-30"]')
-                .attr('y', -40)
-
             if(this.isMobile) {
-            }
-            else if (matrixWidth + size + padding * 2 > parentWidth) {
-                floatingSvgWrapper
-                    .style('position', 'sticky')
-                    .style('left', `${parentWidth - size - padding * 3}px`)
-                    .style('bottom', `${C.padding}px`)
-                    .style('top', 'auto')
+                floatingLegend.selectAll('.arc-label text')
+                    .style('display', (d, i) => i % 2 ? 'none' : 'inline')
+
+                floatingLegend.select('g.legend > text')
+                    .attr('y', 10)
             }
             else {
-                floatingSvgWrapper
-                    .style('position', 'absolute')
-                    .style('left', `${matrixWidth}px`)
-                    .style('top', `${parentOffsetTop}px`)
-                    .style('bottom', 'auto')
+                floatingLegend.select('g.legend text[y="-30"]')
+                    .attr('y', -40)
+                if (matrixWidth + size + legendSpec.paddingX * 2 > parentWidth) {
+                    floatingSvgWrapper
+                        .style('position', 'sticky')
+                        .style('left', `${parentWidth - size - legendSpec.paddingX * 2}px`)
+                        .style('bottom', `${C.padding}px`)
+                        .style('top', 'auto')
+                }
+                else {
+                    floatingSvgWrapper
+                        .style('position', 'absolute')
+                        .style('left', `${matrixWidth}px`)
+                        .style('top', `${parentOffsetTop}px`)
+                        .style('bottom', 'auto')
+                }
             }
 
             this.angularBrush.on('brush', (centerOrRange) => {
@@ -530,11 +541,13 @@ export class HeatmapRenderer {
             })
 
             let legendXScale = d3.scaleLinear().domain(quant.valueDomain())
-                .range([padding, size + padding]);
+                .range([legendSpec.paddingX, size + legendSpec.paddingX]);
             this.legendXScale = legendXScale;
 
             if (this.safeguardType == SGT.Value || this.safeguardType === SGT.Range) {
-                this.angularBrush.render([[padding, 2 * padding], [size + padding, size + 2 * padding]]);
+                this.angularBrush.render([
+                    [legendSpec.paddingX, legendSpec.paddingY + legendSpec.translateY],
+                    [size + legendSpec.paddingX, size + legendSpec.paddingY + legendSpec.translateY]]);
             }
 
             if (!this.constant) this.setDefaultConstantFromVariable();

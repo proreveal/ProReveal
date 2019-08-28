@@ -359,7 +359,6 @@ export class AggregateQuery extends Query {
                     this.visibleProgress.processedPercent(),
                     this.visibleProgress.processedRows,
                     this.visibleProgress.numRows);
-
             return new Datum(
                 key.hash,
                 key,

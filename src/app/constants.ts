@@ -27,9 +27,20 @@ export const Constants = Object.freeze({
     heatmap: {
         rowHeight: 20,
         columnWidth: 30,
-        legendSize: 200,
-        legendPadding: 30,
-        swatchHeight: 20,
+        legend: {
+            size: 200,
+            paddingX: 30,
+            paddingY: 40,
+            translateY: 15
+        },
+        mobile: {
+            legend: {
+                size: 140,
+                paddingX: 30,
+                paddingY: 30,
+                translateY: 10
+            }
+        },
         title: {
             x: {
                 height: 20

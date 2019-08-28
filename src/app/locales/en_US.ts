@@ -83,6 +83,7 @@ export const Locale_en_US = Object.freeze({
     COUNT: 'COUNT',
 
     HeatmapLegendUncertainty: 'Standard Error',
+    HeatmapLegendMobileUncertainty: 'Error',
     HeatmapLedgendValue: 'COUNT',
 
     P: 'p',
