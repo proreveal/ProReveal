@@ -14,6 +14,9 @@
         <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }})</small> <!--, CODE: <strong>{{ storage.code}}</strong>)</small>-->
     </div>
     <div>
+        <button class="btn text-light" (click)="Util.toggleFullScreen()">
+            <fa-icon [icon]="['fas', 'expand']"></fa-icon>
+        </button>
         <button class="btn text-light" (click)="showInfo=!showInfo">
             <fa-icon [icon]="['fas', 'info']"></fa-icon>
         </button>

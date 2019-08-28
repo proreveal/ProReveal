@@ -17,8 +17,8 @@ import { BarsRenderer } from '../vis/renderers/bars';
 import { ValueEstimator, ComparativeEstimator, RangeEstimator, RankEstimator, PowerLawEstimator, NormalEstimator, LinearRegressionEstimator, MinMaxValueEstimator, MinMaxRankValueEstimator, MinMaxComparativeEstimator, MinMaxRangeEstimator } from '../safeguard/estimate';
 import { HeatmapRenderer } from '../vis/renderers/heatmap';
 import { isNull } from 'util';
-import { Constants as C, Constants } from '../constants';
-import { AndPredicate, EqualPredicate, Predicate } from '../data/predicate';
+import { Constants as C } from '../constants';
+import { AndPredicate, Predicate } from '../data/predicate';
 import { Datum } from '../data/datum';
 import { LoggerService, LogType } from '../services/logger.service';
 import { QueryCreatorComponent } from '../query-creator/query-creator.component';
@@ -39,6 +39,8 @@ export class MobileComponent implements OnInit {
     C = C;
     Operators = Operators;
     Priority = Priority;
+    Util = util;
+
     ValueEstimate = new ValueEstimator().estimate;
     MinMaxValueEstimate = new MinMaxValueEstimator().estimate;
     RankEstimate = new RankEstimator().estimate;

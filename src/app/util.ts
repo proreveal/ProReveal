@@ -1,5 +1,3 @@
-import * as d3format from 'd3-format';
-
 export function levenshtein(a: string, b: string): number {
     if (a.length == 0) return b.length;
     if (b.length == 0) return a.length;
@@ -97,14 +95,14 @@ export function arange(start: number, end?: number, step?: number): number[] {
     return array;
 }
 
-export function amax<T>(array: T[], mapper:(a:T) => number): [number, T, number] {
+export function amax<T>(array: T[], mapper: (a: T) => number): [number, T, number] {
     let max = -Number.MAX_VALUE;
     let maxItem = null;
     let maxIndex = -1;
 
     array.forEach((d, i) => {
         let value = mapper(d);
-        if(max < value) {
+        if (max < value) {
             max = value;
             maxItem = d;
             maxIndex = i;
@@ -147,7 +145,7 @@ export function srange(n: number) {
 
 export function aremove(array: any[], item: any) {
     let index = array.indexOf(item);
-    if(index >= 0)
+    if (index >= 0)
         array.splice(index, 1);
 }
 
@@ -171,7 +169,7 @@ export function parseQueryParameters(queryString: string): any {
 export function formatKRW(krw: number) {
     // we need to the first three digits
 
-    if(krw < 1e5) return krw;
+    if (krw < 1e5) return krw;
 
     let str = Math.round(krw).toString();
     let length = str.length;
@@ -182,20 +180,20 @@ export function formatKRW(krw: number) {
     let splitter = '조억만';
     let signum = 0;
 
-    for(let i = 0; i < splitter.length; i++) {
+    for (let i = 0; i < splitter.length; i++) {
         let sc = (splitter.length - i + 1) * 4;
 
         let nums = str.substring(length - sc, length - sc + 4);
 
-        if(nums && +nums > 0) {
-            if(nums.length === 4)
+        if (nums && +nums > 0) {
+            if (nums.length === 4)
                 result += nums[0] + ',' + nums.substring(1, 4) + splitter[i];
             else
                 result += nums + splitter[i];
 
             signum += nums.length;
 
-            if(signum >= 3) break;
+            if (signum >= 3) break;
         }
     }
 
@@ -203,6 +201,22 @@ export function formatKRW(krw: number) {
 }
 
 export function getFileName(url: string) {
-    let filename = url.substring(url.lastIndexOf('/')+1);
+    let filename = url.substring(url.lastIndexOf('/') + 1);
     return filename;
 }
+
+export function toggleFullScreen() {
+    let doc = window.document as any;
+    let docEl = doc.documentElement as any;
+
+    let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+    }
+    else {
+        cancelFullScreen.call(doc);
+    }
+}
+
