@@ -195,19 +195,21 @@
 
         <div id="floating-svg-wrapper" class="border" #floatingSvg
             [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
-|| !isHeatmap()" >
+|| !isHeatmap() || showQueryList || showGuardList" >
             <svg class="mr-2 mt-2 legend"></svg>
             <svg class="mr-2 mt-2 angular-brush"></svg>
         </div>
 
-        <div id="toggle-legend" (click)="showLegend=!showLegend">
+        <div id="toggle-legend" (click)="showLegend=!showLegend" [hidden]="showQueryList || showGuardList">
             <button class="btn btn-dark">
-                <fa-icon [icon]="['fas', 'book-open']"></fa-icon>
+                <fa-icon [icon]="['fas', 'book-open']" [hidden]="!showLegend"></fa-icon>
+                <fa-icon [icon]="['fas', 'book']" [hidden]="showLegend"></fa-icon>
             </button>
         </div>
 
         <div id="minimap-wrapper" class="border" #minimap
-            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !isHeatmap()">
+            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !isHeatmap()
+|| showQueryList || showGuardList">
             <svg class="m-1"></svg>
         </div>
     </section>
