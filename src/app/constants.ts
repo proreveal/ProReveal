@@ -13,6 +13,9 @@ export const Constants = Object.freeze({
 
     bars: {
         height: 20,
+        mobile: {
+            height: 30
+        },
         label: {
             height: 30
         },

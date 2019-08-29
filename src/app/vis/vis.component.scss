@@ -262,7 +262,7 @@ button.border:hover {
     stroke-width: 3px;
 }
 
-#x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper {
+#x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper, #xy-title-wrapper {
     display: none;
 }
 
@@ -273,7 +273,7 @@ button.border:hover {
         grid-template-rows: 20px 20px 100px;
     }
 
-    #x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper {
+    #x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper, #xy-title-wrapper {
         display: block;
     }
 

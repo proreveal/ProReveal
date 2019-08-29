@@ -104,7 +104,7 @@ export class BarsRenderer {
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
-        let barsFullHeight = C.bars.height * data.length;
+        let barsFullHeight = (this.isMobile ? C.bars.mobile.height : C.bars.height) * data.length;
         const height = this.isMobile ? (xTitleHeight +
             barsFullHeight + xLabelHeight) : (xTitleHeight * 2 +
             barsFullHeight + xLabelHeight * 2);
@@ -288,11 +288,11 @@ export class BarsRenderer {
 
             enter = ranks.enter().append('text').attr('class', 'rank variable1')
                 .attr('font-size', '.8rem')
-                .attr('dy', '.8rem')
+                .attr('dy', '.3rem')
                 .style('user-select', 'none')
 
             this.ranks = ranks.merge(enter)
-                .attr('transform', (d, i) => translate(0, yScale(i + '')))
+                .attr('transform', (d, i) => translate(0, yScale(i + '') + yScale.bandwidth() / 2))
                 .text((d, i) => `${i + 1}`)
                 .style('opacity', d => {
                     if (d.keys.hasNullValue()) return 0;
@@ -313,11 +313,11 @@ export class BarsRenderer {
             enter = labels.enter().append('text').attr('class', 'label y data variable1')
                 .style('text-anchor', 'end')
                 .attr('font-size', '.8rem')
-                .attr('dy', '.8rem')
+                .attr('dy', '.3rem')
                 .style('user-select', 'none')
 
             this.labels = labels.merge(enter)
-                .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '')))
+                .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '') + yScale.bandwidth() / 2))
                 .text((d) => `${d.keys.list[0].valueString()}`)
                 .style('opacity', d => {
                     if (d.keys.hasNullValue()) return 0.6;
@@ -329,7 +329,7 @@ export class BarsRenderer {
                     d3.select(ele[i]).classed('hover', true);
                 })
                 .on('mouseleave', (d, i, ele) => {
-                    this.hideTooltip(d, i);
+                    this.hideTooltip();
                     d3.select(ele[i]).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
@@ -487,7 +487,7 @@ export class BarsRenderer {
                     this.labels.filter(datum => datum == d).classed('hover', true);
                 })
                 .on('mouseleave', (d, i) => {
-                    this.hideTooltip(d, i);
+                    this.hideTooltip();
                     this.labels.filter(datum => datum == d).classed('hover', false);
                 })
                 .on('click', (d, i) => {
