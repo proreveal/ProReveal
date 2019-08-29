@@ -46,6 +46,8 @@ export class BarsRenderer {
     visG;
     interactionG;
 
+    minimapBrush: d3.BrushBehavior<unknown>;
+
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService,
         public isMobile: boolean) {
     }
@@ -68,7 +70,7 @@ export class BarsRenderer {
         this.distributionLine.setup(this.interactionG);
     }
 
-    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement) {
+    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
         let data = query.getVisibleData();
 
         this.data = data;
@@ -104,7 +106,8 @@ export class BarsRenderer {
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
-        let barsFullHeight = (this.isMobile ? C.bars.mobile.height : C.bars.height) * data.length;
+        const barHeight = this.isMobile ? C.bars.mobile.height : C.bars.height;
+        const barsFullHeight = barHeight * data.length;
         const height = this.isMobile ? (xTitleHeight +
             barsFullHeight + xLabelHeight) : (xTitleHeight * 2 +
             barsFullHeight + xLabelHeight * 2);
@@ -513,6 +516,62 @@ export class BarsRenderer {
                 .call(bottomAxis as any)
         }
 
+        // minimap
+
+        let d3minimap = d3.select(minimap);
+        let d3minisvg = d3minimap.select('svg');
+
+        let miniBarHeight = Math.min(Math.floor(C.heatmap.minimap.maxHeight / data.length), 3);
+
+        if(this.isMobile) {
+            d3minisvg
+                .attr('width', C.bars.minimap.width)
+                .attr('height', miniBarHeight * data.length)
+
+            let g = selectOrAppend(d3minisvg, 'g', '.mini-bars');
+
+            const rects =
+                g.selectAll('rect.bar')
+                .data(data, (d: any) => d.id);
+
+            enter = rects
+                .enter().append('rect').attr('class', 'bar')
+
+            const miniXScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
+                .range([0, C.bars.minimap.width])
+                .clamp(true)
+
+            const miniYScale = d3.scaleBand().domain(util.srange(data.length))
+                .range([0, miniBarHeight * data.length])
+                .padding(0);
+
+            rects.merge(enter)
+                .attr('width', d => done ? 2 : Math.max(miniXScale(d.ci3.high) - miniXScale(d.ci3.low), Constants.bars.minimumGradientWidth))
+                .attr('transform', (d, i) => {
+                    if(miniXScale(d.ci3.high) - miniXScale(d.ci3.low) < Constants.bars.minimumGradientWidth)
+                        return translate(miniXScale(d.ci3.center) - Constants.bars.minimumGradientWidth / 2, miniYScale(i + ''))
+                    return translate(miniXScale(d.ci3.low), miniYScale(i + ''));
+                })
+                .attr('height', miniYScale.bandwidth())
+                .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
+                    'transparent' : 'steelblue'
+                );
+
+            rects.exit().remove();
+
+            let brush = d3.brushY().handleSize(0);
+            this.minimapBrush = brush;
+
+            let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
+                .call(brush)
+                .call(brush.move, [0, barsAvailHeight / barHeight * miniBarHeight])
+
+            wrapper.select('.selection').style('stroke', 'none');
+
+            wrapper
+                .selectAll('.overlay').remove();
+        }
+
         // sync scroll (mobile)
         if(this.isMobile) {
             let wrapper = visGridSet.svg.parentElement;
@@ -546,27 +605,24 @@ export class BarsRenderer {
                         xyFromBrush = false;
                     }
                     else {
-                        // selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
-                        //     .call(this.minimapBrush.move, [[
-                        //         left / C.heatmap.columnWidth * blockWidth,
-                        //         top / C.heatmap.rowHeight * blockHeight,
-                        //     ], [
-                        //         left / C.heatmap.columnWidth * blockWidth + heatmapAvailWidth / C.heatmap.columnWidth * blockWidth,
-                        //         top / C.heatmap.rowHeight * blockHeight + heatmapAvailHeight / C.heatmap.rowHeight * blockHeight,
-                        //     ]]);
+                        selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
+                            .call(this.minimapBrush.move, [
+                                top / barHeight * miniBarHeight,
+                                top / barHeight * miniBarHeight + barsAvailHeight / barHeight * miniBarHeight
+                            ])
 
                         xyFromSvg = true;
                     }
                 })
 
-            d3.select(visGridSet.xLabels.parentElement)
-                .on('scroll', null)
-                .on('scroll', () => {
-                    if(xFromSvg) { xFromSvg = false; return; }
-                    let left = visGridSet.xLabels.parentElement.scrollLeft;
-                    visGridSet.svg.parentElement.scrollLeft = left;
-                    xFromLabel = true;
-                })
+            // d3.select(visGridSet.xLabels.parentElement)
+            //     .on('scroll', null)
+            //     .on('scroll', () => {
+            //         if(xFromSvg) { xFromSvg = false; return; }
+            //         let left = visGridSet.xLabels.parentElement.scrollLeft;
+            //         visGridSet.svg.parentElement.scrollLeft = left;
+            //         xFromLabel = true;
+            //     })
 
             d3.select(visGridSet.yLabels.parentElement)
                 .on('scroll', null)
@@ -577,14 +633,13 @@ export class BarsRenderer {
                     yFromLabel = true;
                 })
 
-            // this.minimapBrush.on('start brush', () => {
-            //     let [[x0, y0], [x1, y1]] = d3.event.selection;
+            this.minimapBrush.on('start brush', () => {
+                let [y0, y1] = d3.event.selection;
 
-            //     if(xyFromSvg) {xyFromSvg = false; return;}
-            //     visGridSet.svg.parentElement.scrollLeft = x0 / blockWidth * C.heatmap.columnWidth;
-            //     visGridSet.svg.parentElement.scrollTop = y0 / blockHeight * C.heatmap.rowHeight;
-            //     xyFromSvg = true;
-            // })
+                if(xyFromSvg) {xyFromSvg = false; return;}
+                visGridSet.svg.parentElement.scrollTop = y0 / miniBarHeight * barHeight;
+                xyFromSvg = true;
+            })
         }
 
 

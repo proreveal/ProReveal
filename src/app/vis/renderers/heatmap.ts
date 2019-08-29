@@ -615,9 +615,6 @@ export class HeatmapRenderer {
         let blockHeight = blockWidth * C.heatmap.rowHeight / C.heatmap.columnWidth;
 
         if(this.isMobile) {
-            d3minimap
-                .style('display', 'block')
-
             d3minisvg
                 .attr('width', blockWidth * xValues.length)
                 .attr('height', blockHeight * yValues.length)
@@ -663,9 +660,6 @@ export class HeatmapRenderer {
 
             wrapper
                 .selectAll('.overlay').remove();
-        }
-        else {
-            d3minimap.style('display', 'none');
         }
 
         // sync scroll (mobile)

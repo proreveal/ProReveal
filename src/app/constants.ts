@@ -27,6 +27,10 @@ export const Constants = Object.freeze({
                 width: 20
             }
         },
+        minimap: {
+            width: 140,
+            maxHeight: 200
+        },
         circleRadius: 3,
         initiallyVisibleCategories: 50,
         minimumGradientWidth: 3,
