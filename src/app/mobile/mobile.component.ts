@@ -4,7 +4,7 @@ import { BrowserEngine } from '../engine/browser-engine';
 import { RemoteEngine } from '../engine/remote-engine';
 
 import { Priority } from '../engine/priority';
-import { Query, EmptyQuery, AggregateQuery, SelectQuery } from '../data/query';
+import { Query, EmptyQuery, AggregateQuery, SelectQuery, Frequency2DQuery, Histogram2DQuery } from '../data/query';
 import { MetadataEditorComponent } from '../metadata-editor/metadata-editor.component';
 import * as util from '../util';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -101,6 +101,7 @@ export class MobileComponent implements OnInit {
     showQueryList = false; //true;
     showInfo = false;
     showGuardList = false;
+    showLegend = true;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage: StorageService, public socket: SocketService,
@@ -110,6 +111,10 @@ export class MobileComponent implements OnInit {
                 this.engine.reordered();
             }
         };
+    }
+
+    isHeatmap() {
+        return this.activeQuery instanceof Histogram2DQuery || this.activeQuery instanceof Frequency2DQuery;
     }
 
     ngOnInit() {

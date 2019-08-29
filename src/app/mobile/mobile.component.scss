@@ -218,6 +218,15 @@ $button-height: 38px;
     }
 }
 
+#toggle-legend {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+
+    button {
+    }
+}
+
 #close-safeguard-view {
     position: fixed;
     width: calc(100% - #{$query-view-width});

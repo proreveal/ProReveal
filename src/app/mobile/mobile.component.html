@@ -194,20 +194,22 @@
         ></vis>
 
         <div id="floating-svg-wrapper" class="border" #floatingSvg
-            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)"
-            style="display:none"
-        >
+            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
+|| !isHeatmap()" >
             <svg class="mr-2 mt-2 legend"></svg>
             <svg class="mr-2 mt-2 angular-brush"></svg>
         </div>
 
-        <div id="minimap-wrapper" class="border" #minimap
-            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)"
-            style="display:none"
-        >
-            <svg class="m-1"></svg>
+        <div id="toggle-legend" (click)="showLegend=!showLegend">
+            <button class="btn btn-dark">
+                <fa-icon [icon]="['fas', 'book-open']"></fa-icon>
+            </button>
         </div>
 
+        <div id="minimap-wrapper" class="border" #minimap
+            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !isHeatmap()">
+            <svg class="m-1"></svg>
+        </div>
     </section>
 
     <div id="close-safeguard-view" [hidden]="!showGuardList" (click)="showGuardList=false">
