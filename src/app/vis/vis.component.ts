@@ -22,7 +22,7 @@ import { VisGridSet } from './vis-grid';
 })
 export class VisComponent implements DoCheck, AfterViewInit {
     @Input() query: AggregateQuery;
-    @Input() floatingSvg: HTMLDivElement;
+    @Input() floatingLegend: HTMLDivElement;
     @Input() minimap: HTMLDivElement;
 
     @Output('variableSelected') variableSelected: EventEmitter<{
@@ -119,9 +119,10 @@ export class VisComponent implements DoCheck, AfterViewInit {
                 this.renderer = this.recommend(this.query);
 
                 this.visGridSet.empty();
+                d3.select(this.minimap).selectAll('svg *').remove();
 
                 this.renderer.setup(this.query, this.svg.nativeElement,
-                    this.floatingSvg, this.minimap);
+                    this.floatingLegend, this.minimap);
                 this.isDropdownVisible = false;
                 this.isQueryCreatorVisible = false;
             }
@@ -139,12 +140,12 @@ export class VisComponent implements DoCheck, AfterViewInit {
         if (this.limitNumCategories) {
             this.limitNumCategories = false;
             this.renderer.limitNumCategories = false;
-            this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg, this.minimap);
+            this.renderer.render(this.query, this.visGridSet as any, this.floatingLegend, this.minimap);
         }
     }
 
     forceUpdate() {
-        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg, this.minimap);
+        this.renderer.render(this.query, this.visGridSet as any, this.floatingLegend, this.minimap);
         this.limitNumCategories = false;
 
         if (this.renderer instanceof BarsRenderer) {
@@ -168,7 +169,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
     setSafeguardType(set: SafeguardTypes) {
         if (!this.renderer) return;
         this.renderer.setSafeguardType(set);
-        this.renderer.render(this.query, this.visGridSet as any, this.floatingSvg, this.minimap);
+        this.renderer.render(this.query, this.visGridSet as any, this.floatingLegend, this.minimap);
     }
 
     constantUserChanged(constant: ConstantTrait) {
