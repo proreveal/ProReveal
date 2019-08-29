@@ -69,8 +69,6 @@ export class HeatmapRenderer {
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
-        this.visG.classed('heatmap', true);
-
         this.query = query;
         this.nativeSvg = nativeSvg;
 
@@ -184,6 +182,8 @@ export class HeatmapRenderer {
 
         // Set dimensions (x: ->, y: ↓)
         if(this.isMobile) {
+            visGridSet.setClass('heatmap');
+
             visGridSet.d3XTitle
                 .attr('width', heatmapAvailWidth)
                 .attr('height', C.heatmap.title.x.height);

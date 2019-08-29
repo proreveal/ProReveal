@@ -60,7 +60,6 @@ export class BarsRenderer {
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
-        this.visG.classed('bars', true);
         this.query = query;
         this.nativeSvg = nativeSvg;
 
@@ -99,76 +98,135 @@ export class BarsRenderer {
         const domainStart = query.approximator.alwaysNonNegative ? Math.max(0, niceTicks[0] - step) : (niceTicks[0] - step);
         const domainEnd = niceTicks[niceTicks.length - 1] + step;
 
+        const xTitleHeight = C.bars.title.x.height;
+        const xLabelHeight = C.bars.label.height;
+
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
+        let barsFullHeight = C.bars.height * data.length;
+        const height = this.isMobile ? (xTitleHeight +
+            barsFullHeight + xLabelHeight) : (xTitleHeight * 2 +
+            barsFullHeight + xLabelHeight * 2);
 
-        const height = C.bars.axis.height * 2 +
-            C.bars.height * data.length + C.bars.label.height * 2;
         const width = this.isMobile ? window.screen.availWidth - 15 : Constants.bars.width;
 
         let svg = d3.select(visGridSet.svg);
         let done = query.visibleProgress.done();
         let visG = svg.select('g.vis');
 
-        svg.attr('width', width).attr('height', height)
-            .on('contextmenu', () => d3.event.preventDefault());
+
+        visGridSet.d3Svg.on('contextmenu', () => d3.event.preventDefault());
 
         this.width = width;
         this.height = height;
 
+        let availHeight = Math.min(window.screen.availHeight - 300, barsFullHeight + xTitleHeight);
+
+        let barsAvailWidth = width - labelWidth;
+        let barsAvailHeight = availHeight - xTitleHeight - xLabelHeight;
+
+        // Set dimensions (x: ->, y: ↓)
+        if(this.isMobile) {
+            visGridSet.setClass('bars');
+
+            visGridSet.d3XTitle
+                .attr('width', barsAvailWidth)
+                .attr('height', xTitleHeight);
+
+            visGridSet.d3XLabels
+                .attr('width', barsAvailWidth)
+                .attr('height', xLabelHeight);
+
+            visGridSet.d3XYTitle
+                .attr('width', labelWidth)
+                .attr('height', xLabelHeight);
+
+            visGridSet.d3YLabels
+                .attr('width', labelWidth)
+                .attr('height', barsFullHeight);
+
+            visGridSet.d3VisGrid
+                .style('grid-template-columns', `0px ${labelWidth}px ${barsAvailWidth}px`)
+                .style('grid-template-rows', `${xTitleHeight}px ${xLabelHeight}px ${barsAvailHeight}px`)
+
+            visGridSet.d3Svg.attr('width', barsAvailWidth)
+                .attr('height', barsFullHeight);
+        }
+        else {
+            d3.select(visGridSet.svg)
+                .attr('width', width).attr('height', height)
+        }
+
         const xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
-            .range([labelWidth, width - C.padding])
-            .clamp(true)
+        .range([labelWidth, width - C.padding])
+        .clamp(true)
 
         const yScale = d3.scaleBand().domain(util.srange(data.length))
-            .range([C.bars.axis.height + C.bars.label.height,
-            height - C.bars.axis.height - C.bars.label.height])
+            .range([xTitleHeight + xLabelHeight,
+            height - xTitleHeight - xLabelHeight])
             .padding(0.1);
 
+
+        if(this.isMobile) {
+            xScale.range([C.padding, barsAvailWidth - C.padding]);
+            yScale.range([0, barsFullHeight]);
+        }
 
         this.xScale = xScale;
         this.yScale = yScale;
 
-        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - 2 * C.bars.axis.height - 2 * C.bars.label.height));
-
-        // render top and bottom labels
+        // render top and bottom x title
         {
+            let target = this.isMobile ? visGridSet.d3XTitle : visG;
+            let targetWidth = this.isMobile ? barsAvailWidth / 2 : (width + labelWidth) / 2;
+
             let xLabelTitle = Constants.locale.COUNT;
             if(query.target) xLabelTitle = Constants.locale.XLabelTitleFormatter(query);
 
             // x labels
-            selectOrAppend(visG, 'text', '.x.field.label.top')
+            selectOrAppend(target, 'text', '.x.title.top')
                 .text(xLabelTitle)
-                .attr('transform', translate((width - labelWidth - C.padding) / 2 + labelWidth, 0))
+                .attr('transform', translate(targetWidth, 0))
                 .style('text-anchor', 'middle')
-                .attr('dy', '.8em')
-                .style('font-size', '.8em')
+                .attr('dy', '1.1rem')
+                .style('font-size', '.8rem')
                 .style('font-style', 'italic')
 
-            selectOrAppend(visG, 'text', '.x.field.label.bottom')
-                .text(xLabelTitle)
-                .attr('transform', translate((width - labelWidth - C.padding) / 2 + labelWidth, height - C.bars.axis.height))
-                .style('text-anchor', 'middle')
-                .attr('dy', '1.3em')
-                .style('font-size', '.8em')
-                .style('font-style', 'italic')
+            if(!this.isMobile)
+                selectOrAppend(visG, 'text', '.x.title.bottom')
+                    .text(xLabelTitle)
+                    .attr('transform', translate(targetWidth, height - xTitleHeight))
+                    .style('text-anchor', 'middle')
+                    .attr('dy', '1.3rem')
+                    .style('font-size', '.8rem')
+                    .style('font-style', 'italic')
+        }
 
-            // y labels
-            selectOrAppend(visG, 'text', '.y.field.label')
+        // render y title
+        {
+            let target = this.isMobile ? visGridSet.d3XYTitle : visG;
+            let targetX = this.isMobile ? labelWidth - 1.5 * C.padding : (labelWidth - 1.5 * C.padding);
+            let targetY = this.isMobile ? 0 : xLabelHeight;
+
+            selectOrAppend(target, 'text', '.y.title')
                 .text(query.groupBy.fields[0].name)
-                .attr('transform', translate(labelWidth - C.padding, C.bars.label.height))
+                .attr('transform', translate(targetX, targetY))
                 .style('text-anchor', 'end')
-                .attr('dy', '1.2em')
+                .attr('dy', this.isMobile ? '1.3rem' : '1.1rem')
                 .style('font-size', '.8rem')
                 .style('font-style', 'italic')
         }
 
+        const majorTickLines = d3.axisTop(xScale).tickSize(-(height - (this.isMobile ? 1 : 2) * (xTitleHeight + xLabelHeight)));
+
         // render major ticks
         {
+            let targetY = this.isMobile ? 0 : (xTitleHeight + xLabelHeight);
+
             selectOrAppend(visG, 'g', '.sub.axis')
                 .style('opacity', .2)
-                .attr('transform', translate(0, C.bars.axis.height + C.bars.label.height))
+                .attr('transform', translate(0, targetY))
                 .transition()
                 .call(majorTickLines as any)
                 .selectAll('text')
@@ -178,9 +236,11 @@ export class BarsRenderer {
         // render the top axis
         {
             const topAxis = d3.axisTop(xScale).tickFormat(d3.format('~s'));
+            let target = this.isMobile ? visGridSet.d3XLabels : visG;
+            let targetY = this.isMobile ? xLabelHeight - C.padding : (xTitleHeight + xLabelHeight);
 
-            selectOrAppend(visG, 'g', '.x.axis.top')
-                .attr('transform', translate(0, C.bars.axis.height + C.bars.label.height))
+            selectOrAppend(target, 'g', '.x.labels.top')
+                .attr('transform', translate(0, targetY))
                 .transition()
                 .call(topAxis as any)
         }
@@ -206,7 +266,9 @@ export class BarsRenderer {
 
         // render ranks
         if (query.isRankAvailable) {
-            let background = visG.selectAll('rect.alternate')
+            let target = this.isMobile ? visGridSet.d3YLabels : visG;
+
+            let background = target.selectAll('rect.alternate')
                 .data(data, (d: any) => d.id);
 
             enter = background.enter().append('rect').attr('class', 'alternate')
@@ -220,7 +282,7 @@ export class BarsRenderer {
 
             background.exit().remove();
 
-            let ranks = visG
+            let ranks = target
                 .selectAll('text.rank')
                 .data(data, (d: any) => d.id);
 
@@ -242,7 +304,9 @@ export class BarsRenderer {
 
         // render labels
         {
-            let labels = visG
+            let target = this.isMobile ? visGridSet.d3YLabels : visG;
+
+            let labels = target
                 .selectAll('text.y.data.label')
                 .data(data, (d: any) => d.id);
 
@@ -440,14 +504,89 @@ export class BarsRenderer {
         }
 
         // render the bottom axis
-        {
+        if(!this.isMobile) {
             const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
             selectOrAppend(visG, 'g', '.x.axis.bottom')
-                .attr('transform', translate(0, height - C.bars.axis.height - C.bars.label.height))
+                .attr('transform', translate(0, height - xTitleHeight - xLabelHeight))
                 .transition()
                 .call(bottomAxis as any)
         }
+
+        // sync scroll (mobile)
+        if(this.isMobile) {
+            let wrapper = visGridSet.svg.parentElement;
+            let xFromLabel = false, xFromSvg = false, yFromLabel = false, yFromSvg = false;
+            let xyFromBrush = false, xyFromSvg = false;
+
+            d3.select(wrapper)
+                .on('scroll', null)
+                .on('scroll', () => {
+                    this.hideTooltip();
+                    let left = wrapper.scrollLeft,
+                        top = wrapper.scrollTop;
+
+                    if(yFromLabel) yFromLabel = false;
+                    else {
+                        visGridSet.yLabels.parentElement.scrollTop = top;
+                        yFromSvg = true;
+                    }
+
+                    if(xFromLabel) xFromLabel = false;
+                    else {
+                        visGridSet.xLabels.parentElement.scrollLeft = left;
+                        xFromSvg = true;
+                    }
+
+                    if(xyFromBrush) {
+                        visGridSet.yLabels.parentElement.scrollTop = top;
+                        visGridSet.xLabels.parentElement.scrollLeft = left;
+                        yFromSvg = true;
+                        xFromSvg = true;
+                        xyFromBrush = false;
+                    }
+                    else {
+                        // selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
+                        //     .call(this.minimapBrush.move, [[
+                        //         left / C.heatmap.columnWidth * blockWidth,
+                        //         top / C.heatmap.rowHeight * blockHeight,
+                        //     ], [
+                        //         left / C.heatmap.columnWidth * blockWidth + heatmapAvailWidth / C.heatmap.columnWidth * blockWidth,
+                        //         top / C.heatmap.rowHeight * blockHeight + heatmapAvailHeight / C.heatmap.rowHeight * blockHeight,
+                        //     ]]);
+
+                        xyFromSvg = true;
+                    }
+                })
+
+            d3.select(visGridSet.xLabels.parentElement)
+                .on('scroll', null)
+                .on('scroll', () => {
+                    if(xFromSvg) { xFromSvg = false; return; }
+                    let left = visGridSet.xLabels.parentElement.scrollLeft;
+                    visGridSet.svg.parentElement.scrollLeft = left;
+                    xFromLabel = true;
+                })
+
+            d3.select(visGridSet.yLabels.parentElement)
+                .on('scroll', null)
+                .on('scroll', () => {
+                    if(yFromSvg) { yFromSvg = false; return;}
+                    let top = visGridSet.yLabels.parentElement.scrollTop
+                    visGridSet.svg.parentElement.scrollTop = top;
+                    yFromLabel = true;
+                })
+
+            // this.minimapBrush.on('start brush', () => {
+            //     let [[x0, y0], [x1, y1]] = d3.event.selection;
+
+            //     if(xyFromSvg) {xyFromSvg = false; return;}
+            //     visGridSet.svg.parentElement.scrollLeft = x0 / blockWidth * C.heatmap.columnWidth;
+            //     visGridSet.svg.parentElement.scrollTop = y0 / blockHeight * C.heatmap.rowHeight;
+            //     xyFromSvg = true;
+            // })
+        }
+
 
         d3.select(floatingSvg).style('display', 'none');
 
@@ -458,7 +597,7 @@ export class BarsRenderer {
                 this.vis.constantSelected.emit(constant);
             }
             else if (this.safeguardType === SGT.Rank) {
-                let index = Math.round((centerOrRange - C.bars.axis.height - C.bars.label.height)
+                let index = Math.round((centerOrRange - xTitleHeight - xLabelHeight)
                     / C.bars.height)
                 if(index <= 0) index = 1;
                 let constant = new RankConstant(index);
@@ -480,8 +619,8 @@ export class BarsRenderer {
             this.brush.snap = null;
 
             this.brush.setDirection(BrushDirection.X);
-            this.brush.render([[labelWidth, C.bars.axis.height - C.padding],
-            [width - C.padding, height - C.bars.axis.height + C.padding]]);
+            this.brush.render([[labelWidth, xTitleHeight - C.padding],
+            [width - C.padding, height - xTitleHeight + C.padding]]);
         }
         else if(this.safeguardType === SGT.Rank) {
             let start = yScale.range()[0];
@@ -789,17 +928,18 @@ export class BarsRenderer {
         }
     }
 
-    hideTooltip(d: Datum, i: number) {
+    hideTooltip(/*d: Datum, i: number*/) {
         this.tooltip.hide();
-        if ([SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
-            if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
-                !== d.keys.list[0].hash) &&
-                (!this.variable2 || this.variable2.fieldGroupedValue.hash
-                    !== d.keys.list[0].hash)) {
-                let ele = d3.select(this.eventBoxes.nodes()[i]);
-                ele.classed('highlighted', false)
-            }
-        }
+
+        // if ([SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
+        //     if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
+        //         !== d.keys.list[0].hash) &&
+        //         (!this.variable2 || this.variable2.fieldGroupedValue.hash
+        //             !== d.keys.list[0].hash)) {
+        //         let ele = d3.select(this.eventBoxes.nodes()[i]);
+        //         ele.classed('highlighted', false)
+        //     }
+        // }
     }
 
     toggleDropdown(d: Datum, i: number) {

@@ -201,12 +201,12 @@ $button-height: 38px;
     }
 }
 
-#floating-svg-wrapper {
-    position: sticky;
+#floating-legend-wrapper {
+    position: fixed;
     display: block;
-    float: left;
     background: white;
-    bottom: 20px;
+    bottom:5px;
+    left: 5px;
 
     .legend {
         pointer-events: none;
@@ -225,6 +225,10 @@ $button-height: 38px;
 
     button {
     }
+}
+
+.guard-panel-open {
+
 }
 
 #close-safeguard-view {
@@ -397,13 +401,5 @@ $button-height: 38px;
     }
 }
 
-@media screen and (max-width: 720px) {
-    #floating-svg-wrapper {
-        position: fixed;
-        display: block;
-        background: white;
-        bottom:5px;
-        left: 5px;
-    }
-}
+
 

@@ -13,11 +13,16 @@ export const Constants = Object.freeze({
 
     bars: {
         height: 20,
-        axis: {
-            height: 20
-        },
         label: {
-            height: 15
+            height: 30
+        },
+        title: {
+            x: {
+                height: 20
+            },
+            y: {
+                width: 20
+            }
         },
         circleRadius: 3,
         initiallyVisibleCategories: 50,

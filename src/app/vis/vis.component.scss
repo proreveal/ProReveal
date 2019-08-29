@@ -301,6 +301,11 @@ button.border:hover {
         overflow-y: scroll;
     }
 
+    #xy-title-wrapper {
+        grid-row: 2;
+        grid-column: 2;
+    }
+
     #vis-wrapper {
         grid-row: 3;
         grid-column: 3;
@@ -316,7 +321,6 @@ button.border:hover {
     .hide-scrollbar::-webkit-scrollbar {
         display: none;  // Safari and Chrome
     }
-
 
 }
 

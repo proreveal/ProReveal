@@ -45,6 +45,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
     @ViewChild('xLabels', { static: false }) xLabels: ElementRef<SVGSVGElement>;
     @ViewChild('yTitle', { static: false }) yTitle: ElementRef<SVGSVGElement>;
     @ViewChild('yLabels', { static: false }) yLabels: ElementRef<SVGSVGElement>;
+    @ViewChild('xyTitle', { static: false }) xyTitle: ElementRef<SVGSVGElement>;
     @ViewChild('visGrid', { static: false }) visGrid: ElementRef<HTMLDivElement>;
 
     @ViewChild('qc', { static: false }) queryCreator: QueryCreatorComponent;
@@ -104,6 +105,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
             this.xLabels.nativeElement,
             this.yTitle.nativeElement,
             this.yLabels.nativeElement,
+            this.xyTitle.nativeElement,
             this.visGrid.nativeElement
         );
     }
@@ -115,7 +117,9 @@ export class VisComponent implements DoCheck, AfterViewInit {
 
             if (this.lastQuery !== this.query) {
                 this.renderer = this.recommend(this.query);
-                d3.select(this.svg.nativeElement).selectAll('*').remove();
+
+                this.visGridSet.empty();
+
                 this.renderer.setup(this.query, this.svg.nativeElement,
                     this.floatingSvg, this.minimap);
                 this.isDropdownVisible = false;

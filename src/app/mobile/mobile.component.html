@@ -169,6 +169,7 @@
     <section id="main" class="row p-1"
         [class.query-visible]="showQueryList"
         [class.guard-visible]="showGuardList"
+        [class.guard-panel-open]="activeSafeguardPanel != SGT.None"
         (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
@@ -193,14 +194,15 @@
         class="pr-1"
         ></vis>
 
-        <div id="floating-svg-wrapper" class="border" #floatingSvg
+        <div id="floating-legend-wrapper" class="border" #floatingSvg
             [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
 || !isHeatmap() || showQueryList || showGuardList" >
             <svg class="mr-2 mt-2 legend"></svg>
             <svg class="mr-2 mt-2 angular-brush"></svg>
         </div>
 
-        <div id="toggle-legend" (click)="showLegend=!showLegend" [hidden]="showQueryList || showGuardList">
+        <div id="toggle-legend" (click)="showLegend=!showLegend"
+            [hidden]="showQueryList || showGuardList || !isHeatmap()">
             <button class="btn btn-dark">
                 <fa-icon [icon]="['fas', 'book-open']" [hidden]="!showLegend"></fa-icon>
                 <fa-icon [icon]="['fas', 'book']" [hidden]="showLegend"></fa-icon>
