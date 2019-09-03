@@ -201,13 +201,13 @@
             <svg class="mr-2 mt-2 angular-brush"></svg>
         </div>
 
-        <div id="toggle-legend" (click)="showLegend=!showLegend"
+        <!--<div id="toggle-legend" (click)="showLegend=!showLegend"
             [hidden]="showQueryList || showGuardList || !isHeatmap()">
             <button class="btn btn-dark">
                 <fa-icon [icon]="['fas', 'book-open']" [hidden]="!showLegend"></fa-icon>
                 <fa-icon [icon]="['fas', 'book']" [hidden]="showLegend"></fa-icon>
             </button>
-        </div>
+        </div>-->
 
         <div id="minimap-wrapper" class="border" #minimap
             [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)

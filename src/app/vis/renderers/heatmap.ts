@@ -21,6 +21,7 @@ import { LoggerService, LogType } from '../../services/logger.service';
 import { FieldGroupedValue } from '../../data/field-grouped-value';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 import { VisGridSet } from '../vis-grid';
+import { heatmapLegend } from '../vsup/legend';
 
 type Range = [number, number];
 
@@ -159,26 +160,39 @@ export class HeatmapRenderer {
         const xTitleHeight = C.heatmap.title.x.height;
         const yTitleWidth = C.heatmap.title.y.width;
 
-        const headerHeight = 1.414 / 2 * (C.heatmap.title.x.height + xLabelWidth) + xTitleHeight
+
+        let heatmapFullWidth = C.heatmap.columnWidth * xValues.length;
+        let heatmapFullHeight = C.heatmap.rowHeight * yValues.length;
+        let heatmapXLabelHeight = 1.414 / 2 * xLabelWidth;
+        const headerHeight = heatmapXLabelHeight + xTitleHeight
+
         const height = C.heatmap.rowHeight * yValues.length + headerHeight * 2;
 
         const legendSpec = this.isMobile ? C.heatmap.mobile.legend : C.heatmap.legend;
 
         const matrixWidth = xValues.length > 0 ?
             (yTitleWidth + yLabelWidth + C.heatmap.columnWidth * xValues.length) : 0;
-        const width = matrixWidth + legendSpec.size * 1.2;
+        const width = matrixWidth + legendSpec.width * 1.2;
 
         this.matrixWidth = matrixWidth;
 
-        let heatmapFullWidth = C.heatmap.columnWidth * xValues.length;
-        let heatmapFullHeight = C.heatmap.rowHeight * yValues.length;
-        let heatmapXLabelHeight = 1.414 / 2 * xLabelWidth;
 
         let availWidth = Math.min(window.screen.availWidth - 10, heatmapFullWidth + yTitleWidth + yLabelWidth);
-        let availHeight = Math.min(window.screen.availHeight - 300, heatmapFullHeight + xTitleHeight + heatmapXLabelHeight);
+        let availHeight: number;
+        let heatmapAvailHeight: number;
+        let screenAvailHeight = window.screen.availHeight - 200;
+
+        if(screenAvailHeight < heatmapFullHeight + headerHeight) {
+            availHeight = screenAvailHeight;
+            heatmapAvailHeight = screenAvailHeight - headerHeight;
+        }
+        else {
+            availHeight = heatmapFullHeight + headerHeight;
+            heatmapAvailHeight = heatmapFullHeight;
+        }
 
         let heatmapAvailWidth = availWidth - C.heatmap.title.y.width - yLabelWidth;
-        let heatmapAvailHeight = availHeight - headerHeight;
+
 
         // Set dimensions (x: ->, y: ↓)
         if(this.isMobile) {
@@ -208,7 +222,7 @@ export class HeatmapRenderer {
         }
         else {
             d3.select(visGridSet.svg).attr('width', width)
-                .attr('height', Math.max(height, legendSpec.size + legendSpec.paddingY * 2));
+                .attr('height', Math.max(height, legendSpec.height + legendSpec.paddingTop + legendSpec.paddingBottom));
         }
 
         const xScale = d3.scaleBand().domain(xValues.map(d => d.hash))
@@ -469,10 +483,14 @@ export class HeatmapRenderer {
 
         // legend
         {
-            const size = legendSpec.size;
-            let legend = vsup.legend.arcmapLegend()
-                .scale(zScale).size(size)
-                    .vtitle(C.locale.HeatmapLedgendValue)
+            const legendWidth = legendSpec.width;
+            const legendHeight = legendSpec.height;
+
+            let legend = heatmapLegend()
+                .scale(zScale)
+                .width(legendWidth)
+                .height(legendHeight)
+                    .vtitle(C.locale.HeatmapLegendValue)
                     .utitle(this.isMobile ? C.locale.HeatmapLegendMobileUncertainty : C.locale.HeatmapLegendUncertainty)
 
             if(maxUncertainty >= 100000 || domainEnd >= 100000) {
@@ -486,14 +504,16 @@ export class HeatmapRenderer {
             let parentWidth = visGridSet.svg.parentElement.offsetWidth;
             let parentOffsetTop = 100 + headerHeight; // nativeSvg.getBoundingClientRect().top; // TODO
 
-            floatingLegend.attr('width', size + 2 * legendSpec.paddingX).attr('height', size + 2 * legendSpec.paddingY);
-            floatingBrush.attr('width', size + 2 * legendSpec.paddingX).attr('height', size + 2 * legendSpec.paddingY);
+            floatingLegend.attr('width', legendWidth + legendSpec.paddingLeft + legendSpec.paddingRight)
+                .attr('height', legendHeight + legendSpec.paddingTop + legendSpec.paddingBottom);
+            floatingBrush.attr('width', legendWidth + legendSpec.paddingTop + legendSpec.paddingBottom)
+                .attr('height', legendHeight + legendSpec.paddingTop + legendSpec.paddingBottom);
 
             d3.select(floatingSvg).style('display', 'block');
 
             selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
             selectOrAppend(floatingLegend, 'g', '.z.legend')
-                .attr('transform', translate(legendSpec.paddingX, legendSpec.paddingY + legendSpec.translateY))
+                .attr('transform', translate(legendSpec.paddingLeft, legendSpec.paddingTop + legendSpec.translateY))
                 .append('g')
                 .call(legend);
 
@@ -502,15 +522,15 @@ export class HeatmapRenderer {
                     .style('display', (d, i) => i % 2 ? 'none' : 'inline')
 
                 floatingLegend.select('g.legend > text')
-                    .attr('y', 10)
+                    //.attr('y', 10)
             }
             else {
                 floatingLegend.select('g.legend text[y="-30"]')
                     .attr('y', -40)
-                if (matrixWidth + size + legendSpec.paddingX * 2 > parentWidth) {
+                if (matrixWidth + legendWidth + legendSpec.paddingTop + legendSpec.paddingBottom > parentWidth) {
                     floatingSvgWrapper
                         .style('position', 'sticky')
-                        .style('left', `${parentWidth - size - legendSpec.paddingX * 2}px`)
+                        .style('left', `${parentWidth - legendWidth - legendSpec.paddingTop - legendSpec.paddingBottom}px`)
                         .style('bottom', `${C.padding}px`)
                         .style('top', 'auto')
                 }
@@ -541,13 +561,13 @@ export class HeatmapRenderer {
             })
 
             let legendXScale = d3.scaleLinear().domain(quant.valueDomain())
-                .range([legendSpec.paddingX, size + legendSpec.paddingX]);
+                .range([legendSpec.paddingLeft, legendWidth + legendSpec.paddingLeft]);
             this.legendXScale = legendXScale;
 
             if (this.safeguardType == SGT.Value || this.safeguardType === SGT.Range) {
                 this.angularBrush.render([
-                    [legendSpec.paddingX, legendSpec.paddingY + legendSpec.translateY],
-                    [size + legendSpec.paddingX, size + legendSpec.paddingY + legendSpec.translateY]]);
+                    [legendSpec.paddingLeft, legendSpec.paddingTop + legendSpec.translateY],
+                    [legendWidth + legendSpec.paddingLeft, legendWidth + legendSpec.paddingTop + legendSpec.translateY]]);
             }
 
             if (!this.constant) this.setDefaultConstantFromVariable();

@@ -163,6 +163,12 @@ button.border:hover {
     border-color: #dae0e5;
 }
 
+.x-title-tools {
+    position: absolute;
+    right: 0;
+    top:0;
+}
+
 @media screen and (max-width: 720px) {
     header {
         font-size: 1em;
@@ -262,8 +268,19 @@ button.border:hover {
     stroke-width: 3px;
 }
 
+.btn-mini {
+    padding: 0.1rem 0.2rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
 #x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper, #xy-title-wrapper {
     display: none;
+}
+
+#x-title-wrapper {
+    position: relative;
 }
 
 @media screen and (max-width: 720px) {

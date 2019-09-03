@@ -642,7 +642,6 @@ export class BarsRenderer {
             })
         }
 
-
         d3.select(floatingSvg).style('display', 'none');
 
         this.brush.on('brush', (centerOrRange) => {

@@ -40,16 +40,22 @@ export const Constants = Object.freeze({
         rowHeight: 20,
         columnWidth: 30,
         legend: {
-            size: 200,
-            paddingX: 30,
-            paddingY: 40,
+            width: 200,
+            height: 200,
+            paddingLeft: 30,
+            paddingRight: 30,
+            paddingTop: 40,
+            paddingBottom: 40,
             translateY: 15
         },
         mobile: {
             legend: {
-                size: 140,
-                paddingX: 30,
-                paddingY: 30,
+                width:140,
+                height: 60,
+                paddingLeft: 10,
+                paddingRight: 50,
+                paddingTop: 30,
+                paddingBottom: 20,
                 translateY: 10
             }
         },
