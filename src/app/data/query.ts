@@ -210,6 +210,9 @@ export class AggregateQuery extends Query {
 
     safeguards: Safeguard[] = []; // underlying safeguards
 
+    zoomXLevel = 2;
+    zoomYLevel = 2;
+
     /**
      *
      * @param accumulator

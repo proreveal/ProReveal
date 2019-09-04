@@ -303,4 +303,28 @@ export class VisComponent implements DoCheck, AfterViewInit {
             this.renderer.emptySelectedDatum();
         this.selectedDatum = null;
     }
+
+    zoomIn() {
+        if(this.query.zoomXLevel <= 4) {
+            this.query.zoomXLevel *= 1.2;
+        }
+
+        if(this.query.zoomYLevel <= 4) {
+            this.query.zoomYLevel *= 1.2
+        }
+
+        this.forceUpdate();
+    }
+
+    zoomOut() {
+        if(this.query.zoomXLevel >= 1) {
+            this.query.zoomXLevel /= 1.2;
+        }
+
+        if(this.query.zoomYLevel >= 1) {
+            this.query.zoomYLevel /= 1.2
+        }
+
+        this.forceUpdate();
+    }
 }

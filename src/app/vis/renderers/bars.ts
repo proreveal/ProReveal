@@ -153,6 +153,9 @@ export class BarsRenderer {
                 .style('grid-template-columns', `0px ${labelWidth}px ${barsAvailWidth}px`)
                 .style('grid-template-rows', `${xTitleHeight}px ${xLabelHeight}px ${barsAvailHeight}px`)
 
+            visGridSet.d3XYTitle
+                .style('display', 'inline')
+
             visGridSet.d3Svg.attr('width', barsAvailWidth)
                 .attr('height', barsFullHeight);
         }

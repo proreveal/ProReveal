@@ -160,18 +160,23 @@ export class HeatmapRenderer {
         const xTitleHeight = C.heatmap.title.x.height;
         const yTitleWidth = C.heatmap.title.y.width;
 
+        const zoomXLevel = query.zoomXLevel;
+        const zoomYLevel = query.zoomYLevel;
 
-        let heatmapFullWidth = C.heatmap.columnWidth * xValues.length;
-        let heatmapFullHeight = C.heatmap.rowHeight * yValues.length;
+        const columnWidth = C.heatmap.columnWidth * zoomXLevel;
+        const rowHeight = C.heatmap.rowHeight * zoomYLevel;
+
+        let heatmapFullWidth = columnWidth * xValues.length;
+        let heatmapFullHeight = rowHeight * yValues.length;
         let heatmapXLabelHeight = 1.414 / 2 * xLabelWidth;
         const headerHeight = heatmapXLabelHeight + xTitleHeight
 
-        const height = C.heatmap.rowHeight * yValues.length + headerHeight * 2;
+        const height = rowHeight * yValues.length + headerHeight * 2;
 
         const legendSpec = this.isMobile ? C.heatmap.mobile.legend : C.heatmap.legend;
 
         const matrixWidth = xValues.length > 0 ?
-            (yTitleWidth + yLabelWidth + C.heatmap.columnWidth * xValues.length) : 0;
+            (yTitleWidth + yLabelWidth + columnWidth * xValues.length) : 0;
         const width = matrixWidth + legendSpec.width * 1.2;
 
         this.matrixWidth = matrixWidth;
@@ -216,6 +221,9 @@ export class HeatmapRenderer {
             visGridSet.d3VisGrid
             .style('grid-template-columns', `${C.heatmap.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
                 .style('grid-template-rows', `${C.heatmap.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
+
+            visGridSet.d3XYTitle
+                .style('display', 'none')
 
             visGridSet.d3Svg.attr('width', heatmapFullWidth)
                 .attr('height', heatmapFullHeight);
@@ -294,11 +302,11 @@ export class HeatmapRenderer {
             enter = yLabels.enter().append('text').attr('class', 'label y data')
                 .style('text-anchor', 'end')
                 .attr('font-size', '.8rem')
-                .attr('dy', '.8rem')
 
             this.yLabels = yLabels.merge(enter)
                 .attr('transform', (d) => translate(x, yScale(d.hash)))
                 .text(d => d.valueString())
+                .attr('dy', yScale.bandwidth() / 2 + 6)
 
             yLabels.exit().remove();
 
@@ -406,8 +414,8 @@ export class HeatmapRenderer {
             hls.merge(enter)
                 .attr('x1', this.isMobile ? 0 : (yTitleWidth + yLabelWidth))
                 .attr('x2', this.isMobile ? heatmapFullWidth : (matrixWidth - headerHeight))
-                .attr('y1', (d, i) => baseY + C.heatmap.rowHeight * i)
-                .attr('y2', (d, i) => baseY + C.heatmap.rowHeight * i)
+                .attr('y1', (d, i) => baseY + rowHeight * i)
+                .attr('y2', (d, i) => baseY + rowHeight * i)
 
             hls.exit().remove();
         }
@@ -631,8 +639,8 @@ export class HeatmapRenderer {
         let yCount = yValues.length;
 
         let blockWidth = Math.min(Math.floor(C.heatmap.minimap.maxWidth / xCount), Math.floor(C.heatmap.minimap.maxHeight / yCount
-            / C.heatmap.rowHeight * C.heatmap.columnWidth))
-        let blockHeight = blockWidth * C.heatmap.rowHeight / C.heatmap.columnWidth;
+            / rowHeight * columnWidth))
+        let blockHeight = blockWidth * rowHeight / columnWidth;
 
         if(this.isMobile) {
             d3minisvg
@@ -673,8 +681,8 @@ export class HeatmapRenderer {
             let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
                 .call(brush)
                 .call(brush.move, [[0, 0],
-                    [heatmapAvailWidth / C.heatmap.columnWidth * blockWidth,
-                    heatmapAvailHeight / C.heatmap.rowHeight * blockHeight]])
+                    [heatmapAvailWidth / columnWidth * blockWidth,
+                    heatmapAvailHeight / rowHeight * blockHeight]])
 
             wrapper.select('.selection').style('stroke', 'none');
 
@@ -717,11 +725,11 @@ export class HeatmapRenderer {
                     else {
                         selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
                             .call(this.minimapBrush.move, [[
-                                left / C.heatmap.columnWidth * blockWidth,
-                                top / C.heatmap.rowHeight * blockHeight,
+                                left / columnWidth * blockWidth,
+                                top / rowHeight * blockHeight,
                             ], [
-                                left / C.heatmap.columnWidth * blockWidth + heatmapAvailWidth / C.heatmap.columnWidth * blockWidth,
-                                top / C.heatmap.rowHeight * blockHeight + heatmapAvailHeight / C.heatmap.rowHeight * blockHeight,
+                                left / columnWidth * blockWidth + heatmapAvailWidth / columnWidth * blockWidth,
+                                top / rowHeight * blockHeight + heatmapAvailHeight / rowHeight * blockHeight,
                             ]]);
 
                         xyFromSvg = true;
@@ -750,9 +758,19 @@ export class HeatmapRenderer {
                 let [[x0, y0], [x1, y1]] = d3.event.selection;
 
                 if(xyFromSvg) {xyFromSvg = false; return;}
-                visGridSet.svg.parentElement.scrollLeft = x0 / blockWidth * C.heatmap.columnWidth;
-                visGridSet.svg.parentElement.scrollTop = y0 / blockHeight * C.heatmap.rowHeight;
+                visGridSet.svg.parentElement.scrollLeft = x0 / blockWidth * columnWidth;
+                visGridSet.svg.parentElement.scrollTop = y0 / blockHeight * rowHeight;
                 xyFromSvg = true;
+            })
+        }
+
+        if(this.isMobile) {
+            visGridSet.d3Svg.on('mousemove', () => {
+                console.log(d3.event);
+            })
+
+            visGridSet.d3Svg.on('touchmove', () => {
+                console.log(d3.event);
             })
         }
     }

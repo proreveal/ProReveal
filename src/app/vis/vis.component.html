@@ -29,6 +29,7 @@
                         aria-valuemin="0" aria-valuemax="100">
                     </div>
                 </div>
+
                 <div class="text-center" id="visible-progress-indicator"
                     [style.left.%]="query.visibleProgress.processedPercent() * 100"
                 >
@@ -136,6 +137,14 @@
     </div>
 
     <div id="vis-grid" #visGrid>
+        <div id="tools-wrapper" class="d-flex text-center flex-row align-items-center" *ngIf="isMobile">
+            <button type="button" class="btn border btn-mini py-1 px-2" (click)="zoomIn()">
+                <fa-icon [icon]="['fas', 'search-plus']"></fa-icon>
+            </button>
+            <button type="button" class="btn border btn-mini py-1 px-2 ml-1" (click)="zoomOut()">
+                <fa-icon [icon]="['fas', 'search-minus']"></fa-icon>
+            </button>
+        </div>
         <div id="x-title-wrapper">
             <svg #xTitle></svg>
             <div class="x-title-tools" *ngIf="query && isMobile">
@@ -147,7 +156,6 @@
                     <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
                     <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
                 </button>
-
                 <button type="button" class="btn border btn-mini ml-1"
                     [hidden]="!query.aggregationLevelX"
                     [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
