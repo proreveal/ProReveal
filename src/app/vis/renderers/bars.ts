@@ -192,8 +192,8 @@ export class BarsRenderer {
                 .text(xLabelTitle)
                 .attr('transform', translate(targetWidth, 0))
                 .style('text-anchor', 'middle')
-                .attr('dy', '1.1rem')
-                .style('font-size', '.8rem')
+                .attr('dy', C.bars.title.x.dy)
+                .style('font-size', C.bars.title.x.fontSize)
                 .style('font-style', 'italic')
 
             if(!this.isMobile)
@@ -201,8 +201,8 @@ export class BarsRenderer {
                     .text(xLabelTitle)
                     .attr('transform', translate(targetWidth, height - xTitleHeight))
                     .style('text-anchor', 'middle')
-                    .attr('dy', '1.3rem')
-                    .style('font-size', '.8rem')
+                    .attr('dy', C.bars.title.x.dy)
+                    .style('font-size', C.bars.title.x.fontSize)
                     .style('font-style', 'italic')
         }
 

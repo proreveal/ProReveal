@@ -163,8 +163,8 @@
         </div>
         <div id="y-title-wrapper">
             <svg #yTitle></svg>
-            <div class="y-title-tools" *ngIf="query && isMobile">
-                <button type="button" class="btn border btn-sm ml-1"
+            <div class="y-title-tools text-center" *ngIf="query && isMobile">
+                <button type="button" class="btn border btn-mini px-2 py-1 mb-1"
                     [hidden]="!query.aggregationLevelY"
                     [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
                     (click)="splitYBins()">
@@ -173,10 +173,9 @@
                         <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
                         <fa-icon class="bottom" [icon]="['fas', 'angle-down']"></fa-icon>
                     </div>
-                    {{ L.SplitYAxisBins }}
                 </button>
-
-                <button type="button" class="btn border btn-sm ml-1"
+                <br />
+                <button type="button" class="btn border btn-mini px-2 py-1"
                     [hidden]="!query.aggregationLevelY"
                     [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
                     (click)="mergeYBins()">
@@ -185,7 +184,6 @@
                         <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
                         <fa-icon class="bottom" [icon]="['fas', 'angle-up']"></fa-icon>
                     </div>
-                    {{ L.MergeYAxisBins }}
                 </button>
             </div>
         </div>

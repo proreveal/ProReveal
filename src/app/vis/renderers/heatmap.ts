@@ -180,7 +180,7 @@ export class HeatmapRenderer {
         let availWidth = Math.min(window.screen.availWidth - 10, heatmapFullWidth + yTitleWidth + yLabelWidth);
         let availHeight: number;
         let heatmapAvailHeight: number;
-        let screenAvailHeight = window.screen.availHeight - 200;
+        let screenAvailHeight = window.screen.availHeight - 290;
 
         if(screenAvailHeight < heatmapFullHeight + headerHeight) {
             availHeight = screenAvailHeight;
@@ -251,8 +251,8 @@ export class HeatmapRenderer {
                 .text(query.groupBy.fields[0].name)
                 .attr('transform', translate(targetWidth, 0))
                 .style('text-anchor', 'middle')
-                .attr('dy', '1.1em')
-                .style('font-size', '.8rem')
+                .attr('dy', C.heatmap.title.x.dy)
+                .style('font-size', C.heatmap.title.x.fontSize)
                 .style('font-style', 'italic')
 
             if(!this.isMobile)
@@ -260,8 +260,8 @@ export class HeatmapRenderer {
                     .text(query.groupBy.fields[0].name)
                     .attr('transform', translate(matrixWidth / 2, height - C.heatmap.title.x.height))
                     .style('text-anchor', 'middle')
-                    .attr('dy', '1.3em')
-                    .style('font-size', '.8rem')
+                    .attr('dy', C.heatmap.title.x.dy)
+                    .style('font-size', C.heatmap.title.x.fontSize)
                     .style('font-style', 'italic')
         }
 
@@ -275,8 +275,8 @@ export class HeatmapRenderer {
                 .attr('transform',
                     translate(0, targetHeight) + 'rotate(-90)')
                 .style('text-anchor', 'middle')
-                .attr('dy', '1em')
-                .style('font-size', '.8rem')
+                .attr('dy', C.heatmap.title.y.dy)
+                .style('font-size', C.heatmap.title.y.fontSize)
                 .style('font-style', 'italic')
         }
 

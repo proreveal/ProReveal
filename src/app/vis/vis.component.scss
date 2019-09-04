@@ -1,5 +1,5 @@
 @import "node_modules/bootstrap/scss/bootstrap.scss";
-@import '../theme.scss';
+@import "../theme.scss";
 
 .vis-content {
     position: relative;
@@ -28,8 +28,8 @@ header {
     font-size: 1.3rem;
 
     small {
-        font-size: .8rem;
-        opacity: .5;
+        font-size: 0.8rem;
+        opacity: 0.5;
     }
 }
 
@@ -38,25 +38,25 @@ header {
 }
 
 .progress-bar-striped {
-    opacity: .8;
+    opacity: 0.8;
 }
 
 #visible-progress-indicator {
     position: absolute;
-    top: -.72rem;
+    top: -0.72rem;
     line-height: 1.1rem;
     display: block;
     width: 20px;
     margin-left: -10px;
     transition: left 0.5s;
-    font-size: .8rem;
+    font-size: 0.8rem;
 }
 
 #query-creator-wrapper {
     position: absolute;
     left: 0;
     width: 450px;
-    font-size: .9rem;
+    font-size: 0.9rem;
     background: white;
     z-index: 10;
 }
@@ -78,7 +78,7 @@ header {
         text-align: center;
     }
 
-    svg{
+    svg {
         width: 20px;
         height: 24px;
         display: inline-block;
@@ -86,7 +86,7 @@ header {
     }
 
     text {
-        font-family: 'Arial';
+        font-family: "Arial";
         font-weight: bold;
     }
 
@@ -108,16 +108,18 @@ header {
     }
 
     small {
-        opacity: .8;
-        font-family: 'Roboto Condensed';
+        opacity: 0.8;
+        font-family: "Roboto Condensed";
     }
 
     a:active {
-        line, path {
+        line,
+        path {
             stroke: white;
         }
 
-        text, circle {
+        text,
+        circle {
             stroke: white;
             fill: white;
         }
@@ -146,14 +148,14 @@ svg.hidden {
 
     .top {
         position: absolute;
-        left: .15em;
-        top: -.5em
+        left: 0.15em;
+        top: -0.5em;
     }
 
     .bottom {
         position: absolute;
-        left: .15em;
-        bottom: -.5em
+        left: 0.15em;
+        bottom: -0.5em;
     }
 }
 
@@ -163,23 +165,107 @@ button.border:hover {
     border-color: #dae0e5;
 }
 
+.btn-mini {
+    padding: 0.1rem 0.2rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+#x-title-wrapper,
+#x-labels-wrapper,
+#y-title-wrapper,
+#y-labels-wrapper,
+#xy-title-wrapper {
+    display: none;
+}
+
+#x-title-wrapper,
+#y-title-wrapper {
+    position: relative;
+}
+
 .x-title-tools {
     position: absolute;
     right: 0;
-    top:0;
+    top: 0;
+}
+
+.y-title-tools {
+    position: absolute;
+    bottom: 0;
 }
 
 @media screen and (max-width: 720px) {
+    #vis-grid {
+        display: grid;
+        grid-template-columns: 20px 20px 100px;
+        grid-template-rows: 20px 20px 100px;
+    }
+
+    #x-title-wrapper,
+    #x-labels-wrapper,
+    #y-title-wrapper,
+    #y-labels-wrapper,
+    #xy-title-wrapper {
+        display: block;
+    }
+
+    #x-title-wrapper {
+        grid-row: 1;
+        grid-column: 3;
+    }
+
+    #x-labels-wrapper {
+        grid-row: 2;
+        grid-column: 3;
+
+        overflow-x: scroll;
+    }
+
+    #y-title-wrapper {
+        grid-row: 3;
+        grid-column: 1;
+    }
+
+    #y-labels-wrapper {
+        grid-row: 3;
+        grid-column: 2;
+
+        overflow-y: scroll;
+    }
+
+    #xy-title-wrapper {
+        grid-row: 2;
+        grid-column: 2;
+    }
+
+    #vis-wrapper {
+        grid-row: 3;
+        grid-column: 3;
+
+        overflow: scroll;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none; // IE 10+
+        scrollbar-width: none; // Firefox
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+    }
+
     header {
         font-size: 1em;
     }
 
     .text-sm {
-        font-size: .8rem;
+        font-size: 0.8rem;
     }
 }
 
-@import '../theme.scss';
+@import "../theme.scss";
 
 ::ng-deep .event-box {
     fill: transparent;
@@ -188,27 +274,27 @@ button.border:hover {
 ::ng-deep vis text.hover {
     fill: $variable1-highlight-color;
     stroke: $variable1-highlight-color;
-    stroke-width: .5px;
+    stroke-width: 0.5px;
 }
 
 ::ng-deep vis .bars text.highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
-    stroke-width: .5px;
+    stroke-width: 0.5px;
     font-weight: bold;
 }
 
 ::ng-deep vis .bars text.menu-highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
-    stroke-width: .5px;
+    stroke-width: 0.5px;
     font-weight: bold;
 }
 
 ::ng-deep vis .bars text.variable2.highlighted {
     fill: darken($variable2-highlight-color, 3%);
     stroke: darken($variable2-highlight-color, 3%);
-    stroke-width: .5px;
+    stroke-width: 0.5px;
     font-weight: bold;
 }
 
@@ -240,21 +326,21 @@ button.border:hover {
 ::ng-deep vis .heatmap text.menu-highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
-    stroke-width: .5px;
+    stroke-width: 0.5px;
     font-weight: bold;
 }
 
 ::ng-deep vis .heatmap text.highlighted {
     fill: darken($variable1-highlight-color, 3%);
     stroke: darken($variable1-highlight-color, 3%);
-    stroke-width: .5px;
+    stroke-width: 0.5px;
     font-weight: bold;
 }
 
 ::ng-deep vis .heatmap text.variable2.highlighted {
     fill: darken($variable2-highlight-color, 3%);
     stroke: darken($variable2-highlight-color, 3%);
-    stroke-width: .5px;
+    stroke-width: 0.5px;
     font-weight: bold;
 }
 
@@ -267,77 +353,3 @@ button.border:hover {
     stroke: darken($variable2-highlight-color, 10%);
     stroke-width: 3px;
 }
-
-.btn-mini {
-    padding: 0.1rem 0.2rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    border-radius: 0.2rem;
-}
-
-#x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper, #xy-title-wrapper {
-    display: none;
-}
-
-#x-title-wrapper {
-    position: relative;
-}
-
-@media screen and (max-width: 720px) {
-    #vis-grid {
-        display: grid;
-        grid-template-columns: 20px 20px 100px;
-        grid-template-rows: 20px 20px 100px;
-    }
-
-    #x-title-wrapper, #x-labels-wrapper, #y-title-wrapper, #y-labels-wrapper, #xy-title-wrapper {
-        display: block;
-    }
-
-    #x-title-wrapper {
-        grid-row: 1;
-        grid-column: 3;
-    }
-
-    #x-labels-wrapper {
-        grid-row: 2;
-        grid-column: 3;
-
-        overflow-x: scroll;
-    }
-
-    #y-title-wrapper {
-        grid-row: 3;
-        grid-column: 1;
-    }
-
-    #y-labels-wrapper{
-        grid-row: 3;
-        grid-column: 2;
-
-        overflow-y: scroll;
-    }
-
-    #xy-title-wrapper {
-        grid-row: 2;
-        grid-column: 2;
-    }
-
-    #vis-wrapper {
-        grid-row: 3;
-        grid-column: 3;
-
-        overflow: scroll;
-    }
-
-    .hide-scrollbar {
-        -ms-overflow-style: none;  // IE 10+
-        scrollbar-width: none;  // Firefox
-    }
-
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;  // Safari and Chrome
-    }
-
-}
-

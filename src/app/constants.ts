@@ -21,7 +21,9 @@ export const Constants = Object.freeze({
         },
         title: {
             x: {
-                height: 20
+                height: 30,
+                fontSize: '1.1rem',
+                dy: '1.3rem'
             },
             y: {
                 width: 20
@@ -50,7 +52,7 @@ export const Constants = Object.freeze({
         },
         mobile: {
             legend: {
-                width:140,
+                width: 140,
                 height: 60,
                 paddingLeft: 10,
                 paddingRight: 50,
@@ -61,15 +63,19 @@ export const Constants = Object.freeze({
         },
         title: {
             x: {
-                height: 20
+                height: 30,
+                fontSize: '1.1rem',
+                dy: '1.3rem'
             },
             y: {
-                width: 20
+                width: 25,
+                fontSize: '1.1rem',
+                dy: '1.3rem'
             }
         },
         minimap: {
             maxWidth: 140,
-            maxHeight: 200
+            maxHeight: 120
         },
         initiallyVisibleCategories: 40,
         width: 960
