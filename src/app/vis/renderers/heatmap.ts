@@ -181,7 +181,6 @@ export class HeatmapRenderer {
 
         this.matrixWidth = matrixWidth;
 
-
         let availWidth = Math.min(window.screen.availWidth - 10, heatmapFullWidth + yTitleWidth + yLabelWidth);
         let availHeight: number;
         let heatmapAvailHeight: number;
@@ -198,7 +197,8 @@ export class HeatmapRenderer {
 
         let heatmapAvailWidth = availWidth - C.heatmap.title.y.width - yLabelWidth;
 
-
+        visGridSet.d3XYTitle
+            .style('display', 'none')
         // Set dimensions (x: ->, y: ↓)
         if(this.isMobile) {
             visGridSet.setClass('heatmap');
@@ -219,11 +219,8 @@ export class HeatmapRenderer {
                 .attr('height', heatmapFullHeight);
 
             visGridSet.d3VisGrid
-            .style('grid-template-columns', `${C.heatmap.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
+                .style('grid-template-columns', `${C.heatmap.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
                 .style('grid-template-rows', `${C.heatmap.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
-
-            visGridSet.d3XYTitle
-                .style('display', 'none')
 
             visGridSet.d3Svg.attr('width', heatmapFullWidth)
                 .attr('height', heatmapFullHeight);
@@ -678,11 +675,18 @@ export class HeatmapRenderer {
             let brush = d3.brush().handleSize(0);
             this.minimapBrush = brush;
 
+            let left = visGridSet.svg.parentElement.scrollLeft,
+                top = visGridSet.svg.parentElement.scrollTop;
+
             let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
                 .call(brush)
-                .call(brush.move, [[0, 0],
-                    [heatmapAvailWidth / columnWidth * blockWidth,
-                    heatmapAvailHeight / rowHeight * blockHeight]])
+                .call(brush.move, [[
+                        left / columnWidth * blockWidth,
+                        top / rowHeight * blockHeight,
+                    ], [
+                        left / columnWidth * blockWidth + heatmapAvailWidth / columnWidth * blockWidth,
+                        top / rowHeight * blockHeight + heatmapAvailHeight / rowHeight * blockHeight,
+                    ]])
 
             wrapper.select('.selection').style('stroke', 'none');
 

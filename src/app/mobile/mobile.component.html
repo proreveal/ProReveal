@@ -95,6 +95,7 @@
                                     </span>
                                 </div>
                             </div>
+
                             <fa-icon class="state-icon" [icon]="['fas', 'play']" [hidden]="engine.runningQuery != query || query.state === QS.Paused"></fa-icon>
                             <fa-icon class="state-icon" [icon]="['fas', 'pause']" [hidden]="query.state === QS.Running"></fa-icon>
 

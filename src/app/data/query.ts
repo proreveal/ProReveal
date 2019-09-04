@@ -139,6 +139,7 @@ export abstract class Query {
         query.recentProgress.processedBlocks = json.numProcessedBlocks;
         query.recentProgress.processedRows = json.numProcessedRows;
         query.lastUpdated = json.lastUpdated;
+        query.state = json.state;
 
         if (json.result) {
             let aggregateKeyValues = query.convertToAggregateKeyValues(json.result);
@@ -210,8 +211,8 @@ export class AggregateQuery extends Query {
 
     safeguards: Safeguard[] = []; // underlying safeguards
 
-    zoomXLevel = 2;
-    zoomYLevel = 2;
+    zoomXLevel = 1;
+    zoomYLevel = 1;
 
     /**
      *
