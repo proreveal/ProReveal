@@ -107,6 +107,9 @@ export class AndPredicate extends Predicate {
 
     constructor(public predicates: Predicate[] = []) {
         super();
+
+        if(predicates.length == 1 && predicates[0] instanceof AndPredicate)
+            this.predicates = (predicates[0] as AndPredicate).predicates;
     }
 
     get length() { return this.predicates.length; }

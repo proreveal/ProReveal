@@ -15,7 +15,7 @@ import { Gradient } from '../errorbars/gradient';
 import { NullGroupId } from '../../data/grouper';
 import { Datum } from '../../data/datum';
 import { AngularBrush, AngularBrushMode } from './angular-brush';
-import { Predicate } from '../../data/predicate';
+import { Predicate, AndPredicate } from '../../data/predicate';
 import { LinearLine } from './linear-line';
 import { LoggerService, LogType } from '../../services/logger.service';
 import { FieldGroupedValue } from '../../data/field-grouped-value';
@@ -1039,7 +1039,8 @@ export class HeatmapRenderer {
         let where: Predicate = this.vis.query.where;
         // where + datum
 
-        this.vis.queryCreator.where = where.and(this.query.getPredicateFromDatum(d));
+        this.vis.queryCreator.where = where ? where.and(this.query.getPredicateFromDatum(d))
+            : new AndPredicate([this.query.getPredicateFromDatum(d)]);
     }
 
     closeQueryCreator() {
