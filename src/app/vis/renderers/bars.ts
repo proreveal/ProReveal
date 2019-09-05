@@ -1071,8 +1071,11 @@ export class BarsRenderer {
             + C.bars.label.height + C.padding;
 
         this.vis.isQueryCreatorVisible = true;
-        this.vis.queryCreatorTop = top;
-        this.vis.queryCreatorLeft = this.labelWidth;
+
+        if(!this.isMobile) {
+            this.vis.queryCreatorTop = top;
+            this.vis.queryCreatorLeft = this.labelWidth;
+        }
 
         let where: Predicate = this.vis.query.where;
         // where + datum

@@ -293,6 +293,29 @@ button.border:hover {
     #vis-grid.heatmap #y-title-wrapper {
         display: inline;
     }
+
+    #query-creator-wrapper {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: 0 !important;
+        outline: 0;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        outline-color: rgb(33, 37, 41);
+        z-index: 1001;
+        background: rgba(0, 0, 0, .15);
+        padding-top: 50px;
+        width: 100%;
+    }
+
+    #query-creator {
+        margin: 1.75rem auto !important;
+        max-width: 350px !important;
+        width: auto !important;
+    }
+
 }
 
 @import "../theme.scss";

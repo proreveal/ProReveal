@@ -293,7 +293,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
         this.emptySelectedDatum();
     }
 
-    queryCreatorCreationCancelled($event) {
+    queryCreatorCreationCancelled() {
         this.isQueryCreatorVisible = false;
         this.emptySelectedDatum();
     }

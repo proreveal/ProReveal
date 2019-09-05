@@ -9,7 +9,7 @@
     <hr class="mt-1 mb-2">
 </div>
 
-<div class="vis-content">
+<div class="vis-content" [class.mobile]="isMobile">
     <p [hidden]="query && query.recentProgress.processedBlocks > 0" class="alert alert-primary" role="alert"
         [innerHTML]="L.VisualizationNotStarted">
     </p>
