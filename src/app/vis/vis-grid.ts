@@ -42,5 +42,6 @@ export class VisGridSet {
         this.d3YTitle.classed('bars heatmap', false).classed(name, true);
         this.d3YLabels.classed('bars heatmap', false).classed(name, true);
         this.d3XYTitle.classed('bars heatmap', false).classed(name, true);
+        this.d3VisGrid.classed('bars heatmap', false).classed(name, true);
     }
 }

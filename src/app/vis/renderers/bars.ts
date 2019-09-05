@@ -122,16 +122,13 @@ export class BarsRenderer {
 
         this.height = height;
 
-        const availHeight = Math.min(window.screen.availHeight - 290, barsFullHeight + xTitleHeight);
+        const availHeight = Math.min(window.screen.availHeight - 250, barsFullHeight + xTitleHeight);
         const barsAvailWidth = (this.isMobile ? window.screen.availWidth - 15 : Constants.bars.width) - labelWidth;
         const zoomXLevel = query.zoomXLevel;
         const barsFullWidth = (this.isMobile ? (window.screen.availWidth - 15) * zoomXLevel : Constants.bars.width) - labelWidth;
         const barsAvailHeight = availHeight - xTitleHeight - xLabelHeight;
 
         this.width = barsFullWidth;
-
-        visGridSet.d3XYTitle
-            .style('display', 'inline')
 
         // Set dimensions (x: ->, y: ↓)
         if(this.isMobile) {
@@ -668,7 +665,7 @@ export class BarsRenderer {
             }
             else if (this.safeguardType === SGT.Rank) {
                 let index = Math.round((centerOrRange - xTitleHeight - xLabelHeight)
-                    / C.bars.height)
+                    / barHeight)
                 if(index <= 0) index = 1;
                 let constant = new RankConstant(index);
                 this.constant = constant;
@@ -689,12 +686,12 @@ export class BarsRenderer {
             this.brush.snap = null;
 
             this.brush.setDirection(BrushDirection.X);
-            this.brush.render([[labelWidth, xTitleHeight - C.padding],
-            [barsFullWidth - C.padding, height - xTitleHeight + C.padding]]);
+            this.brush.render([[xScale.range()[0], yScale.range()[0]],
+            [xScale.range()[1], yScale.range()[1]]]);
         }
         else if(this.safeguardType === SGT.Rank) {
             let start = yScale.range()[0];
-            let step = C.bars.height;
+            let step = barHeight;
 
             this.brush.setDirection(BrushDirection.Y);
             this.brush.hideReferenceLine();

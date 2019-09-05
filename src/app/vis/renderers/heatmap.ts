@@ -197,8 +197,6 @@ export class HeatmapRenderer {
 
         let heatmapAvailWidth = availWidth - C.heatmap.title.y.width - yLabelWidth;
 
-        visGridSet.d3XYTitle
-            .style('display', 'none')
         // Set dimensions (x: ->, y: ↓)
         if(this.isMobile) {
             visGridSet.setClass('heatmap');

@@ -216,7 +216,6 @@ button.border:hover {
     #tools-wrapper {
         grid-row: 1 / 3;
         grid-column: 1 / 3;
-        line-height: 30px;
     }
 
     #x-title-wrapper {
@@ -270,6 +269,29 @@ button.border:hover {
 
     .text-sm {
         font-size: 0.8rem;
+    }
+
+    #vis-grid.bars {
+        #xy-title-wrapper {
+            display: inline;
+        }
+
+        #y-title-wrapper {
+            display: none;
+        }
+
+        #tools-wrapper {
+            grid-row: 1;
+            grid-column: 1 / 3;
+        }
+    }
+
+    #vis-grid.heatmap #xy-title-wrapper {
+        display: none;
+    }
+
+    #vis-grid.heatmap #y-title-wrapper {
+        display: inline;
     }
 }
 
