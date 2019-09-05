@@ -33,19 +33,19 @@ export abstract class VariableTrait {
 
         if(variableType == VariableTypes.Pair) {
             const first = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
-            const second = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
+            const second = VariableTrait.fromJSON(json.second, dataset) as SingleVariable;
             return new VariablePair(first, second);
         }
 
         if(variableType == VariableTypes.Combined) {
             const first = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
-            const second = VariableTrait.fromJSON(json.first, dataset) as SingleVariable;
+            const second = VariableTrait.fromJSON(json.second, dataset) as SingleVariable;
             return new CombinedVariable(first, second);
         }
 
-        if(variableType == VariableTypes.Combined) {
+        if(variableType == VariableTypes.CombinedPair) {
             const first = VariableTrait.fromJSON(json.first, dataset) as CombinedVariable;
-            const second = VariableTrait.fromJSON(json.first, dataset) as CombinedVariable;
+            const second = VariableTrait.fromJSON(json.second, dataset) as CombinedVariable;
             return new CombinedVariablePair(first, second);
         }
 

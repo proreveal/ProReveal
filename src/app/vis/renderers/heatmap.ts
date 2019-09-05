@@ -22,6 +22,7 @@ import { FieldGroupedValue } from '../../data/field-grouped-value';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 import { VisGridSet } from '../vis-grid';
 import { heatmapLegend } from '../vsup/legend';
+import { Brush, BrushMode } from './brush';
 
 type Range = [number, number];
 
@@ -38,7 +39,7 @@ export class HeatmapRenderer {
     query: AggregateQuery;
     nativeSvg: SVGSVGElement;
     legendXScale: d3.ScaleLinear<number, number>; // value -> pixel
-    angularBrush = new AngularBrush();
+    brush = new Brush<Datum>();
     linearLine = new LinearLine();
 
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
@@ -76,8 +77,8 @@ export class HeatmapRenderer {
         this.interactionG = selectOrAppend(svg, 'g', 'interaction').classed('heatmap', true);
 
         let fsvgw = d3.select(floatingSvg);
-        let fbrush = fsvgw.select('.angular-brush');
-        this.angularBrush.setup(fbrush);
+        let fbrush = fsvgw.select('.brush');
+        this.brush.setup(fbrush);
         this.linearLine.setup(this.interactionG);
     }
 
@@ -466,6 +467,10 @@ export class HeatmapRenderer {
                 })
                 .on('click', (d, i, ele) => {
                     if (d.ci3 == EmptyConfidenceInterval) return;
+                    if(this.safeguardType == SGT.Comparative) {
+                        this.datumSelected2(d);
+                        return;
+                    }
                     this.datumSelected(d);
                     this.toggleDropdown(d, i);
 
@@ -476,7 +481,6 @@ export class HeatmapRenderer {
                     if(this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
-                .on('contextmenu', (d) => this.datumSelected2(d))
 
             eventBoxes.exit().remove();
         }
@@ -499,7 +503,7 @@ export class HeatmapRenderer {
 
             let floatingSvgWrapper = d3.select(floatingSvg);
             let floatingLegend = floatingSvgWrapper.select('.legend');
-            let floatingBrush = floatingSvgWrapper.select('.angular-brush');
+            let floatingBrush = floatingSvgWrapper.select('.brush');
 
             let parentWidth = visGridSet.svg.parentElement.offsetWidth;
             let parentOffsetTop = 100 + headerHeight; // nativeSvg.getBoundingClientRect().top; // TODO
@@ -543,7 +547,7 @@ export class HeatmapRenderer {
                 }
             }
 
-            this.angularBrush.on('brush', (centerOrRange) => {
+            this.brush.on('brush', (centerOrRange) => {
                 if (this.safeguardType === SGT.Value) {
                     let constant = new ValueConstant(this.legendXScale.invert(centerOrRange));
                     this.constant = constant;
@@ -565,32 +569,31 @@ export class HeatmapRenderer {
             this.legendXScale = legendXScale;
 
             if (this.safeguardType == SGT.Value || this.safeguardType === SGT.Range) {
-                this.angularBrush.render([
+                this.brush.render([
                     [legendSpec.paddingLeft, legendSpec.paddingTop + legendSpec.translateY],
-                    [legendWidth + legendSpec.paddingLeft, legendWidth + legendSpec.paddingTop + legendSpec.translateY]]);
+                    [legendWidth + legendSpec.paddingLeft, legendHeight + legendSpec.paddingTop + legendSpec.translateY]]);
             }
 
             if (!this.constant) this.setDefaultConstantFromVariable();
 
             if ([SGT.Value, SGT.Range].includes(this.safeguardType) && this.constant)
-                this.angularBrush.show();
+                this.brush.show();
             else
-                this.angularBrush.hide();
-
+                this.brush.hide();
 
             if(this.variable1 && this.safeguardType === SGT.Value) {
                 let d = this.getDatum(this.variable1);
-                this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+                this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
 
                 if(this.constant) {
                     let center = this.legendXScale((this.constant as ValueConstant).value);
-                    this.angularBrush.move(center);
+                    this.brush.move(center);
                 }
             }
             else if(this.variable1 && this.safeguardType == SGT.Range) {
                 let d = this.getDatum(this.variable1);
-                this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
-                this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
+                this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
+                this.brush.setCenter(this.legendXScale(d.ci3.center));
 
                 if(this.constant) {
                     let oldRange: Range = (this.constant as RangeConstant).range;
@@ -762,16 +765,6 @@ export class HeatmapRenderer {
                 xyFromSvg = true;
             })
         }
-
-        if(this.isMobile) {
-            visGridSet.d3Svg.on('mousemove', () => {
-                console.log(d3.event);
-            })
-
-            visGridSet.d3Svg.on('touchmove', () => {
-                console.log(d3.event);
-            })
-        }
     }
 
     constant: ConstantTrait;
@@ -789,10 +782,10 @@ export class HeatmapRenderer {
         if (st == SGT.None) {
         }
         else if (st == SGT.Value) {
-            this.angularBrush.setMode(AngularBrushMode.Point);
+            this.brush.setMode(BrushMode.Point);
         }
         else if (st === SGT.Range) {
-            this.angularBrush.setMode(AngularBrushMode.SymmetricRange);
+            this.brush.setMode(BrushMode.SymmetricRange);
         }
         else if (st === SGT.Comparative) {
         }
@@ -856,13 +849,13 @@ export class HeatmapRenderer {
         this.constant = constant;
         if (this.safeguardType === SGT.Value) {
             let center = this.legendXScale((constant as ValueConstant).value);
-            this.angularBrush.show();
-            this.angularBrush.move(center);
+            this.brush.show();
+            this.brush.move(center);
         }
         else if (this.safeguardType === SGT.Range) {
             let range = (constant as RangeConstant).range.map(this.legendXScale) as [number, number];
-            this.angularBrush.show();
-            this.angularBrush.move(range);
+            this.brush.show();
+            this.brush.move(range);
         }
     }
 
@@ -892,11 +885,11 @@ export class HeatmapRenderer {
         this.variable1 = variable;
 
         if (this.safeguardType === SGT.Value) {
-            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+            this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
         }
         else if (this.safeguardType === SGT.Range) {
-            this.angularBrush.setCenter(this.legendXScale(d.ci3.center));
-            this.angularBrush.setReferenceValue(this.legendXScale(d.ci3.center));
+            this.brush.setCenter(this.legendXScale(d.ci3.center));
+            this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
         }
         this.updateHighlight();
 

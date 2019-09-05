@@ -212,7 +212,7 @@ $button-height: 38px;
         pointer-events: none;
     }
 
-    .angular-brush {
+    .brush {
         position: absolute;
         left: 0;
     }
@@ -228,7 +228,13 @@ $button-height: 38px;
 }
 
 .guard-panel-open {
+    #floating-legend-wrapper {
+        bottom: 250px;
+    }
 
+    #minimap-wrapper {
+        bottom: 250px;
+    }
 }
 
 #close-safeguard-view {
