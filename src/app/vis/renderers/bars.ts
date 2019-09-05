@@ -131,8 +131,9 @@ export class BarsRenderer {
         this.width = barsFullWidth;
 
         // Set dimensions (x: ->, y: ↓)
+        visGridSet.setClass('bars');
+
         if(this.isMobile) {
-            visGridSet.setClass('bars');
 
             visGridSet.d3XTitle
                 .attr('width', barsAvailWidth)
@@ -338,13 +339,16 @@ export class BarsRenderer {
                     d3.select(ele[i]).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
+                    if(this.safeguardType == SGT.Comparative) {
+                        this.datumSelected2(d);
+                        return;
+                    }
                     this.datumSelected(d);
                     this.toggleDropdown(d, i);
 
                     let d3ele = d3.select(ele[i]);
                     d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
-                .on('contextmenu', (d) => this.datumSelected2(d))
 
             labels.exit().remove();
         }
@@ -497,13 +501,16 @@ export class BarsRenderer {
                 })
                 .on('click', (d, i) => {
                     if(d.ci3 == EmptyConfidenceInterval) return;
+                    if(this.safeguardType == SGT.Comparative) {
+                        this.datumSelected2(d);
+                        return;
+                    }
+
                     this.datumSelected(d);
                     this.toggleDropdown(d, i);
 
                     this.labels.filter(datum => datum == d).classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
-                .on('contextmenu', (d) => this.datumSelected2(d))
-
 
             barEventBoxes.exit().remove();
         }

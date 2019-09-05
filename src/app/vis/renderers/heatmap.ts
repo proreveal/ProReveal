@@ -182,25 +182,22 @@ export class HeatmapRenderer {
         this.matrixWidth = matrixWidth;
 
         let availWidth = Math.min(window.screen.availWidth - 10, heatmapFullWidth + yTitleWidth + yLabelWidth);
-        let availHeight: number;
         let heatmapAvailHeight: number;
         let screenAvailHeight = window.screen.availHeight - 290;
 
         if(screenAvailHeight < heatmapFullHeight + headerHeight) {
-            availHeight = screenAvailHeight;
             heatmapAvailHeight = screenAvailHeight - headerHeight;
         }
         else {
-            availHeight = heatmapFullHeight + headerHeight;
             heatmapAvailHeight = heatmapFullHeight;
         }
 
         let heatmapAvailWidth = availWidth - C.heatmap.title.y.width - yLabelWidth;
 
         // Set dimensions (x: ->, y: ↓)
-        if(this.isMobile) {
-            visGridSet.setClass('heatmap');
+        visGridSet.setClass('heatmap');
 
+        if(this.isMobile) {
             visGridSet.d3XTitle
                 .attr('width', heatmapAvailWidth)
                 .attr('height', C.heatmap.title.x.height);
