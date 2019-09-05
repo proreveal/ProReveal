@@ -1068,7 +1068,7 @@ export class BarsRenderer {
         let i = this.data.findIndex(datum => datum.id === d.id);
 
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
-            + C.bars.label.height + C.padding;
+            + this.yScale.bandwidth() / 2 + C.padding;
 
         this.vis.isQueryCreatorVisible = true;
 
