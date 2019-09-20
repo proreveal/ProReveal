@@ -52,6 +52,17 @@ header {
     font-size: 0.8rem;
 }
 
+.progress-control {
+    display: flex;
+    flex-direction: row;
+}
+
+.progress-bar-wrapper {
+    flex: 1;
+    position: relative;
+    margin-top: .45rem;
+}
+
 #query-creator-wrapper {
     position: absolute;
     left: 0;
@@ -315,7 +326,6 @@ button.border:hover {
         max-width: 350px !important;
         width: auto !important;
     }
-
 }
 
 @import "../theme.scss";

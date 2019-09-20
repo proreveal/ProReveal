@@ -118,6 +118,8 @@ $button-height: 38px;
         margin: 0;
         flex-grow: 1;
         flex-basis: auto;
+        max-width: 182px;
+        overflow:none;
     }
 
     .field-names div {

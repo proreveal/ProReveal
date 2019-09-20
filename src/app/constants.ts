@@ -12,7 +12,6 @@ export const Constants = Object.freeze({
     rankFormat: '1.0-0',
 
     bars: {
-        height: 20,
         mobile: {
             height: 30
         },
@@ -36,7 +35,10 @@ export const Constants = Object.freeze({
         circleRadius: 3,
         initiallyVisibleCategories: 50,
         minimumGradientWidth: 3,
-        width: 960
+        height: 20,
+        width: 960,
+        maxLabelLength: 10,
+        maxLabelEllipsis: '...'
     },
     heatmap: {
         rowHeight: 20,

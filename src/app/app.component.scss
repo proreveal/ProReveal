@@ -1,7 +1,6 @@
 @import "node_modules/bootstrap/scss/bootstrap.scss";
 
-@import 'theme.scss';
-
+@import "theme.scss";
 
 #wrapper {
     display: grid;
@@ -53,15 +52,15 @@
     }
 
     #query-creator {
-        background:white;
+        background: white;
         width: 100%;
         position: absolute;
-        z-index:100;
+        z-index: 100;
     }
 }
 
 .section-header {
-    font-family: 'Roboto Condensed', 'Noto Sans KR';
+    font-family: "Roboto Condensed", "Noto Sans KR";
     background: $ui-background-color;
     margin: 0;
     padding: 0;
@@ -69,7 +68,7 @@
 }
 
 .section-subheader {
-    font-family: 'Roboto Condensed', 'Noto Sans KR';
+    font-family: "Roboto Condensed", "Noto Sans KR";
     background: lighten($ui-background-color, 4%);
     margin: 0;
     padding: 0;
@@ -118,12 +117,12 @@
 
 .round-robin {
     position: absolute;
-    top:.35rem;
-    right:0;
-    font-size: .8rem;
+    top: 0.35rem;
+    right: 0;
+    font-size: 0.8rem;
 
     .form-check-input {
-        margin-top: .1rem;
+        margin-top: 0.1rem;
         margin-left: -1rem;
     }
 }
@@ -133,8 +132,8 @@
     background: #fefefe;
     position: relative;
     width: 100%;
-    overflow:hidden;
-    border:1px solid $border-color;
+    overflow: hidden;
+    border: 1px solid $border-color;
 
     progress-ring {
         height: 56px;
@@ -152,12 +151,12 @@
     .field-names div {
         white-space: nowrap;
         overflow: hidden;
-        width: calc(100% - .5rem);
+        width: calc(100% - 0.5rem);
     }
 
     .filtered-by {
-        opacity: .5;
-        font-family: 'Roboto Condensed', 'Noto Sans KR';
+        opacity: 0.5;
+        font-family: "Roboto Condensed", "Noto Sans KR";
     }
 
     &:hover {
@@ -192,7 +191,7 @@
     display: none;
 
     button {
-        font-size: .8rem;
+        font-size: 0.8rem;
         background-color: transparent;
         border: 0;
         cursor: pointer;
@@ -200,10 +199,10 @@
 }
 
 .state-icon {
-    font-size:0.6em;
+    font-size: 0.6em;
     position: absolute;
-    left:3px;
-    top:3px;
+    left: 3px;
+    top: 3px;
 }
 
 #main {
@@ -246,7 +245,6 @@ vis {
     flex-grow: 1;
 }
 
-
 #safeguard-config-view {
     grid-row: 3;
     grid-column: 2;
@@ -257,11 +255,11 @@ vis {
 }
 
 .guide {
-    font-size:.9rem;
+    font-size: 0.9rem;
 
     .tip {
         font-family: #aaa;
-        font-family: 'Roboto Condensed', 'Noto Sans KR';
+        font-family: "Roboto Condensed", "Noto Sans KR";
         font-weight: bold;
     }
 }
@@ -316,22 +314,20 @@ vis {
     background: lighten($constant-highlight-color, 50%);
 }
 
-
 #mark-complete {
     position: fixed;
     right: 0;
     bottom: 0;
 }
 
-
 .cursor {
     position: absolute;
     transform: scale(2);
-    z-index:10001;
+    z-index: 10001;
 }
 
 .export-safeguards {
-    float:right;
+    float: right;
 }
 
 ::ng-deep .modal-xxl {

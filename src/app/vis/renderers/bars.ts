@@ -80,6 +80,15 @@ export class BarsRenderer {
         }
 
         let labelStrings = data.map(d => d.keys.list[0].valueString());
+        if(this.isMobile) {
+            labelStrings = labelStrings.map(s => {
+                if(s.length > Constants.bars.maxLabelLength) {
+                    return s.slice(0, Constants.bars.maxLabelLength) + Constants.bars.maxLabelEllipsis;
+                }
+                return s;
+            });
+        }
+
         let maxLabelWidth = labelStrings.length > 0 ? d3.max(labelStrings, l => measure(l, '.8rem').width) : 0;
 
         // 30 = rank + space
@@ -105,7 +114,6 @@ export class BarsRenderer {
 
         const xTitleHeight = C.bars.title.x.height;
         const xLabelHeight = C.bars.label.height;
-
 
 
         const barHeight = this.isMobile ? C.bars.mobile.height : C.bars.height;
@@ -324,7 +332,13 @@ export class BarsRenderer {
 
             this.labels = labels.merge(enter)
                 .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '') + yScale.bandwidth() / 2))
-                .text((d) => `${d.keys.list[0].valueString()}`)
+                .text((d) => {
+                    let s = d.keys.list[0].valueString();
+                    if(this.isMobile && s.length > Constants.bars.maxLabelLength) {
+                        return s.slice(0, Constants.bars.maxLabelLength) + Constants.bars.maxLabelEllipsis;
+                    }
+                    return s;
+                })
                 .style('opacity', d => {
                     if (d.keys.hasNullValue()) return 0.6;
                     return 1;
