@@ -195,25 +195,20 @@
         class="pr-1"
         ></vis>
 
-        <div id="floating-legend-wrapper" class="border" #floatingSvg
-            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
-|| !isHeatmap() || showQueryList || showGuardList" >
-            <svg class="mr-2 mt-2 legend"></svg>
-            <svg class="mr-2 mt-2 brush"></svg>
-        </div>
+        <div id="vis-panel" class="d-flex border-top justify-content-around pt-1
+            align-items-center">
+            <div id="floating-legend-wrapper" #floatingSvg
+                [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
+    || !isHeatmap() || showQueryList || showGuardList" >
+                <svg class="legend"></svg>
+                <svg class="brush"></svg>
+            </div>
 
-        <!--<div id="toggle-legend" (click)="showLegend=!showLegend"
-            [hidden]="showQueryList || showGuardList || !isHeatmap()">
-            <button class="btn btn-dark">
-                <fa-icon [icon]="['fas', 'book-open']" [hidden]="!showLegend"></fa-icon>
-                <fa-icon [icon]="['fas', 'book']" [hidden]="showLegend"></fa-icon>
-            </button>
-        </div>-->
-
-        <div id="minimap-wrapper" class="border" #minimap
-            [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)
-            || showQueryList || showGuardList">
-            <svg class="m-1"></svg>
+            <div id="minimap-wrapper" class="text-align-center" #minimap
+                [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)
+                || showQueryList || showGuardList">
+                <svg></svg>
+            </div>
         </div>
     </section>
 
@@ -249,10 +244,10 @@
                     [isRank]="false" [operator]="operator" [constant]="valueConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.ValueTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <div *ngIf="activeSafeguardPanel === SGT.Rank">
@@ -261,10 +256,10 @@
                     [isRank]="true" [operator]="operator" [constant]="rankConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.RankTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <!-- Range -->
@@ -274,10 +269,10 @@
                     [constant]="rangeConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.RangeTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <!-- Comparative -->
@@ -286,10 +281,10 @@
                 <sg-comparative [highlighted]="false" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
                     [variable2]="variable2 || combinedVariable2" [operator]="operator"></sg-comparative>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.ComparativeTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <!-- PowerLaw -->
@@ -298,10 +293,10 @@
                 <sg-distributive [highlighted]="false" [query]="activeQuery"
                     [constant]="powerLawConstant" [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.PowerLawTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <!-- Normal -->
@@ -310,10 +305,10 @@
                 <sg-distributive [highlighted]="false" [query]="activeQuery" [constant]="normalConstant"
                     [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.NormalTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <!-- Linear -->
@@ -322,10 +317,10 @@
                 <sg-distributive [highlighted]="false" [query]="activeQuery" [constant]="linearRegressionConstant"
                     [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
-            <div class="alert guide px-2 py-1">
+            <!--<div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.LinearTip"></span>
-            </div>
+            </div>-->
         </div>
 
         <div class="p-1 safeguard-actions d-flex">

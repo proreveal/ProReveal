@@ -202,12 +202,18 @@ $button-height: 38px;
     }
 }
 
-#floating-legend-wrapper {
+#vis-panel {
     position: fixed;
-    display: block;
-    background: white;
-    bottom: 5px;
-    left: 5px;
+    bottom: 0px;
+    width: 100%;
+    right: 0;
+    left: 0;
+    height: 130px;
+}
+
+#floating-legend-wrapper {
+    position:relative;
+    width: 200px;
 
     .legend {
         pointer-events: none;
@@ -219,13 +225,8 @@ $button-height: 38px;
     }
 }
 
-#toggle-legend {
-    position: fixed;
-    left: 10px;
-    bottom: 10px;
-
-    button {
-    }
+#minimap-wrapper {
+    width: 140px;
 }
 
 .guard-panel-open {
@@ -368,14 +369,6 @@ $button-height: 38px;
 
 .export-safeguards {
     float: right;
-}
-
-#minimap-wrapper {
-    background: white;
-
-    position: fixed;
-    bottom: 5px;
-    right: 5px;
 }
 
 ::ng-deep {
