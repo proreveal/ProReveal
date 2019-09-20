@@ -244,190 +244,152 @@
 
         <!-- Value -->
         <div *ngIf="activeSafeguardPanel === SGT.Value">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-point [highlighted]="false" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [isRank]="false" [operator]="operator" [constant]="valueConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.ValueTip"></span>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
-                && (variable1 || combinedVariable1)
-                && valueConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="ValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></p-indicator>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
-                    && (variable1 || combinedVariable1)
-                    && valueConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
-            </div>
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createValueSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
             </div>
         </div>
 
         <div *ngIf="activeSafeguardPanel === SGT.Rank">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-point [highlighted]="false" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [isRank]="true" [operator]="operator" [constant]="rankConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-point>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.RankTip"></span>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
-                && variable1 && rankConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="RankEstimate(activeQuery, variable1, operator, rankConstant)"></p-indicator>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
-                && variable1 && rankConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
-            </div>
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createRankSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
             </div>
         </div>
 
         <!-- Range -->
         <div *ngIf="activeSafeguardPanel === SGT.Range">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-range [highlighted]="false" [query]="activeQuery" [variable]="variable1 || combinedVariable1"
                     [constant]="rangeConstant"
                     (constantUserChanged)="constantUserChanged($event)" [editable]="true"></sg-range>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.RangeTip"></span>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
-                && rangeConstant && activeQuery.approximator.estimatable">
-                <p-indicator [p]="RangeEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
-                && rangeConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></truthiness-indicator>
-            </div>
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
             </div>
         </div>
 
         <!-- Comparative -->
         <div *ngIf="activeSafeguardPanel === SGT.Comparative">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-comparative [highlighted]="false" [query]="activeQuery" [variable1]="variable1 || combinedVariable1"
                     [variable2]="variable2 || combinedVariable2" [operator]="operator"></sg-comparative>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.ComparativeTip"></span>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
-                    && activeQuery.approximator.estimatable">
-                <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
-            </div>
-            <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
-                    && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></truthiness-indicator>
-            </div>
-
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1"
-                    [disabled]="!variablePair && !combinedVariablePair"
-                (click)="createComparativeSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
             </div>
         </div>
 
         <!-- PowerLaw -->
         <div *ngIf="activeSafeguardPanel == SGT.PowerLaw">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-distributive [highlighted]="false" [query]="activeQuery"
                     [constant]="powerLawConstant" [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.PowerLawTip"></span>
-            </div>
-            <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
-                <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
-            </div>
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
             </div>
         </div>
 
         <!-- Normal -->
         <div *ngIf="activeSafeguardPanel == SGT.Normal">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-distributive [highlighted]="false" [query]="activeQuery" [constant]="normalConstant"
                     [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.NormalTip"></span>
-            </div>
-            <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
-                <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
-            </div>
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
             </div>
         </div>
 
         <!-- Linear -->
         <div *ngIf="activeSafeguardPanel == SGT.Linear">
-            <div class="display text-center p-2">
+            <div class="display text-center px-2 py-1">
                 <sg-distributive [highlighted]="false" [query]="activeQuery" [constant]="linearRegressionConstant"
                     [groupBy]="activeQuery.groupBy"></sg-distributive>
             </div>
-            <div class="alert guide p-2 m-1">
+            <div class="alert guide px-2 py-1">
                 <span class="tip">{{ L.Tip }}</span>
                 <span class="ml-2 sg-tip" [innerHTML]="L.LinearTip"></span>
             </div>
-            <div class="p-1 guide" *ngIf="activeQuery.visibleProgress.processedRows > 0">
+        </div>
+
+        <div class="p-1 safeguard-actions d-flex">
+            <div *ngIf="activeSafeguardPanel === SGT.Value
+                && activeQuery.visibleProgress.processedRows > 0
+                && (variable1 || combinedVariable1)
+                && valueConstant && activeQuery.approximator.estimatable">
+                <p-indicator [p]="ValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></p-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Value
+                && activeQuery.visibleProgress.processedRows > 0
+                && (variable1 || combinedVariable1)
+                && valueConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Rank
+                && activeQuery.visibleProgress.processedRows > 0
+                && variable1 && rankConstant && activeQuery.approximator.estimatable">
+                <p-indicator [p]="RankEstimate(activeQuery, variable1, operator, rankConstant)"></p-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Rank
+                && activeQuery && activeQuery.visibleProgress.processedRows > 0
+                && variable1 && rankConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Range
+                && activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
+                && rangeConstant && activeQuery.approximator.estimatable">
+                <p-indicator [p]="RangeEstimate(activeQuery, variable1 || combinedVariable1, Operators.InRange, rangeConstant)"></p-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Range
+                && activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
+                && rangeConstant && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></truthiness-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Comparative
+                && activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
+                && activeQuery.approximator.estimatable">
+                <p-indicator [p]="ComparativeEstimate(activeQuery, variablePair || combinedVariablePair, operator)"></p-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Comparative
+                && activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
+                && !activeQuery.approximator.estimatable">
+                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></truthiness-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel == SGT.PowerLaw
+                && activeQuery.visibleProgress.processedRows > 0">
+                <quality-indicator [q]="PowerLawEstimate(activeQuery, powerLawConstant)"></quality-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel == SGT.Normal
+                && activeQuery.visibleProgress.processedRows > 0">
+                <quality-indicator [q]="NormalEstimate(activeQuery, normalConstant)"></quality-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel == SGT.Linear
+                && activeQuery.visibleProgress.processedRows > 0">
                 <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
             </div>
-            <div class="p-1 text-right">
-                <button class="btn btn-success border-right-0 mr-1" (click)="createDistributiveSafeguard()">
-                    {{ L.CreateSG }}
-                </button>
-                <button class="btn btn-danger border-right-0" (click)="cancelSafeguard()">
-                    {{ L.Cancel }}
-                </button>
-            </div>
+
+            <button class="btn btn-danger border-right-0 mr-1" (click)="cancelSafeguard()">
+                <fa-icon [icon]="['fas', 'times']"></fa-icon>
+            </button>
+            <button class="btn btn-success border-right-0 px-4" (click)="createSafeguard()">
+                <fa-icon [icon]="['fas', 'check']"></fa-icon>
+            </button>
         </div>
     </section>
     <!--<metadata-editor [dataset]="engine.dataset" #metadataEditor id="metadata-editor" [hidden]="!metadataEditor.visible">
@@ -447,8 +409,8 @@
         </p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="c()">{{ L.Remove }}</button>
         <button type="button" class="btn btn-outline-secondary" (click)="d()">{{ L.Cancel }}</button>
+        <button type="button" class="btn btn-danger" (click)="c()">{{ L.Remove }}</button>
     </div>
 </ng-template>
 

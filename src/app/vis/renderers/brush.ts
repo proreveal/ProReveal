@@ -289,8 +289,9 @@ export class Brush<Datum> {
             this.g.selectAll('rect.selection')
                 .style('pointer-events', 'all')
                 .style('cursor', 'move')
-                .style('fill', '#FF6F00')
-                .style('fill-opacity', .5)
+                .style('fill', 'transparent')
+                //.style('fill', '#FF6F00')
+                //.style('fill-opacity', .5)
 
             this.g.selectAll('.handle').attr('display', 'none')
             this.g.selectAll('rect.overlay').style('display', 'none');

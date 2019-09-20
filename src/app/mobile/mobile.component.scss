@@ -86,7 +86,7 @@ $button-height: 38px;
     top: $navbar-height;
     height: calc(100% - #{$navbar-height});
     left: -$query-view-width;
-    transition: left .3s ease-in-out;
+    transition: left 0.3s ease-in-out;
     right: calc(100% - #{$query-view-width});
     overflow-x: hidden;
 
@@ -119,7 +119,7 @@ $button-height: 38px;
         flex-grow: 1;
         flex-basis: auto;
         max-width: 182px;
-        overflow:none;
+        overflow: none;
     }
 
     .field-names div {
@@ -166,7 +166,6 @@ $button-height: 38px;
     }
 }
 
-
 #completed-query-view .field-names div {
     width: 100%;
 }
@@ -192,7 +191,7 @@ $button-height: 38px;
     min-height: 100%;
 
     //transform: translateX(0px); // do not use this. will break position:fixed for child elements.
-    transition: transform .3s ease-in-out;
+    transition: transform 0.3s ease-in-out;
 
     &.query-visible {
         transform: translateX($query-view-width);
@@ -207,7 +206,7 @@ $button-height: 38px;
     position: fixed;
     display: block;
     background: white;
-    bottom:5px;
+    bottom: 5px;
     left: 5px;
 
     .legend {
@@ -260,7 +259,7 @@ $button-height: 38px;
     top: $navbar-height;
     height: calc(100% - #{$navbar-height});
     left: 100%;
-    transition: left .3s ease-in-out;
+    transition: left 0.3s ease-in-out;
     right: -$query-view-width;
     overflow-x: hidden;
 
@@ -277,11 +276,18 @@ $button-height: 38px;
 
 #safeguard-config-view {
     position: fixed;
-    left:0;
-    right:0;
+    left: 0;
+    right: 0;
     width: 100%;
     bottom: 0;
     background: white;
+}
+
+.safeguard-actions {
+    div {
+        flex: 1;
+        margin-right: 0.25rem;
+    }
 }
 
 .display {
@@ -372,42 +378,40 @@ $button-height: 38px;
     right: 5px;
 }
 
-::ng-deep .modal-xxl {
-    .modal-lg {
-        max-width: 90% !important;
-    }
+::ng-deep {
+    .modal-xxl {
+        .modal-lg {
+            max-width: 90% !important;
+        }
 
-    .modal-header {
-        border-bottom: none;
-    }
+        .modal-header {
+            border-bottom: none;
+        }
 
-    .modal-body {
-        overflow-x: auto;
-        padding: 0;
+        .modal-body {
+            overflow-x: auto;
+            padding: 0;
+        }
+    }
+    .sg-tip {
+        .constant {
+            color: $constant-highlight-color;
+            font-weight: bold;
+        }
+
+        .brush {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .variable2 {
+            color: $variable2-highlight-color;
+            font-weight: bold;
+        }
+
+        .create {
+            color: var(--success);
+            font-weight: bold;
+        }
     }
 }
-
-::ng-deep .sg-tip {
-    .constant {
-        color: $constant-highlight-color;
-        font-weight: bold;
-    }
-
-    .brush {
-        color: #333;
-        font-weight: bold;
-    }
-
-    .variable2 {
-        color: $variable2-highlight-color;
-        font-weight: bold;
-    }
-
-    .create {
-        color: var(--success);
-        font-weight: bold;
-    }
-}
-
-
-

@@ -16,7 +16,7 @@
 
     <div *ngIf="query" [hidden]="query.recentProgress.processedBlocks === 0">
         <div class="progress-control mb-2">
-            <div class="text-sm pr-2 progress-indicator" *ngIf="!isMobile">
+            <!--<div class="text-sm pr-2 progress-indicator" *ngIf="!isMobile">
                 Processed
                 <span class="font-weight-bold text-primary">{{ query.recentProgress.processedRows | number }}</span>
                 of
@@ -26,9 +26,9 @@
                 </span>
 
                 ({{ query.recentProgress.processedPercent() | percent:'1.2' }})
-            </div>
+            </div>-->
 
-            <div class="text-sm pr-2 progress-indicator" *ngIf="isMobile">
+            <div class="text-sm pr-2 progress-indicator">
                 <span class="font-weight-bold text-primary">{{ query.recentProgress.processedRows | number }}</span>
                 /
                 <span class="font-weight-bold">{{ query.recentProgress.numRows | number }}</span>

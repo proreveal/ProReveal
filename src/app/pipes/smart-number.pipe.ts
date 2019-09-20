@@ -13,13 +13,13 @@ const gFormat = d3.format(',.3r');
     name: 'smartNumber'
 })
 export class SmartNumberPipe implements PipeTransform {
-
-
     transform(value: number, field?: FieldTrait): any {
         if(field && field instanceof QuantitativeField
             && field.unit === QuantitativeUnit.USD && Constants.locale.name === Locale.ko_KR) {
             return Constants.currencyFormatter(value);
         }
+
+        if(value == 0) return '0';
 
         if(Math.abs(value) > 10000) return siFormat(value);
 

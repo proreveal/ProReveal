@@ -427,6 +427,25 @@ export class MobileComponent implements OnInit {
         this.showGuardList = true;
     }
 
+    createSafeguard() {
+        if(this.activeSafeguardPanel == SGT.None) return;
+        switch(this.activeSafeguardPanel) {
+            case SGT.Value:
+                this.createValueSafeguard();
+                break;
+            case SGT.Rank:
+                this.createRankSafeguard();
+                break;
+            case SGT.Range:
+                this.createRangeSafeguard();
+                break;
+            case SGT.Comparative:
+                this.createComparativeSafeguard();
+                break;
+            default:
+                this.createDistributiveSafeguard();
+        }
+    }
     cancelSafeguard() {
         this.activeSafeguardPanel = SGT.None;
         this.vis.setSafeguardType(SGT.None);
@@ -475,11 +494,6 @@ export class MobileComponent implements OnInit {
         let num = +s.replace(/,/g, '');
         if (isNaN(num)) num = 0;
         return num;
-    }
-
-    runMany(times: number) {
-        for (let i = 0; i < times; i++)
-            this.engine.runOne(true);
     }
 
     toggleQueryCreator() {
