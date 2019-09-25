@@ -165,12 +165,12 @@
 
     <div id="vis-grid" #visGrid>
         <div id="tools-wrapper" class="d-flex text-center flex-row align-items-center justify-content-center" *ngIf="isMobile">
-            <button type="button" class="btn border btn-mini py-1 px-2" (click)="zoomIn()">
+            <!--<button type="button" class="btn border btn-mini py-1 px-2" (click)="zoomIn()">
                 <fa-icon [icon]="['fas', 'search-plus']"></fa-icon>
             </button>
             <button type="button" class="btn border btn-mini py-1 px-2 ml-1" (click)="zoomOut()">
                 <fa-icon [icon]="['fas', 'search-minus']"></fa-icon>
-            </button>
+            </button>-->
         </div>
         <div id="x-title-wrapper">
             <svg #xTitle></svg>
@@ -317,7 +317,7 @@
 
             <div class="dropdown-divider"></div>
 
-            <a class="dropdown-item px-3" href="#" (click)="detailClick()">
+            <a class="dropdown-item px-3" href="#" (click)="detailClick()" *ngIf="!isMobile">
                 <fa-icon class="mr-1" [icon]="['fas', 'table']"></fa-icon>
                 {{ L.ShowDataItems }}
             </a>

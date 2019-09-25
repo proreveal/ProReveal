@@ -52,18 +52,18 @@ export class BarsRenderer {
         public isMobile: boolean) {
     }
 
-    setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement) {
+    setup(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement) {
         if (query.groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
 
-        let svg = d3.select(nativeSvg);
+        let svg = visGridSet.d3Svg;
 
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
         this.query = query;
-        this.nativeSvg = nativeSvg;
+        this.nativeSvg = visGridSet.svg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
         this.brush.setup(this.interactionG);
@@ -1102,7 +1102,7 @@ export class BarsRenderer {
         this.vis.isQueryCreatorVisible = false;
     }
 
-    emptySelectedDatum() {
+    removeMenuHighlighted() {
         this.labels.classed('menu-highlighted', false);
     }
 }

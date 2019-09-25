@@ -80,7 +80,15 @@ export const Constants = Object.freeze({
             maxHeight: 120
         },
         initiallyVisibleCategories: 40,
-        width: 960
+        width: 960,
+        maxZoom : {
+            x: 2,
+            y: 2,
+        },
+        minZoom : {
+            x: 1,
+            y: 1
+        }
     },
     history: {
         height: 40,

@@ -195,7 +195,6 @@ export class RemoteEngine {
                     if(!query) return;
 
                     const sg = Safeguard.fromJSON(sgSpec, this.dataset, query);
-                    console.log(query.visibleData);
 
                     this.safeguards.push(sg);
                 })

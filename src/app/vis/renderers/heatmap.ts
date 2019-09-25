@@ -23,6 +23,7 @@ import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 import { VisGridSet } from '../vis-grid';
 import { heatmapLegend } from '../vsup/legend';
 import { Brush, BrushMode } from './brush';
+import * as util from '../../util';
 
 type Range = [number, number];
 
@@ -61,18 +62,20 @@ export class HeatmapRenderer {
         public isMobile: boolean) {
     }
 
-    setup(query: AggregateQuery, nativeSvg: SVGSVGElement, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
+    setup(query: AggregateQuery,
+        visGridSet: VisGridSet,
+        floatingSvg: HTMLDivElement) {
         if (query.groupBy.fields.length !== 2) {
             throw 'Heatmaps can be used for 2 categories!';
         }
 
-        let svg = d3.select(nativeSvg);
+        let svg = visGridSet.d3Svg;
 
         this.gradient.setup(selectOrAppend(svg, 'defs'));
         this.visG = selectOrAppend(svg, 'g', 'vis');
 
         this.query = query;
-        this.nativeSvg = nativeSvg;
+        this.nativeSvg = visGridSet.svg;
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction').classed('heatmap', true);
 
@@ -80,6 +83,56 @@ export class HeatmapRenderer {
         let fbrush = fsvgw.select('.brush');
         this.brush.setup(fbrush);
         this.linearLine.setup(this.interactionG);
+
+        if(this.isMobile) { // pinch zoom in and out
+            let xDis = 1, yDis = 1,
+                dist = 1, xZoom = query.zoomXLevel, yZoom = query.zoomYLevel;
+
+            visGridSet.d3Svg
+                .on('touchstart', () => {
+                    if(d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+
+                        xDis = Math.abs(t1.screenX - t2.screenX);
+                        yDis = Math.abs(t1.screenY - t2.screenY);
+                        dist = Math.sqrt(xDis * xDis + yDis * yDis);
+
+                        xZoom = query.zoomXLevel;
+                        yZoom = query.zoomYLevel
+                    }
+                })
+                .on('touchmove', () => {
+                    if(d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+
+                        // let xRatio = Math.abs(t1.screenX - t2.screenX) / xDis;
+                        // let yRatio = Math.abs(t1.screenY - t2.screenY) / yDis;
+
+                        // query.zoomXLevel = xZoom * xRatio;
+                        // query.zoomYLevel = yZoom * yRatio;
+
+                        let newDist = Math.sqrt((t1.screenX - t2.screenX) * (t1.screenX - t2.screenX) +
+                            (t1.screenY - t2.screenY) * (t1.screenY - t2.screenY));
+
+
+                        let newXZoom = xZoom * newDist / dist;
+                        let newYZoom = yZoom * newDist / dist;
+
+                        newXZoom = util.between(newXZoom, C.heatmap.minZoom.x, C.heatmap.maxZoom.x);;
+                        newYZoom = util.between(newYZoom, C.heatmap.minZoom.y, C.heatmap.maxZoom.y);
+
+                        if(query.zoomXLevel != newXZoom || query.zoomYLevel != newYZoom) {
+                            query.zoomXLevel = newXZoom;
+                            query.zoomYLevel = newYZoom;
+
+                            this.vis.forceUpdate();
+                        }
+
+                        // console.log(query.zoomXLevel, query.zoomYLevel);
+
+                    }
+                })
+        }
     }
 
     render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
@@ -451,14 +504,14 @@ export class HeatmapRenderer {
                 })
                 .attr('fill', 'transparent')
                 .style('cursor', (d) => d.ci3 === EmptyConfidenceInterval ? 'auto' : 'pointer')
-                .on('mouseenter', (d, i) => {
+                .on(this.isMobile ? 'none' : 'mouseenter', (d, i) => {
                     this.showTooltip(d);
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
                     if(this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', true);
                 })
-                .on('mouseleave', (d, i) => {
+                .on(this.isMobile ? 'none' : 'mouseleave', (d, i) => {
                     this.hideTooltip();
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
@@ -765,6 +818,7 @@ export class HeatmapRenderer {
                 xyFromSvg = true;
             })
         }
+
     }
 
     constant: ConstantTrait;
@@ -977,15 +1031,19 @@ export class HeatmapRenderer {
 
         if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
+            if(this.isMobile) this.hideTooltip();
             this.closeDropdown();
+
             return;
         }
 
         if (d == this.vis.selectedDatum) { // double click the same item
+            if(this.isMobile) this.hideTooltip();
             this.closeDropdown();
         }
         else {
             this.openDropdown(d);
+            if(this.isMobile) this.showTooltip(d);
             return;
         }
     }
@@ -1040,7 +1098,7 @@ export class HeatmapRenderer {
         this.vis.isQueryCreatorVisible = false;
     }
 
-    emptySelectedDatum() {
+    removeMenuHighlighted() {
         this.eventBoxes.classed('menu-highlighted', false);
         this.xTopLabels.classed('menu-highlighted', false);
         if(this.xBottomLabels) this.xBottomLabels.classed('menu-highlighted', false);

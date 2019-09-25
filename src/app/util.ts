@@ -220,3 +220,13 @@ export function toggleFullScreen() {
     }
 }
 
+export function getDistance(t1: Touch, t2:Touch) {
+    return Math.sqrt((t1.screenX - t2.screenX) * (t1.screenX - t2.screenX) +
+        (t1.screenY - t2.screenY) * (t1.screenY - t2.screenY));
+}
+
+export function between(x: number, min: number, max: number) {
+    if(x < min) return min;
+    if(x > max) return max;
+    return x;
+}

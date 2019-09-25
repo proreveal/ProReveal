@@ -123,8 +123,8 @@ export class VisComponent implements DoCheck, AfterViewInit {
                 this.visGridSet.empty();
                 d3.select(this.minimap).selectAll('svg *').remove();
 
-                this.renderer.setup(this.query, this.svg.nativeElement,
-                    this.floatingLegend, this.minimap);
+                this.renderer.setup(this.query, this.visGridSet,
+                    this.floatingLegend);
                 this.isDropdownVisible = false;
                 this.isQueryCreatorVisible = false;
             }
@@ -260,6 +260,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
         this.isDropdownVisible = false;
         this.isQueryCreatorVisible = false;
         this.emptySelectedDatum();
+        if(this.isMobile) this.renderer.hideTooltip();
     }
 
     filterClick() {
@@ -302,7 +303,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
 
     emptySelectedDatum() {
         if (this.renderer)
-            this.renderer.emptySelectedDatum();
+            this.renderer.removeMenuHighlighted();
         this.selectedDatum = null;
     }
 
