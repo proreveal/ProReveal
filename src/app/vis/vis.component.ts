@@ -79,8 +79,6 @@ export class VisComponent implements DoCheck, AfterViewInit {
     }
 
     recommend(query: AggregateQuery) {
-        console.log(this.tooltip);
-
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
             return new BarsRenderer(
                 this,
