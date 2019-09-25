@@ -49,7 +49,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
     @ViewChild('visGrid', { static: false }) visGrid: ElementRef<HTMLDivElement>;
 
     @ViewChild('qc', { static: false }) queryCreator: QueryCreatorComponent;
-    @ViewChild('tooltip', { static: true }) tooltip: TooltipComponent;
+    @ViewChild('tooltip', { static: false }) tooltip: TooltipComponent;
 
     L = Constants.locale;
 
@@ -79,6 +79,8 @@ export class VisComponent implements DoCheck, AfterViewInit {
     }
 
     recommend(query: AggregateQuery) {
+        console.log(this.tooltip);
+
         if (query.groupBy.fields.length === 1 && !(query instanceof Histogram2DQuery))
             return new BarsRenderer(
                 this,

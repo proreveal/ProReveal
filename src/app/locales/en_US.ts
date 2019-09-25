@@ -70,6 +70,9 @@ export const Locale_en_US = Object.freeze({
     NormalTip: 'Click on <span class="create">the "Leave a PVA-Guard" button</span> to leave a Normal PVA-Guard on the current visualization.',
     LinearTip: 'Click on <span class="create">the "Leave a PVA-Guard" button</span> to leave a Linear PVA-Guard on the current visualization.',
 
+
+    ComparativeTipMobile: 'Tap on <span class="variable2">the second element</span> to compare.',
+
     TruthinessTrue: 'It holds at this moment!',
     TruthinessFalse: 'It does not hold at this moment.',
 

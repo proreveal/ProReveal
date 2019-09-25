@@ -229,13 +229,9 @@ $button-height: 38px;
     width: 140px;
 }
 
-.guard-panel-open {
-    #floating-legend-wrapper {
-        bottom: 250px;
-    }
-
-    #minimap-wrapper {
-        bottom: 250px;
+.dropdown-open {
+    #vis-panel {
+        bottom: 70px !important;
     }
 }
 
@@ -365,6 +361,10 @@ $button-height: 38px;
     position: absolute;
     transform: scale(2);
     z-index: 10001;
+}
+
+.text-sm {
+    font-size: .8rem;
 }
 
 .export-safeguards {

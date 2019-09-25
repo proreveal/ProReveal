@@ -171,6 +171,7 @@
         [class.query-visible]="showQueryList"
         [class.guard-visible]="showGuardList"
         [class.guard-panel-open]="activeSafeguardPanel != SGT.None"
+        [class.dropdown-open]="vis.isDropdownVisible"
         (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
@@ -195,8 +196,10 @@
         class="pr-1"
         ></vis>
 
-        <div id="vis-panel" class="d-flex border-top justify-content-around pt-1
-            align-items-center">
+        <div id="vis-panel" class="d-flex border-top justify-content-around
+            align-items-center"
+
+            [style.bottom.px]="safeguardConfigView ? safeguardConfigView.nativeElement.scrollHeight : 0">
             <div id="floating-legend-wrapper" #floatingSvg
                 [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
     || !isHeatmap() || showQueryList || showGuardList" >
@@ -207,7 +210,7 @@
             <div id="minimap-wrapper" class="text-align-center" #minimap
                 [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)
                 || showQueryList || showGuardList">
-                <svg></svg>
+                <svg class="border"></svg>
             </div>
         </div>
     </section>
@@ -235,6 +238,7 @@
     </section>
 
     <section id="safeguard-config-view" class="border-top"
+        #safeguardConfigView
         [hidden]="activeSafeguardPanel == SGT.None" *ngIf="activeQuery">
 
         <!-- Value -->
@@ -355,6 +359,11 @@
                 && activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
                 && rangeConstant && !activeQuery.approximator.estimatable">
                 <truthiness-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></truthiness-indicator>
+            </div>
+            <div *ngIf="activeSafeguardPanel === SGT.Comparative
+                && activeQuery.visibleProgress.processedRows > 0 && !variablePair && !combinedVariablePair
+                && activeQuery.approximator.estimatable" class="text-sm alert alert-info p-2 mb-0">
+                <span [innerHTML]="L.ComparativeTipMobile"></span>
             </div>
             <div *ngIf="activeSafeguardPanel === SGT.Comparative
                 && activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)

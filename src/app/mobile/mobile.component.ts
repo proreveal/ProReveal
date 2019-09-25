@@ -59,6 +59,7 @@ export class MobileComponent implements OnInit {
     @ViewChild('vis', { static: false }) vis: VisComponent;
     @ViewChild('queryCreator', { static: false }) queryCreator: QueryCreatorComponent;
     @ViewChild('dataViewerModal', { static: true }) dataViewerModal: TemplateRef<ElementRef>;
+    @ViewChild('safeguardConfigView', { static: false}) safeguardConfigView: ElementRef<HTMLDivElement>;
 
     engineType: string;
     engine: BrowserEngine | RemoteEngine;
@@ -186,8 +187,6 @@ export class MobileComponent implements OnInit {
                         });
 
                     this.querySelected(this.engine.ongoingQueries[0]);
-
-                    if (run > 0) this.runMany(run);
                 }
 
                 if (tutorial) {
@@ -325,6 +324,8 @@ export class MobileComponent implements OnInit {
     }
 
     resumeAll() {
+        // console.log(this.safeguardConfigView);
+        // console.log(this.safeguardConfigView.nativeElement.scrollHeight);
         this.engine.resumeAllQueries();
         if (this.engine instanceof BrowserEngine &&
             this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
