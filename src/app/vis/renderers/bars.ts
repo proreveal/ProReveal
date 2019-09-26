@@ -1085,7 +1085,7 @@ export class BarsRenderer {
 
         let i = this.data.indexOf(d);
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
-            + B.label.height + C.padding;
+            + B.label.height / 2 + C.padding;
 
         this.vis.isDropdownVisible = true;
         this.vis.dropdownTop = top;

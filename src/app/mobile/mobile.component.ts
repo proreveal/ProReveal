@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef, DoCheck } from '@angular/core';
 import { VlType } from '../data/field';
 import { BrowserEngine } from '../engine/browser-engine';
 import { RemoteEngine } from '../engine/remote-engine';
@@ -33,7 +33,7 @@ import { SocketService } from '../services/socket.service';
     templateUrl: './mobile.component.html',
     styleUrls: ['./mobile.component.scss']
 })
-export class MobileComponent implements OnInit {
+export class MobileComponent implements OnInit, DoCheck {
     SGT = SGT;
     QS = QueryState;
     C = C;
@@ -103,6 +103,7 @@ export class MobileComponent implements OnInit {
     showInfo = false;
     showGuardList = false;
     showLegend = true;
+    configViewHeight = 0;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage: StorageService, public socket: SocketService,
@@ -249,6 +250,11 @@ export class MobileComponent implements OnInit {
         this.engine.jobDone = this.jobDone.bind(this);
         this.engine.selectQueryDone = this.selectQueryDone.bind(this);
         this.engine.queryCreated = this.queryCreated.bind(this);
+    }
+
+    ngDoCheck() {
+        if(this.safeguardConfigView)
+            this.configViewHeight = this.safeguardConfigView.nativeElement.scrollHeight;
     }
 
     emit(event: string) {

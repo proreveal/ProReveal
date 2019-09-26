@@ -200,7 +200,8 @@
         <div id="vis-panel" class="d-flex border-top justify-content-around
             align-items-center"
 
-            [style.bottom.px]="safeguardConfigView ? safeguardConfigView.nativeElement.scrollHeight : 0">
+            [style.bottom.px]="configViewHeight">
+
             <div id="floating-legend-wrapper" #floatingSvg
                 [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
     || !isHeatmap() || showQueryList || showGuardList" >

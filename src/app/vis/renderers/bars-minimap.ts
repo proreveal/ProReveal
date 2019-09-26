@@ -161,8 +161,6 @@ export class BarsMinimap {
     setSafeguardType(sgt: SGT) {
         this.sgt = sgt;
 
-        console.log('sgt set to', SGT.Value);
-
         if(sgt == SGT.None) {
             this.hideAllOverlays();
         }
