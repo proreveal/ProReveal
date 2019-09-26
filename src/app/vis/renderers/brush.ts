@@ -173,7 +173,7 @@ export class Brush<Datum> {
         }
     }
 
-    render(extent) {
+    render(extent: util.Extent) {
         this.extent = extent;
         this.brush.extent(extent);
 
