@@ -701,6 +701,8 @@ export class BarsRenderer {
                     this.xScale.invert(to));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
+
+                if(this.isMobile) this.minimap.setRange(constant.range, this.xScale);
             }
         })
 
@@ -881,10 +883,12 @@ export class BarsRenderer {
             if(this.isMobile) this.minimap.setRank(rank);
         }
         else if (this.safeguardType === SGT.Range) {
-            let range = (constant as RangeConstant).range.map(this.xScale) as util.Range;
+            const r = (constant as RangeConstant).range;
+            let range = r.map(this.xScale) as util.Range;
             this.brush.setCenter(this.xScale((constant as RangeConstant).center));
             this.brush.show();
             this.brush.move(range);
+            if(this.isMobile) this.minimap.setRange(r, this.xScale);
         }
 
         // ADD CODE FOR SGS

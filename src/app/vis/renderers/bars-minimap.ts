@@ -215,4 +215,19 @@ export class BarsMinimap {
             .attr('x2', this.xScale.range()[1])
             .attr('y2', y)
     }
+
+    setRange(range: util.Range, xScale: ScaleLinear<number, number>) {
+        let xRange = xScale.range() as util.Range;
+        let norm1 = (xScale(range[0]) - xRange[0]) / (xRange[1] - xRange[0]);
+        let norm2 = (xScale(range[1]) - xRange[0]) / (xRange[1] - xRange[0]);
+
+        let x1 = norm1 * B.minimap.width;
+        let x2 = norm2 * B.minimap.width;
+
+        this.selection
+            .attr('x', x1)
+            .attr('width', x2 - x1)
+            .attr('y', this.yScale.range()[0])
+            .attr('height', this.yScale.range()[1] - this.yScale.range()[0])
+    }
 }
