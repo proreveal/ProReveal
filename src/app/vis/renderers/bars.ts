@@ -395,11 +395,11 @@ export class BarsRenderer {
                     return 1;
                 })
                 .style('cursor', 'pointer')
-                .on('mouseenter', (d, i, ele) => {
+                .on(this.isMobile ? 'none' : 'mouseenter', (d, i, ele) => {
                     this.showTooltip(d, i);
                     d3.select(ele[i]).classed('hover', true);
                 })
-                .on('mouseleave', (d, i, ele) => {
+                .on(this.isMobile ? 'none' : 'mouseleave', (d, i, ele) => {
                     this.hideTooltip();
                     d3.select(ele[i]).classed('hover', false);
                 })
@@ -408,8 +408,9 @@ export class BarsRenderer {
                         this.datumSelected2(d);
                         return;
                     }
+
                     this.datumSelected(d);
-                    this.toggleDropdown(d, i);
+                    this.toggleDropdown(d, i); // set selectedDatum in openDropdown
 
                     let d3ele = d3.select(ele[i]);
                     d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
@@ -556,15 +557,15 @@ export class BarsRenderer {
                     return translate(xScale(d.ci3.low), yScale(i + ''))
                 })
                 .style('fill', 'transparent')
-                .on('mouseenter', (d, i) => {
+                .on(this.isMobile ? 'none' : 'mouseenter', (d, i) => {
                     this.showTooltip(d, i);
                     this.labels.filter(datum => datum == d).classed('hover', true);
                 })
-                .on('mouseleave', (d, i) => {
+                .on(this.isMobile ? 'none' : 'mouseleave', (d, i) => {
                     this.hideTooltip();
                     this.labels.filter(datum => datum == d).classed('hover', false);
                 })
-                .on('click', (d, i) => {
+                .on('click', (d, i, ele) => {
                     if(d.ci3 == EmptyConfidenceInterval) return;
                     if(this.safeguardType == SGT.Comparative) {
                         this.datumSelected2(d);
@@ -572,9 +573,10 @@ export class BarsRenderer {
                     }
 
                     this.datumSelected(d);
-                    this.toggleDropdown(d, i);
+                    this.toggleDropdown(d, i); // set selectedDatum in openDropdown
 
-                    this.labels.filter(datum => datum == d).classed('menu-highlighted', this.vis.selectedDatum === d);
+                    let d3ele = d3.select(ele[i]);
+                    d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
 
             barEventBoxes.exit().remove();
