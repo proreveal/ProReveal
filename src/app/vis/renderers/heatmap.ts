@@ -830,6 +830,7 @@ export class HeatmapRenderer {
         this.variable2 = null;
         this.constant = null;
         this.updateHighlight();
+        this.hideTooltip();
 
         if (st == SGT.None) {
         }

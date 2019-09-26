@@ -7,6 +7,8 @@ import * as util from '../../util';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
 import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
 import { ScaleLinear } from 'd3';
+import { DistributionLine } from './distribution-line';
+import { DistributionTrait } from '../../safeguard/constant';
 
 const B = C.bars;
 
@@ -39,6 +41,8 @@ export class BarsMinimap {
 
     xScale: ScaleLinear<number, number>;
     yScale: d3.ScaleBand<string>;
+
+    distributionLine = new DistributionLine();
 
     setDimensions(barsFullWidth: number,
         barHeight: number,
@@ -110,6 +114,10 @@ export class BarsMinimap {
         wrapper.select('.selection').style('stroke', 'none');
         wrapper.selectAll('.overlay').remove();
 
+        // install distribution line
+
+        this.distributionLine.setup(d3minisvg);
+
         // install overlays
 
         let referenceLine = selectOrAppend(d3minisvg, 'line', '.reference-line')
@@ -163,6 +171,7 @@ export class BarsMinimap {
 
         if(sgt == SGT.None) {
             this.hideAllOverlays();
+            this.distributionLine.hide();
         }
         else if(sgt == SGT.Value) {
             show(this.brushLine, this.referenceLine);
@@ -174,7 +183,7 @@ export class BarsMinimap {
             show(this.selection);
         }
         else if(sgt == SGT.PowerLaw || sgt == SGT.Normal) {
-            // TODO
+            this.distributionLine.show();
         }
     }
 
@@ -227,5 +236,11 @@ export class BarsMinimap {
             .attr('width', x2 - x1)
             .attr('y', this.yScale.range()[0])
             .attr('height', this.yScale.range()[1] - this.yScale.range()[0])
+    }
+
+    setDistribution(constant: DistributionTrait, data: Datum[],
+        yGetter: (a0: Datum, a1: number) => [number, number]) {
+
+        this.distributionLine.render(constant, data, yGetter, this.xScale, this.yScale);
     }
 }

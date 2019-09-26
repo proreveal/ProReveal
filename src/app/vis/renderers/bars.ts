@@ -791,6 +791,12 @@ export class BarsRenderer {
                 (d: Datum, i: number) => { return [i + 1, 0]; },
                 this.xScale, this.yScale
             )
+
+            this.minimap.setDistribution(
+                this.constant as DistributionTrait,
+                data,
+                (_: Datum, i: number) => { return [i + 1, 0]; }
+            )
         }
         else if(this.safeguardType === SGT.Normal) {
             this.distributionLine.render(
@@ -802,6 +808,16 @@ export class BarsRenderer {
                     return range as [number, number];
                 },
                 this.xScale, this.yScale
+            )
+
+            this.minimap.setDistribution(
+                this.constant as DistributionTrait,
+                data,
+                (d: Datum) => {
+                    let range = d.keys.list[0].value();
+                    if (range == null) return null;
+                    return range as [number, number];
+                }
             )
         }
 
@@ -820,6 +836,7 @@ export class BarsRenderer {
         this.variable2 = null;
         this.constant = null;
         this.updateHighlight();
+        this.hideTooltip();
 
         if(this.isMobile) this.minimap.setSafeguardType(sgt);
 
