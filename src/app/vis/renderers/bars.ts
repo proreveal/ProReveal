@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { Constants as C, Constants } from '../../constants';
+import { Constants as C } from '../../constants';
 import * as util from '../../util';
 import { measure } from '../../d3-utils/measure';
 import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
@@ -19,8 +19,11 @@ import { AggregateQuery } from '../../data/query';
 import { LoggerService, LogType } from '../../services/logger.service';
 import { EmptyConfidenceInterval, ConfidencePoint } from '../../data/confidence-interval';
 import { VisGridSet } from '../vis-grid';
+import { BarsMinimap } from './bars-minimap';
 
 type Range = [number, number];
+
+const B = C.bars;
 
 export class BarsRenderer {
     gradient = new Gradient();
@@ -42,11 +45,10 @@ export class BarsRenderer {
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
 
     limitNumCategories = true;
+    minimap = new BarsMinimap();
 
     visG;
     interactionG;
-
-    minimapBrush: d3.BrushBehavior<unknown>;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService,
         public isMobile: boolean) {
@@ -68,22 +70,64 @@ export class BarsRenderer {
         this.interactionG = selectOrAppend(svg, 'g', 'interaction');
         this.brush.setup(this.interactionG);
         this.distributionLine.setup(this.interactionG);
+
+        if(this.isMobile) { // pinch zoom in and out
+            let xDis = 1, yDis = 1,
+                dist = 1, xZoom = query.zoomXLevel;
+
+            visGridSet.d3Svg
+                .on('touchstart', () => {
+                    if(d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+
+                        xDis = Math.abs(t1.screenX - t2.screenX);
+                        yDis = Math.abs(t1.screenY - t2.screenY);
+                        dist = Math.sqrt(xDis * xDis + yDis * yDis);
+
+                        xZoom = query.zoomXLevel;
+                    }
+                })
+                .on('touchmove', () => {
+                    if(d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+
+                        // let xRatio = Math.abs(t1.screenX - t2.screenX) / xDis;
+                        // let yRatio = Math.abs(t1.screenY - t2.screenY) / yDis;
+
+                        // query.zoomXLevel = xZoom * xRatio;
+                        // query.zoomYLevel = yZoom * yRatio;
+
+                        let newDist = Math.sqrt((t1.screenX - t2.screenX) * (t1.screenX - t2.screenX) +
+                            (t1.screenY - t2.screenY) * (t1.screenY - t2.screenY));
+
+                        let newXZoom = xZoom * newDist / dist;
+
+                        newXZoom = util.between(newXZoom, B.minZoom.x, B.maxZoom.x);;
+
+                        if(query.zoomXLevel != newXZoom) {
+                            query.zoomXLevel = newXZoom;
+
+                            this.vis.forceUpdate();
+                        }
+                    }
+                })
+        }
     }
 
-    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
+    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimapDiv: HTMLDivElement) {
         let data = query.getVisibleData();
 
         this.data = data;
 
         if (this.limitNumCategories) {
-            data = data.slice(0, C.bars.initiallyVisibleCategories);
+            data = data.slice(0, B.initiallyVisibleCategories);
         }
 
         let labelStrings = data.map(d => d.keys.list[0].valueString());
         if(this.isMobile) {
             labelStrings = labelStrings.map(s => {
-                if(s.length > Constants.bars.maxLabelLength) {
-                    return s.slice(0, Constants.bars.maxLabelLength) + Constants.bars.maxLabelEllipsis;
+                if(s.length > B.maxLabelLength) {
+                    return s.slice(0, B.maxLabelLength) + B.maxLabelEllipsis;
                 }
                 return s;
             });
@@ -112,11 +156,11 @@ export class BarsRenderer {
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
 
-        const xTitleHeight = C.bars.title.x.height;
-        const xLabelHeight = C.bars.label.height;
+        const xTitleHeight = B.title.x.height;
+        const xLabelHeight = B.label.height;
 
 
-        const barHeight = this.isMobile ? C.bars.mobile.height : C.bars.height;
+        const barHeight = this.isMobile ? B.mobile.height : B.height;
         const barsFullHeight = barHeight * data.length;
         const height = this.isMobile ? (xTitleHeight +
             barsFullHeight + xLabelHeight) : (xTitleHeight * 2 +
@@ -130,10 +174,19 @@ export class BarsRenderer {
 
         this.height = height;
 
-        const availHeight = Math.min(window.screen.availHeight - 250, barsFullHeight + xTitleHeight);
-        const barsAvailWidth = (this.isMobile ? window.screen.availWidth - 15 : Constants.bars.width) - labelWidth;
+        let top = visGridSet.visGrid.getBoundingClientRect().top;
+        // console.log(top);
+        const availHeight = Math.min(window.screen.availHeight
+            - 122,
+            barsFullHeight + xTitleHeight);
+
+        // console.log(xTitleHeight, xLabelHeight, visGridSet.visGrid.getBoundingClientRect() || 112,
+        //     visGridSet.visGrid.getBoundingClientRect().top);
+
+            //debugger;
+        const barsAvailWidth = (this.isMobile ? window.screen.availWidth - 15 : B.width) - labelWidth;
         const zoomXLevel = query.zoomXLevel;
-        const barsFullWidth = (this.isMobile ? (window.screen.availWidth - 15) * zoomXLevel : Constants.bars.width) - labelWidth;
+        const barsFullWidth = (this.isMobile ? (window.screen.availWidth - 15) * zoomXLevel : B.width) - labelWidth;
         const barsAvailHeight = availHeight - xTitleHeight - xLabelHeight;
 
         this.width = barsFullWidth;
@@ -195,16 +248,16 @@ export class BarsRenderer {
             let target = this.isMobile ? visGridSet.d3XTitle : visG;
             let targetWidth = this.isMobile ? barsAvailWidth / 2 : (barsFullWidth + labelWidth) / 2;
 
-            let xLabelTitle = Constants.locale.COUNT;
-            if(query.target) xLabelTitle = Constants.locale.XLabelTitleFormatter(query);
+            let xLabelTitle = C.locale.COUNT;
+            if(query.target) xLabelTitle = C.locale.XLabelTitleFormatter(query);
 
             // x labels
             selectOrAppend(target, 'text', '.x.title.top')
                 .text(xLabelTitle)
                 .attr('transform', translate(targetWidth, 0))
                 .style('text-anchor', 'middle')
-                .attr('dy', C.bars.title.x.dy)
-                .style('font-size', C.bars.title.x.fontSize)
+                .attr('dy', B.title.x.dy)
+                .style('font-size', B.title.x.fontSize)
                 .style('font-style', 'italic')
 
             if(!this.isMobile)
@@ -212,8 +265,8 @@ export class BarsRenderer {
                     .text(xLabelTitle)
                     .attr('transform', translate(targetWidth, height - xTitleHeight))
                     .style('text-anchor', 'middle')
-                    .attr('dy', C.bars.title.x.dy)
-                    .style('font-size', C.bars.title.x.fontSize)
+                    .attr('dy', B.title.x.dy)
+                    .style('font-size', B.title.x.fontSize)
                     .style('font-style', 'italic')
         }
 
@@ -334,8 +387,8 @@ export class BarsRenderer {
                 .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '') + yScale.bandwidth() / 2))
                 .text((d) => {
                     let s = d.keys.list[0].valueString();
-                    if(this.isMobile && s.length > Constants.bars.maxLabelLength) {
-                        return s.slice(0, Constants.bars.maxLabelLength) + Constants.bars.maxLabelEllipsis;
+                    if(this.isMobile && s.length > B.maxLabelLength) {
+                        return s.slice(0, B.maxLabelLength) + B.maxLabelEllipsis;
                     }
                     return s;
                 })
@@ -395,10 +448,10 @@ export class BarsRenderer {
 
             leftBars.merge(enter)
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.center) - xScale(d.ci3.low), Constants.bars.minimumGradientWidth))
+                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.center) - xScale(d.ci3.low), B.minimumGradientWidth))
                 .attr('transform', (d, i) => {
-                    if(xScale(d.ci3.center) - xScale(d.ci3.low) < Constants.bars.minimumGradientWidth)
-                        return translate(xScale(d.ci3.center) - Constants.bars.minimumGradientWidth, yScale(i + ''))
+                    if(xScale(d.ci3.center) - xScale(d.ci3.low) < B.minimumGradientWidth)
+                        return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''))
                     return translate(xScale(d.ci3.low), yScale(i + ''));
                 })
                 .attr('fill', this.gradient.leftUrl())
@@ -421,9 +474,9 @@ export class BarsRenderer {
 
             rightBars.merge(enter)
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.high) - xScale(d.ci3.center), Constants.bars.minimumGradientWidth))
+                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.high) - xScale(d.ci3.center), B.minimumGradientWidth))
                 .attr('transform', (d, i) => {
-                    if(xScale(d.ci3.high) - xScale(d.ci3.center) < Constants.bars.minimumGradientWidth)
+                    if(xScale(d.ci3.high) - xScale(d.ci3.center) < B.minimumGradientWidth)
                         return translate(xScale(d.ci3.center), yScale(i + ''))
                     return translate(xScale(d.ci3.center), yScale(i + ''));
                 })
@@ -468,7 +521,7 @@ export class BarsRenderer {
                 .data(data, (d: any) => d.id);
 
             enter = circles.enter().append('circle')
-                .attr('r', C.bars.circleRadius)
+                .attr('r', B.circleRadius)
                 .attr('fill', 'steelblue')
                 .style('pointer-events', 'none')
 
@@ -498,10 +551,10 @@ export class BarsRenderer {
             barEventBoxes.merge(enter)
                 .style('cursor', 'pointer')
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => Math.max(Constants.bars.minimumGradientWidth * 2, xScale(d.ci3.high) - xScale(d.ci3.low)))
+                .attr('width', d => Math.max(B.minimumGradientWidth * 2, xScale(d.ci3.high) - xScale(d.ci3.low)))
                 .attr('transform', (d, i) => {
-                    if(Constants.bars.minimumGradientWidth * 2 > xScale(d.ci3.high) - xScale(d.ci3.low))
-                        return translate(xScale(d.ci3.center) - Constants.bars.minimumGradientWidth, yScale(i + ''))
+                    if(B.minimumGradientWidth * 2 > xScale(d.ci3.high) - xScale(d.ci3.low))
+                        return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''))
                     return translate(xScale(d.ci3.low), yScale(i + ''))
                 })
                 .style('fill', 'transparent')
@@ -541,64 +594,18 @@ export class BarsRenderer {
 
         // minimap
 
-        let d3minimap = d3.select(minimap);
-        let d3minisvg = d3minimap.select('svg');
-
-        let miniBarHeight = Math.min(Math.floor(C.heatmap.minimap.maxHeight / data.length), 3);
-
         if(this.isMobile) {
-            d3minisvg
-                .attr('width', C.bars.minimap.width)
-                .attr('height', miniBarHeight * data.length)
-
-            let g = selectOrAppend(d3minisvg, 'g', '.mini-bars');
-
-            const rects =
-                g.selectAll('rect.bar')
-                .data(data, (d: any) => d.id);
-
-            enter = rects
-                .enter().append('rect').attr('class', 'bar')
-
-            const miniXScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
-                .range([0, C.bars.minimap.width])
-                .clamp(true)
-
-            const miniYScale = d3.scaleBand().domain(util.srange(data.length))
-                .range([0, miniBarHeight * data.length])
-                .padding(0);
-
-            rects.merge(enter)
-                .attr('width', d => done ? 2 : Math.max(miniXScale(d.ci3.high) - miniXScale(d.ci3.low), Constants.bars.minimumGradientWidth))
-                .attr('transform', (d, i) => {
-                    if(miniXScale(d.ci3.high) - miniXScale(d.ci3.low) < Constants.bars.minimumGradientWidth)
-                        return translate(miniXScale(d.ci3.center) - Constants.bars.minimumGradientWidth / 2, miniYScale(i + ''))
-                    return translate(miniXScale(d.ci3.low), miniYScale(i + ''));
-                })
-                .attr('height', miniYScale.bandwidth())
-                .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
-                    'transparent' : 'steelblue'
-                );
-
-            rects.exit().remove();
-
-            let brush = d3.brush().handleSize(0);
-            this.minimapBrush = brush;
-
-            let left = visGridSet.svg.parentElement.scrollLeft,
-                top = visGridSet.svg.parentElement.scrollTop;
-
-            let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
-                .call(brush)
-                .call(brush.move, [[left / barsFullWidth * C.bars.minimap.width,
-                    top / barHeight * miniBarHeight],
-                [(left + barsAvailWidth) / barsFullWidth * C.bars.minimap.width,
-                    (top + barsAvailHeight) / barHeight * miniBarHeight]])
-
-            wrapper.select('.selection').style('stroke', 'none');
-
-            wrapper
-                .selectAll('.overlay').remove();
+            this.minimap.render(minimapDiv, data, query);
+            this.minimap.setDimensions(
+                barsFullWidth,
+                barHeight,
+                barsAvailWidth,
+                barsAvailHeight
+            )
+            this.minimap.move(
+                visGridSet.svg.parentElement.scrollLeft,
+                visGridSet.svg.parentElement.scrollTop
+            )
         }
 
         // sync scroll (mobile)
@@ -634,14 +641,7 @@ export class BarsRenderer {
                         xyFromBrush = false;
                     }
                     else {
-                        selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
-                            .call(this.minimapBrush.move, [
-                                [left / barsFullWidth * C.bars.minimap.width,
-                                    top / barHeight * miniBarHeight],
-                                [(left + barsAvailWidth) / barsFullWidth * C.bars.minimap.width,
-                                    (top + barsAvailHeight) / barHeight * miniBarHeight]
-                            ])
-
+                        this.minimap.move(left, top);
                         xyFromSvg = true;
                     }
                 })
@@ -664,13 +664,13 @@ export class BarsRenderer {
                     yFromLabel = true;
                 })
 
-            this.minimapBrush.on('start brush', () => {
+            this.minimap.brush.on('start brush', () => {
                 let [[x0, y0], [x1, y1]] = d3.event.selection;
 
                 if(xyFromSvg) {xyFromSvg = false; return;}
 
-                visGridSet.svg.parentElement.scrollLeft = x0 / C.bars.minimap.width * barsFullWidth,
-                visGridSet.svg.parentElement.scrollTop = y0 / miniBarHeight * barHeight;
+                visGridSet.svg.parentElement.scrollLeft = x0 / B.minimap.width * barsFullWidth,
+                visGridSet.svg.parentElement.scrollTop = y0 / this.minimap.miniBarHeight * barHeight;
 
                 xyFromSvg = true;
             })
@@ -1035,16 +1035,20 @@ export class BarsRenderer {
 
         if ([SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
+            if(this.isMobile) this.hideTooltip();
             this.closeDropdown();
             this.closeQueryCreator();
+
             return;
         }
 
         if (d == this.vis.selectedDatum) { // double click the same item
+            if(this.isMobile) this.hideTooltip();
             this.closeDropdown();
         }
         else {
             this.openDropdown(d);
+            if(this.isMobile) this.showTooltip(d, i);
             return;
         }
 
@@ -1060,7 +1064,7 @@ export class BarsRenderer {
 
         let i = this.data.indexOf(d);
         let top = clientRect.top - parentRect.top + this.yScale(i + '')
-            + C.bars.label.height + C.padding;
+            + B.label.height + C.padding;
 
         this.vis.isDropdownVisible = true;
         this.vis.dropdownTop = top;

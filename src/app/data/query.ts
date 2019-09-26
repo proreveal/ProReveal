@@ -213,6 +213,7 @@ export class AggregateQuery extends Query {
 
     zoomXLevel = 1;
     zoomYLevel = 1;
+    bars = true;
 
     /**
      *
@@ -567,6 +568,8 @@ export class Histogram1DQuery extends AggregateQuery {
     minLevel = 1;
     maxLevel = 16;
 
+    bars = true;
+
     constructor(public grouping: QuantitativeField,
         public dataset: Dataset,
         public where: Predicate) {
@@ -694,6 +697,8 @@ export class Histogram2DQuery extends AggregateQuery {
     aggregationLevelY = 2;
     minLevelY = 1;
     maxLevelY = 16;
+
+    bars = false;
 
     constructor(
         public grouping1: QuantitativeField,
@@ -839,6 +844,8 @@ export class Frequency1DQuery extends AggregateQuery {
 
     hasAggregateFunction = false;
 
+    bars = true;
+
     constructor(public grouping: FieldTrait,
         public dataset: Dataset,
         public where: Predicate) {
@@ -901,6 +908,8 @@ export class Frequency2DQuery extends AggregateQuery {
     isLinearAvailable = false;
 
     hasAggregateFunction = false;
+
+    bars = false;
 
     constructor(
         public grouping1: FieldTrait,

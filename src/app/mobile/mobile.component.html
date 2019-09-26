@@ -172,6 +172,7 @@
         [class.guard-visible]="showGuardList"
         [class.guard-panel-open]="activeSafeguardPanel != SGT.None"
         [class.dropdown-open]="vis.isDropdownVisible"
+        [class.bars]="activeQuery && activeQuery.bars"
         (click)="visBackgroundClick()">
         <div *ngIf="!activeQuery" class="alert alert-primary">
             <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"

@@ -38,7 +38,13 @@ export const Constants = Object.freeze({
         height: 20,
         width: 960,
         maxLabelLength: 10,
-        maxLabelEllipsis: '...'
+        maxLabelEllipsis: '...',
+        maxZoom : {
+            x: 2,
+        },
+        minZoom : {
+            x: 1,
+        }
     },
     heatmap: {
         rowHeight: 20,

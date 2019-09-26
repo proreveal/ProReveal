@@ -212,6 +212,21 @@ $button-height: 38px;
     background: white;
 }
 
+.bars #vis-panel {
+    background: transparent;
+    flex-direction: row-reverse !important;
+    border: none !important;
+    justify-content: end !important;
+    left: auto;
+    width: 140px;
+    right: 10px;
+
+    svg
+    {
+        background:white;
+    }
+}
+
 #floating-legend-wrapper {
     position:relative;
     width: 200px;

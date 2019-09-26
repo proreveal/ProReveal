@@ -525,7 +525,7 @@ export class HeatmapRenderer {
                         return;
                     }
                     this.datumSelected(d);
-                    this.toggleDropdown(d, i);
+                    this.toggleDropdown(d);
 
                     let d3ele = d3.select(ele[i]);
                     d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
@@ -1026,13 +1026,14 @@ export class HeatmapRenderer {
         if(this.tooltip.visible) this.tooltip.hide();
     }
 
-    toggleDropdown(d: Datum, i: number) {
+    toggleDropdown(d: Datum) {
         d3.event.stopPropagation();
 
         if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
             if(this.isMobile) this.hideTooltip();
             this.closeDropdown();
+            this.closeQueryCreator();
 
             return;
         }
