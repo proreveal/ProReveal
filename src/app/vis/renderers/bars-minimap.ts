@@ -18,6 +18,10 @@ export class BarsMinimap {
     private svg: any;
     miniBarHeight: number;
 
+    selection: util.G;
+    brushLine: util.G;
+    referenceLine: util.G;
+
     setDimensions(barsFullWidth: number,
         barHeight: number,
         barsAvailWidth: number,
@@ -74,6 +78,8 @@ export class BarsMinimap {
 
         rects.exit().remove();
 
+        // install brush
+
         let brush = d3.brush().handleSize(0);
         this.brush = brush;
 
@@ -82,6 +88,18 @@ export class BarsMinimap {
 
         wrapper.select('.selection').style('stroke', 'none');
         wrapper.selectAll('.overlay').remove();
+
+        // install overlays
+
+        // let referenceLine = selectOrAppend(root as any, 'line', '.reference-line')
+        // this.referenceLine = referenceLine;
+
+        // let selection = selectOrAppend(root as any, 'rect', '.my-selection')
+        // this.selection = selection;
+
+        // let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
+        // this.brushLine = brushLine;
+
     }
 
     move(left:number, top: number) {
