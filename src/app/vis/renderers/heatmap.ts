@@ -25,8 +25,6 @@ import { heatmapLegend } from '../vsup/legend';
 import { Brush, BrushMode } from './brush';
 import * as util from '../../util';
 
-type Range = [number, number];
-
 export class HeatmapRenderer {
     gradient = new Gradient();
     data: Datum[];
@@ -636,7 +634,7 @@ export class HeatmapRenderer {
 
             if(this.variable1 && this.safeguardType === SGT.Value) {
                 let d = this.getDatum(this.variable1);
-                this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
+                this.brush.setRefValue(this.legendXScale(d.ci3.center));
 
                 if(this.constant) {
                     let center = this.legendXScale((this.constant as ValueConstant).value);
@@ -645,11 +643,11 @@ export class HeatmapRenderer {
             }
             else if(this.variable1 && this.safeguardType == SGT.Range) {
                 let d = this.getDatum(this.variable1);
-                this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
+                this.brush.setRefValue(this.legendXScale(d.ci3.center));
                 this.brush.setCenter(this.legendXScale(d.ci3.center));
 
                 if(this.constant) {
-                    let oldRange: Range = (this.constant as RangeConstant).range;
+                    let oldRange: util.Range = (this.constant as RangeConstant).range;
                     let half = (oldRange[1] - oldRange[0]) / 2;
                     let newCenter = this.getDatum(this.variable1).ci3.center;
                     let domain = this.legendXScale.domain();
@@ -939,11 +937,11 @@ export class HeatmapRenderer {
         this.variable1 = variable;
 
         if (this.safeguardType === SGT.Value) {
-            this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
+            this.brush.setRefValue(this.legendXScale(d.ci3.center));
         }
         else if (this.safeguardType === SGT.Range) {
             this.brush.setCenter(this.legendXScale(d.ci3.center));
-            this.brush.setReferenceValue(this.legendXScale(d.ci3.center));
+            this.brush.setRefValue(this.legendXScale(d.ci3.center));
         }
         this.updateHighlight();
 
