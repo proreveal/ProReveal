@@ -1,10 +1,8 @@
 import * as d3 from 'd3';
-import { Constants as C } from '../../constants';
-import { translate, selectOrAppend, scale } from '../../d3-utils/d3-utils';
 
-type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
-type Extent = [[number, number], [number, number]];
-type Range = [number, number];
+import { Constants as C } from '../../constants';
+import { translate, selectOrAppend } from '../../d3-utils/d3-utils';
+import * as util from '../../util';
 
 export enum BrushDirection {
     X,
@@ -21,19 +19,18 @@ export interface BrushOptions {
 };
 
 export class Brush<Datum> {
-    selection: G;
-    brushLine: G;
-    brushLine2: G;
-    referenceLine: G;
+    selection: util.G;
+    brushLine: util.G;
+    referenceLine: util.G;
 
-    root: G;
-    g: G;
-    g1: G; // left
-    g2: G; // right
-    handleG: G;
-    handleG1: G;
-    handleG2: G;
-    extent: Extent;
+    root: util.G;
+    g: util.G;
+    g1: util.G; // left
+    g2: util.G; // right
+    handleG: util.G;
+    handleG1: util.G;
+    handleG2: util.G;
+    extent: util.Extent;
     brush: d3.BrushBehavior<Datum>;
     brush1: d3.BrushBehavior<Datum>;
     brush2: d3.BrushBehavior<Datum>;
@@ -41,7 +38,7 @@ export class Brush<Datum> {
     handlers: { brush?: (range: number | [number, number, number]) => void } = {};
     snap: (number) => number;
     center: number = 600;
-    range: Range;
+    range: util.Range;
 
     constructor(public direction: BrushDirection = BrushDirection.X,
         public mode = BrushMode.Point, public options: BrushOptions = {}) {
@@ -49,16 +46,16 @@ export class Brush<Datum> {
         this.setMode(mode);
     }
 
-    setup(g: G) {
-        this.root = selectOrAppend(g as any, 'g', '.brush-root') as G;
+    setup(g: util.G) {
+        this.root = selectOrAppend(g as any, 'g', '.brush-root') as util.G;
         let root = this.root;
-        this.g = selectOrAppend(root as any, 'g', '.brush-wrapper') as G;
-        this.g1 = selectOrAppend(root as any, 'g', '.brush-wrapper1') as G;
-        this.g2 = selectOrAppend(root as any, 'g', '.brush-wrapper2') as G;
+        this.g = selectOrAppend(root as any, 'g', '.brush-wrapper') as util.G;
+        this.g1 = selectOrAppend(root as any, 'g', '.brush-wrapper1') as util.G;
+        this.g2 = selectOrAppend(root as any, 'g', '.brush-wrapper2') as util.G;
 
-        this.handleG = selectOrAppend(this.g as any, 'g', '.brush-handle') as G;
-        this.handleG1 = selectOrAppend(this.g1 as any, 'g', '.brush-handle') as G;
-        this.handleG2 = selectOrAppend(this.g2 as any, 'g', '.brush-handle') as G;
+        this.handleG = selectOrAppend(this.g as any, 'g', '.brush-handle') as util.G;
+        this.handleG1 = selectOrAppend(this.g1 as any, 'g', '.brush-handle') as util.G;
+        this.handleG2 = selectOrAppend(this.g2 as any, 'g', '.brush-handle') as util.G;
 
         this.handleG.style('display', 'none')
         this.handleG1.style('display', 'none')
@@ -129,7 +126,7 @@ export class Brush<Datum> {
         }
     }
 
-    setReferenceValue(ref: number) {
+    setRefValue(ref: number) {
         let extent = this.extent;
 
         let [[startX, startY], [endX, endY]] = extent;
@@ -266,9 +263,9 @@ export class Brush<Datum> {
                 if(center - delta < extent[0][0]) delta = center - extent[0][0];
                 if(center + delta > extent[1][0]) delta = Math.min(delta, extent[1][0] - center);
 
-                let range: Range = [center - delta, center + delta];
+                let range: util.Range = [center - delta, center + delta];
 
-                this.range = range;
+                this.range = range as util.Range;
 
                 this.moveBrushLine(center, false);
 
@@ -317,7 +314,7 @@ export class Brush<Datum> {
             this.moveHandles(center - C.pointBrushSize, center + C.pointBrushSize, transition);
         }
         else {
-            this.range = range;
+            this.range = range as util.Range;
             this.moveSelection(range[0], range[1]);
             this.moveBrush(range[0], range[1], transition);
             this.moveBrushLine(this.center, transition);

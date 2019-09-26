@@ -5,8 +5,22 @@ import { selectOrAppend, translate } from '../../d3-utils/d3-utils';
 import { AggregateQuery } from '../../data/query';
 import * as util from '../../util';
 import { EmptyConfidenceInterval } from '../../data/confidence-interval';
+import { SafeguardTypes as SGT } from '../../safeguard/safeguard';
+import { ScaleLinear } from 'd3';
 
 const B = C.bars;
+
+function hide(...args: any[]) {
+    for (let i = 0; i < args.length; i++) {
+        args[i].style('display', 'none');
+    }
+}
+
+function show(...args: any[]) {
+    for (let i = 0; i < args.length; i++) {
+        args[i].style('display', 'inline');
+    }
+}
 
 export class BarsMinimap {
     brush: d3.BrushBehavior<unknown>;
@@ -21,6 +35,10 @@ export class BarsMinimap {
     selection: util.G;
     brushLine: util.G;
     referenceLine: util.G;
+    sgt: SGT = SGT.None;
+
+    xScale: ScaleLinear<number, number>;
+    yScale: d3.ScaleBand<string>;
 
     setDimensions(barsFullWidth: number,
         barHeight: number,
@@ -56,22 +74,25 @@ export class BarsMinimap {
         let enter = rects
             .enter().append('rect').attr('class', 'bar')
 
-        let miniXScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
+        let xScale = d3.scaleLinear().domain([query.domainStart, query.domainEnd])
             .range([0, B.minimap.width])
             .clamp(true)
 
-        let miniYScale = d3.scaleBand().domain(util.srange(data.length))
+        let yScale = d3.scaleBand().domain(util.srange(data.length))
             .range([0, miniBarHeight * data.length])
             .padding(0);
 
+        this.xScale = xScale;
+        this.yScale = yScale;
+
         rects.merge(enter)
-            .attr('width', d => done ? 2 : Math.max(miniXScale(d.ci3.high) - miniXScale(d.ci3.low), B.minimumGradientWidth))
+            .attr('width', d => done ? 2 : Math.max(xScale(d.ci3.high) - xScale(d.ci3.low), B.minimumGradientWidth))
             .attr('transform', (d, i) => {
-                if (miniXScale(d.ci3.high) - miniXScale(d.ci3.low) < B.minimumGradientWidth)
-                    return translate(miniXScale(d.ci3.center) - B.minimumGradientWidth / 2, miniYScale(i + ''))
-                return translate(miniXScale(d.ci3.low), miniYScale(i + ''));
+                if (xScale(d.ci3.high) - xScale(d.ci3.low) < B.minimumGradientWidth)
+                    return translate(xScale(d.ci3.center) - B.minimumGradientWidth / 2, yScale(i + ''))
+                return translate(xScale(d.ci3.low), yScale(i + ''));
             })
-            .attr('height', miniYScale.bandwidth())
+            .attr('height', yScale.bandwidth())
             .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
                 'transparent' : 'steelblue'
             );
@@ -91,26 +112,107 @@ export class BarsMinimap {
 
         // install overlays
 
-        // let referenceLine = selectOrAppend(root as any, 'line', '.reference-line')
-        // this.referenceLine = referenceLine;
+        let referenceLine = selectOrAppend(d3minisvg, 'line', '.reference-line')
+        this.referenceLine = referenceLine;
 
-        // let selection = selectOrAppend(root as any, 'rect', '.my-selection')
-        // this.selection = selection;
+        let selection = selectOrAppend(d3minisvg, 'rect', '.my-selection')
+        this.selection = selection;
 
-        // let brushLine = selectOrAppend(root as any, 'line', '.brush-line')
-        // this.brushLine = brushLine;
+        let brushLine = selectOrAppend(d3minisvg, 'line', '.brush-line')
+        this.brushLine = brushLine;
 
+
+        // default styles for overlays
+        brushLine
+            .style('stroke', '#DD2C00')
+            .style('stroke-width', 3)
+            .attr('pointer-events', 'none')
+
+        selection
+            .style('fill', '#777')
+            .style('opacity', .3)
+            .style('pointer-events', 'none')
+
+        referenceLine
+            .style('stroke', 'black')
+            .style('stroke-width', 3)
+            .style('stroke-linecap', 'round')
+            .attr('pointer-events', 'none')
+
+        if(this.sgt == SGT.None) this.hideAllOverlays();
     }
 
-    move(left:number, top: number) {
+    move(left: number, top: number) {
         const [barsFullWidth, barHeight, barsAvailWidth, barsAvailHeight, miniBarHeight] =
             [this.barsFullWidth, this.barHeight, this.barsAvailWidth, this.barsAvailHeight, this.miniBarHeight];
 
         selectOrAppend(this.svg, 'g', '.brush-wrapper')
             .call(this.brush.move,
                 [[left / barsFullWidth * B.minimap.width,
-                    top / barHeight * miniBarHeight],
+                top / barHeight * miniBarHeight],
                 [(left + barsAvailWidth) / barsFullWidth * B.minimap.width,
-                    (top + barsAvailHeight) / barHeight * miniBarHeight]])
+                (top + barsAvailHeight) / barHeight * miniBarHeight]])
+    }
+
+    hideAllOverlays() {
+        hide(this.brushLine, this.selection, this.referenceLine);
+    }
+
+    setSafeguardType(sgt: SGT) {
+        this.sgt = sgt;
+
+        console.log('sgt set to', SGT.Value);
+
+        if(sgt == SGT.None) {
+            this.hideAllOverlays();
+        }
+        else if(sgt == SGT.Value) {
+            show(this.brushLine, this.referenceLine);
+        }
+        else if(sgt == SGT.Rank) {
+            show(this.brushLine);
+        }
+        else if(sgt == SGT.Range) {
+            show(this.selection);
+        }
+        else if(sgt == SGT.PowerLaw || sgt == SGT.Normal) {
+            // TODO
+        }
+    }
+
+    setRefValue(value: number, xScale: ScaleLinear<number, number>) {
+        let range = xScale.range() as util.Range;
+        let norm = (xScale(value) - range[0]) / (range[1] - range[0]);
+
+        let x = norm * B.minimap.width;
+
+        this.referenceLine
+            .attr('x1', x)
+            .attr('y1', this.yScale.range()[0])
+            .attr('x2', x)
+            .attr('y2', this.yScale.range()[1])
+    }
+
+    setValue(value: number, xScale: ScaleLinear<number, number>) {
+        let range = xScale.range() as util.Range;
+        let norm = (xScale(value) - range[0]) / (range[1] - range[0]);
+
+        let x = norm * B.minimap.width;
+
+        this.brushLine
+            .attr('x1', x)
+            .attr('y1', this.yScale.range()[0])
+            .attr('x2', x)
+            .attr('y2', this.yScale.range()[1])
+    }
+
+    setRank(rank: string) {
+        let y = this.yScale(rank);
+
+        this.brushLine
+            .attr('x1', this.xScale.range()[0])
+            .attr('y1', y)
+            .attr('x2', this.xScale.range()[1])
+            .attr('y2', y)
     }
 }

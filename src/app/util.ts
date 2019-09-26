@@ -1,3 +1,7 @@
+export type G = d3.Selection<d3.BaseType, {}, d3.BaseType, {}>;
+export type Extent = [[number, number], [number, number]];
+export type Range = [number, number];
+
 export function levenshtein(a: string, b: string): number {
     if (a.length == 0) return b.length;
     if (b.length == 0) return a.length;

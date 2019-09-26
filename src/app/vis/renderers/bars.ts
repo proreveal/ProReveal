@@ -21,8 +21,6 @@ import { EmptyConfidenceInterval, ConfidencePoint } from '../../data/confidence-
 import { VisGridSet } from '../vis-grid';
 import { BarsMinimap } from './bars-minimap';
 
-type Range = [number, number];
-
 const B = C.bars;
 
 export class BarsRenderer {
@@ -47,8 +45,8 @@ export class BarsRenderer {
     limitNumCategories = true;
     minimap = new BarsMinimap();
 
-    visG;
-    interactionG;
+    visG: util.G;
+    interactionG: util.G;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService,
         public isMobile: boolean) {
@@ -678,11 +676,12 @@ export class BarsRenderer {
 
         d3.select(floatingSvg).style('display', 'none');
 
-        this.brush.on('brush', (centerOrRange) => {
+        this.brush.on('brush', (centerOrRange: any) => {
             if (this.safeguardType === SGT.Value) {
                 let constant = new ValueConstant(this.xScale.invert(centerOrRange));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
+                if(this.isMobile) this.minimap.setValue(constant.value, this.xScale);
             }
             else if (this.safeguardType === SGT.Rank) {
                 let index = Math.round((centerOrRange - xTitleHeight - xLabelHeight)
@@ -691,6 +690,8 @@ export class BarsRenderer {
                 let constant = new RankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
+
+                if(this.isMobile) this.minimap.setRank(index.toString());
             }
             else if (this.safeguardType === SGT.Range) {
                 let [center, from, to] = centerOrRange as [number, number, number];
@@ -737,23 +738,29 @@ export class BarsRenderer {
 
         if(this.variable1 && this.safeguardType === SGT.Value) {
             let d = this.getDatum(this.variable1);
-            this.brush.setReferenceValue(this.xScale(d.ci3.center));
-            console.log(d.ci3.center, this.xScale(d.ci3.center))
+            this.brush.setRefValue(this.xScale(d.ci3.center));
+            if(this.isMobile) this.minimap.setRefValue(d.ci3.center, this.xScale);
 
             if(this.constant) {
-                let center = xScale((this.constant as ValueConstant).value);
+                let value = (this.constant as ValueConstant).value;
+                let center = xScale(value);
+
                 this.brush.move(center);
+                if(this.isMobile) this.minimap.setValue(value, this.xScale);
             }
         }
         else if (this.variable1 && this.safeguardType === SGT.Rank) {
             if(this.constant) {
-                let center = yScale((this.constant as RankConstant).rank.toString());
+                let rank = (this.constant as RankConstant).rank.toString()
+                let center = yScale(rank);
                 this.brush.move(center);
+                if(this.isMobile) this.minimap.setRank(rank);
             }
         }
         else if(this.variable1 && this.safeguardType === SGT.Range) {
             let d = this.getDatum(this.variable1);
-            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+            this.brush.setRefValue(this.xScale(d.ci3.center));
+
             this.brush.setCenter(this.xScale(d.ci3.center));
 
             if(this.constant) {
@@ -765,7 +772,7 @@ export class BarsRenderer {
                 if(xDomain[0] > newCenter - half) { half = newCenter - xDomain[0]; }
                 if(xDomain[1] < newCenter + half) { half = Math.min(half, xDomain[1] - newCenter); }
 
-                let range = [newCenter - half, newCenter + half] as Range;
+                let range = [newCenter - half, newCenter + half] as util.Range;
 
                 let constant = new RangeConstant(newCenter, range[0], range[1]);
 
@@ -802,27 +809,29 @@ export class BarsRenderer {
     constant: ConstantTrait;
 
     safeguardType: SGT = SGT.None;
-    setSafeguardType(st: SGT) {
-        this.safeguardType = st;
+    setSafeguardType(sgt: SGT) {
+        this.safeguardType = sgt;
 
         this.variable1 = null;
         this.variable2 = null;
         this.constant = null;
         this.updateHighlight();
 
-        if (st == SGT.None) {
+        if(this.isMobile) this.minimap.setSafeguardType(sgt);
+
+        if (sgt == SGT.None) {
             this.labels.style('cursor', 'auto');
             this.brush.hide();
         }
-        else if (st == SGT.Value || st === SGT.Rank) {
+        else if (sgt == SGT.Value || sgt === SGT.Rank) {
             this.labels.style('cursor', 'pointer');
             this.brush.setMode(BrushMode.Point);
         }
-        else if (st === SGT.Range) {
+        else if (sgt === SGT.Range) {
             this.labels.style('cursor', 'pointer');
             this.brush.setMode(BrushMode.SymmetricRange);
         }
-        else if (st === SGT.Comparative) {
+        else if (sgt === SGT.Comparative) {
             this.labels.style('cursor', 'pointer');
         }
     }
@@ -858,17 +867,21 @@ export class BarsRenderer {
     constantUserChanged(constant: ConstantTrait) {
         this.constant = constant;
         if (this.safeguardType === SGT.Value) {
-            let center = this.xScale((constant as ValueConstant).value);
+            let value = (constant as ValueConstant).value;
+            let center = this.xScale(value);
             this.brush.show();
             this.brush.move(center);
+            if(this.isMobile) this.minimap.setValue(value, this.xScale);
         }
         else if (this.safeguardType === SGT.Rank) {
-            let center = this.yScale((constant as RankConstant).rank.toString());
+            let rank = (constant as RankConstant).rank.toString();
+            let center = this.yScale(rank);
             this.brush.show();
             this.brush.move(center, false, true);
+            if(this.isMobile) this.minimap.setRank(rank);
         }
         else if (this.safeguardType === SGT.Range) {
-            let range = (constant as RangeConstant).range.map(this.xScale) as Range;
+            let range = (constant as RangeConstant).range.map(this.xScale) as util.Range;
             this.brush.setCenter(this.xScale((constant as RangeConstant).center));
             this.brush.show();
             this.brush.move(range);
@@ -904,10 +917,12 @@ export class BarsRenderer {
         this.variable1 = variable;
 
         if(this.safeguardType === SGT.Value) {
-            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+            this.brush.setRefValue(this.xScale(d.ci3.center));
+            if(this.isMobile) this.minimap.setRefValue(d.ci3.center, this.xScale);
+
         }
         if (this.safeguardType === SGT.Range) {
-            this.brush.setReferenceValue(this.xScale(d.ci3.center));
+            this.brush.setRefValue(this.xScale(d.ci3.center));
             this.brush.setCenter(this.xScale(d.ci3.center));
         }
         this.updateHighlight();
