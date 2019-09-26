@@ -24,6 +24,9 @@ import { VisGridSet } from '../vis-grid';
 import { heatmapLegend } from '../vsup/legend';
 import { Brush, BrushMode } from './brush';
 import * as util from '../../util';
+import { HeatmapMinimap } from './heatmap-minimap';
+
+const H = C.heatmap;
 
 export class HeatmapRenderer {
     gradient = new Gradient();
@@ -42,8 +45,6 @@ export class HeatmapRenderer {
     linearLine = new LinearLine();
 
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
-    visG;
-    interactionG;
     xValuesCount: number;
     yValuesCount: number;
 
@@ -53,8 +54,10 @@ export class HeatmapRenderer {
     expectedWidth: number;
 
     limitNumCategories = true;
+    minimap = new HeatmapMinimap();
 
-    minimapBrush: d3.BrushBehavior<unknown>;
+    visG: util.G;
+    interactionG: util.G;
 
     constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService,
         public isMobile: boolean) {
@@ -82,14 +85,14 @@ export class HeatmapRenderer {
         this.brush.setup(fbrush);
         this.linearLine.setup(this.interactionG);
 
-        if(this.isMobile) { // pinch zoom in and out
+        if (this.isMobile) { // pinch zoom in and out
             let xDis = 1, yDis = 1,
                 dist = 1, xZoom = query.zoomXLevel, yZoom = query.zoomYLevel;
 
             visGridSet.d3Svg
                 .on('touchstart', () => {
-                    if(d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+                    if (d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]: TouchList = d3.event.touches;
 
                         xDis = Math.abs(t1.screenX - t2.screenX);
                         yDis = Math.abs(t1.screenY - t2.screenY);
@@ -100,8 +103,8 @@ export class HeatmapRenderer {
                     }
                 })
                 .on('touchmove', () => {
-                    if(d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+                    if (d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]: TouchList = d3.event.touches;
 
                         // let xRatio = Math.abs(t1.screenX - t2.screenX) / xDis;
                         // let yRatio = Math.abs(t1.screenY - t2.screenY) / yDis;
@@ -116,10 +119,10 @@ export class HeatmapRenderer {
                         let newXZoom = xZoom * newDist / dist;
                         let newYZoom = yZoom * newDist / dist;
 
-                        newXZoom = util.between(newXZoom, C.heatmap.minZoom.x, C.heatmap.maxZoom.x);;
-                        newYZoom = util.between(newYZoom, C.heatmap.minZoom.y, C.heatmap.maxZoom.y);
+                        newXZoom = util.between(newXZoom, H.minZoom.x, H.maxZoom.x);;
+                        newYZoom = util.between(newYZoom, H.minZoom.y, H.maxZoom.y);
 
-                        if(query.zoomXLevel != newXZoom || query.zoomYLevel != newYZoom) {
+                        if (query.zoomXLevel != newXZoom || query.zoomYLevel != newYZoom) {
                             query.zoomXLevel = newXZoom;
                             query.zoomYLevel = newYZoom;
 
@@ -133,7 +136,7 @@ export class HeatmapRenderer {
         }
     }
 
-    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimap: HTMLDivElement) {
+    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimapDiv: HTMLDivElement) {
         // Data Processing (view independent)
 
         let data = query.getVisibleData();
@@ -196,8 +199,8 @@ export class HeatmapRenderer {
         }
 
         if (this.limitNumCategories) {
-            xValues = xValues.slice(0, C.heatmap.initiallyVisibleCategories);
-            yValues = yValues.slice(0, C.heatmap.initiallyVisibleCategories);
+            xValues = xValues.slice(0, H.initiallyVisibleCategories);
+            yValues = yValues.slice(0, H.initiallyVisibleCategories);
 
             let xKeys = {}, yKeys = {};
             xValues.forEach(v => xKeys[v.hash] = true);
@@ -209,14 +212,14 @@ export class HeatmapRenderer {
         const yLabelWidth = d3.max(yValues, v => measure('~' + v.valueString()).width) || 0;
         const xLabelWidth = d3.max(xValues, v => measure('~' + v.valueString()).width) || 0;
 
-        const xTitleHeight = C.heatmap.title.x.height;
-        const yTitleWidth = C.heatmap.title.y.width;
+        const xTitleHeight = H.title.x.height;
+        const yTitleWidth = H.title.y.width;
 
         const zoomXLevel = query.zoomXLevel;
         const zoomYLevel = query.zoomYLevel;
 
-        const columnWidth = C.heatmap.columnWidth * zoomXLevel;
-        const rowHeight = C.heatmap.rowHeight * zoomYLevel;
+        const columnWidth = H.columnWidth * zoomXLevel;
+        const rowHeight = H.rowHeight * zoomYLevel;
 
         let heatmapFullWidth = columnWidth * xValues.length;
         let heatmapFullHeight = rowHeight * yValues.length;
@@ -225,7 +228,7 @@ export class HeatmapRenderer {
 
         const height = rowHeight * yValues.length + headerHeight * 2;
 
-        const legendSpec = this.isMobile ? C.heatmap.mobile.legend : C.heatmap.legend;
+        const legendSpec = this.isMobile ? H.mobile.legend : H.legend;
 
         const matrixWidth = xValues.length > 0 ?
             (yTitleWidth + yLabelWidth + columnWidth * xValues.length) : 0;
@@ -237,28 +240,28 @@ export class HeatmapRenderer {
         let heatmapAvailHeight: number;
         let screenAvailHeight = window.screen.availHeight - 290;
 
-        if(screenAvailHeight < heatmapFullHeight + headerHeight) {
+        if (screenAvailHeight < heatmapFullHeight + headerHeight) {
             heatmapAvailHeight = screenAvailHeight - headerHeight;
         }
         else {
             heatmapAvailHeight = heatmapFullHeight;
         }
 
-        let heatmapAvailWidth = availWidth - C.heatmap.title.y.width - yLabelWidth;
+        let heatmapAvailWidth = availWidth - H.title.y.width - yLabelWidth;
 
         // Set dimensions (x: ->, y: ↓)
         visGridSet.setClass('heatmap');
 
-        if(this.isMobile) {
+        if (this.isMobile) {
             visGridSet.d3XTitle
                 .attr('width', heatmapAvailWidth)
-                .attr('height', C.heatmap.title.x.height);
+                .attr('height', H.title.x.height);
 
             visGridSet.d3XLabels
                 .attr('width', heatmapFullWidth)
                 .attr('height', heatmapXLabelHeight);
 
-            visGridSet.d3YTitle.attr('width', C.heatmap.title.y.width)
+            visGridSet.d3YTitle.attr('width', H.title.y.width)
                 .attr('height', heatmapAvailHeight);
 
             visGridSet.d3YLabels
@@ -266,8 +269,8 @@ export class HeatmapRenderer {
                 .attr('height', heatmapFullHeight);
 
             visGridSet.d3VisGrid
-                .style('grid-template-columns', `${C.heatmap.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
-                .style('grid-template-rows', `${C.heatmap.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
+                .style('grid-template-columns', `${H.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
+                .style('grid-template-rows', `${H.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
 
             visGridSet.d3Svg.attr('width', heatmapFullWidth)
                 .attr('height', heatmapFullHeight);
@@ -283,7 +286,7 @@ export class HeatmapRenderer {
         const yScale = d3.scaleBand().domain(yValues.map(d => d.hash))
             .range([headerHeight, height - headerHeight]);
 
-        if(this.isMobile) {
+        if (this.isMobile) {
             xScale.range([0, heatmapFullWidth]);
             yScale.range([0, heatmapFullHeight]);
         }
@@ -303,17 +306,17 @@ export class HeatmapRenderer {
                 .text(query.groupBy.fields[0].name)
                 .attr('transform', translate(targetWidth, 0))
                 .style('text-anchor', 'middle')
-                .attr('dy', C.heatmap.title.x.dy)
-                .style('font-size', C.heatmap.title.x.fontSize)
+                .attr('dy', H.title.x.dy)
+                .style('font-size', H.title.x.fontSize)
                 .style('font-style', 'italic')
 
-            if(!this.isMobile)
+            if (!this.isMobile)
                 selectOrAppend(target, 'text', '.x.title.bottom')
                     .text(query.groupBy.fields[0].name)
-                    .attr('transform', translate(matrixWidth / 2, height - C.heatmap.title.x.height))
+                    .attr('transform', translate(matrixWidth / 2, height - H.title.x.height))
                     .style('text-anchor', 'middle')
-                    .attr('dy', C.heatmap.title.x.dy)
-                    .style('font-size', C.heatmap.title.x.fontSize)
+                    .attr('dy', H.title.x.dy)
+                    .style('font-size', H.title.x.fontSize)
                     .style('font-style', 'italic')
         }
 
@@ -327,8 +330,8 @@ export class HeatmapRenderer {
                 .attr('transform',
                     translate(0, targetHeight) + 'rotate(-90)')
                 .style('text-anchor', 'middle')
-                .attr('dy', C.heatmap.title.y.dy)
-                .style('font-size', C.heatmap.title.y.fontSize)
+                .attr('dy', H.title.y.dy)
+                .style('font-size', H.title.y.fontSize)
                 .style('font-style', 'italic')
         }
 
@@ -376,7 +379,7 @@ export class HeatmapRenderer {
 
             xTopLabels.exit().remove();
 
-            if(!this.isMobile) {
+            if (!this.isMobile) {
                 const xBottomLabels = visG
                     .selectAll('text.label.x.bottom.data')
                     .data(xValues, (d: FieldGroupedValue) => d.hash);
@@ -421,7 +424,7 @@ export class HeatmapRenderer {
 
         let zScale = vsup.scale()
             .quantize(quant)
-            // .range(t => viridis(1 - t));
+        // .range(t => viridis(1 - t));
 
         const rects = visG
             .selectAll('rect.area')
@@ -506,19 +509,19 @@ export class HeatmapRenderer {
                     this.showTooltip(d);
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
-                    if(this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
+                    if (this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', true);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', true);
                 })
                 .on(this.isMobile ? 'none' : 'mouseleave', (d, i) => {
                     this.hideTooltip();
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
-                    if(this.xBottomLabels)  this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
+                    if (this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('hover', false);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
                     if (d.ci3 == EmptyConfidenceInterval) return;
-                    if(this.safeguardType == SGT.Comparative) {
+                    if (this.safeguardType == SGT.Comparative) {
                         this.datumSelected2(d);
                         return;
                     }
@@ -529,7 +532,7 @@ export class HeatmapRenderer {
                     d3ele.classed('menu-highlighted', this.vis.selectedDatum === d);
 
                     this.xTopLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
-                    if(this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
+                    if (this.xBottomLabels) this.xBottomLabels.filter(fgv => fgv.hash == d.keys.list[0].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
                     this.yLabels.filter(fgv => fgv.hash == d.keys.list[1].hash).classed('menu-highlighted', this.vis.selectedDatum === d);
                 })
 
@@ -545,10 +548,10 @@ export class HeatmapRenderer {
                 .scale(zScale)
                 .width(legendWidth)
                 .height(legendHeight)
-                    .vtitle(C.locale.HeatmapLegendValue)
-                    .utitle(this.isMobile ? C.locale.HeatmapLegendMobileUncertainty : C.locale.HeatmapLegendUncertainty)
+                .vtitle(C.locale.HeatmapLegendValue)
+                .utitle(this.isMobile ? C.locale.HeatmapLegendMobileUncertainty : C.locale.HeatmapLegendUncertainty)
 
-            if(maxUncertainty >= 100000 || domainEnd >= 100000) {
+            if (maxUncertainty >= 100000 || domainEnd >= 100000) {
                 legend = legend.format('.2s')
             }
 
@@ -572,12 +575,12 @@ export class HeatmapRenderer {
                 .append('g')
                 .call(legend);
 
-            if(this.isMobile) {
+            if (this.isMobile) {
                 floatingLegend.selectAll('.arc-label text')
                     .style('display', (d, i) => i % 2 ? 'none' : 'inline')
 
                 floatingLegend.select('g.legend > text')
-                    //.attr('y', 10)
+                //.attr('y', 10)
             }
             else {
                 floatingLegend.select('g.legend text[y="-30"]')
@@ -632,28 +635,28 @@ export class HeatmapRenderer {
             else
                 this.brush.hide();
 
-            if(this.variable1 && this.safeguardType === SGT.Value) {
+            if (this.variable1 && this.safeguardType === SGT.Value) {
                 let d = this.getDatum(this.variable1);
                 this.brush.setRefValue(this.legendXScale(d.ci3.center));
 
-                if(this.constant) {
+                if (this.constant) {
                     let center = this.legendXScale((this.constant as ValueConstant).value);
                     this.brush.move(center);
                 }
             }
-            else if(this.variable1 && this.safeguardType == SGT.Range) {
+            else if (this.variable1 && this.safeguardType == SGT.Range) {
                 let d = this.getDatum(this.variable1);
                 this.brush.setRefValue(this.legendXScale(d.ci3.center));
                 this.brush.setCenter(this.legendXScale(d.ci3.center));
 
-                if(this.constant) {
+                if (this.constant) {
                     let oldRange: util.Range = (this.constant as RangeConstant).range;
                     let half = (oldRange[1] - oldRange[0]) / 2;
                     let newCenter = this.getDatum(this.variable1).ci3.center;
                     let domain = this.legendXScale.domain();
 
-                    if(newCenter - half < domain[0]) { half = newCenter - domain[0]; }
-                    if(newCenter + half > domain[1]) { half = Math.min(half, domain[1] - newCenter); }
+                    if (newCenter - half < domain[0]) { half = newCenter - domain[0]; }
+                    if (newCenter + half > domain[1]) { half = Math.min(half, domain[1] - newCenter); }
 
                     let constant = new RangeConstant(newCenter, newCenter - half, newCenter + half);
                     this.vis.constantSelected.emit(constant);
@@ -670,6 +673,10 @@ export class HeatmapRenderer {
                     xScale,
                     yScale
                 );
+                this.minimap.setLinear(
+                    this.constant as LinearConstant,
+                    xKeys, yKeys
+                );
             }
             else {
                 this.linearLine.hide();
@@ -678,73 +685,30 @@ export class HeatmapRenderer {
 
         // minimap
 
-        let d3minimap = d3.select(minimap);
-        let d3minisvg = d3minimap.select('svg');
 
-        let xCount = xValues.length;
-        let yCount = yValues.length;
+        if (this.isMobile) {
+            this.minimap.render(
+                minimapDiv,
+                this.data,
+                this.query,
+                xValues,
+                yValues,
+                zScale
+            );
 
-        let blockWidth = Math.min(Math.floor(C.heatmap.minimap.maxWidth / xCount), Math.floor(C.heatmap.minimap.maxHeight / yCount
-            / rowHeight * columnWidth))
-        let blockHeight = blockWidth * rowHeight / columnWidth;
+            this.minimap.setDimensions(
+                heatmapAvailWidth,
+                heatmapAvailHeight
+            );
 
-        if(this.isMobile) {
-            d3minisvg
-                .attr('width', blockWidth * xValues.length)
-                .attr('height', blockHeight * yValues.length)
-
-            let g = selectOrAppend(d3minisvg, 'g', '.blocks');
-
-            const rects =
-                g.selectAll('rect.area')
-                .data(data, (d: any) => d.id);
-
-            enter = rects
-                .enter().append('rect').attr('class', 'area')
-
-            const miniXScale = d3.scaleBand().domain(xValues.map(d => d.hash))
-                .range([0, blockWidth * xValues.length]);
-
-            const miniYScale = d3.scaleBand().domain(yValues.map(d => d.hash))
-                .range([0, blockHeight * yValues.length]);
-
-            rects.merge(enter)
-                .attr('width', miniXScale.bandwidth())
-                .attr('height', miniYScale.bandwidth())
-                .attr('transform', (d) => {
-                    return translate(miniXScale(d.keys.list[0].hash), miniYScale(d.keys.list[1].hash))
-                })
-                .attr('fill', d => d.ci3 === EmptyConfidenceInterval ?
-                    'transparent' :
-                    zScale(d.ci3.center, d.ci3.high - d.ci3.center)
-                );
-
-            rects.exit().remove();
-
-            let brush = d3.brush().handleSize(0);
-            this.minimapBrush = brush;
-
-            let left = visGridSet.svg.parentElement.scrollLeft,
-                top = visGridSet.svg.parentElement.scrollTop;
-
-            let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
-                .call(brush)
-                .call(brush.move, [[
-                        left / columnWidth * blockWidth,
-                        top / rowHeight * blockHeight,
-                    ], [
-                        left / columnWidth * blockWidth + heatmapAvailWidth / columnWidth * blockWidth,
-                        top / rowHeight * blockHeight + heatmapAvailHeight / rowHeight * blockHeight,
-                    ]])
-
-            wrapper.select('.selection').style('stroke', 'none');
-
-            wrapper
-                .selectAll('.overlay').remove();
+            this.minimap.move(
+                visGridSet.svg.parentElement.scrollLeft,
+                visGridSet.svg.parentElement.scrollTop
+            )
         }
 
         // sync scroll (mobile)
-        if(this.isMobile) {
+        if (this.isMobile) {
             let wrapper = visGridSet.svg.parentElement;
             let xFromLabel = false, xFromSvg = false, yFromLabel = false, yFromSvg = false;
             let xyFromBrush = false, xyFromSvg = false;
@@ -756,19 +720,19 @@ export class HeatmapRenderer {
                     let left = wrapper.scrollLeft,
                         top = wrapper.scrollTop;
 
-                    if(yFromLabel) yFromLabel = false;
+                    if (yFromLabel) yFromLabel = false;
                     else {
                         visGridSet.yLabels.parentElement.scrollTop = top;
                         yFromSvg = true;
                     }
 
-                    if(xFromLabel) xFromLabel = false;
+                    if (xFromLabel) xFromLabel = false;
                     else {
                         visGridSet.xLabels.parentElement.scrollLeft = left;
                         xFromSvg = true;
                     }
 
-                    if(xyFromBrush) {
+                    if (xyFromBrush) {
                         visGridSet.yLabels.parentElement.scrollTop = top;
                         visGridSet.xLabels.parentElement.scrollLeft = left;
                         yFromSvg = true;
@@ -776,15 +740,7 @@ export class HeatmapRenderer {
                         xyFromBrush = false;
                     }
                     else {
-                        selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
-                            .call(this.minimapBrush.move, [[
-                                left / columnWidth * blockWidth,
-                                top / rowHeight * blockHeight,
-                            ], [
-                                left / columnWidth * blockWidth + heatmapAvailWidth / columnWidth * blockWidth,
-                                top / rowHeight * blockHeight + heatmapAvailHeight / rowHeight * blockHeight,
-                            ]]);
-
+                        this.minimap.move(left, top);
                         xyFromSvg = true;
                     }
                 })
@@ -792,7 +748,7 @@ export class HeatmapRenderer {
             d3.select(visGridSet.xLabels.parentElement)
                 .on('scroll', null)
                 .on('scroll', () => {
-                    if(xFromSvg) { xFromSvg = false; return; }
+                    if (xFromSvg) { xFromSvg = false; return; }
                     let left = visGridSet.xLabels.parentElement.scrollLeft;
                     visGridSet.svg.parentElement.scrollLeft = left;
                     xFromLabel = true;
@@ -801,18 +757,18 @@ export class HeatmapRenderer {
             d3.select(visGridSet.yLabels.parentElement)
                 .on('scroll', null)
                 .on('scroll', () => {
-                    if(yFromSvg) { yFromSvg = false; return;}
+                    if (yFromSvg) { yFromSvg = false; return; }
                     let top = visGridSet.yLabels.parentElement.scrollTop
                     visGridSet.svg.parentElement.scrollTop = top;
                     yFromLabel = true;
                 })
 
-            this.minimapBrush.on('start brush', () => {
+            this.minimap.brush.on('start brush', () => {
                 let [[x0, y0], [x1, y1]] = d3.event.selection;
 
-                if(xyFromSvg) {xyFromSvg = false; return;}
-                visGridSet.svg.parentElement.scrollLeft = x0 / blockWidth * columnWidth;
-                visGridSet.svg.parentElement.scrollTop = y0 / blockHeight * rowHeight;
+                if (xyFromSvg) { xyFromSvg = false; return; }
+                visGridSet.svg.parentElement.scrollLeft = x0 / this.minimap.blockWidth * columnWidth;
+                visGridSet.svg.parentElement.scrollTop = y0 / this.minimap.blockHeight * rowHeight;
                 xyFromSvg = true;
             })
         }
@@ -823,8 +779,8 @@ export class HeatmapRenderer {
 
     safeguardType: SGT = SGT.None;
 
-    setSafeguardType(st: SGT) {
-        this.safeguardType = st;
+    setSafeguardType(sgt: SGT) {
+        this.safeguardType = sgt;
 
         this.variable1 = null;
         this.variable2 = null;
@@ -832,15 +788,17 @@ export class HeatmapRenderer {
         this.updateHighlight();
         this.hideTooltip();
 
-        if (st == SGT.None) {
+        this.minimap.setSafeguardType(sgt);
+
+        if (sgt == SGT.None) {
         }
-        else if (st == SGT.Value) {
+        else if (sgt == SGT.Value) {
             this.brush.setMode(BrushMode.Point);
         }
-        else if (st === SGT.Range) {
+        else if (sgt === SGT.Range) {
             this.brush.setMode(BrushMode.SymmetricRange);
         }
-        else if (st === SGT.Comparative) {
+        else if (sgt === SGT.Comparative) {
         }
     }
 
@@ -856,22 +814,22 @@ export class HeatmapRenderer {
         this.xTopLabels
             .classed('highlighted', false)
             .filter((d) => (this.variable1 && this.variable1.first.fieldGroupedValue.hash === d.hash) ||
-                    (this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
+                (this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
             )
             .classed('highlighted', true)
 
-        if(this.xBottomLabels)
-        this.xBottomLabels
-            .classed('highlighted', false)
-            .filter((d) => (this.variable1 && this.variable1.first.fieldGroupedValue.hash === d.hash) ||
+        if (this.xBottomLabels)
+            this.xBottomLabels
+                .classed('highlighted', false)
+                .filter((d) => (this.variable1 && this.variable1.first.fieldGroupedValue.hash === d.hash) ||
                     (this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
-            )
-            .classed('highlighted', true)
+                )
+                .classed('highlighted', true)
 
         this.yLabels
             .classed('highlighted', false)
             .filter((d) => (this.variable1 && this.variable1.second.fieldGroupedValue.hash === d.hash) ||
-                    (this.variable2 && this.variable2.second.fieldGroupedValue.hash === d.hash)
+                (this.variable2 && this.variable2.second.fieldGroupedValue.hash === d.hash)
             )
             .classed('highlighted', true)
 
@@ -885,11 +843,11 @@ export class HeatmapRenderer {
             .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
             .classed('variable2', true)
 
-        if(this.xBottomLabels)
-        this.xBottomLabels
-            .classed('variable2', false)
-            .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
-            .classed('variable2', true)
+        if (this.xBottomLabels)
+            this.xBottomLabels
+                .classed('variable2', false)
+                .filter((d) => this.variable2 && this.variable2.first.fieldGroupedValue.hash === d.hash)
+                .classed('variable2', true)
 
         this.yLabels
             .classed('variable2', false)
@@ -1000,7 +958,7 @@ export class HeatmapRenderer {
     }
 
     showTooltip(d: Datum) {
-        if(d.ci3 === EmptyConfidenceInterval) return;
+        if (d.ci3 === EmptyConfidenceInterval) return;
 
         const clientRect = this.nativeSvg.getBoundingClientRect();
         const parentRect = this.nativeSvg.parentElement
@@ -1022,7 +980,7 @@ export class HeatmapRenderer {
     }
 
     hideTooltip() {
-        if(this.tooltip.visible) this.tooltip.hide();
+        if (this.tooltip.visible) this.tooltip.hide();
     }
 
     toggleDropdown(d: Datum) {
@@ -1030,7 +988,7 @@ export class HeatmapRenderer {
 
         if ([SGT.Value, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
-            if(this.isMobile) this.hideTooltip();
+            if (this.isMobile) this.hideTooltip();
             this.closeDropdown();
             this.closeQueryCreator();
 
@@ -1038,12 +996,12 @@ export class HeatmapRenderer {
         }
 
         if (d == this.vis.selectedDatum) { // double click the same item
-            if(this.isMobile) this.hideTooltip();
+            if (this.isMobile) this.hideTooltip();
             this.closeDropdown();
         }
         else {
             this.openDropdown(d);
-            if(this.isMobile) this.showTooltip(d);
+            if (this.isMobile) this.showTooltip(d);
             return;
         }
     }
@@ -1101,7 +1059,7 @@ export class HeatmapRenderer {
     removeMenuHighlighted() {
         this.eventBoxes.classed('menu-highlighted', false);
         this.xTopLabels.classed('menu-highlighted', false);
-        if(this.xBottomLabels) this.xBottomLabels.classed('menu-highlighted', false);
+        if (this.xBottomLabels) this.xBottomLabels.classed('menu-highlighted', false);
         this.yLabels.classed('menu-highlighted', false);
     }
 }

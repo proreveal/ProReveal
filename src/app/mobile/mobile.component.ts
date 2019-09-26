@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, DoCheck } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef, DoCheck, AfterViewChecked, AfterContentChecked, OnChanges } from '@angular/core';
 import { VlType } from '../data/field';
 import { BrowserEngine } from '../engine/browser-engine';
 import { RemoteEngine } from '../engine/remote-engine';
@@ -33,7 +33,7 @@ import { SocketService } from '../services/socket.service';
     templateUrl: './mobile.component.html',
     styleUrls: ['./mobile.component.scss']
 })
-export class MobileComponent implements OnInit, DoCheck {
+export class MobileComponent implements OnInit, AfterViewChecked {
     SGT = SGT;
     QS = QueryState;
     C = C;
@@ -252,9 +252,12 @@ export class MobileComponent implements OnInit, DoCheck {
         this.engine.queryCreated = this.queryCreated.bind(this);
     }
 
-    ngDoCheck() {
-        if(this.safeguardConfigView)
-            this.configViewHeight = this.safeguardConfigView.nativeElement.scrollHeight;
+    ngAfterViewChecked() {
+        if(this.safeguardConfigView) {
+            setTimeout(() => {
+                this.configViewHeight = this.safeguardConfigView.nativeElement.scrollHeight;
+            });
+        }
     }
 
     emit(event: string) {
@@ -453,6 +456,7 @@ export class MobileComponent implements OnInit, DoCheck {
                 this.createDistributiveSafeguard();
         }
     }
+
     cancelSafeguard() {
         this.activeSafeguardPanel = SGT.None;
         this.vis.setSafeguardType(SGT.None);
