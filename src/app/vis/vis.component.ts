@@ -309,28 +309,4 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
             this.renderer.removeMenuHighlighted();
         this.selectedDatum = null;
     }
-
-    zoomIn() {
-        if(this.query.zoomXLevel <= 4) {
-            this.query.zoomXLevel *= 1.2;
-        }
-
-        if(this.query.zoomYLevel <= 4) {
-            this.query.zoomYLevel *= 1.2
-        }
-
-        this.forceUpdate();
-    }
-
-    zoomOut() {
-        if(this.query.zoomXLevel >= 1) {
-            this.query.zoomXLevel /= 1.2;
-        }
-
-        if(this.query.zoomYLevel >= 1) {
-            this.query.zoomYLevel /= 1.2
-        }
-
-        this.forceUpdate();
-    }
 }

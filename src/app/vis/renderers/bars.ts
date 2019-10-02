@@ -41,6 +41,7 @@ export class BarsRenderer {
     labels: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     ranks: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
     eventBoxes: d3.Selection<d3.BaseType, Datum, d3.BaseType, {}>;
+    visGridSet: VisGridSet;
 
     limitNumCategories = true;
     minimap = new BarsMinimap();
@@ -116,6 +117,7 @@ export class BarsRenderer {
         let data = query.getVisibleData();
 
         this.data = data;
+        this.visGridSet = visGridSet;
 
         if (this.limitNumCategories) {
             data = data.slice(0, B.initiallyVisibleCategories);
@@ -1100,12 +1102,16 @@ export class BarsRenderer {
         this.vis.isDropdownVisible = true;
         this.vis.dropdownTop = top;
         this.vis.dropdownLeft = this.labelWidth;
+
+        if(this.isMobile) this.visGridSet.reduceHeight(C.mobile.menuHeight);
     }
 
     closeDropdown() {
         this.vis.emptySelectedDatum();
         this.vis.isQueryCreatorVisible = false;
         this.vis.isDropdownVisible = false;
+
+        if(this.isMobile) this.visGridSet.revertHeight();
     }
 
     openQueryCreator(d: Datum) {

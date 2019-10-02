@@ -9,6 +9,10 @@ export class VisGridSet {
     d3XYTitle: d3.Selection<any, {}, null, undefined>;
     d3VisGrid: d3.Selection<any, {}, null, undefined>;
 
+    titleHeight: number;
+    labelHeight: number;
+    contentHeight: number;
+
     constructor(public svg: SVGSVGElement,
         public xTitle: SVGSVGElement,
         public xLabels: SVGSVGElement,
@@ -49,11 +53,24 @@ export class VisGridSet {
         return window.screen.availHeight - top - 6;
     }
 
-    setDisplaySize(titleWidth: number, labelWidth: number, width: number,
-        titleHeight: number, labelHeight: number, height: number) {
+    setDisplaySize(titleWidth: number, labelWidth: number, contentWidth: number,
+        titleHeight: number, labelHeight: number, contentHeight: number) {
+
+        this.titleHeight = titleHeight;
+        this.labelHeight = labelHeight;
+        this.contentHeight = contentHeight;
 
         this.d3VisGrid
-            .style('grid-template-columns', `${titleWidth}px ${labelWidth}px ${width}px`)
-            .style('grid-template-rows', `${titleHeight}px ${labelHeight}px ${height}px`)
+            .style('grid-template-columns', `${titleWidth}px ${labelWidth}px ${contentWidth}px`)
+            .style('grid-template-rows', `${titleHeight}px ${labelHeight}px ${contentHeight}px`)
+    }
+
+    reduceHeight(amount: number) {
+        this.d3VisGrid
+            .style('grid-template-rows', `${this.titleHeight}px ${this.labelHeight}px ${this.contentHeight - amount}px`)
+    }
+
+    revertHeight() {
+        this.reduceHeight(0);
     }
 }

@@ -107,6 +107,11 @@ export const Constants = Object.freeze({
     constantHighlightColor: 'black',
     pointBrushSize: 5,
     locale: locale,
+
+    mobile: {
+        menuHeight: 65
+    },
+
     exchangeRate: locale.exchangeRate,
     nullValueString: locale.nullValueString,
     currencyFormatter: locale.currencyFormatter,
