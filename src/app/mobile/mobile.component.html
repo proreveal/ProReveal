@@ -180,6 +180,7 @@
         [query]="activeQuery"
         [floatingLegend]="legend"
         [minimap]="minimap"
+        [bottomPanelHeight]="safeguardConfigViewHeight"
         (variableSelected)="variableSelected($event)"
         (constantSelected)="constantSelected($event)"
         (queryCreated)="queryRequestedFromVis($event)"
@@ -191,7 +192,7 @@
 
         <div id="vis-panel" class="d-flex border-top justify-content-around
             align-items-center"
-            [style.bottom.px]="configViewHeight">
+            [style.bottom.px]="safeguardConfigViewHeight">
 
             <div id="legend-wrapper" #legend
                 [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend

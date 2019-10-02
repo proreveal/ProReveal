@@ -103,7 +103,7 @@ export class MobileComponent implements OnInit, AfterViewChecked {
     showInfo = false;
     showGuardList = false;
     showLegend = true;
-    configViewHeight = 0;
+    safeguardConfigViewHeight = 0;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage: StorageService, public socket: SocketService,
@@ -255,7 +255,7 @@ export class MobileComponent implements OnInit, AfterViewChecked {
     ngAfterViewChecked() {
         if(this.safeguardConfigView) {
             setTimeout(() => {
-                this.configViewHeight = this.safeguardConfigView.nativeElement.scrollHeight;
+                this.safeguardConfigViewHeight = this.safeguardConfigView.nativeElement.scrollHeight;
             });
         }
     }
@@ -495,10 +495,6 @@ export class MobileComponent implements OnInit, AfterViewChecked {
 
             this.logger.log(LogType.SafeguardSelected, sgt);
         }
-    }
-
-    checkOrder() {
-        this.rangeConstant.checkOrder();
     }
 
     toNumber(s: string) {

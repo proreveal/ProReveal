@@ -454,11 +454,6 @@ export class AppComponent implements OnInit {
             this.logger.log(LogType.SafeguardSelected, sgt);
         }
     }
-
-    checkOrder() {
-        this.rangeConstant.checkOrder();
-    }
-
     toNumber(s: string) {
         let num = +s.replace(/,/g, '');
         if (isNaN(num)) num = 0;

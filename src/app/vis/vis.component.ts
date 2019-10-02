@@ -24,6 +24,7 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
     @Input() query: AggregateQuery;
     @Input() floatingLegend: HTMLDivElement;
     @Input() minimap: HTMLDivElement;
+    @Input() bottomPanelHeight: number = 0;
 
     @Output('variableSelected') variableSelected: EventEmitter<{
         variable: VariableTrait,
@@ -115,6 +116,8 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
         );
     }
 
+    lastBottomPanelHeight = 0;
+
     ngAfterViewChecked() {
         if (this.query && this.svg &&
             (this.lastUpdated < this.query.lastUpdated || this.lastQuery != this.query)) {
@@ -139,6 +142,12 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
         }
 
         if (!this.query) this.lastQuery = this.query;
+
+
+        if(this.lastBottomPanelHeight != this.bottomPanelHeight) {
+            this.lastBottomPanelHeight = this.bottomPanelHeight;
+            this.visGridSet.reduceHeight(this.bottomPanelHeight);
+        }
     }
 
     showAllCategories() {
@@ -265,9 +274,9 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
     }
 
     filterClick() {
-        this.isDropdownVisible = false;
-
-        this.renderer.openQueryCreator(this.selectedDatum);
+        let selectedDatum = this.selectedDatum;
+        this.renderer.closeDropdown();
+        this.renderer.openQueryCreator(selectedDatum);
         this.logger.log(LogType.QueryCreatorOpened, true);
 
         return false;
@@ -285,9 +294,7 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
 
     detailClick() {
         this.dataViewerRequested.emit(this.selectedDatum);
-        this.isDropdownVisible = false;
-        this.isQueryCreatorVisible = false;
-        this.emptySelectedDatum();
+        this.renderer.closeDropdown();
         return false;
     }
 
