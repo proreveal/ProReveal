@@ -204,7 +204,6 @@ $button-height: 38px;
 
 #vis-panel {
     position: fixed;
-    bottom: 0px;
     width: 100%;
     right: 0;
     left: 0;
@@ -218,6 +217,7 @@ $button-height: 38px;
     border: none !important;
     justify-content: end !important;
     left: auto;
+    margin-bottom: 10px;
     width: 140px;
     right: 10px;
 
@@ -227,7 +227,7 @@ $button-height: 38px;
     }
 }
 
-#floating-legend-wrapper {
+#legend-wrapper {
     position:relative;
     width: 200px;
 

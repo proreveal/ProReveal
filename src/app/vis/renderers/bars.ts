@@ -48,11 +48,11 @@ export class BarsRenderer {
     visG: util.G;
     interactionG: util.G;
 
-    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger:LoggerService,
+    constructor(public vis: VisComponent, public tooltip: TooltipComponent, public logger: LoggerService,
         public isMobile: boolean) {
     }
 
-    setup(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement) {
+    setup(query: AggregateQuery, visGridSet: VisGridSet) {
         if (query.groupBy.fields.length > 1) {
             throw 'HorizontalBars can be used up to 1 groupBy';
         }
@@ -69,14 +69,14 @@ export class BarsRenderer {
         this.brush.setup(this.interactionG);
         this.distributionLine.setup(this.interactionG);
 
-        if(this.isMobile) { // pinch zoom in and out
+        if (this.isMobile) { // pinch zoom in and out
             let xDis = 1, yDis = 1,
                 dist = 1, xZoom = query.zoomXLevel;
 
             visGridSet.d3Svg
                 .on('touchstart', () => {
-                    if(d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+                    if (d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]: TouchList = d3.event.touches;
 
                         xDis = Math.abs(t1.screenX - t2.screenX);
                         yDis = Math.abs(t1.screenY - t2.screenY);
@@ -86,8 +86,8 @@ export class BarsRenderer {
                     }
                 })
                 .on('touchmove', () => {
-                    if(d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]:TouchList = d3.event.touches;
+                    if (d3.event.touches.length == 2) {
+                        let [t1, t2, ..._]: TouchList = d3.event.touches;
 
                         // let xRatio = Math.abs(t1.screenX - t2.screenX) / xDis;
                         // let yRatio = Math.abs(t1.screenY - t2.screenY) / yDis;
@@ -102,7 +102,7 @@ export class BarsRenderer {
 
                         newXZoom = util.between(newXZoom, B.minZoom.x, B.maxZoom.x);;
 
-                        if(query.zoomXLevel != newXZoom) {
+                        if (query.zoomXLevel != newXZoom) {
                             query.zoomXLevel = newXZoom;
 
                             this.vis.forceUpdate();
@@ -112,7 +112,7 @@ export class BarsRenderer {
         }
     }
 
-    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimapDiv: HTMLDivElement) {
+    render(query: AggregateQuery, visGridSet: VisGridSet, legendWrapper: HTMLDivElement, minimapDiv: HTMLDivElement) {
         let data = query.getVisibleData();
 
         this.data = data;
@@ -122,9 +122,9 @@ export class BarsRenderer {
         }
 
         let labelStrings = data.map(d => d.keys.list[0].valueString());
-        if(this.isMobile) {
+        if (this.isMobile) {
             labelStrings = labelStrings.map(s => {
-                if(s.length > B.maxLabelLength) {
+                if (s.length > B.maxLabelLength) {
                     return s.slice(0, B.maxLabelLength) + B.maxLabelEllipsis;
                 }
                 return s;
@@ -162,7 +162,7 @@ export class BarsRenderer {
         const barsFullHeight = barHeight * data.length;
         const height = this.isMobile ? (xTitleHeight +
             barsFullHeight + xLabelHeight) : (xTitleHeight * 2 +
-            barsFullHeight + xLabelHeight * 2);
+                barsFullHeight + xLabelHeight * 2);
 
         let svg = d3.select(visGridSet.svg);
         let done = query.visibleProgress.done();
@@ -172,19 +172,16 @@ export class BarsRenderer {
 
         this.height = height;
 
-        let top = visGridSet.visGrid.getBoundingClientRect().top;
-        // console.log(top);
-        const availHeight = Math.min(window.screen.availHeight
-            - 122,
+        const availHeight = Math.min(visGridSet.gridFullHeight,
             barsFullHeight + xTitleHeight);
 
         // console.log(xTitleHeight, xLabelHeight, visGridSet.visGrid.getBoundingClientRect() || 112,
         //     visGridSet.visGrid.getBoundingClientRect().top);
 
-            //debugger;
-        const barsAvailWidth = (this.isMobile ? window.screen.availWidth - 15 : B.width) - labelWidth;
+        const barsAvailWidth = (this.isMobile ? window.screen.availWidth - 8 : B.width) - labelWidth;
+        // -8 = .25rem
         const zoomXLevel = query.zoomXLevel;
-        const barsFullWidth = (this.isMobile ? (window.screen.availWidth - 15) * zoomXLevel : B.width) - labelWidth;
+        const barsFullWidth = (this.isMobile ? (window.screen.availWidth - 8) * zoomXLevel : B.width) - labelWidth;
         const barsAvailHeight = availHeight - xTitleHeight - xLabelHeight;
 
         this.width = barsFullWidth;
@@ -192,8 +189,7 @@ export class BarsRenderer {
         // Set dimensions (x: ->, y: ↓)
         visGridSet.setClass('bars');
 
-        if(this.isMobile) {
-
+        if (this.isMobile) {
             visGridSet.d3XTitle
                 .attr('width', barsAvailWidth)
                 .attr('height', xTitleHeight);
@@ -210,22 +206,22 @@ export class BarsRenderer {
                 .attr('width', labelWidth)
                 .attr('height', barsFullHeight);
 
-            visGridSet.d3VisGrid
-                .style('grid-template-columns', `0px ${labelWidth}px ${barsAvailWidth}px`)
-                .style('grid-template-rows', `${xTitleHeight}px ${xLabelHeight}px ${barsAvailHeight}px`)
-
             visGridSet.d3Svg
                 .attr('width', barsFullWidth)
                 .attr('height', barsFullHeight);
+
+            visGridSet.setDisplaySize(0, labelWidth, barsAvailWidth,
+                xTitleHeight, xLabelHeight, barsAvailHeight);
         }
         else {
-            d3.select(visGridSet.svg)
-                .attr('width', barsFullWidth).attr('height', height)
+            visGridSet.d3Svg
+                .attr('width', barsFullWidth)
+                .attr('height', height)
         }
 
         const xScale = d3.scaleLinear()
             .domain([query.domainStart, query.domainEnd])
-            .range([labelWidth, barsFullWidth - C.padding])
+            .range([labelWidth, barsFullWidth - C.xScalePaddingRight])
             .clamp(true)
 
         const yScale = d3.scaleBand().domain(util.srange(data.length))
@@ -233,8 +229,8 @@ export class BarsRenderer {
             height - xTitleHeight - xLabelHeight])
             .padding(0.1);
 
-        if(this.isMobile) {
-            xScale.range([C.padding, barsFullWidth - C.padding]);
+        if (this.isMobile) {
+            xScale.range([C.padding, barsFullWidth - C.xScalePaddingRight]);
             yScale.range([0, barsFullHeight]);
         }
 
@@ -247,7 +243,7 @@ export class BarsRenderer {
             let targetWidth = this.isMobile ? barsAvailWidth / 2 : (barsFullWidth + labelWidth) / 2;
 
             let xLabelTitle = C.locale.COUNT;
-            if(query.target) xLabelTitle = C.locale.XLabelTitleFormatter(query);
+            if (query.target) xLabelTitle = C.locale.XLabelTitleFormatter(query);
 
             // x labels
             selectOrAppend(target, 'text', '.x.title.top')
@@ -256,16 +252,14 @@ export class BarsRenderer {
                 .style('text-anchor', 'middle')
                 .attr('dy', B.title.x.dy)
                 .style('font-size', B.title.x.fontSize)
-                .style('font-style', 'italic')
 
-            if(!this.isMobile)
+            if (!this.isMobile)
                 selectOrAppend(visG, 'text', '.x.title.bottom')
                     .text(xLabelTitle)
                     .attr('transform', translate(targetWidth, height - xTitleHeight))
                     .style('text-anchor', 'middle')
                     .attr('dy', B.title.x.dy)
                     .style('font-size', B.title.x.fontSize)
-                    .style('font-style', 'italic')
         }
 
         // render y title
@@ -280,7 +274,6 @@ export class BarsRenderer {
                 .style('text-anchor', 'end')
                 .attr('dy', this.isMobile ? '1.3rem' : '1.1rem')
                 .style('font-size', '.8rem')
-                .style('font-style', 'italic')
         }
 
         const majorTickLines = d3.axisTop(xScale).tickSize(-(height - (this.isMobile ? 1 : 2) * (xTitleHeight + xLabelHeight)));
@@ -385,7 +378,7 @@ export class BarsRenderer {
                 .attr('transform', (d, i) => translate(labelWidth - C.padding, yScale(i + '') + yScale.bandwidth() / 2))
                 .text((d) => {
                     let s = d.keys.list[0].valueString();
-                    if(this.isMobile && s.length > B.maxLabelLength) {
+                    if (this.isMobile && s.length > B.maxLabelLength) {
                         return s.slice(0, B.maxLabelLength) + B.maxLabelEllipsis;
                     }
                     return s;
@@ -404,7 +397,7 @@ export class BarsRenderer {
                     d3.select(ele[i]).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
-                    if(this.safeguardType == SGT.Comparative) {
+                    if (this.safeguardType == SGT.Comparative) {
                         this.datumSelected2(d);
                         return;
                     }
@@ -449,7 +442,7 @@ export class BarsRenderer {
                 .attr('height', yScale.bandwidth())
                 .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.center) - xScale(d.ci3.low), B.minimumGradientWidth))
                 .attr('transform', (d, i) => {
-                    if(xScale(d.ci3.center) - xScale(d.ci3.low) < B.minimumGradientWidth)
+                    if (xScale(d.ci3.center) - xScale(d.ci3.low) < B.minimumGradientWidth)
                         return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''))
                     return translate(xScale(d.ci3.low), yScale(i + ''));
                 })
@@ -475,7 +468,7 @@ export class BarsRenderer {
                 .attr('height', yScale.bandwidth())
                 .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.high) - xScale(d.ci3.center), B.minimumGradientWidth))
                 .attr('transform', (d, i) => {
-                    if(xScale(d.ci3.high) - xScale(d.ci3.center) < B.minimumGradientWidth)
+                    if (xScale(d.ci3.high) - xScale(d.ci3.center) < B.minimumGradientWidth)
                         return translate(xScale(d.ci3.center), yScale(i + ''))
                     return translate(xScale(d.ci3.center), yScale(i + ''));
                 })
@@ -552,7 +545,7 @@ export class BarsRenderer {
                 .attr('height', yScale.bandwidth())
                 .attr('width', d => Math.max(B.minimumGradientWidth * 2, xScale(d.ci3.high) - xScale(d.ci3.low)))
                 .attr('transform', (d, i) => {
-                    if(B.minimumGradientWidth * 2 > xScale(d.ci3.high) - xScale(d.ci3.low))
+                    if (B.minimumGradientWidth * 2 > xScale(d.ci3.high) - xScale(d.ci3.low))
                         return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''))
                     return translate(xScale(d.ci3.low), yScale(i + ''))
                 })
@@ -566,8 +559,8 @@ export class BarsRenderer {
                     this.labels.filter(datum => datum == d).classed('hover', false);
                 })
                 .on('click', (d, i, ele) => {
-                    if(d.ci3 == EmptyConfidenceInterval) return;
-                    if(this.safeguardType == SGT.Comparative) {
+                    if (d.ci3 == EmptyConfidenceInterval) return;
+                    if (this.safeguardType == SGT.Comparative) {
                         this.datumSelected2(d);
                         return;
                     }
@@ -583,7 +576,7 @@ export class BarsRenderer {
         }
 
         // render the bottom axis
-        if(!this.isMobile) {
+        if (!this.isMobile) {
             const bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~s'));
 
             selectOrAppend(visG, 'g', '.x.axis.bottom')
@@ -594,7 +587,7 @@ export class BarsRenderer {
 
         // minimap
 
-        if(this.isMobile) {
+        if (this.isMobile) {
             this.minimap.render(minimapDiv, data, query);
             this.minimap.setDimensions(
                 barsFullWidth,
@@ -609,7 +602,7 @@ export class BarsRenderer {
         }
 
         // sync scroll (mobile)
-        if(this.isMobile) {
+        if (this.isMobile) {
             let wrapper = visGridSet.svg.parentElement;
             let xFromLabel = false, xFromSvg = false, yFromLabel = false, yFromSvg = false;
             let xyFromBrush = false, xyFromSvg = false;
@@ -621,19 +614,19 @@ export class BarsRenderer {
                     let left = wrapper.scrollLeft,
                         top = wrapper.scrollTop;
 
-                    if(yFromLabel) yFromLabel = false;
+                    if (yFromLabel) yFromLabel = false;
                     else {
                         visGridSet.yLabels.parentElement.scrollTop = top;
                         yFromSvg = true;
                     }
 
-                    if(xFromLabel) xFromLabel = false;
+                    if (xFromLabel) xFromLabel = false;
                     else {
                         visGridSet.xLabels.parentElement.scrollLeft = left;
                         xFromSvg = true;
                     }
 
-                    if(xyFromBrush) {
+                    if (xyFromBrush) {
                         visGridSet.yLabels.parentElement.scrollTop = top;
                         visGridSet.xLabels.parentElement.scrollLeft = left;
                         yFromSvg = true;
@@ -649,7 +642,7 @@ export class BarsRenderer {
             d3.select(visGridSet.xLabels.parentElement)
                 .on('scroll', null)
                 .on('scroll', () => {
-                    if(xFromSvg) { xFromSvg = false; return; }
+                    if (xFromSvg) { xFromSvg = false; return; }
                     let left = visGridSet.xLabels.parentElement.scrollLeft;
                     visGridSet.svg.parentElement.scrollLeft = left;
                     xFromLabel = true;
@@ -658,7 +651,7 @@ export class BarsRenderer {
             d3.select(visGridSet.yLabels.parentElement)
                 .on('scroll', null)
                 .on('scroll', () => {
-                    if(yFromSvg) { yFromSvg = false; return;}
+                    if (yFromSvg) { yFromSvg = false; return; }
                     let top = visGridSet.yLabels.parentElement.scrollTop
                     visGridSet.svg.parentElement.scrollTop = top;
                     yFromLabel = true;
@@ -667,33 +660,33 @@ export class BarsRenderer {
             this.minimap.brush.on('start brush', () => {
                 let [[x0, y0], [x1, y1]] = d3.event.selection;
 
-                if(xyFromSvg) {xyFromSvg = false; return;}
+                if (xyFromSvg) { xyFromSvg = false; return; }
 
                 visGridSet.svg.parentElement.scrollLeft = x0 / B.minimap.width * barsFullWidth,
-                visGridSet.svg.parentElement.scrollTop = y0 / this.minimap.miniBarHeight * barHeight;
+                    visGridSet.svg.parentElement.scrollTop = y0 / this.minimap.miniBarHeight * barHeight;
 
                 xyFromSvg = true;
             })
         }
 
-        d3.select(floatingSvg).style('display', 'none');
+        d3.select(legendWrapper).style('display', 'none');
 
         this.brush.on('brush', (centerOrRange: any) => {
             if (this.safeguardType === SGT.Value) {
                 let constant = new ValueConstant(this.xScale.invert(centerOrRange));
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
-                if(this.isMobile) this.minimap.setValue(constant.value, this.xScale);
+                if (this.isMobile) this.minimap.setValue(constant.value, this.xScale);
             }
             else if (this.safeguardType === SGT.Rank) {
                 let index = Math.round((centerOrRange - xTitleHeight - xLabelHeight)
                     / barHeight)
-                if(index <= 0) index = 1;
+                if (index <= 0) index = 1;
                 let constant = new RankConstant(index);
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
 
-                if(this.isMobile) this.minimap.setRank(index.toString());
+                if (this.isMobile) this.minimap.setRank(index.toString());
             }
             else if (this.safeguardType === SGT.Range) {
                 let [center, from, to] = centerOrRange as [number, number, number];
@@ -704,7 +697,7 @@ export class BarsRenderer {
                 this.constant = constant;
                 this.vis.constantSelected.emit(constant);
 
-                if(this.isMobile) this.minimap.setRange(constant.range, this.xScale);
+                if (this.isMobile) this.minimap.setRange(constant.range, this.xScale);
             }
         })
 
@@ -715,7 +708,7 @@ export class BarsRenderer {
             this.brush.render([[xScale.range()[0], yScale.range()[0]],
             [xScale.range()[1], yScale.range()[1]]]);
         }
-        else if(this.safeguardType === SGT.Rank) {
+        else if (this.safeguardType === SGT.Rank) {
             let start = yScale.range()[0];
             let step = barHeight;
 
@@ -740,41 +733,41 @@ export class BarsRenderer {
         if (DistributiveSafeguardTypes.includes(this.safeguardType)) this.distributionLine.show();
         else this.distributionLine.hide();
 
-        if(this.variable1 && this.safeguardType === SGT.Value) {
+        if (this.variable1 && this.safeguardType === SGT.Value) {
             let d = this.getDatum(this.variable1);
             this.brush.setRefValue(this.xScale(d.ci3.center));
-            if(this.isMobile) this.minimap.setRefValue(d.ci3.center, this.xScale);
+            if (this.isMobile) this.minimap.setRefValue(d.ci3.center, this.xScale);
 
-            if(this.constant) {
+            if (this.constant) {
                 let value = (this.constant as ValueConstant).value;
                 let center = xScale(value);
 
                 this.brush.move(center);
-                if(this.isMobile) this.minimap.setValue(value, this.xScale);
+                if (this.isMobile) this.minimap.setValue(value, this.xScale);
             }
         }
         else if (this.variable1 && this.safeguardType === SGT.Rank) {
-            if(this.constant) {
+            if (this.constant) {
                 let rank = (this.constant as RankConstant).rank.toString()
                 let center = yScale(rank);
                 this.brush.move(center);
-                if(this.isMobile) this.minimap.setRank(rank);
+                if (this.isMobile) this.minimap.setRank(rank);
             }
         }
-        else if(this.variable1 && this.safeguardType === SGT.Range) {
+        else if (this.variable1 && this.safeguardType === SGT.Range) {
             let d = this.getDatum(this.variable1);
             this.brush.setRefValue(this.xScale(d.ci3.center));
 
             this.brush.setCenter(this.xScale(d.ci3.center));
 
-            if(this.constant) {
+            if (this.constant) {
                 let oldRange = (this.constant as RangeConstant).range;
                 let half = (oldRange[1] - oldRange[0]) / 2;
                 let newCenter = this.getDatum(this.variable1).ci3.center;
                 let xDomain = xScale.domain();
 
-                if(xDomain[0] > newCenter - half) { half = newCenter - xDomain[0]; }
-                if(xDomain[1] < newCenter + half) { half = Math.min(half, xDomain[1] - newCenter); }
+                if (xDomain[0] > newCenter - half) { half = newCenter - xDomain[0]; }
+                if (xDomain[1] < newCenter + half) { half = Math.min(half, xDomain[1] - newCenter); }
 
                 let range = [newCenter - half, newCenter + half] as util.Range;
 
@@ -798,7 +791,7 @@ export class BarsRenderer {
                 (_: Datum, i: number) => { return [i + 1, 0]; }
             )
         }
-        else if(this.safeguardType === SGT.Normal) {
+        else if (this.safeguardType === SGT.Normal) {
             this.distributionLine.render(
                 this.constant as DistributionTrait,
                 data,
@@ -838,7 +831,7 @@ export class BarsRenderer {
         this.updateHighlight();
         this.hideTooltip();
 
-        if(this.isMobile) this.minimap.setSafeguardType(sgt);
+        if (this.isMobile) this.minimap.setSafeguardType(sgt);
 
         if (sgt == SGT.None) {
             this.labels.style('cursor', 'auto');
@@ -892,14 +885,14 @@ export class BarsRenderer {
             let center = this.xScale(value);
             this.brush.show();
             this.brush.move(center);
-            if(this.isMobile) this.minimap.setValue(value, this.xScale);
+            if (this.isMobile) this.minimap.setValue(value, this.xScale);
         }
         else if (this.safeguardType === SGT.Rank) {
             let rank = (constant as RankConstant).rank.toString();
             let center = this.yScale(rank);
             this.brush.show();
             this.brush.move(center, false, true);
-            if(this.isMobile) this.minimap.setRank(rank);
+            if (this.isMobile) this.minimap.setRank(rank);
         }
         else if (this.safeguardType === SGT.Range) {
             const r = (constant as RangeConstant).range;
@@ -907,7 +900,7 @@ export class BarsRenderer {
             this.brush.setCenter(this.xScale((constant as RangeConstant).center));
             this.brush.show();
             this.brush.move(range);
-            if(this.isMobile) this.minimap.setRange(r, this.xScale);
+            if (this.isMobile) this.minimap.setRange(r, this.xScale);
         }
 
         // ADD CODE FOR SGS
@@ -939,9 +932,9 @@ export class BarsRenderer {
 
         this.variable1 = variable;
 
-        if(this.safeguardType === SGT.Value) {
+        if (this.safeguardType === SGT.Value) {
             this.brush.setRefValue(this.xScale(d.ci3.center));
-            if(this.isMobile) this.minimap.setRefValue(d.ci3.center, this.xScale);
+            if (this.isMobile) this.minimap.setRefValue(d.ci3.center, this.xScale);
 
         }
         if (this.safeguardType === SGT.Range) {
@@ -1001,7 +994,7 @@ export class BarsRenderer {
                 let center = range.center;
                 let high = range.high;
 
-                if(range instanceof ConfidencePoint) {
+                if (range instanceof ConfidencePoint) {
                     let width = this.xScale.invert(300) - this.xScale.invert(290);
                     low = center - width;
                     high = center + width;
@@ -1009,8 +1002,8 @@ export class BarsRenderer {
 
                 let domain = this.xScale.domain();
 
-                if(low < domain[0]) { high -= (domain[0] - low); low = domain[0]; }
-                if(high > domain[1]) { low -= (high - domain[1]); high = domain[1]; }
+                if (low < domain[0]) { high -= (domain[0] - low); low = domain[0]; }
+                if (high > domain[1]) { low -= (high - domain[1]); high = domain[1]; }
 
                 let constant: RangeConstant;
 
@@ -1073,7 +1066,7 @@ export class BarsRenderer {
 
         if ([SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) return;
         if (this.vis.isDropdownVisible || this.vis.isQueryCreatorVisible) {
-            if(this.isMobile) this.hideTooltip();
+            if (this.isMobile) this.hideTooltip();
             this.closeDropdown();
             this.closeQueryCreator();
 
@@ -1081,12 +1074,12 @@ export class BarsRenderer {
         }
 
         if (d == this.vis.selectedDatum) { // double click the same item
-            if(this.isMobile) this.hideTooltip();
+            if (this.isMobile) this.hideTooltip();
             this.closeDropdown();
         }
         else {
             this.openDropdown(d);
-            if(this.isMobile) this.showTooltip(d, i);
+            if (this.isMobile) this.showTooltip(d, i);
             return;
         }
 
@@ -1128,7 +1121,7 @@ export class BarsRenderer {
 
         this.vis.isQueryCreatorVisible = true;
 
-        if(!this.isMobile) {
+        if (!this.isMobile) {
             this.vis.queryCreatorTop = top;
             this.vis.queryCreatorLeft = this.labelWidth;
         }
@@ -1137,7 +1130,7 @@ export class BarsRenderer {
         // where + datum
 
         this.vis.queryCreator.where = where ? where.and(this.query.getPredicateFromDatum(d))
-         : new AndPredicate([this.query.getPredicateFromDatum(d)]);
+            : new AndPredicate([this.query.getPredicateFromDatum(d)]);
     }
 
     closeQueryCreator() {

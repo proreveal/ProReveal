@@ -101,6 +101,7 @@ export const Constants = Object.freeze({
         width: 224
     },
     padding: 5,
+    xScalePaddingRight: 10,
     variableHighlightColor: '#f4511e',
     operatorHighlightColor: '#303f9f',
     constantHighlightColor: 'black',

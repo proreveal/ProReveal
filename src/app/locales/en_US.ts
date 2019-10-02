@@ -104,5 +104,26 @@ export const Locale_en_US = Object.freeze({
     XLabelTitleFormatter: (q: AggregateQuery) => `${Locale_en_US[q.approximator.type.toUpperCase()]} of ${q.target.name}`,
     currencyFormatter: (usd: number) => {
         return '$' + d3format.format('2s')(usd);
+    },
+
+    guardShortNames: {
+        desktop: {
+            Value: 'Value',
+            Rank: 'Rank',
+            Range: 'Range',
+            Comparative: 'Comparative',
+            Normal: 'Normal',
+            PowerLaw: 'Power Law',
+            Linear: 'Linear'
+        },
+        mobile: {
+            Value: 'Value',
+            Rank: 'Rank',
+            Range: 'Range',
+            Comparative: 'Comp.',
+            Normal: 'Normal',
+            PowerLaw: 'P-Law',
+            Linear: 'Linear',
+        }
     }
 });

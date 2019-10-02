@@ -174,19 +174,11 @@
         [class.dropdown-open]="vis.isDropdownVisible"
         [class.bars]="activeQuery && activeQuery.bars"
         (click)="visBackgroundClick()">
-        <div *ngIf="!activeQuery" class="alert alert-primary">
-            <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
-                [innerHTML]="L.CreateANewVisualizationMobile">
-            </span>
-            <ng-container *ngIf="engine.ongoingQueries.length || engine.completedQueries.length">
-                {{ L.ChooseVisualizationToInspectMobile }}
-            </ng-container>
-        </div>
 
         <vis #vis
         [hidden]="!activeQuery"
         [query]="activeQuery"
-        [floatingLegend]="floatingSvg"
+        [floatingLegend]="legend"
         [minimap]="minimap"
         (variableSelected)="variableSelected($event)"
         (constantSelected)="constantSelected($event)"
@@ -202,7 +194,7 @@
 
             [style.bottom.px]="configViewHeight">
 
-            <div id="floating-legend-wrapper" #floatingSvg
+            <div id="legend-wrapper" #legend
                 [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0) || !showLegend
     || !isHeatmap() || showQueryList || showGuardList" >
                 <svg class="legend"></svg>
@@ -214,6 +206,15 @@
                 || showQueryList || showGuardList">
                 <svg class="border"></svg>
             </div>
+        </div>
+
+        <div *ngIf="!activeQuery" class="alert alert-primary">
+            <span *ngIf="engine.ongoingQueries.length == 0 && engine.completedQueries.length == 0"
+                [innerHTML]="L.CreateANewVisualizationMobile">
+            </span>
+            <ng-container *ngIf="engine.ongoingQueries.length || engine.completedQueries.length">
+                {{ L.ChooseVisualizationToInspectMobile }}
+            </ng-container>
         </div>
     </section>
 
@@ -390,10 +391,10 @@
                 <error-indicator [e]="LinearRegressionEstimate(activeQuery, linearRegressionConstant)"></error-indicator>
             </div>
 
-            <button class="btn btn-danger border-right-0 mr-1" (click)="cancelSafeguard()">
+            <button class="btn btn-danger border-right-0 mr-1 px-3" (click)="cancelSafeguard()">
                 <fa-icon [icon]="['fas', 'times']"></fa-icon>
             </button>
-            <button class="btn btn-success border-right-0 px-4" (click)="createSafeguard()">
+            <button class="btn btn-success border-right-0 px-3" (click)="createSafeguard()">
                 <fa-icon [icon]="['fas', 'check']"></fa-icon>
             </button>
         </div>

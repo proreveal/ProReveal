@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, DoCheck, Output, EventEmitter, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { BarsRenderer } from './renderers/bars';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 import { AggregateQuery, Histogram2DQuery, Histogram1DQuery } from '../data/query';
@@ -20,7 +20,7 @@ import { VisGridSet } from './vis-grid';
     templateUrl: './vis.component.html',
     styleUrls: ['./vis.component.scss']
 })
-export class VisComponent implements DoCheck, AfterViewInit {
+export class VisComponent implements AfterViewChecked, AfterViewInit {
     @Input() query: AggregateQuery;
     @Input() floatingLegend: HTMLDivElement;
     @Input() minimap: HTMLDivElement;
@@ -56,6 +56,8 @@ export class VisComponent implements DoCheck, AfterViewInit {
     Priority = Priority;
     SGT = SafeguardTypes;
 
+    S = Constants.locale.guardShortNames.desktop;
+
     lastUpdated: number = 0;
     lastQuery: AggregateQuery;
     renderer: BarsRenderer | HeatmapRenderer;
@@ -76,6 +78,9 @@ export class VisComponent implements DoCheck, AfterViewInit {
 
     constructor(private logger: LoggerService, private storage: StorageService) {
         this.isMobile = storage.isMobile();
+        if(this.isMobile) {
+            this.S = Constants.locale.guardShortNames.mobile;
+        }
     }
 
     recommend(query: AggregateQuery) {
@@ -110,7 +115,7 @@ export class VisComponent implements DoCheck, AfterViewInit {
         );
     }
 
-    ngDoCheck() {
+    ngAfterViewChecked() {
         if (this.query && this.svg &&
             (this.lastUpdated < this.query.lastUpdated || this.lastQuery != this.query)) {
             this.lastUpdated = this.query.lastUpdated;

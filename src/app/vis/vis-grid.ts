@@ -9,22 +9,21 @@ export class VisGridSet {
     d3XYTitle: d3.Selection<any, {}, null, undefined>;
     d3VisGrid: d3.Selection<any, {}, null, undefined>;
 
-
-    constructor(public svg:SVGSVGElement,
+    constructor(public svg: SVGSVGElement,
         public xTitle: SVGSVGElement,
         public xLabels: SVGSVGElement,
         public yTitle: SVGSVGElement,
         public yLabels: SVGSVGElement,
         public xyTitle: SVGSVGElement,
         public visGrid: HTMLDivElement) {
-            this.d3Svg = d3.select(svg);
-            this.d3XTitle = d3.select(xTitle);
-            this.d3XLabels = d3.select(xLabels);
-            this.d3YTitle = d3.select(yTitle);
-            this.d3YLabels = d3.select(yLabels);
-            this.d3XYTitle = d3.select(xyTitle);
-            this.d3VisGrid = d3.select(visGrid);
-        }
+        this.d3Svg = d3.select(svg);
+        this.d3XTitle = d3.select(xTitle);
+        this.d3XLabels = d3.select(xLabels);
+        this.d3YTitle = d3.select(yTitle);
+        this.d3YLabels = d3.select(yLabels);
+        this.d3XYTitle = d3.select(xyTitle);
+        this.d3VisGrid = d3.select(visGrid);
+    }
 
     empty() {
         this.d3Svg.selectAll('*').remove();
@@ -35,7 +34,7 @@ export class VisGridSet {
         this.d3XYTitle.selectAll('*').remove();
     }
 
-    setClass(name: 'bars'|'heatmap') {
+    setClass(name: 'bars' | 'heatmap') {
         this.d3Svg.classed('bars heatmap', false).classed(name, true);
         this.d3XTitle.classed('bars heatmap', false).classed(name, true);
         this.d3XLabels.classed('bars heatmap', false).classed(name, true);
@@ -43,5 +42,18 @@ export class VisGridSet {
         this.d3YLabels.classed('bars heatmap', false).classed(name, true);
         this.d3XYTitle.classed('bars heatmap', false).classed(name, true);
         this.d3VisGrid.classed('bars heatmap', false).classed(name, true);
+    }
+
+    get gridFullHeight() {
+        let top = this.visGrid.getBoundingClientRect().top;
+        return window.screen.availHeight - top - 6;
+    }
+
+    setDisplaySize(titleWidth: number, labelWidth: number, width: number,
+        titleHeight: number, labelHeight: number, height: number) {
+
+        this.d3VisGrid
+            .style('grid-template-columns', `${titleWidth}px ${labelWidth}px ${width}px`)
+            .style('grid-template-rows', `${titleHeight}px ${labelHeight}px ${height}px`)
     }
 }

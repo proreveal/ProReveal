@@ -209,7 +209,7 @@ export class MobileComponent implements OnInit, AfterViewChecked {
             this.engine = new RemoteEngine(this.socket);
             let engine = this.engine;
             engine.connect().then(() => {
-                engine.restore(this.storage.code).then(([dataset]) => {
+                engine.restore(this.storage.code).then(() => {
                     console.log('Session restored. Executing the controller logic');
                     if (this.engine.ongoingQueries.length > 0) {
                         this.querySelected(this.engine.ongoingQueries[0]);

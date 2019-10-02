@@ -41,10 +41,17 @@ export class HeatmapMinimap {
     yScale: d3.ScaleBand<string>;
 
     linearLine = new LinearLine();
+    zoomXFactor = 1;
+    zoomYFactor = 1;
 
     setDimensions(heatmapAvailWidth: number, heatmapAvailHeight: number) {
         this.heatmapAvailWidth = heatmapAvailWidth;
         this.heatmapAvailHeight = heatmapAvailHeight;
+    }
+
+    setZoomFactor(zoomXFactor: number, zoomYFactor: number) {
+        this.zoomXFactor = zoomXFactor;
+        this.zoomYFactor = zoomYFactor;
     }
 
     render(minimapWrapper: HTMLDivElement, data: Datum[], query: AggregateQuery,
@@ -120,11 +127,11 @@ export class HeatmapMinimap {
     move(left: number, top: number) {
         selectOrAppend(this.svg, 'g', '.brush-wrapper')
             .call(this.brush.move, [[
-                left / H.columnWidth * this.blockWidth,
-                top / H.rowHeight * this.blockHeight,
+                left / H.columnWidth * this.blockWidth / this.zoomXFactor,
+                top / H.rowHeight * this.blockHeight / this.zoomYFactor,
             ], [
-                left / H.columnWidth * this.blockWidth + this.heatmapAvailWidth / H.columnWidth * this.blockWidth,
-                top / H.rowHeight * this.blockHeight + this.heatmapAvailHeight / H.rowHeight * this.blockHeight,
+                (left / H.columnWidth + this.heatmapAvailWidth / H.columnWidth) * this.blockWidth / this.zoomXFactor,
+                (top / H.rowHeight  + this.heatmapAvailHeight / H.rowHeight)  * this.blockHeight / this.zoomYFactor,
             ]])
     }
 

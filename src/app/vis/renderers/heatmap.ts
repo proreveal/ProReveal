@@ -65,7 +65,7 @@ export class HeatmapRenderer {
 
     setup(query: AggregateQuery,
         visGridSet: VisGridSet,
-        floatingSvg: HTMLDivElement) {
+        legendWrapper: HTMLDivElement) {
         if (query.groupBy.fields.length !== 2) {
             throw 'Heatmaps can be used for 2 categories!';
         }
@@ -80,31 +80,31 @@ export class HeatmapRenderer {
 
         this.interactionG = selectOrAppend(svg, 'g', 'interaction').classed('heatmap', true);
 
-        let fsvgw = d3.select(floatingSvg);
+        let fsvgw = d3.select(legendWrapper);
         let fbrush = fsvgw.select('.brush');
         this.brush.setup(fbrush);
         this.linearLine.setup(this.interactionG);
 
         if (this.isMobile) { // pinch zoom in and out
             let xDis = 1, yDis = 1,
-                dist = 1, xZoom = query.zoomXLevel, yZoom = query.zoomYLevel;
+                dist = 1, xZoomFactor = query.zoomXLevel, yZoomFactor = query.zoomYLevel;
 
             visGridSet.d3Svg
                 .on('touchstart', () => {
                     if (d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]: TouchList = d3.event.touches;
+                        let [t1, t2, ..._]: any[] = d3.event.touches;
 
                         xDis = Math.abs(t1.screenX - t2.screenX);
                         yDis = Math.abs(t1.screenY - t2.screenY);
                         dist = Math.sqrt(xDis * xDis + yDis * yDis);
 
-                        xZoom = query.zoomXLevel;
-                        yZoom = query.zoomYLevel
+                        xZoomFactor = query.zoomXLevel;
+                        yZoomFactor = query.zoomYLevel
                     }
                 })
                 .on('touchmove', () => {
                     if (d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]: TouchList = d3.event.touches;
+                        let [t1, t2, ..._]: any[] = d3.event.touches;
 
                         // let xRatio = Math.abs(t1.screenX - t2.screenX) / xDis;
                         // let yRatio = Math.abs(t1.screenY - t2.screenY) / yDis;
@@ -116,17 +116,18 @@ export class HeatmapRenderer {
                             (t1.screenY - t2.screenY) * (t1.screenY - t2.screenY));
 
 
-                        let newXZoom = xZoom * newDist / dist;
-                        let newYZoom = yZoom * newDist / dist;
+                        let newXZoomFactor = xZoomFactor * newDist / dist;
+                        let newYZoomFactor = yZoomFactor * newDist / dist;
 
-                        newXZoom = util.between(newXZoom, H.minZoom.x, H.maxZoom.x);;
-                        newYZoom = util.between(newYZoom, H.minZoom.y, H.maxZoom.y);
+                        newXZoomFactor = util.between(newXZoomFactor, H.minZoom.x, H.maxZoom.x);;
+                        newYZoomFactor = util.between(newYZoomFactor, H.minZoom.y, H.maxZoom.y);
 
-                        if (query.zoomXLevel != newXZoom || query.zoomYLevel != newYZoom) {
-                            query.zoomXLevel = newXZoom;
-                            query.zoomYLevel = newYZoom;
+                        if (query.zoomXLevel != newXZoomFactor || query.zoomYLevel != newYZoomFactor) {
+                            query.zoomXLevel = newXZoomFactor;
+                            query.zoomYLevel = newYZoomFactor;
 
                             this.vis.forceUpdate();
+                            this.minimap.setZoomFactor(newXZoomFactor, newYZoomFactor);
                         }
 
                         // console.log(query.zoomXLevel, query.zoomYLevel);
@@ -136,7 +137,7 @@ export class HeatmapRenderer {
         }
     }
 
-    render(query: AggregateQuery, visGridSet: VisGridSet, floatingSvg: HTMLDivElement, minimapDiv: HTMLDivElement) {
+    render(query: AggregateQuery, visGridSet: VisGridSet, legendWrapper: HTMLDivElement, minimapDiv: HTMLDivElement) {
         // Data Processing (view independent)
 
         let data = query.getVisibleData();
@@ -215,11 +216,11 @@ export class HeatmapRenderer {
         const xTitleHeight = H.title.x.height;
         const yTitleWidth = H.title.y.width;
 
-        const zoomXLevel = query.zoomXLevel;
-        const zoomYLevel = query.zoomYLevel;
+        const zoomXFactor = query.zoomXLevel;
+        const zoomYFactor = query.zoomYLevel;
 
-        const columnWidth = H.columnWidth * zoomXLevel;
-        const rowHeight = H.rowHeight * zoomYLevel;
+        const columnWidth = H.columnWidth * zoomXFactor;
+        const rowHeight = H.rowHeight * zoomYFactor;
 
         let heatmapFullWidth = columnWidth * xValues.length;
         let heatmapFullHeight = rowHeight * yValues.length;
@@ -261,22 +262,29 @@ export class HeatmapRenderer {
                 .attr('width', heatmapFullWidth)
                 .attr('height', heatmapXLabelHeight);
 
-            visGridSet.d3YTitle.attr('width', H.title.y.width)
+            visGridSet.d3YTitle
+                .attr('width', H.title.y.width)
                 .attr('height', heatmapAvailHeight);
 
             visGridSet.d3YLabels
                 .attr('width', yLabelWidth)
                 .attr('height', heatmapFullHeight);
 
-            visGridSet.d3VisGrid
-                .style('grid-template-columns', `${H.title.y.width}px ${yLabelWidth}px ${heatmapAvailWidth}px`)
-                .style('grid-template-rows', `${H.title.x.height}px ${heatmapXLabelHeight}px ${heatmapAvailHeight}px`)
-
-            visGridSet.d3Svg.attr('width', heatmapFullWidth)
+            visGridSet.d3Svg
+                .attr('width', heatmapFullWidth)
                 .attr('height', heatmapFullHeight);
+
+            visGridSet.setDisplaySize(
+                H.title.y.width,
+                yLabelWidth,
+                heatmapAvailWidth,
+                H.title.x.height,
+                heatmapXLabelHeight,
+                heatmapAvailHeight);
         }
         else {
-            d3.select(visGridSet.svg).attr('width', width)
+            visGridSet.d3Svg
+                .attr('width', width)
                 .attr('height', Math.max(height, legendSpec.height + legendSpec.paddingTop + legendSpec.paddingBottom));
         }
 
@@ -287,7 +295,7 @@ export class HeatmapRenderer {
             .range([headerHeight, height - headerHeight]);
 
         if (this.isMobile) {
-            xScale.range([0, heatmapFullWidth]);
+            xScale.range([0, heatmapFullWidth - C.xScalePaddingRight]);
             yScale.range([0, heatmapFullHeight]);
         }
 
@@ -308,7 +316,6 @@ export class HeatmapRenderer {
                 .style('text-anchor', 'middle')
                 .attr('dy', H.title.x.dy)
                 .style('font-size', H.title.x.fontSize)
-                .style('font-style', 'italic')
 
             if (!this.isMobile)
                 selectOrAppend(target, 'text', '.x.title.bottom')
@@ -317,7 +324,6 @@ export class HeatmapRenderer {
                     .style('text-anchor', 'middle')
                     .attr('dy', H.title.x.dy)
                     .style('font-size', H.title.x.fontSize)
-                    .style('font-style', 'italic')
         }
 
         // render y title
@@ -332,7 +338,6 @@ export class HeatmapRenderer {
                 .style('text-anchor', 'middle')
                 .attr('dy', H.title.y.dy)
                 .style('font-size', H.title.y.fontSize)
-                .style('font-style', 'italic')
         }
 
         let enter: any;
@@ -460,7 +465,7 @@ export class HeatmapRenderer {
             let baseY = this.isMobile ? 0 : headerHeight;
             hls.merge(enter)
                 .attr('x1', this.isMobile ? 0 : (yTitleWidth + yLabelWidth))
-                .attr('x2', this.isMobile ? heatmapFullWidth : (matrixWidth - headerHeight))
+                .attr('x2', this.isMobile ? (heatmapFullWidth - C.xScalePaddingRight) : (matrixWidth - headerHeight))
                 .attr('y1', (d, i) => baseY + rowHeight * i)
                 .attr('y2', (d, i) => baseY + rowHeight * i)
 
@@ -555,9 +560,9 @@ export class HeatmapRenderer {
                 legend = legend.format('.2s')
             }
 
-            let floatingSvgWrapper = d3.select(floatingSvg);
-            let floatingLegend = floatingSvgWrapper.select('.legend');
-            let floatingBrush = floatingSvgWrapper.select('.brush');
+            let d3LegendWrapper = d3.select(legendWrapper);
+            let floatingLegend = d3LegendWrapper.select('.legend');
+            let floatingBrush = d3LegendWrapper.select('.brush');
 
             let parentWidth = visGridSet.svg.parentElement.offsetWidth;
             let parentOffsetTop = 100 + headerHeight; // nativeSvg.getBoundingClientRect().top; // TODO
@@ -567,7 +572,7 @@ export class HeatmapRenderer {
             floatingBrush.attr('width', legendWidth + legendSpec.paddingTop + legendSpec.paddingBottom)
                 .attr('height', legendHeight + legendSpec.paddingTop + legendSpec.paddingBottom);
 
-            d3.select(floatingSvg).style('display', 'block');
+            d3.select(legendWrapper).style('display', 'block');
 
             selectOrAppend(floatingLegend, 'g', '.z.legend').selectAll('*').remove();
             selectOrAppend(floatingLegend, 'g', '.z.legend')
@@ -586,14 +591,14 @@ export class HeatmapRenderer {
                 floatingLegend.select('g.legend text[y="-30"]')
                     .attr('y', -40)
                 if (matrixWidth + legendWidth + legendSpec.paddingTop + legendSpec.paddingBottom > parentWidth) {
-                    floatingSvgWrapper
+                    d3LegendWrapper
                         .style('position', 'sticky')
                         .style('left', `${parentWidth - legendWidth - legendSpec.paddingTop - legendSpec.paddingBottom}px`)
                         .style('bottom', `${C.padding}px`)
                         .style('top', 'auto')
                 }
                 else {
-                    floatingSvgWrapper
+                    d3LegendWrapper
                         .style('position', 'absolute')
                         .style('left', `${matrixWidth}px`)
                         .style('top', `${parentOffsetTop}px`)
@@ -685,7 +690,6 @@ export class HeatmapRenderer {
 
         // minimap
 
-
         if (this.isMobile) {
             this.minimap.render(
                 minimapDiv,
@@ -702,8 +706,8 @@ export class HeatmapRenderer {
             );
 
             this.minimap.move(
-                visGridSet.svg.parentElement.scrollLeft,
-                visGridSet.svg.parentElement.scrollTop
+                visGridSet.svg.parentElement.scrollLeft / zoomXFactor,
+                visGridSet.svg.parentElement.scrollTop / zoomYFactor
             )
         }
 
@@ -740,6 +744,7 @@ export class HeatmapRenderer {
                         xyFromBrush = false;
                     }
                     else {
+                        this.minimap.setZoomFactor(zoomXFactor, zoomYFactor);
                         this.minimap.move(left, top);
                         xyFromSvg = true;
                     }
@@ -767,8 +772,8 @@ export class HeatmapRenderer {
                 let [[x0, y0], [x1, y1]] = d3.event.selection;
 
                 if (xyFromSvg) { xyFromSvg = false; return; }
-                visGridSet.svg.parentElement.scrollLeft = x0 / this.minimap.blockWidth * columnWidth;
-                visGridSet.svg.parentElement.scrollTop = y0 / this.minimap.blockHeight * rowHeight;
+                visGridSet.svg.parentElement.scrollLeft = x0 / this.minimap.blockWidth * columnWidth * zoomXFactor;
+                visGridSet.svg.parentElement.scrollTop = y0 / this.minimap.blockHeight * rowHeight * zoomYFactor;
                 xyFromSvg = true;
             })
         }
