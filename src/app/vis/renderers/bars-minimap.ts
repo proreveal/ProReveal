@@ -154,6 +154,8 @@ export class BarsMinimap {
         const [barsFullWidth, barHeight, barsAvailWidth, barsAvailHeight, miniBarHeight] =
             [this.barsFullWidth, this.barHeight, this.barsAvailWidth, this.barsAvailHeight, this.miniBarHeight];
 
+        if(barsAvailHeight < 0) return;
+
         selectOrAppend(this.svg, 'g', '.brush-wrapper')
             .call(this.brush.move,
                 [[left / barsFullWidth * B.minimap.width,

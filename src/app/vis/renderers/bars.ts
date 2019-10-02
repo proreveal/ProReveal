@@ -174,8 +174,7 @@ export class BarsRenderer {
 
         this.height = height;
 
-        const availHeight = Math.min(visGridSet.gridFullHeight,
-            barsFullHeight + xTitleHeight);
+        const availHeight = Math.min(visGridSet.gridFullHeight, barsFullHeight + xTitleHeight + xLabelHeight);
 
         // console.log(xTitleHeight, xLabelHeight, visGridSet.visGrid.getBoundingClientRect() || 112,
         //     visGridSet.visGrid.getBoundingClientRect().top);
@@ -211,6 +210,8 @@ export class BarsRenderer {
             visGridSet.d3Svg
                 .attr('width', barsFullWidth)
                 .attr('height', barsFullHeight);
+
+            visGridSet.setFullContentHeight(barsFullHeight + xTitleHeight + xLabelHeight);
 
             visGridSet.setDisplaySize(0, labelWidth, barsAvailWidth,
                 xTitleHeight, xLabelHeight, barsAvailHeight);

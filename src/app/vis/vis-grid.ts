@@ -13,6 +13,8 @@ export class VisGridSet {
     labelHeight: number;
     contentHeight: number;
 
+    fullContentHeight: number = 0;
+
     constructor(public svg: SVGSVGElement,
         public xTitle: SVGSVGElement,
         public xLabels: SVGSVGElement,
@@ -53,6 +55,10 @@ export class VisGridSet {
         return window.screen.availHeight - top - 6;
     }
 
+    setFullContentHeight(height: number) {
+        this.fullContentHeight = height;
+    }
+
     setDisplaySize(titleWidth: number, labelWidth: number, contentWidth: number,
         titleHeight: number, labelHeight: number, contentHeight: number) {
 
@@ -66,6 +72,11 @@ export class VisGridSet {
     }
 
     reduceHeight(amount: number) {
+        if(this.gridFullHeight - amount > this.fullContentHeight)
+            return;
+
+        amount = amount - (this.gridFullHeight - this.fullContentHeight);
+
         this.d3VisGrid
             .style('grid-template-rows', `${this.titleHeight}px ${this.labelHeight}px ${this.contentHeight - amount}px`)
     }
