@@ -260,9 +260,7 @@ export class VisComponent implements AfterViewChecked, AfterViewInit {
     }
 
     backgroundClick() {
-        this.isDropdownVisible = false;
-        this.isQueryCreatorVisible = false;
-        this.emptySelectedDatum();
+        this.renderer.closeDropdown();
         if(this.isMobile) this.renderer.hideTooltip();
     }
 
