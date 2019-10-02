@@ -209,7 +209,7 @@
         <vis #vis
         [hidden]="!activeQuery"
         [query]="activeQuery"
-        [floatingLegend]="floatingSvg"
+        [floatingLegend]="legend"
         (variableSelected)="variableSelected($event)"
         (constantSelected)="constantSelected($event)"
         (queryCreated)="queryRequestedFromVis($event)"
@@ -218,7 +218,7 @@
         (dataViewerRequested)="dataViewerRequested($event)"
         ></vis>
 
-        <div id="floating-svg-wrapper" class="border" #floatingSvg
+        <div id="legend-wrapper" class="border" #legend
             [hidden]="!activeQuery || (activeQuery && activeQuery.recentProgress.processedBlocks == 0)"
             style="display:none"
         >
