@@ -114,7 +114,9 @@ export class HeatmapMinimap {
         let wrapper = selectOrAppend(d3minisvg, 'g', '.brush-wrapper')
             .call(brush)
 
-        wrapper.select('.selection').style('stroke', 'none');
+        wrapper.select('.selection')
+            .style('stroke', 'none')
+            // .style('fill', 'rgb(248, 249, 250)');
         wrapper.selectAll('.overlay').remove();
 
         // install linear line

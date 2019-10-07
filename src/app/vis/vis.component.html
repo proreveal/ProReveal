@@ -173,53 +173,12 @@
         </div>
         <div id="x-title-wrapper">
             <svg #xTitle></svg>
-            <div class="x-title-tools" *ngIf="query && isMobile">
-                <button type="button" class="btn border btn-mini"
-                    [hidden]="!query.aggregationLevelX"
-                    [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
-                    (click)="splitXBins()">
-                    <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
-                    <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
-                    <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
-                </button>
-                <button type="button" class="btn border btn-mini ml-1"
-                    [hidden]="!query.aggregationLevelX"
-                    [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
-                    (click)="mergeXBins()">
-                    <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
-                    <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
-                    <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
-                </button>
-            </div>
         </div>
         <div id="x-labels-wrapper" class="hide-scrollbar">
             <svg #xLabels></svg>
         </div>
         <div id="y-title-wrapper">
             <svg #yTitle></svg>
-            <div class="y-title-tools text-center" *ngIf="query && isMobile">
-                <button type="button" class="btn border btn-mini px-2 py-1 mb-1"
-                    [hidden]="!query.aggregationLevelY"
-                    [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
-                    (click)="splitYBins()">
-                    <div class="icon-stack">
-                        <fa-icon class="top" [icon]="['fas', 'angle-up']"></fa-icon>
-                        <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
-                        <fa-icon class="bottom" [icon]="['fas', 'angle-down']"></fa-icon>
-                    </div>
-                </button>
-                <br />
-                <button type="button" class="btn border btn-mini px-2 py-1"
-                    [hidden]="!query.aggregationLevelY"
-                    [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
-                    (click)="mergeYBins()">
-                    <div class="icon-stack">
-                        <fa-icon class="top" [icon]="['fas', 'angle-down']"></fa-icon>
-                        <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
-                        <fa-icon class="bottom" [icon]="['fas', 'angle-up']"></fa-icon>
-                    </div>
-                </button>
-            </div>
         </div>
         <div id="y-labels-wrapper" class="hide-scrollbar">
             <svg #yLabels></svg>
@@ -230,6 +189,48 @@
         <div id="vis-wrapper">
             <svg #svg [class.mt-2]="!isMobile"
         [class.hidden]="!query || (query.recentProgress.processedBlocks === 0)"></svg>
+        </div>
+
+        <div class="x-title-tools" *ngIf="query">
+            <button type="button" class="btn border btn-sm"
+                [hidden]="!query.aggregationLevelX"
+                [disabled]="query.aggregationLevelX == query.minLevelX || query.safeguards.length > 0"
+                (click)="splitXBins()">
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+            </button>
+            <button type="button" class="btn border btn-sm ml-1"
+                [hidden]="!query.aggregationLevelX"
+                [disabled]="query.aggregationLevelX == query.maxLevelX || query.safeguards.length > 0"
+                (click)="mergeXBins()">
+                <fa-icon [icon]="['fas', 'angle-right']"></fa-icon>
+                <fa-icon [icon]="['fas', 'grip-lines-vertical']"></fa-icon>
+                <fa-icon [icon]="['fas', 'angle-left']"></fa-icon>
+            </button>
+        </div>
+        <div class="y-title-tools text-center" *ngIf="query">
+            <button type="button" class="btn border btn-sm px-2 py-2 mb-1"
+                [hidden]="!query.aggregationLevelY"
+                [disabled]="query.aggregationLevelY == query.minLevelY || query.safeguards.length > 0"
+                (click)="splitYBins()">
+                <div class="icon-stack">
+                    <fa-icon class="top" [icon]="['fas', 'angle-up']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
+                    <fa-icon class="bottom" [icon]="['fas', 'angle-down']"></fa-icon>
+                </div>
+            </button>
+            <br />
+            <button type="button" class="btn border btn-sm px-2 py-2"
+                [hidden]="!query.aggregationLevelY"
+                [disabled]="query.aggregationLevelY == query.maxLevelY || query.safeguards.length > 0"
+                (click)="mergeYBins()">
+                <div class="icon-stack">
+                    <fa-icon class="top" [icon]="['fas', 'angle-down']"></fa-icon>
+                    <fa-icon [icon]="['fas', 'grip-lines']"></fa-icon>
+                    <fa-icon class="bottom" [icon]="['fas', 'angle-up']"></fa-icon>
+                </div>
+            </button>
         </div>
     </div>
 

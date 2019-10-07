@@ -60,7 +60,7 @@ header {
 .progress-bar-wrapper {
     flex: 1;
     position: relative;
-    margin-top: .45rem;
+    margin-top: 0.45rem;
 }
 
 #query-creator-wrapper {
@@ -146,7 +146,7 @@ header {
         border-top: 1px solid $border-color;
         border-radius: 0px;
         width: 100%;
-        padding: .25rem 0 !important;
+        padding: 0.25rem 0 !important;
 
         overflow-x: scroll;
 
@@ -163,14 +163,15 @@ header {
             flex-direction: column;
             text-align: center;
             height: 60px;
-            font-size: .8rem;
+            font-size: 0.8rem;
             align-items: center;
-            padding: .5rem !important;
+            padding: 0.5rem !important;
             border: 1px solid $border-color;
             border-radius: 3px;
-            margin: 0px .1rem;
+            margin: 0px 0.1rem;
 
-            svg, fa-icon {
+            svg,
+            fa-icon {
                 flex-grow: 1;
                 margin-right: 0 !important;
             }
@@ -221,20 +222,17 @@ button.border:hover {
     display: none;
 }
 
-#x-title-wrapper,
-#y-title-wrapper {
-    position: relative;
-}
+// #x-title-wrapper,
+// #y-title-wrapper {
+//     position: relative;
+// }
 
 .x-title-tools {
-    position: absolute;
-    right: 0;
-    top: 0;
+    display: none;
 }
 
 .y-title-tools {
-    position: absolute;
-    bottom: 0;
+    display: none;
 }
 
 @media screen and (max-width: 720px) {
@@ -242,6 +240,7 @@ button.border:hover {
         display: grid;
         grid-template-columns: 20px 20px 100px;
         grid-template-rows: 20px 20px 100px;
+        position: relative;
     }
 
     #tools-wrapper,
@@ -345,7 +344,7 @@ button.border:hover {
         overflow-x: hidden !important;
         outline-color: rgb(33, 37, 41);
         z-index: 1001;
-        background: rgba(0, 0, 0, .15);
+        background: rgba(0, 0, 0, 0.15);
         padding-top: 50px;
         width: 100%;
     }
@@ -354,6 +353,18 @@ button.border:hover {
         margin: 1.75rem auto !important;
         max-width: 350px !important;
         width: auto !important;
+    }
+
+    .x-title-tools {
+        display: block;
+        position: absolute;
+        right: 0;
+    }
+
+    .y-title-tools {
+        display: block;
+        position: absolute;
+        top: 0;
     }
 }
 

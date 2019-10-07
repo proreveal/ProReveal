@@ -77,7 +77,7 @@ export class BarsRenderer {
             visGridSet.d3Svg
                 .on('touchstart', () => {
                     if (d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]: TouchList = d3.event.touches;
+                        let [t1, t2, ..._] = d3.event.touches as any;
 
                         xDis = Math.abs(t1.screenX - t2.screenX);
                         yDis = Math.abs(t1.screenY - t2.screenY);
@@ -88,7 +88,7 @@ export class BarsRenderer {
                 })
                 .on('touchmove', () => {
                     if (d3.event.touches.length == 2) {
-                        let [t1, t2, ..._]: TouchList = d3.event.touches;
+                        let [t1, t2, ..._] = d3.event.touches as any;
 
                         // let xRatio = Math.abs(t1.screenX - t2.screenX) / xDis;
                         // let yRatio = Math.abs(t1.screenY - t2.screenY) / yDis;
