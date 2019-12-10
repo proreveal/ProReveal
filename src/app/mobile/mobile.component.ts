@@ -103,6 +103,7 @@ export class MobileComponent implements OnInit, AfterViewChecked {
     showInfo = false;
     showGuardList = false;
     showLegend = true;
+    bottomPanelHeight = 0;
     safeguardConfigViewHeight = 0;
 
     constructor(private modalService: NgbModal, public logger: LoggerService,
@@ -256,6 +257,7 @@ export class MobileComponent implements OnInit, AfterViewChecked {
         if(this.safeguardConfigView) {
             setTimeout(() => {
                 this.safeguardConfigViewHeight = this.safeguardConfigView.nativeElement.scrollHeight;
+                this.bottomPanelHeight = this.safeguardConfigViewHeight;
             });
         }
     }
@@ -333,8 +335,6 @@ export class MobileComponent implements OnInit, AfterViewChecked {
     }
 
     resumeAll() {
-        // console.log(this.safeguardConfigView);
-        // console.log(this.safeguardConfigView.nativeElement.scrollHeight);
         this.engine.resumeAllQueries();
         if (this.engine instanceof BrowserEngine &&
             this.engine.autoRun && !this.engine.isRunning) this.engine.runOne();
