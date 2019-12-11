@@ -21,7 +21,7 @@ import { BarsTooltipComponent } from './vis/renderers/bars-tooltip.component';
 import { HeatmapTooltipComponent } from './vis/renderers/heatmap-tooltip.component';
 import { TooltipHostDirective } from './tooltip/tooltip-host.directive';
 import { FieldBadgeComponent } from './field-badge/field-badge.component';
-import { SortablejsModule } from 'angular-sortablejs';
+import { SortablejsModule } from 'ngx-sortablejs';
 import { ProgressMiniRingComponent } from './exploration/progress-mini-ring.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
