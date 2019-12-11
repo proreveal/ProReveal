@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { Constants } from '../constants';
 import { StorageService } from './storage.service';
+import { environment as Env } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -9,10 +9,10 @@ import { StorageService } from './storage.service';
 export class SocketService {
     ws: SocketIOClient.Socket;
     serverInfo: any;
-    url = Constants.host;
+    url = Env.apiHost
 
     constructor(private storage:StorageService) {
-        let ws = io(Constants.host, { transports: ['websocket'] })
+        let ws = io(Env.apiHost, { transports: ['websocket'] })
         this.ws = ws;
 
         ws.on('welcome', (serverInfo: any) => {

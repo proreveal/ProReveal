@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiHost: 'localhost:7999' // without ws:// or https://
 };

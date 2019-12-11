@@ -5,6 +5,7 @@ import { StorageService } from '../services/storage.service';
 import { Router } from '@angular/router';
 import { ScreenType } from '../vis/screen-type';
 import { SocketService } from '../services/socket.service';
+import { environment as Env } from '../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -13,6 +14,7 @@ import { SocketService } from '../services/socket.service';
 })
 export class LoginComponent implements OnInit {
     C = Constants;
+    Env = Env;
     code:string = 'ABC';
 
     constructor(private router: Router,

@@ -114,7 +114,5 @@ export const Constants = Object.freeze({
 
     exchangeRate: locale.exchangeRate,
     nullValueString: locale.nullValueString,
-    currencyFormatter: locale.currencyFormatter,
-
-    host: 'ws://147.46.240.230:7999'
+    currencyFormatter: locale.currencyFormatter
 });
