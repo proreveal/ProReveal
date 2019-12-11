@@ -1,4 +1,4 @@
-# ProReveal
+# ProReveal - Progressive Visual Analytics with Safeguards
 
 ProReveal is a proof-of-concept system to realize our new visual analytics concept, **Progressive Visual Analaytics with Safeguards**.
 Our concept aims to provide a means for managing the uncertainty of intermediate knowledge gathered from progressive data exploration.
