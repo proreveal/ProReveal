@@ -133,10 +133,6 @@ export class AppComponent implements OnInit {
             this.data = data;
             this.isStudying = parameters.study || 0;
 
-
-            const tutorial = parameters.tutorial || 0;
-            if (tutorial) this.engine.alternate = true;
-
             this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
             this.engine.alternate = alternate;
 
@@ -173,12 +169,6 @@ export class AppComponent implements OnInit {
                     if (run > 0) this.runMany(run);
                 }
 
-                if (tutorial) {
-                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('날씨')));
-                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('지역')));
-                    this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('최대 온도')).combine(dataset.getFieldByName('최소 온도')));
-                }
-
                 this.engine.run();
 
                 if(data === 'movies_en') {
@@ -186,12 +176,6 @@ export class AppComponent implements OnInit {
                     this.querySelected(this.engine.ongoingQueries[0]);
                 }
             });
-
-                // if(this.debug) {
-                //     let q = new EmptyQuery(dataset).combine(dataset.getFieldByName('Votes')).combine(dataset.getFieldByName('Score'));
-                //     // q.approximator = new MaxApproximator();
-                //     this.create(q, Priority.Highest);
-                // }
         }
         else {
             this.logger.mute();
@@ -207,32 +191,6 @@ export class AppComponent implements OnInit {
                     else if (this.engine.completedQueries.length > 0) {
                         this.querySelected(this.engine.completedQueries[0]);
                     }
-
-                    // let query = new EmptyQuery(dataset)
-                    //     .combine(dataset.getFieldByName('Score'))
-                    //     .combine(dataset.getFieldByName('Country'));
-
-                    // query.where = new AndPredicate([new EqualPredicate(
-                    //     dataset.getFieldByName('Genre'),
-                    //     'Comedy'
-                    // )])
-                    //this.create(query);
-
-                    //dataset.
-                    // let year = dataset.getFieldByName('YEAR');
-                    // let month = dataset.getFieldByName('MONTH');
-                    // let arrivalDelay = dataset.getFieldByName('ARR_DELAY')
-                    // let distance = dataset.getFieldByName('DISTANCE')
-
-                    // let query = new EmptyQuery(dataset).combine(arrivalDelay).combine(distance);
-
-                    // query.where = new AndPredicate([new EqualPredicate(
-                    //     dataset.getFieldByName('YEAR'),
-                    //     2016
-                    // )])
-
-                    // this.create(new EmptyQuery(dataset).combine(year));
-                    // this.create(query, Priority.Highest);
                 });
             });
         }
