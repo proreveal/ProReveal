@@ -341,7 +341,7 @@
                 && activeQuery.visibleProgress.processedRows > 0
                 && (variable1 || combinedVariable1)
                 && valueConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></boolean-indicator>
             </div>
             <div *ngIf="activeSafeguardPanel === SGT.Rank
                 && activeQuery.visibleProgress.processedRows > 0
@@ -351,7 +351,7 @@
             <div *ngIf="activeSafeguardPanel === SGT.Rank
                 && activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></boolean-indicator>
             </div>
             <div *ngIf="activeSafeguardPanel === SGT.Range
                 && activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
@@ -361,7 +361,7 @@
             <div *ngIf="activeSafeguardPanel === SGT.Range
                 && activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
                 && rangeConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></boolean-indicator>
             </div>
             <div *ngIf="activeSafeguardPanel === SGT.Comparative
                 && activeQuery.visibleProgress.processedRows > 0 && !variablePair && !combinedVariablePair
@@ -376,7 +376,7 @@
             <div *ngIf="activeSafeguardPanel === SGT.Comparative
                 && activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
                 && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></boolean-indicator>
             </div>
             <div *ngIf="activeSafeguardPanel == SGT.PowerLaw
                 && activeQuery.visibleProgress.processedRows > 0">

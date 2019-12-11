@@ -65,6 +65,8 @@ export class BrowserEngine {
             this.ongoingQueries.push(query);
         }
 
+        this.queryCreated(query);
+
         query.jobs().forEach(job => this.queue.append(job));
         this.queue.reschedule();
 

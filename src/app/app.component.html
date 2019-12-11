@@ -276,7 +276,7 @@
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0
                     && (variable1 || combinedVariable1)
                     && valueConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxValueEstimate(activeQuery, variable1 || combinedVariable1, operator, valueConstant)"></boolean-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createValueSafeguard()">
@@ -304,7 +304,7 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery && activeQuery.visibleProgress.processedRows > 0
                 && variable1 && rankConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxRankEstimate(activeQuery, variable1, operator, rankConstant)"></boolean-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRankSafeguard()">
@@ -333,7 +333,7 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variable1 || combinedVariable1)
                 && rangeConstant && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxRangeEstimate(activeQuery, variable1, Operators.InRange, rangeConstant)"></boolean-indicator>
             </div>
             <div class="p-1 text-right">
                 <button class="btn btn-success border-right-0 mr-1" (click)="createRangeSafeguard()">
@@ -361,7 +361,7 @@
             </div>
             <div class="guide p-1" *ngIf="activeQuery.visibleProgress.processedRows > 0 && (variablePair || combinedVariablePair)
                     && !activeQuery.approximator.estimatable">
-                <truthiness-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></truthiness-indicator>
+                <boolean-indicator [t]="MinMaxComparativeEstimate(activeQuery, variablePair, operator)"></boolean-indicator>
             </div>
 
             <div class="p-1 text-right">

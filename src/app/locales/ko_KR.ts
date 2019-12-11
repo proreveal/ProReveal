@@ -63,8 +63,8 @@ export const Locale_ko_KR = Object.freeze({
     NormalTip: '세이프가드를 만들어 데이터의 분포가 어느 정도 정규 분포를 따르는지 확인해 보세요.',
     LinearTip: '세이프가드를 만들어 얼마나 두 축이 선형 관계에 있는지 확인해 보세요.',
 
-    TruthinessTrue: '현재 시점에서 성립합니다!',
-    TruthinessFalse: '현재 시점에서 성립하지 않습니다.',
+    BooleanTrue: '현재 시점에서 성립합니다!',
+    BooleanFalse: '현재 시점에서 성립하지 않습니다.',
 
     P5: '거의 확실한 세이프가드입니다.',
     P50: '불확실한 세이프가드입니다.',

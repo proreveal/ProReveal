@@ -4,7 +4,7 @@ import { VariablePair, VariableTrait, CombinedVariablePair } from "./variable";
 import { Operators } from "./operator";
 import { ValueConstant, RankConstant, RangeConstant, PowerLawConstant, NormalConstant, LinearConstant } from "./constant";
 import { isNull } from "util";
-import { Validity, PValue, Truthiness, Quality, Error } from "./validity";
+import { Validity, PValue, Boolean, Quality, Error } from "./validity";
 import { ApproximatedInterval } from "../data/approximated-interval";
 
 const normal = new NormalDistribution();
@@ -112,7 +112,7 @@ export class RankEstimator implements EstimatorTrait {
 
 export class MinMaxValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: ValueConstant): Truthiness {
+        operator: Operators, constant: ValueConstant): Boolean {
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
             result,
@@ -135,7 +135,7 @@ export class MinMaxValueEstimator implements EstimatorTrait {
 
 export class MinMaxRankValueEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: RankConstant): Truthiness {
+        operator: Operators, constant: RankConstant): Boolean {
 
         let results: [string, ApproximatedInterval][] = Object.keys(query.visibleResult)
         .map((hash) => {
@@ -201,7 +201,7 @@ export class RangeEstimator implements EstimatorTrait {
 
 export class MinMaxRangeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariableTrait,
-        operator: Operators, constant: RangeConstant): Truthiness {
+        operator: Operators, constant: RangeConstant): Boolean {
 
         let result = query.visibleData.find(d => d.keys.hash == variable.hash).accumulatedValue;
         let ai = query.approximator.approximate(
@@ -253,7 +253,7 @@ export class ComparativeEstimator implements EstimatorTrait {
 
 export class MinMaxComparativeEstimator implements EstimatorTrait {
     estimate(query: AggregateQuery, variable: VariablePair | CombinedVariablePair,
-        operator: Operators): Truthiness {
+        operator: Operators): Boolean {
         const n = query.visibleProgress.processedRows;
         const N = query.visibleProgress.numRows;
 

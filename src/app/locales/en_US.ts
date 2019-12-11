@@ -73,8 +73,8 @@ export const Locale_en_US = Object.freeze({
 
     ComparativeTipMobile: 'Tap on <span class="variable2">the second element</span> to compare.',
 
-    TruthinessTrue: 'It holds at this moment!',
-    TruthinessFalse: 'It does not hold at this moment.',
+    BooleanTrue: 'It holds at this moment!',
+    BooleanFalse: 'It does not hold at this moment.',
 
     KSStatistic: 'KS Statistic',
     RMSE: 'RMSE',

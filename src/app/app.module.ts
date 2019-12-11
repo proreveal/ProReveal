@@ -32,7 +32,7 @@ import { SgComparativeComponent } from './display/comparative/sg-comparative.com
 import { SgDistributiveComponent } from './display/distributive/sg-distributive.component';
 import { SgRangeComponent } from './display/range/sg-range.component';
 import { SgDisplayComponent } from './display/sg-display.component';
-import { TruthinessIndicatorComponent } from './display/truthiness-indicator/truthiness-indicator.component';
+import { BooleanIndicatorComponent } from './display/boolean-indicator/boolean-indicator.component';
 
 import { MomentModule } from 'ngx-moment';
 import { SgListItemComponent } from './display/sg-list-item/sg-list-item.component';
@@ -80,7 +80,7 @@ const appRoutes: Routes = [
         SgDistributiveComponent,
         SgRangeComponent,
         SgDisplayComponent,
-        TruthinessIndicatorComponent,
+        BooleanIndicatorComponent,
         SgListItemComponent,
         QualityIndicatorComponent,
         ErrorIndicatorComponent,
