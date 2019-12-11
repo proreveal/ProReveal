@@ -18,6 +18,7 @@ export class BrowserEngine {
     rows: Row[];
     dataset: Dataset;
     schema: Schema;
+    queries: Query[] = []; // all queries (order is meaningless)
     ongoingQueries: Query[] = [];
     completedQueries: Query[] = [];
     scheduler: Scheduler = new QueryOrderScheduler(this.ongoingQueries);
@@ -64,6 +65,7 @@ export class BrowserEngine {
         else if (priority === Priority.Lowest) {
             this.ongoingQueries.push(query);
         }
+        this.queries.push(query);
 
         this.queryCreated(query);
 
@@ -82,6 +84,7 @@ export class BrowserEngine {
     remove(query: Query) {
         util.aremove(this.ongoingQueries, query);
         util.aremove(this.completedQueries, query);
+        util.aremove(this.queries, query);
 
         this.queue.remove(query);
     }
