@@ -15,7 +15,7 @@ export interface ApproximatorTrait {
     toString();
 }
 
-export abstract class Approximator {
+export abstract class Approximator{
     static FromName(name: string) {
         name = name.toLowerCase();
         if(name === 'sum') return new SumApproximator();
@@ -60,8 +60,11 @@ export class CountApproximator implements ApproximatorTrait {
     approximate(value: AggregateValue, p: number, n: number, N: number) {
         let n1 = value.count - value.nullCount;
         let Ny_bar = N * n1 / n;
+
         if(n == 0) return EmptyApproximatedInterval;
         if(n == 1) return new ApproximatedPoint(Ny_bar, n1);
+        if(n == N) return new ApproximatedInterval(Ny_bar, 0, n);
+
         let s_squared = n1 * (n - n1) / n / (n - 1);
         let s = Math.sqrt(s_squared);
 
@@ -80,13 +83,14 @@ export class MeanApproximator implements ApproximatorTrait {
         if(n1 == 0) return EmptyApproximatedInterval;
         let X_bar = value.sum / n1;
         if(n1 == 1) return new ApproximatedPoint(X_bar, n1);
+        if(n == N) return new ApproximatedInterval(X_bar, 0, n);
+
         let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
         let s = Math.sqrt(s_squared);
 
         return new ApproximatedInterval(X_bar, Math.sqrt(1 - n / N) * s / Math.sqrt(n1), n1);
     }
 }
-
 
 export class SumApproximator implements ApproximatorTrait {
     type = 'Sum';
@@ -103,6 +107,7 @@ export class SumApproximator implements ApproximatorTrait {
         let X_bar = value.sum / n1;
 
         if(n1 == 1) return new ApproximatedPoint(X_bar, n1);
+        if(n == N) return new ApproximatedInterval(X_bar, 0, n);
 
         let s_squared = (value.ssum - n1 * X_bar * X_bar) / (n1 - 1);
         let s = Math.sqrt(s_squared);

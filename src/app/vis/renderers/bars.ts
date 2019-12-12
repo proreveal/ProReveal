@@ -145,6 +145,8 @@ export class BarsRenderer {
 
         this.labelWidth = labelWidth;
 
+        let done = query.visibleProgress.done();
+
         const xMin = query.approximator.alwaysNonNegative ? 0 : d3.min(data, d => d.ci3.low);
         const xMax = d3.max(data, d => d.ci3.high);
 
@@ -155,6 +157,7 @@ export class BarsRenderer {
 
         if (query.domainStart > domainStart) query.domainStart = domainStart;
         if (query.domainEnd < domainEnd) query.domainEnd = domainEnd;
+
 
         const xTitleHeight = B.title.x.height;
         const xLabelHeight = B.label.height;
@@ -167,7 +170,6 @@ export class BarsRenderer {
                 barsFullHeight + xLabelHeight * 2);
 
         let svg = d3.select(visGridSet.svg);
-        let done = query.visibleProgress.done();
         let visG = svg.select('g.vis');
 
         visGridSet.d3Svg.on('contextmenu', () => d3.event.preventDefault());
@@ -175,9 +177,6 @@ export class BarsRenderer {
         this.height = height;
 
         const availHeight = Math.min(visGridSet.gridFullHeight, barsFullHeight + xTitleHeight + xLabelHeight);
-
-        // console.log(xTitleHeight, xLabelHeight, visGridSet.visGrid.getBoundingClientRect() || 112,
-        //     visGridSet.visGrid.getBoundingClientRect().top);
 
         const barsAvailWidth = (this.isMobile ? window.screen.availWidth - 8 : B.width) - labelWidth;
         // -8 = .25rem
@@ -443,8 +442,14 @@ export class BarsRenderer {
 
             leftBars.merge(enter)
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.center) - xScale(d.ci3.low), B.minimumGradientWidth))
+                .attr('width', d => {
+                    if(done) return 0;
+
+                    return Math.max(xScale(d.ci3.center) - xScale(d.ci3.low), B.minimumGradientWidth);
+                })
                 .attr('transform', (d, i) => {
+                    if(done) return translate(xScale(d.ci3.center), yScale(i + ''));
+
                     if (xScale(d.ci3.center) - xScale(d.ci3.low) < B.minimumGradientWidth)
                         return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''))
                     return translate(xScale(d.ci3.low), yScale(i + ''));
@@ -471,6 +476,8 @@ export class BarsRenderer {
                 .attr('height', yScale.bandwidth())
                 .attr('width', d => done ? 0 : Math.max(xScale(d.ci3.high) - xScale(d.ci3.center), B.minimumGradientWidth))
                 .attr('transform', (d, i) => {
+                    if(done) return translate(xScale(d.ci3.center), yScale(i + ''));
+
                     if (xScale(d.ci3.high) - xScale(d.ci3.center) < B.minimumGradientWidth)
                         return translate(xScale(d.ci3.center), yScale(i + ''))
                     return translate(xScale(d.ci3.center), yScale(i + ''));
@@ -546,8 +553,14 @@ export class BarsRenderer {
             barEventBoxes.merge(enter)
                 .style('cursor', 'pointer')
                 .attr('height', yScale.bandwidth())
-                .attr('width', d => Math.max(B.minimumGradientWidth * 2, xScale(d.ci3.high) - xScale(d.ci3.low)))
+                .attr('width', d => {
+                    if(done) return B.minimumGradientWidth * 2;
+
+                    return Math.max(B.minimumGradientWidth * 2, xScale(d.ci3.high) - xScale(d.ci3.low))
+                })
                 .attr('transform', (d, i) => {
+                    if(done) return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''));
+
                     if (B.minimumGradientWidth * 2 > xScale(d.ci3.high) - xScale(d.ci3.low))
                         return translate(xScale(d.ci3.center) - B.minimumGradientWidth, yScale(i + ''))
                     return translate(xScale(d.ci3.low), yScale(i + ''))

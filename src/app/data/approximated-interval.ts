@@ -31,3 +31,4 @@ export class ApproximatedPoint extends ApproximatedInterval {
 }
 
 export const EmptyApproximatedInterval = new ApproximatedInterval(0, 0, 0);
+

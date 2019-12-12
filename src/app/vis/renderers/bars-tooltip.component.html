@@ -3,7 +3,7 @@
     <field-grouped-value-indicator [fieldGroupedValue]="data.datum.keys.list[0]"></field-grouped-value-indicator>
 </strong>
 <br />
-{{ data.datum.ci3.center | smartNumber: data.query.target }} ± {{ data.datum.ci3.stdev | smartNumber: data.query.target }} <br />
+{{ data.datum.ci3.center | smartNumber: data.query.target }} <span *ngIf="data.datum.ci3.stdev > 0">± {{ data.datum.ci3.stdev | smartNumber: data.query.target }}</span> <br />
 <hr class="m-0 mt-1" style="border-color:white; opacity:0.5" />
 <small>{{ L.NumRows }} = {{ data.datum.accumulatedValue.count | number }}</small>
 </div>
