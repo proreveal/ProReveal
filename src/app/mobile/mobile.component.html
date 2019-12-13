@@ -11,7 +11,7 @@
             ProReveal
             </a>
         </div>
-        <small *ngIf="engine && engine.dataset">({{ engine.dataset.name }})</small> <!--, CODE: <strong>{{ storage.code}}</strong>)</small>-->
+        <small *ngIf="engine && engine.dataset">{{ engine.dataset.name }}, CODE: <strong>{{ storage.code}}</strong>)</small>
     </div>
     <div>
         <button class="btn text-light" (click)="Util.toggleFullScreen()">

@@ -122,6 +122,7 @@ export class RemoteEngine {
                 q.order = data[q.id].order;
             });
 
+            console.log(this.queries);
             this.ongoingQueries = this.queries.filter(q => !q.done());
             this.completedQueries = this.queries.filter(q => q.done());
 

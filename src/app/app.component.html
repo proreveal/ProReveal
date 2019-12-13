@@ -8,7 +8,7 @@
         <div class="mr-auto">
             <button (click)="toggleMetadataEditor()" class="btn btn-sm btn-dark" id="open-metadata-editor">
                 <fa-icon icon="folder-open"></fa-icon>
-                <span *ngIf="engine.dataset"> ({{ engine.dataset.name }})</span>
+                <span *ngIf="engine.dataset"> {{ engine.dataset.name }}, CODE: <strong>{{ storage.code}}</strong></span>
             </button>
             <ng-container *ngIf="engineType == 'browser' && !isStudying && debug">
                 <span class="text-light navbar-text">
