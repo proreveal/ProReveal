@@ -14,7 +14,7 @@
   Cannot connect to <strong>ws://{{ Env.apiHost }}</strong>.
 </div>
 <div class="alert alert-success text-sm p-2" role="alert" *ngIf="socket.ws.connected">
-  Connected to <strong>ws://{{ Env.apiHost}}</strong> (ProReveal Engine {{ socket.serverInfo.version }}).
+  Connected to <strong>ws://{{ Env.apiHost }}</strong> (ProReveal Engine {{ socket.serverInfo.version }}).
 </div>
 
 <form (submit)="restore()">
