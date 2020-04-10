@@ -2,6 +2,8 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Safeguard, SafeguardTypes } from '../../safeguard/safeguard';
 import { Constants } from '../../constants';
 
+let id = 0;
+
 @Component({
     selector: 'sg-list-item',
     templateUrl: './sg-list-item.component.html',
@@ -14,8 +16,21 @@ export class SgListItemComponent implements OnInit {
     @Input('safeguard') sg: Safeguard;
     @Output('removeClicked') removeClicked:EventEmitter<Safeguard> = new EventEmitter();
 
-    constructor() { }
+    alarmOpen = true;
+    id = '';
+
+    constructor() {
+        this.id = (id++).toString();
+    }
 
     ngOnInit() {
+    }
+
+    toggleAlarm() {
+        this.alarmOpen = !this.alarmOpen;
+    }
+
+    ceil(v:number) {
+        return Math.ceil(v);
     }
 }

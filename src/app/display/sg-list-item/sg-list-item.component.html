@@ -1,22 +1,69 @@
 <div class="wrapper border-bottom p-1">
     <span class="badge badge-primary">{{ L[sg.type] }}</span>
     <span class="badge badge-secondary ml-1">{{ sg.query.recentProgress.processedPercent() | percent}}</span>
+    <span class="badge badge-warning ml-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+
     <div class="display mb-1">
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
-    <p-indicator *ngIf="(sg.type == SGT.Value || sg.type == SGT.Rank) && sg.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
-    <boolean-indicator *ngIf="(sg.type == SGT.Value || sg.type == SGT.Rank) && !sg.query.approximator.estimatable" [t]="sg.t()"></boolean-indicator>
+    <div class="d-flex">
+        <p-indicator *ngIf="sg.isP()" [p]="sg.p()" class="flex-grow-1"></p-indicator>
 
-    <p-indicator *ngIf="sg.type == SGT.Range && sg.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
-    <boolean-indicator *ngIf="sg.type == SGT.Range && !sg.query.approximator.estimatable" [t]="sg.t()"></boolean-indicator>
+        <boolean-indicator *ngIf="sg.isBoolean()" [t]="sg.t()" class="flex-grow-1"></boolean-indicator>
 
-    <p-indicator *ngIf="sg.type == SGT.Comparative && sg.query.approximator.estimatable" [p]="sg.p()"></p-indicator>
-    <boolean-indicator *ngIf="sg.type == SGT.Comparative && !sg.query.approximator.estimatable" [t]="sg.t()"></boolean-indicator>
+        <quality-indicator *ngIf="sg.isQuality()" [q]="sg.q()" class="flex-grow-1"></quality-indicator>
 
-    <quality-indicator *ngIf="sg.type == SGT.PowerLaw || sg.type == SGT.Normal" [q]="sg.q()"></quality-indicator>
-    <error-indicator *ngIf="sg.type == SGT.Linear" [e]="sg.e()"></error-indicator>
+        <error-indicator *ngIf="sg.isError()" [e]="sg.e()" class="flex-grow-1"></error-indicator>
 
+        <button type="button" class="btn btn-sm btn-warning ml-1" (click)="toggleAlarm()">
+            <fa-icon [icon]="['far', 'bell']" [hidden]="alarmOpen"></fa-icon>
+            <fa-icon [icon]="['fas', 'bell']" [hidden]="!alarmOpen"></fa-icon>
+        </button>
+    </div>
+
+    <div class="p-1 alarm-border rounded mt-1" *ngIf="alarmOpen">
+        <h6 class="m-1">Alert me</h6>
+        <hr class="alarm-border my-1 sep">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="id+1">
+            <label class="form-check-label" [for]="id+1">
+                when the progress reaches to a point
+            </label>
+        </div>
+        <div class="form-inline my-1">
+            <input type="number" class="form-control form-control-sm  text-align-right" [min]="ceil(sg.query.visibleProgress.processedPercent() * 100)" max="100" style="width:60px">
+            <span class="ml-1">%</span>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="id+2">
+            <label class="form-check-label" [for]="id+2">
+                after a certain period of time
+            </label>
+        </div>
+
+        <div class="form-inline my-1">
+            <input type="number" class="form-control form-control-sm  text-align-right" min="1" style="width:60px">
+            <select class="form-control form-control-sm ml-1">
+                <option>seconds</option>
+                <option selected>minutes</option>
+                <option>hours</option>
+            </select>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="id+2">
+            <label class="form-check-label" [for]="id+2">
+                when the validity measure meets a criterion
+            </label>
+        </div>
+        <div class="form-inline my-1">
+            <em>{{ sg.validityName() }}</em>
+            <span class="ml-1">{{ sg.isP() || sg.isError() ? '>' : '<'}}</span>
+            <input type="number" class="form-control form-control-sm ml-1" min="0" style="width:100px">
+        </div>
+    </div>
     <!--<fa-icon [icon]="['far', 'clock']"></fa-icon>
     <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>
     <p class="m-0">Created {{ sg.createdAt | amTimeAgo }}</p> -->
@@ -24,4 +71,5 @@
     <button type="button" class="remove px-2 py-1" aria-label="Close" (click)="removeClicked.emit(sg)">
         <fa-icon [icon]="['fas', 'times']"></fa-icon>
     </button>
+
 </div>

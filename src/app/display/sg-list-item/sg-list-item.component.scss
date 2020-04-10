@@ -33,6 +33,15 @@
     font-weight: normal;
 }
 
+.alarm-border {
+    border: rgb(255, 193, 7) 1px solid;
+}
+
+.text-align-right {
+    text-align: right;
+}
+
+.sep {border-bottom: none;}
 
 @media screen and (max-width: 720px) {
     .remove {

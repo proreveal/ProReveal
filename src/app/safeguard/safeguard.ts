@@ -9,6 +9,7 @@ import {
 import { ValidityTypes, Validity } from './validity';
 import { AggregateQuery } from '../data/query';
 import { Dataset } from '../data/dataset';
+import { Constants } from '../constants';
 
 const ValueEstimate = new ValueEstimator().estimate;
 const MinMaxValueEstimate = new MinMaxValueEstimator().estimate
@@ -80,6 +81,38 @@ export abstract class Safeguard {
             constant: this.constant ? this.constant.toJSON() : null,
             queryId: this.query.id
         }
+    }
+
+    isP() {
+        return (this.type == SafeguardTypes.Value ||
+            this.type == SafeguardTypes.Rank ||
+            this.type == SafeguardTypes.Comparative ||
+            this.type == SafeguardTypes.Range
+            ) && this.query.approximator.estimatable;
+    }
+
+    isBoolean() {
+        return (this.type == SafeguardTypes.Value ||
+            this.type == SafeguardTypes.Rank ||
+            this.type == SafeguardTypes.Comparative ||
+            this.type == SafeguardTypes.Range
+            ) && !this.query.approximator.estimatable
+    }
+
+    isQuality() {
+        return this.type == SafeguardTypes.PowerLaw ||
+        this.type == SafeguardTypes.Normal;
+    }
+
+
+    isError() {
+        return this.type == SafeguardTypes.Linear;
+    }
+
+    validityName() {
+        if(this.isP()) return Constants.locale.P;
+        if(this.isQuality()) return Constants.locale.KSStatistic;
+        if(this.isError()) return Constants.locale.RMSE;
     }
 
     static fromJSON(json: any, dataset: Dataset, query: AggregateQuery) {
