@@ -10,7 +10,7 @@
                 <fa-icon icon="folder-open"></fa-icon>
                 <span *ngIf="engine.dataset"> {{ engine.dataset.name }}, CODE: <strong>{{ storage.code}}</strong></span>
             </button>
-            <ng-container *ngIf="engineType == 'browser' && !isStudying && debug">
+            <ng-container *ngIf="engineType == 'browser' && false">
                 <span class="text-light navbar-text">
                     Debug Menu
                 </span>
@@ -64,7 +64,7 @@
             </ng-container>
         </div>
 
-        <div *ngIf="isStudying">
+        <div *ngIf="false">
             <button type="button" class="btn btn-sm btn-dark" (click)="isStudyMenuVisible=!isStudyMenuVisible">
                 <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
             </button>
@@ -251,6 +251,8 @@
                 (mouseleave)="sgMouseLeave(sg)"
                 (click)="sgClick(sg)"
                 ></sg-list-item>
+            
+            <button style="opacity:0" (click)="emulateNoti()">test</button>
         </section>
     </section>
 

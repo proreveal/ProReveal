@@ -739,4 +739,17 @@ export class MobileComponent implements OnInit, AfterViewChecked {
             data: data
         })
     }
+
+    emulateNoti() {
+        navigator.serviceWorker.register('sw.js');
+
+        Notification.requestPermission().then(function(result) {
+            console.log(result);
+            let options = {
+                body: "The Value PVA-Guard you left on Genre has a new notification.",
+                icon: "assets/apple-icon-114x114.png"
+            };
+            let n = new Notification("PVA-Guard Alert", options);
+        });
+    }
 }

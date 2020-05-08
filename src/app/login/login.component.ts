@@ -32,6 +32,7 @@ export class LoginComponent implements OnInit {
         })
 
         this.restore(); // TODO: for debugging
+        this.continueBrowser();
     }
 
     restore() {

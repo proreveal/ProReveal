@@ -2,6 +2,7 @@
     <span class="badge badge-primary">{{ L[sg.type] }}</span>
     <span class="badge badge-secondary ml-1">{{ sg.query.recentProgress.processedPercent() | percent}}</span>
     <span class="badge badge-warning ml-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+    <span class="badge badge-danger ml-1"><fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon></span>
 
     <div class="display mb-1">
         <sg-display [safeguard]="sg"></sg-display>
@@ -63,6 +64,19 @@
             <span class="ml-1">{{ sg.isP() || sg.isError() ? '>' : '<'}}</span>
             <input type="number" class="form-control form-control-sm ml-1" min="0" style="width:100px">
         </div>
+    </div>
+
+    <div class="p-1 alarm-border rounded mt-1">
+        <h6 class="m-1">Recent Activity</h6>
+        <p><em>p</em> has reached to a target (0.05).</p>
+        <hr class="alarm-border my-1 sep">
+
+        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Notify me if it happens again.</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Remove the alarm.</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Set the constant to the current value.</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Manually set the constant.</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Set a new <em>p</em> value for the alert.</button>
+        <button class="btn btn-sm btn-outline-danger" style="width:100%">Remove this PVA-Guard.</button>
     </div>
     <!--<fa-icon [icon]="['far', 'clock']"></fa-icon>
     <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>

@@ -28,6 +28,7 @@ import { StorageService } from './services/storage.service';
 import { Router } from '@angular/router';
 import { QueryState } from './data/query-state';
 import { SocketService } from './services/socket.service';
+import { FieldGroupedValue } from './data/field-grouped-value';
 
 @Component({
     selector: 'app-main',
@@ -93,11 +94,6 @@ export class AppComponent implements OnInit {
 
     operator = Operators.LessThanOrEqualTo;
 
-    data: string;
-    isStudying = false;
-    isStudyMenuVisible = false;
-    debug = false;
-
     constructor(private modalService: NgbModal, public logger: LoggerService,
         private storage: StorageService, public socket: SocketService,
         private router:Router) {
@@ -118,8 +114,6 @@ export class AppComponent implements OnInit {
         const engineType = this.storage.engineType;
         this.engineType = engineType;
 
-        this.debug = parameters.debug || 0;
-
         if(engineType == 'browser') {
             this.socket.disconnect();
 
@@ -130,9 +124,6 @@ export class AppComponent implements OnInit {
             const sid = parameters.sid || '0';
             const alternate = parameters.alternate || false;
 
-            this.data = data;
-            this.isStudying = parameters.study || 0;
-
             this.engine = new BrowserEngine(`./assets/${data}.json`, `./assets/${data}.schema.json`);
             this.engine.alternate = alternate;
 
@@ -140,8 +131,8 @@ export class AppComponent implements OnInit {
                 this.engine.reschedule(true);
 
             this.engine.load().then(([dataset]) => {
-                if (!this.isStudying) this.logger.mute();
-                else this.logger.setup(uid, sid);
+                this.logger.mute();
+                //this.logger.setup(uid, sid);
 
                 this.logger.log(LogType.AppStarted, { sid: sid, uid: uid });
 
@@ -174,6 +165,19 @@ export class AppComponent implements OnInit {
                 if(data === 'movies_en') {
                     this.create(new EmptyQuery(dataset).combine(dataset.getFieldByName('Genre')));
                     this.querySelected(this.engine.ongoingQueries[0]);
+
+                    // create a PVA-guard programmatically
+
+                    setTimeout(() => {
+                    
+                        this.variable1 = new SingleVariable(new FieldGroupedValue(
+                            dataset.getFieldByName('Genre'),
+                            6))
+
+                        this.operator = Operators.LessThan;
+                        this.valueConstant = new ValueConstant(3000);
+                        this.createValueSafeguard();
+                    }, 2000);
                 }
             });
         }
@@ -290,6 +294,7 @@ export class AppComponent implements OnInit {
 
     createValueSafeguard() {
         let variable = this.variable1 || this.combinedVariable1;
+        console.log(this.variable1);
         if (!variable) return;
 
         let sg = new ValueSafeguard(variable, this.operator, this.valueConstant, this.activeQuery);
@@ -657,5 +662,16 @@ export class AppComponent implements OnInit {
             safeguards: this.engine.safeguards.map(sg => sg.toLog()),
             data: data
         })
+    }
+
+    emulateNoti() {
+        Notification.requestPermission().then(function(result) {
+            console.log(result);
+            let options = {
+                body: "The Value PVA-Guard you left on Genre has a new notification.",
+                icon: "assets/apple-icon-114x114.png"
+            };
+            let n = new Notification("PVA-Guard Alert", options);
+        });
     }
 }
