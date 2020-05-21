@@ -52,6 +52,13 @@ import { DropdownComponent } from './figure/dropdown/dropdown.component';
 import { MobileComponent } from './mobile/mobile.component';
 import { RootComponent } from './root.component';
 import { LoginComponent } from './login/login.component';
+import { ValueIconComponent } from './vis/icons/value-icon/value-icon.component';
+import { RankIconComponent } from './vis/icons/rank-icon/rank-icon.component';
+import { RangeIconComponent } from './vis/icons/range-icon/range-icon.component';
+import { ComparativeIconComponent } from './vis/icons/comparative-icon/comparative-icon.component';
+import { PowerlawIconComponent } from './vis/icons/powerlaw-icon/powerlaw-icon.component';
+import { NormalIconComponent } from './vis/icons/normal-icon/normal-icon.component';
+import { LinearIconComponent } from './vis/icons/linear-icon/linear-icon.component';
 
 library.add(fas, far);
 
@@ -97,7 +104,14 @@ const appRoutes: Routes = [
         DropdownComponent,
         MobileComponent,
         RootComponent,
-        LoginComponent
+        LoginComponent,
+        ValueIconComponent,
+        RankIconComponent,
+        RangeIconComponent,
+        ComparativeIconComponent,
+        PowerlawIconComponent,
+        NormalIconComponent,
+        LinearIconComponent
     ],
     imports: [
         NgbModule,

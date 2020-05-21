@@ -256,62 +256,42 @@
             </a>
             <h6 class="dropdown-header px-3">{{ L.CreateSafeguardOnThis }}</h6>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Value)">
-                <svg class="mr-1">
-                    <circle cx="10" cy="12" r="3"></circle>
-                </svg>
-                <span class="title">{{ S.Value }}</span>
+                <value-icon class="mr-1"></value-icon>
+                <span class="title mr-1">{{ S.Value }}</span>
                 <em><small>V(A) ≥ C</small></em>
             </a>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Rank)"
                 [hidden]="!query.isRankAvailable">
-                <svg class="mr-1">
-                    <text dy=".55em" text-anchor="middle" x="10" y="8">1</text>
-                </svg>
-                <span class="title">{{ S.Rank }}</span>
+                <rank-icon class="mr-1"></rank-icon>
+                <span class="title mr-1">{{ S.Rank }}</span>
                 <em><small>Rank(A) ≤ C</small></em>
             </a>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Range)">
-                <svg class="mr-1">
-                    <line x1="3" x2="17" y1="12" y2="12"></line>
-                    <line x1="2" x2="2" y1="8" y2="16"></line>
-                    <line x1="18" x2="18" y1="8" y2="16"></line>
-                </svg>
-                <span class="title">{{ S.Range }}</span>
+                <range-icon class="mr-1"></range-icon>
+                <span class="title mr-1">{{ S.Range }}</span>
                 <em><small>V(A) ∈ [a, b]</small></em>
             </a>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Comparative)">
-                <svg class="mr-1">
-                    <line x1="6" x2="14" y1="12" y2="8"></line>
-                    <line x1="6" x2="14" y1="12" y2="16"></line>
-                </svg>
-                <span class="title">{{ S.Comparative }}</span>
+                <comparative-icon class="mr-1"></comparative-icon>
+                <span class="title mr-1">{{ S.Comparative }}</span>
                 <em><small>V(A) &lt; V(B)</small></em>
             </a>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.PowerLaw)"
                 [hidden]="!query.isPowerLawAvailable">
-                <svg class="mr-1">
-                    <path d="M 18 16 C 10 16 4 16 2 5"/>
-                </svg>
-                <span class="title">{{ S.PowerLaw }}</span>
+                <powerlaw-icon class="mr-1"></powerlaw-icon>                
+                <span class="title mr-1">{{ S.PowerLaw }}</span>
                 <em><small>V(x) ~ αx<sup>k</sup></small></em>
             </a>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Normal)"
                 [hidden]="!query.isNormalAvailable">
-                <svg class="mr-1">
-                    <path d="M1.678 14.4c.517-.065 1.024-.173 1.511-.37.485-.196.913-.494 1.309-.842.385-.338.721-.753 1.018-1.176.305-.435.587-.886.85-1.35.27-.478.529-.963.785-1.45.252-.477.503-.953.765-1.424.256-.46.532-.918.855-1.33.168-.214.352-.404.559-.576.201-.167.444-.261.698-.281.258-.02.502 .112.71 .254.213 .146.39 .352.554 .552.339 .412.611 .882.878 1.347.258 .45.497 .913.739 1.372.255 .484.51 .968.779 1.445.261 .462.534 .918.838 1.351.311 .444.652 .862 1.043 1.231.385 .363.824 .646 1.3.857 .458.203 .961.314 1.454.376"/>
-                </svg>
-                <span class="title">{{ S.Normal }}</span>
+                <normal-icon class="mr-1"></normal-icon>                
+                <span class="title mr-1">{{ S.Normal }}</span>
                 <em><small>V(x) ~ N(μ, sigma)</small></em>
             </a>
             <a class="dropdown-item px-3" href="#" (click)="safeguardClick(SGT.Linear)"
                 [hidden]="!query.isLinearAvailable">
-                <svg class="mr-1">
-                    <circle cx="17" cy="8" r="2"></circle>
-                    <circle cx="8" cy="8" r="2"></circle>
-                    <circle cx="5" cy="16" r="2"></circle>
-                    <line x1="2" y1="20" x2="20" y2="0" class="thin"></line>
-                </svg>
-                <span class="title">{{ S.Linear }}</span>
+                <linear-icon class="mr-1"></linear-icon>
+                <span class="title mr-1">{{ S.Linear }}</span>
                 <em><small>y = ax + b</small></em>
             </a>
 

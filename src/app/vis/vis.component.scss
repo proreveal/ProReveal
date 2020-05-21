@@ -89,41 +89,12 @@ header {
         text-align: center;
     }
 
-    svg {
-        width: 20px;
-        height: 24px;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    text {
-        font-family: "Arial";
-        font-weight: bold;
-    }
-
-    line {
-        stroke: black;
-        stroke-width: 3px;
-        stroke-linecap: round;
-
-        &.thin {
-            stroke-width: 2px;
-        }
-    }
-
-    path {
-        stroke: black;
-        stroke-width: 3px;
-        stroke-linecap: round;
-        fill: none;
-    }
-
     small {
         opacity: 0.8;
         font-family: "Roboto Condensed";
     }
 
-    a:active {
+    ::ng-deep a:active {
         line,
         path {
             stroke: white;
