@@ -26,11 +26,13 @@
 }
 
 .display {
-    word-break: break-all;
+    font-size: 1rem;
+    //word-break: break-all;
 }
 
 .badge {
     font-weight: normal;
+    font-size: .9rem;
 }
 
 .alarm-border {
@@ -42,6 +44,30 @@
 }
 
 .sep {border-bottom: none;}
+
+.icon-wrapper {
+    height: 0.85rem !important;
+    display: inline-block;
+    width: 16px;
+}
+
+::ng-deep {
+    .sg-icon {
+        transform: scale(0.8);
+        display:inline-block;
+    }
+    .sg-icon svg{
+        position: relative;
+        margin-top: -5px;
+        margin-left: -3px;
+        line, path {
+            stroke: white !important;
+        }
+        circle, text {
+            fill: white !important;
+        }
+    }
+}
 
 @media screen and (max-width: 720px) {
     .remove {

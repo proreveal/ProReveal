@@ -1,10 +1,21 @@
 <div class="wrapper border-bottom p-1">
-    <span class="badge badge-primary">{{ L[sg.type] }}</span>
+    <span class="badge badge-primary">
+        <div class="icon-wrapper">
+            <value-icon *ngIf="sg.type === 'Value'" class="sg-icon"></value-icon>
+            <range-icon *ngIf="sg.type === 'Range'" class="sg-icon"></range-icon>
+            <comparative-icon *ngIf="sg.type === 'Comparative'" class="sg-icon"></comparative-icon>
+            <rank-icon *ngIf="sg.type === 'Rank'" class="sg-icon"></rank-icon>
+            <powerlaw-icon *ngIf="sg.type === 'PowerLaw'" class="sg-icon"></powerlaw-icon>
+            <normal-icon *ngIf="sg.type === 'Normal'" class="sg-icon"></normal-icon>
+            <linear-icon *ngIf="sg.type === 'Linear'" class="sg-icon"></linear-icon>
+        </div>
+        {{ L[sg.type] }}
+    </span>
     <span class="badge badge-secondary ml-1">{{ sg.query.recentProgress.processedPercent() | percent}}</span>
     <span class="badge badge-warning ml-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
     <span class="badge badge-danger ml-1"><fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon></span>
 
-    <div class="display mb-1">
+    <div class="display my-1">
         <sg-display [safeguard]="sg"></sg-display>
     </div>
 
