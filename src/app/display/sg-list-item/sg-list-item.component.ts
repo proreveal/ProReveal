@@ -16,7 +16,7 @@ export class SgListItemComponent implements OnInit {
     @Input('safeguard') sg: Safeguard;
     @Output('removeClicked') removeClicked:EventEmitter<Safeguard> = new EventEmitter();
 
-    alarmOpen = true;
+    panelOpen = true;
     id = '';
 
     constructor() {
@@ -26,8 +26,8 @@ export class SgListItemComponent implements OnInit {
     ngOnInit() {
     }
 
-    toggleAlarm() {
-        this.alarmOpen = !this.alarmOpen;
+    togglePanel() {
+        this.panelOpen = !this.panelOpen;
     }
 
     ceil(v:number) {

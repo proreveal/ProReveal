@@ -28,15 +28,16 @@
 
         <error-indicator *ngIf="sg.isError()" [e]="sg.e()" class="flex-grow-1"></error-indicator>
 
-        <button type="button" class="btn btn-sm btn-warning ml-1" (click)="toggleAlarm()">
-            <fa-icon [icon]="['far', 'bell']" [hidden]="alarmOpen"></fa-icon>
-            <fa-icon [icon]="['fas', 'bell']" [hidden]="!alarmOpen"></fa-icon>
+        <button type="button" class="btn btn-sm btn-warning ml-1" (click)="togglePanel()"
+            [class.open]="panelOpen">
+            <fa-icon [icon]="['far', 'bell']" [hidden]="panelOpen"></fa-icon>
+            <fa-icon [icon]="['fas', 'bell']" [hidden]="!panelOpen"></fa-icon>
         </button>
     </div>
 
-    <div class="p-1 alarm-border rounded mt-1" *ngIf="alarmOpen">
-        <h6 class="m-1">Alert me</h6>
-        <hr class="alarm-border my-1 sep">
+    <div class="p-1 notification-border rounded" *ngIf="panelOpen">
+        <h6 class="m-1">Notification Settings</h6>
+        <hr class="notification-border my-1 sep">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" [id]="id+1">
             <label class="form-check-label" [for]="id+1">
@@ -77,13 +78,13 @@
         </div>
     </div>
 
-    <div class="p-1 alarm-border rounded mt-1">
+    <div class="p-1 notification-border rounded mt-1">
         <h6 class="m-1">Recent Activity</h6>
         <p><em>p</em> has reached to a target (0.05).</p>
-        <hr class="alarm-border my-1 sep">
+        <hr class="notification-border my-1 sep">
 
         <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Notify me if it happens again.</button>
-        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Remove the alarm.</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Remove the notification.</button>
         <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Set the constant to the current value.</button>
         <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Manually set the constant.</button>
         <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Set a new <em>p</em> value for the alert.</button>

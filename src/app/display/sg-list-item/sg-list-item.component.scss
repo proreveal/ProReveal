@@ -35,12 +35,18 @@
     font-size: .9rem;
 }
 
-.alarm-border {
+.notification-border {
     border: rgb(255, 193, 7) 1px solid;
+    border-top-right-radius: 0px !important;
 }
 
 .text-align-right {
     text-align: right;
+}
+
+.open {
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
 
 .sep {border-bottom: none;}
