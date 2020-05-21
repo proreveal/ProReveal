@@ -1063,9 +1063,11 @@ export class BarsRenderer {
         }
     }
 
-    hideTooltip(/*d: Datum, i: number*/) {
+    hideTooltip() {
         this.tooltip.hide();
 
+        this.eventBoxes.classed('highlighted', false);
+        
         // if ([SGT.Value, SGT.Rank, SGT.Range, SGT.Comparative].includes(this.safeguardType)) {
         //     if ((!this.variable1 || this.variable1.fieldGroupedValue.hash
         //         !== d.keys.list[0].hash) &&
