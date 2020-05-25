@@ -14,10 +14,11 @@ export class SgListItemComponent implements OnInit {
     L = Constants.locale;
 
     @Input('safeguard') sg: Safeguard;
-    @Output('removeClicked') removeClicked:EventEmitter<Safeguard> = new EventEmitter();
+    @Output('removeClicked') removeClicked: EventEmitter<Safeguard> = new EventEmitter();
 
     configPanelOpen = true;
     rulePanelOpen = false;
+    actionPanelOpen = false;
     id = '';
     demo1 = true;
 
@@ -35,14 +36,34 @@ export class SgListItemComponent implements OnInit {
     openConfigPanel() {
         this.configPanelOpen = true;
         this.rulePanelOpen = false;
+        this.actionPanelOpen = false;
     }
-    
+
     openRulePanel() {
         this.rulePanelOpen = true;
         this.configPanelOpen = false;
+        this.actionPanelOpen = false;
     }
 
-    ceil(v:number) {
+    openActionPanel() {
+        this.actionPanelOpen = true;
+        this.configPanelOpen = false;
+        this.rulePanelOpen = false;
+    }
+
+
+    ceil(v: number) {
         return Math.ceil(v);
+    }
+
+    emulateNoti() {
+        Notification.requestPermission().then(function (result) {
+            let options = {
+                body: "The Value PVA-Guard you left on Genre has a new notification.",
+                icon: "assets/apple-icon-114x114.png"
+            };
+            let n: Notification;
+            n = new Notification("ProReveal Notification", options);
+        });
     }
 }

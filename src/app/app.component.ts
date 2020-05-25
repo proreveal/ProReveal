@@ -666,7 +666,6 @@ export class AppComponent implements OnInit {
 
     emulateNoti() {
         Notification.requestPermission().then(function(result) {
-            console.log(result);
             let options = {
                 body: "The Value PVA-Guard you left on Genre has a new notification.",
                 icon: "assets/apple-icon-114x114.png"

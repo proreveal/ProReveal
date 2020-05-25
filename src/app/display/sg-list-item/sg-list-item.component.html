@@ -43,15 +43,52 @@
             Remove
         </button>
     </div> -->
-    <div class="p-1 config-border rounded" *ngIf="configPanelOpen">        
-        <h5 class="m-1">Rules</h5>
+    <div class="p-1 config-border rounded config-panel" *ngIf="configPanelOpen">        
+        <h5 class="m-1">Notification Rules</h5>
+        <button class="btn btn-mini btn-primary new-rule" (click)="openRulePanel()">New Rule</button>
         <hr class="config-border my-1 sep">
         <p>
             No notification rules are added. Add one by clicking on the "New Rule" button below.
         </p>
-        <button class="btn btn-sm btn-primary w-100" (click)="openRulePanel()">New Rule</button>
+
+        <div class="rule my-1 d-flex align-items-center">
+            <span class="badge badge-warning align-self-center mr-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+            <div class="mr-auto" (click)="openActionPanel()">When the progress reaches to <strong>50%</strong></div>
+            <button class="btn btn-sm ml-1"><fa-icon [icon]="['fas', 'times']"></fa-icon></button>
+        </div>
+        <div class="rule my-1 d-flex align-items-center">
+            <span class="badge badge-warning align-self-center mr-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+            <div class="mr-auto" (click)="openActionPanel()">After <strong>50,000</strong> rows are processed</div>
+            <button class="btn btn-sm"><fa-icon [icon]="['fas', 'times']"></fa-icon></button>
+        </div>
+        <div class="rule my-1 d-flex align-items-center">
+            <span class="badge badge-warning align-self-center mr-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+            <div class="mr-auto" (click)="openActionPanel()">After <strong>4</strong> hours (3:00:00 remaining)</div>
+            <button class="btn btn-sm"><fa-icon [icon]="['fas', 'times']"></fa-icon></button>
+        </div>
+        <div class="rule my-1 d-flex align-items-center">
+            <span class="badge badge-warning align-self-center mr-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+            <div class="mr-auto" (click)="openActionPanel()">When <em>p</em> is greater than <strong>0.05</strong></div>
+            <button class="btn btn-sm"><fa-icon [icon]="['fas', 'times']"></fa-icon></button>
+        </div>
+        <div class="rule my-1 d-flex align-items-center">
+            <span class="badge badge-warning align-self-center mr-1"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+            <div class="mr-auto" (click)="openActionPanel()">When the progress reaches to <strong>70%</strong> and <em>p</em> is greater than <strong>0.01</strong></div>
+            <button class="btn btn-sm"><fa-icon [icon]="['fas', 'times']"></fa-icon></button>
+        </div>
+        <div class="rule my-1 d-flex align-items-center">
+            <span class="badge badge-warning align-self-center mr-1 expired"><fa-icon [icon]="['far', 'bell']"></fa-icon></span>
+            <div class="mr-auto" (click)="openActionPanel()">When the progress reaches to <strong>10%</strong></div>
+            <button class="btn btn-sm"><fa-icon [icon]="['fas', 'times']"></fa-icon></button>
+        </div>
+
         <button type="button" class="btn btn-sm btn-danger w-100 mt-1" (click)="removeClicked.emit(sg)">
-            Remove this PVA-Guard
+            Remove this PVA-Guard            
+        </button>
+
+        <div style="height:100px"></div>
+        <button type="button" class="btn btn-sm w-100 mt-1" (click)="emulateNoti()">
+            emulateNoti()
         </button>
     </div>
     <div class="p-1 config-border rounded" *ngIf="rulePanelOpen">
@@ -98,7 +135,7 @@
         <div class="form-check">
             <input class="form-check-input" type="checkbox" [id]="id+2">
             <label class="form-check-label" [for]="id+2">
-                <em>{{ sg.validityName() }}</em> becomes larger than a threshold.
+                <em>{{ sg.validityName() }}</em> becomes greater than a threshold.
             </label>
             <div class="d-flex flex-row align-items-center" *ngIf="demo1">
                 <em>{{ sg.validityName() }}</em>
@@ -110,7 +147,7 @@
         <div class="form-check">
             <input class="form-check-input" type="checkbox" [id]="id+2">
             <label class="form-check-label" [for]="id+2">
-                <em>Error</em> increases by a specific amount.
+                <em>Error</em> increases by a specific amount.                
             </label>
             <div class="d-flex flex-row align-items-center" *ngIf="demo1">
                 <input type="number" class="form-control form-control-sm text-right" min="1" max="100" value="30" style="width:40px">
@@ -124,19 +161,19 @@
         </div>
     </div>
 
-    <div class="p-1 config-border rounded mt-1">
-        <h6 class="m-1">Recent Activity</h6>
-        <p><em>p</em> has reached to a target (0.05).</p>
-        <hr class="notification-border my-1 sep">
+    <div class="p-1 config-border rounded" *ngIf="actionPanelOpen">
+        <h5 class="m-1">Notification</h5>
+        <hr class="config-border my-1 sep">
+        The following notification rule has been met (2020/05/25 18:30:00):
+        <div class="p-2 text-center">
+            <em>p</em> is greater than <strong>0.05</strong>.
+        </div>
 
-        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Notify me if it happens again.</button>
-        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Remove the notification.</button>
-        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Set the constant to the current value.</button>
-        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Manually set the constant.</button>
-        <button class="btn btn-sm btn-outline-secondary mb-1" style="width:100%">Set a new <em>p</em> value for the alert.</button>
-        <button class="btn btn-sm btn-outline-danger" style="width:100%">Remove this PVA-Guard.</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1 w-100 action">Leave the same PVA-Guard on <strong>Genre = Drama</strong></button>
+        <button class="btn btn-sm btn-outline-secondary mb-1 w-100 action">Increase the constant by <strong>1,000</strong></button>
+        <button class="btn btn-sm btn-outline-secondary mb-1 w-100 action">Increase the threshold to <strong>0.1</strong></button>
+        <button class="btn btn-sm btn-outline-secondary mb-1 w-100 action">Check this again after 30 minutes</button>
+        <button class="btn btn-sm btn-outline-secondary mb-1 w-100 action">Show this rule in the "New Rule" panel</button>
+        <button class="btn btn-sm btn-outline-danger mb-1 w-100 action" (click)="openConfigPanel()">Dismiss</button>
     </div>
-    <!--<fa-icon [icon]="['far', 'clock']"></fa-icon>
-    <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>
-    <p class="m-0">Created {{ sg.createdAt | amTimeAgo }}</p> -->
 </div>
