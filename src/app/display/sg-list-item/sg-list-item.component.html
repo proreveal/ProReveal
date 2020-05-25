@@ -28,57 +28,103 @@
 
         <error-indicator *ngIf="sg.isError()" [e]="sg.e()" class="flex-grow-1"></error-indicator>
 
-        <button type="button" class="btn btn-sm btn-warning ml-1" (click)="togglePanel()"
-            [class.open]="panelOpen">
-            <fa-icon [icon]="['far', 'bell']" [hidden]="panelOpen"></fa-icon>
-            <fa-icon [icon]="['fas', 'bell']" [hidden]="!panelOpen"></fa-icon>
+        <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="toggleConfigPanel()"
+            [class.open]="configPanelOpen">
+            <fa-icon [icon]="['fas', 'cog']"></fa-icon>
         </button>
     </div>
-
-    <div class="p-1 notification-border rounded" *ngIf="panelOpen">
-        <h6 class="m-1">Notification Settings</h6>
-        <hr class="notification-border my-1 sep">
+    <!-- <div class="p-1 config-border rounded" *ngIf="configPanelOpen && !notiPanelOpen">
+        <button type="button" class="btn btn-sm btn-warning mr-1" (click)="openNotiPanel()">
+            <fa-icon [icon]="['far', 'bell']"></fa-icon>
+            Manage notifications
+        </button>
+        <button type="button" class="btn btn-sm btn-danger" (click)="removeClicked.emit(sg)">
+            <fa-icon [icon]="['fas', 'times']"></fa-icon>
+            Remove
+        </button>
+    </div> -->
+    <div class="p-1 config-border rounded" *ngIf="configPanelOpen">        
+        <h5 class="m-1">Rules</h5>
+        <hr class="config-border my-1 sep">
+        <p>
+            No notification rules are added. Add one by clicking on the "New Rule" button below.
+        </p>
+        <button class="btn btn-sm btn-primary w-100" (click)="openRulePanel()">New Rule</button>
+        <button type="button" class="btn btn-sm btn-danger w-100 mt-1" (click)="removeClicked.emit(sg)">
+            Remove this PVA-Guard
+        </button>
+    </div>
+    <div class="p-1 config-border rounded" *ngIf="rulePanelOpen">
+        <h5 class="m-1">Adding a New Rule</h5>
+        <hr class="config-border my-1 sep">
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" [id]="id+1">
+            <input class="form-check-input font-control-lg" type="checkbox" [id]="id+1">
             <label class="form-check-label" [for]="id+1">
-                when the progress reaches to a point
+                The progress reaches to a point.
             </label>
+            <div class="d-flex flex-row align-items-center" *ngIf="demo1">
+                <input type="range" min="1" max="100" value="50" [id]="id+1" class="mr-2 w-100">
+                <input type="number" class="form-control form-control-sm text-right" min="1" max="100" value="50" style="width:40px">
+                <span class="ml-1">%</span>
+            </div>            
         </div>
-        <div class="form-inline my-1">
-            <input type="number" class="form-control form-control-sm  text-align-right" [min]="ceil(sg.query.visibleProgress.processedPercent() * 100)" max="100" style="width:60px">
-            <span class="ml-1">%</span>
+        <div class="form-check">
+            <input class="form-check-input font-control-lg" type="checkbox" [id]="id+1">
+            <label class="form-check-label" [for]="id+1">
+                A certain number of rows are processed.
+            </label>
+            <div class="d-flex flex-row align-items-center" *ngIf="demo1">
+                <input type="range" min="1" max="100" value="50" [id]="id+1" class="mr-2 w-100">
+                <input type="number" class="form-control form-control-sm text-right" min="1" max="10000" value="5000" step="100" style="width:100px">
+                <span class="ml-1">rows</span>
+            </div>            
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="id+2">
+            <label class="form-check-label" [for]="id+2">
+                After a certain period of time
+            </label>
+            <div class="d-flex flex-row align-items-center" *ngIf="demo1">
+                <input type="number" class="form-control form-control-sm  text-right" min="1" max="300" value="30" style="width:50px">
+                <select class="form-control form-control-sm ml-1" style="width:100px">
+                    <option selected>minutes</option>
+                    <option>hours</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center condition-and my-2">- AND -</div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="id+2">
+            <label class="form-check-label" [for]="id+2">
+                <em>{{ sg.validityName() }}</em> becomes larger than a threshold.
+            </label>
+            <div class="d-flex flex-row align-items-center" *ngIf="demo1">
+                <em>{{ sg.validityName() }}</em>
+                <span class="ml-1">{{ sg.isP() || sg.isError() ? '>' : '<'}}</span>
+                <input type="number" class="form-control form-control-sm ml-1" min="0" value="0.05">
+            </div>
         </div>
 
         <div class="form-check">
             <input class="form-check-input" type="checkbox" [id]="id+2">
             <label class="form-check-label" [for]="id+2">
-                after a certain period of time
+                <em>Error</em> increases by a specific amount.
             </label>
+            <div class="d-flex flex-row align-items-center" *ngIf="demo1">
+                <input type="number" class="form-control form-control-sm text-right" min="1" max="100" value="30" style="width:40px">
+                <span class="ml-1">%</span>
+            </div>            
         </div>
 
-        <div class="form-inline my-1">
-            <input type="number" class="form-control form-control-sm  text-align-right" min="1" style="width:60px">
-            <select class="form-control form-control-sm ml-1">
-                <option>seconds</option>
-                <option selected>minutes</option>
-                <option>hours</option>
-            </select>
-        </div>
-
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" [id]="id+2">
-            <label class="form-check-label" [for]="id+2">
-                when the validity measure meets a criterion
-            </label>
-        </div>
-        <div class="form-inline my-1">
-            <em>{{ sg.validityName() }}</em>
-            <span class="ml-1">{{ sg.isP() || sg.isError() ? '>' : '<'}}</span>
-            <input type="number" class="form-control form-control-sm ml-1" min="0" style="width:100px">
+        <div class="text-right mt-1">
+            <button class="btn btn-sm btn-success mr-1">Add a Rule</button>
+            <button class="btn btn-sm btn-danger" (click)="openConfigPanel()">Cancel</button>
         </div>
     </div>
 
-    <div class="p-1 notification-border rounded mt-1">
+    <div class="p-1 config-border rounded mt-1">
         <h6 class="m-1">Recent Activity</h6>
         <p><em>p</em> has reached to a target (0.05).</p>
         <hr class="notification-border my-1 sep">
@@ -93,9 +139,4 @@
     <!--<fa-icon [icon]="['far', 'clock']"></fa-icon>
     <p class="m-0">Updated {{ sg.lastUpdatedAt | amTimeAgo }}</p>
     <p class="m-0">Created {{ sg.createdAt | amTimeAgo }}</p> -->
-
-    <button type="button" class="remove px-2 py-1" aria-label="Close" (click)="removeClicked.emit(sg)">
-        <fa-icon [icon]="['fas', 'times']"></fa-icon>
-    </button>
-
 </div>

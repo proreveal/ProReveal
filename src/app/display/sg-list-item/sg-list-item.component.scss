@@ -6,23 +6,23 @@
     cursor: pointer;
 }
 
-.remove {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: none;
-    background-color: transparent;
-    border: 0;
-    font-size: .8rem;
-    cursor: pointer;
-}
+// .remove {
+//     position: absolute;
+//     top: 0;
+//     right: 0;
+//     display: none;
+//     background-color: transparent;
+//     border: 0;
+//     font-size: .8rem;
+//     cursor: pointer;
+// }
 
 .wrapper:hover {
     background: lighten($ui-background-color, 3%);
 
-    .remove {
-        display: block;
-    }
+    // .remove {
+    //     display: block;
+    // }
 }
 
 .display {
@@ -35,13 +35,19 @@
     font-size: .9rem;
 }
 
-.notification-border {
-    border: rgb(255, 193, 7) 1px solid;
+.config-border {
+    border: #dddddd 1px solid;
     border-top-right-radius: 0px !important;
 }
 
 .text-align-right {
     text-align: right;
+}
+
+.form-check-input {
+    transform: scale(1.3);    
+    margin-left: -1.1rem;
+    margin-top: .15rem;
 }
 
 .open {
@@ -55,6 +61,21 @@
     height: 0.85rem !important;
     display: inline-block;
     width: 16px;
+}
+
+.condition-and {
+    color: gray;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 ::ng-deep {
@@ -72,11 +93,5 @@
         circle, text {
             fill: white !important;
         }
-    }
-}
-
-@media screen and (max-width: 720px) {
-    .remove {
-        display: block;
     }
 }
